@@ -1,0 +1,23 @@
+name: Lean CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: leanprover/lean-action@v1
+        with:
+          build: "true"
+          lint: "true"
+          test: "false"
+      - name: Check formatting
+        run: make fmt-check
+      - name: Check tooling regressions
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'

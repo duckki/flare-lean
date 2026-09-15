@@ -1,0 +1,394 @@
+{
+  "source_repository": "formal-demo",
+  "source_revision": "af1dd951770ee7d5b222331c31e0f3e885005681",
+  "source_toolchain": "leanprover/lean4:v4.33.0",
+  "library_toolchain": "leanprover/lean4:v4.33.1",
+  "mathlib_revision": "0df444a360eaa60ab8c11dca51a86af692955474",
+  "extraction_policy": "Preserve theorem assumptions and native arithmetic schedules. Remove application imports, qualify namespaces, retain only numerical error constructors, and make implicit type parameters explicit where required. No source-project changes.",
+  "modules": [
+    {
+      "target": "Flare/Analysis/Conditioning.lean",
+      "source": "OCI/Proofs/Real/FusionConditioning.lean",
+      "notes": "Extracted generic inverse_norm_bound only.",
+      "source_sha256": "8fe830de55c8a444b1ffae3b4304d7d9e430dc38716f5a899c8aaa224b1f5843"
+    },
+    {
+      "target": "Flare/Analysis/Dyadic.lean",
+      "source": "OCI/Proofs/Float/Binary64Arithmetic.lean",
+      "notes": "Extracted bounded_exponent and scaled_error_bound with the original constants.",
+      "source_sha256": "8f5004e4d95c88f551e58d914b40c4a18d02533e064dc6c0c512f74045caa3f7"
+    },
+    {
+      "target": "Flare/Analysis/Factorization.lean",
+      "source": "OCI/Proofs/Real/Factorization.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "0bcf9aca8cde3680b0253129d7719168350b5e5fa575f84aabe0aa1586651144"
+    },
+    {
+      "target": "Flare/Analysis/GramBounds.lean",
+      "source": "OCI/Proofs/Real/FusionConditioning.lean",
+      "notes": "Extracted real matrix bounds; excluded gain-metric and fusion-information contracts. Inverse norm bound is in Conditioning.",
+      "source_sha256": "8fe830de55c8a444b1ffae3b4304d7d9e430dc38716f5a899c8aaa224b1f5843"
+    },
+    {
+      "target": "Flare/Analysis/Jacobi.lean",
+      "source": "OCI/Proofs/Real/Jacobi.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "b121509134d90e3455a3f05acb3b866a7ce74a424df5282afe984ca81cb55c10"
+    },
+    {
+      "target": "Flare/Analysis/JacobiDiagonal.lean",
+      "source": "OCI/Proofs/Real/JacobiDiagonal.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "642834fc015e55de48f94947f7ef94f457db3f729d4293f32b232713ad4dfd7b"
+    },
+    {
+      "target": "Flare/Analysis/JacobiEnergy.lean",
+      "source": "OCI/Proofs/Real/JacobiEnergy.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "81d4d159ebd5b7859d9004105871077b394e513bd1a9970cda011f2df249b38f"
+    },
+    {
+      "target": "Flare/Analysis/JacobiNorms.lean",
+      "source": "OCI/Proofs/Real/JacobiNorms.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "2db54a2cb71fb7d8f29a59c76573cc72984d51674dba8e0b03a83265871d0bf8"
+    },
+    {
+      "target": "Flare/Analysis/JacobiRotation.lean",
+      "source": "OCI/Proofs/Real/JacobiRotation.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "83ba537b1e5e8208c53498d2d815e7fa55a860458bc0f068fdeccb7e4253d7e9"
+    },
+    {
+      "target": "Flare/Analysis/LinearSolve.lean",
+      "source": "OCI/Proofs/Real/LinearSolve.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "22ccbfafb1a0f85371aeafcbdb79c179e935b05d1d9cfb5c900881d5bac70639"
+    },
+    {
+      "target": "Flare/Analysis/MatrixError.lean",
+      "source": "OCI/Proofs/Real/MatrixError.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "4e3e756c9cfea686b58ad2d800a54e0db0236ddf3674d53952bff8e4c08632c0"
+    },
+    {
+      "target": "Flare/Analysis/MoorePenrose.lean",
+      "source": "OCI/Definitions/Fusion.lean",
+      "notes": "Four square-real-matrix Moore–Penrose equations only.",
+      "source_sha256": "f80e6c0ce7e38207ef568524d686dd9bb2f54e5451f1c470bc1da7ab5b55f92f"
+    },
+    {
+      "target": "Flare/Analysis/MoorePenrose.lean",
+      "source": "OCI/Proofs/Real/MoorePenrose.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "194d40c4f9607fbb74102e943cf7f97258f536eabb109761260cab900dfd56c4"
+    },
+    {
+      "target": "Flare/Analysis/NumericalBounds.lean",
+      "source": "OCI/Proofs/Real/NumericalBounds.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "f0695d7955f16c3416a4623fa939f7bb25618ffa5559a345671f34193b00290d"
+    },
+    {
+      "target": "Flare/Analysis/PseudoinversePerturbation.lean",
+      "source": "OCI/Proofs/Real/PseudoinversePerturbation.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "5130e452dfaf22a98f923c6bd5c59569f98bf5319659329315d0990d38adf918"
+    },
+    {
+      "target": "Flare/Analysis/SchurComplement.lean",
+      "source": "OCI/Proofs/Real/SchurComplement.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "2526fd92f55384f55aa477198dcce0f356b241e9d6cc0c4960e7cd6c4dfbd597"
+    },
+    {
+      "target": "Flare/Analysis/SpectralGap.lean",
+      "source": "OCI/Proofs/Real/SpectralGap.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "5f97f13d13167e8bd785195907b8992213e3bd27d044a8c0d6395c4d0a27c790"
+    },
+    {
+      "target": "Flare/Analysis/SpectralPerturbation.lean",
+      "source": "OCI/Proofs/Real/SpectralPerturbation.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "0de5fde18f33421d3b09e801d0fb074af4981c3fe50d2c67891ae3a1c0416437"
+    },
+    {
+      "target": "Flare/Binary64/Arithmetic.lean",
+      "source": "OCI/Proofs/Float/Binary64Arithmetic.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "8f5004e4d95c88f551e58d914b40c4a18d02533e064dc6c0c512f74045caa3f7"
+    },
+    {
+      "target": "Flare/Binary64/Congruence.lean",
+      "source": "OCI/Proofs/Float/Binary64Congruence.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "b5f6092157703fedfe937c2d181e7a0685792680f55334962e364cd739e0a0e2"
+    },
+    {
+      "target": "Flare/Binary64/Division.lean",
+      "source": "OCI/Proofs/Float/Binary64Division.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "2e5da64e6e5c03a47ccdaa371873748e3a4d9764c5097866cc59897aa2dc9eb2"
+    },
+    {
+      "target": "Flare/Binary64/Model/Arithmetic.lean",
+      "source": "Ephemeris/Proofs/Float/Binary64Arithmetic.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "5ca3e78a2d843253de139e30d145667d0be37410b242ae8ca9ab5e9cf4633610"
+    },
+    {
+      "target": "Flare/Binary64/Model/Conversion.lean",
+      "source": "Ephemeris/Proofs/Float/CoefficientDecoding.lean",
+      "notes": "Extracted packing and signed-conversion prerequisites; excluded ephemeris coefficient scaling.",
+      "source_sha256": "a7ed72d960da5a84c8183a50593f87b0667cc24302be9e3e147bb2aa01e8deab"
+    },
+    {
+      "target": "Flare/Binary64/Model/NaturalConversion.lean",
+      "source": "Ephemeris/Proofs/Float/Binary64Division.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "cc87ff4db359f8677a9e6eb6d4a1dc51690023dfc20029c891ee950559bb2d88"
+    },
+    {
+      "target": "Flare/Binary64/Model/Rounding.lean",
+      "source": "Ephemeris/Proofs/Float/Binary64Rounding.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "28185236392cdf00e917bc51c421fb81e1c72983300eb7652539121065626430"
+    },
+    {
+      "target": "Flare/Binary64/Model/Value.lean",
+      "source": "Ephemeris/Definitions/Binary64Value.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "3e5ac2ad6067f6c58e8a938db9e46ae95558f042818bdbc080c0b5beb5c7f497"
+    },
+    {
+      "target": "Flare/Binary64/Model/Value.lean",
+      "source": "Ephemeris/Implementation/Correctness/Float.lean",
+      "notes": "Finite-model guard only.",
+      "source_sha256": "841c7e1980d205f999f305d82c4c9a493b6d6ca03428d745b2d929de7b89e8fc"
+    },
+    {
+      "target": "Flare/Binary64/Nearest.lean",
+      "source": "OCI/Proofs/Float/Binary64Nearest.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "db604a799ca6310f50851de0a0268e8d004b33afeaee7fe7031125e0c2eef52a"
+    },
+    {
+      "target": "Flare/Binary64/Order.lean",
+      "source": "OCI/Proofs/Float/Binary64Order.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "bf42eca6446235b273ec784d2a8b76ed37e76c49a07b344aeb30c7691d959e35"
+    },
+    {
+      "target": "Flare/Binary64/Rounding.lean",
+      "source": "OCI/Proofs/Float/Binary64Rounding.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "25e7ca41d71b82d39046095b65252a98d30d537b2de4db5022a19b8a4b74b706"
+    },
+    {
+      "target": "Flare/Binary64/Sqrt.lean",
+      "source": "OCI/Proofs/Float/Binary64Sqrt.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "7dc3a851d54a140c3a1a54a4e3753f7b45b8649fa90cf69046787b550fe3e692"
+    },
+    {
+      "target": "Flare/Binary64/Value.lean",
+      "source": "ESCI/Definitions/Binary64.lean",
+      "notes": "Direct real interpretation, with a native Float wrapper.",
+      "source_sha256": "f7919b2792c0bf9347259052019fa68dc42d9cef582a3a50270a0d8dcb82a2fc"
+    },
+    {
+      "target": "Flare/Binary64/Value.lean",
+      "source": "OCI/Implementation/Correctness/Float.lean",
+      "notes": "Totalized scalar ghost value only; no application contracts.",
+      "source_sha256": "a6dad7dd37793cc5e6a13a9d98a441efbd3f30ef5d5f99084fbd1eac8ec9a482"
+    },
+    {
+      "target": "Flare/Binary64/Zero.lean",
+      "source": "OCI/Proofs/Float/Binary64Zero.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "64be844f8628cdcd1132ff47456e2eeb67368cc08fd7b6cc2989f9151e876750"
+    },
+    {
+      "target": "Flare/Matrix/Dense.lean",
+      "source": "ESCI/Definitions/Input.lean",
+      "notes": "Exact symmetry predicate only.",
+      "source_sha256": "fcc6b0bbb5dba1202984fe20dc77811fb2421073bdf25388283c1dbcb682c0ec"
+    },
+    {
+      "target": "Flare/Matrix/Dense.lean",
+      "source": "ESCI/Implementation/Float/Matrix.lean",
+      "notes": "Extracted numerical kernels with the two emitted dense errors; included the exact symmetry predicate from ESCI/Definitions/Input.lean.",
+      "source_sha256": "6066a80cc88aa28f143c8dfd7f5e94c3dbe68e715f28f30d7e48fcece4a663e7"
+    },
+    {
+      "target": "Flare/Matrix/Error.lean",
+      "source": "ESCI/Definitions/Input.lean",
+      "notes": "Only nonpositivePivot and nonfiniteComputation retained as DenseError.",
+      "source_sha256": "fcc6b0bbb5dba1202984fe20dc77811fb2421073bdf25388283c1dbcb682c0ec"
+    },
+    {
+      "target": "Flare/Matrix/Error.lean",
+      "source": "OCI/Definitions/Input.lean",
+      "notes": "Only four numerical error constructors retained; validation/fusion errors excluded.",
+      "source_sha256": "960e0d37d8cef91a0594be7547ee4370d82f306eb25ecb5309282ffee4da29e6"
+    },
+    {
+      "target": "Flare/Matrix/Factorization.lean",
+      "source": "OCI/Proofs/Float/Factorization.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "2a26ef6a6912b9cb5df77e5f8b14f99796e5834ce4c6674426072700acbf6de2"
+    },
+    {
+      "target": "Flare/Matrix/GramFormation.lean",
+      "source": "OCI/Proofs/Float/GramFormation.lean",
+      "notes": "Preserved Gram-formation hypotheses and error bounds.",
+      "source_sha256": "6a967e591fb486dbbb9e533bd7940d0aae21ffb23036e8dff9a5954cced6cdcc"
+    },
+    {
+      "target": "Flare/Matrix/Jacobi.lean",
+      "source": "OCI/Proofs/Float/Jacobi.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "c083d027c73323437ef71147cded9faef91f7429470dc64660cb049a2e798eea"
+    },
+    {
+      "target": "Flare/Matrix/JacobiAccumulation.lean",
+      "source": "OCI/Proofs/Float/JacobiAccumulation.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "357cad29354a936815b935804ce24978c84511139e285662079e4fb548892807"
+    },
+    {
+      "target": "Flare/Matrix/JacobiBounds.lean",
+      "source": "OCI/Proofs/Float/JacobiBounds.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "f467f0b03dad8452c4aab720da75a375245cf7166a05eeb63d8d22fd79d0d606"
+    },
+    {
+      "target": "Flare/Matrix/JacobiConvergence.lean",
+      "source": "OCI/Proofs/Float/JacobiConvergence.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "d81be70879e1787a312f3188efdd2d1cf2ea1dbce7b3513f9337fccb047f9645"
+    },
+    {
+      "target": "Flare/Matrix/JacobiDiagonal.lean",
+      "source": "OCI/Proofs/Float/JacobiDiagonal.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "8d73c706dcc364509996a44553750f6f546e5648b1bacdabd64fa15f312d251f"
+    },
+    {
+      "target": "Flare/Matrix/JacobiEnergy.lean",
+      "source": "OCI/Proofs/Float/JacobiEnergy.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "f54435905fb1969404c567928cba566bba80a4b2537abecfd14401eba1d11943"
+    },
+    {
+      "target": "Flare/Matrix/JacobiInitialization.lean",
+      "source": "OCI/Proofs/Float/JacobiInitialization.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "8c394786f1c32c099709d5e9564124c74ee30bd27121ae6e5b7af2d761c19c5c"
+    },
+    {
+      "target": "Flare/Matrix/JacobiIteration.lean",
+      "source": "OCI/Proofs/Float/JacobiIteration.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "28c99e547841507cef221760dba9f2a3d63eaf8857e065f45882af338ba0a282"
+    },
+    {
+      "target": "Flare/Matrix/JacobiOutput.lean",
+      "source": "OCI/Proofs/Float/JacobiOutput.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "fb60fca253652f09c7a1428887076895b606581b455b36e3b09f71ddc86a0d05"
+    },
+    {
+      "target": "Flare/Matrix/JacobiPrecision.lean",
+      "source": "OCI/Proofs/Float/JacobiPrecision.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "9d1aa608e015df8e1955342e66285a9bd851524c64ec706091727e68b6c23a24"
+    },
+    {
+      "target": "Flare/Matrix/JacobiSpectral.lean",
+      "source": "OCI/Proofs/Float/JacobiSpectral.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "4494304f91f35c9c834c6931492d4bb00842cc10465c9cd1742a5d5fb0512d73"
+    },
+    {
+      "target": "Flare/Matrix/LinearSolve.lean",
+      "source": "OCI/Proofs/Float/LinearSolve.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "34597182c27611066f75987462dd57b8c1d56c86dba92d31589f15786fc73dd7"
+    },
+    {
+      "target": "Flare/Matrix/MatrixFormation.lean",
+      "source": "OCI/Proofs/Float/MatrixFormation.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "f603faa9fcce25f6b920c9371399ead792d5b41fbdd51ea036c4fd3ed96857a2"
+    },
+    {
+      "target": "Flare/Matrix/Multiplication.lean",
+      "source": "OCI/Proofs/Float/Matrix.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "20578f504299a5ceae9a814e1ae06970975d8debc3f58a5d978ba467f739832f"
+    },
+    {
+      "target": "Flare/Matrix/OperationStorage.lean",
+      "source": "OCI/Proofs/Float/Fusion.lean",
+      "notes": "Extracted finite/combine/scale storage specifications; excluded fusion validation and application results.",
+      "source_sha256": "ddd405584b9931b31a774dc757ab1c4db631612a20fbd0d88abd6fb3ce1099c0"
+    },
+    {
+      "target": "Flare/Matrix/Operations.lean",
+      "source": "OCI/Implementation/Float/Matrix.lean",
+      "notes": "Extracted the same operation schedule; mapped application errors to numerical errors.",
+      "source_sha256": "606567426e3d9f0a8bb7c2c59933276b479cfb7185508ce6305b717951a2cb64"
+    },
+    {
+      "target": "Flare/Matrix/PSDCheck.lean",
+      "source": "OCI/Proofs/Float/PSDCheck.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "203629718f42ba345b9813eb32bf46581fb4183902693c482ccce2ec547bc93d"
+    },
+    {
+      "target": "Flare/Matrix/PositiveDefiniteFactorization.lean",
+      "source": "OCI/Proofs/Float/PositiveDefiniteFactorization.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "6ac94d97d7daf049aeb63d10ef2ee3ca29e91be0f6aff1bd33865ef273181592"
+    },
+    {
+      "target": "Flare/Matrix/Pseudoinverse.lean",
+      "source": "OCI/Proofs/Float/Pseudoinverse.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "bf3d9a2e3b7c2b99409f2cc7b63d468ecdd576f89ba2c430d694758cc169a8aa"
+    },
+    {
+      "target": "Flare/Matrix/SolveAccuracy.lean",
+      "source": "OCI/Proofs/Float/SolveAccuracy.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "6fd0c5bdda86a2c3e8f7a10650ac2dfd3830398dc5cb55bea8701bf4c3e835c4"
+    },
+    {
+      "target": "Flare/Matrix/Spectrum.lean",
+      "source": "OCI/Proofs/Float/Spectrum.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "6894aceae92712dfd3f5155967ffe20616dd29d8a93c3629ba9ba7d7f64d3f60"
+    },
+    {
+      "target": "Flare/Matrix/Storage.lean",
+      "source": "ESCI/Proofs/Float/Matrix.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "40b3e85a783d2856e086fda973a2d3b7152ab5af56326e3f7f15444920e4e655"
+    },
+    {
+      "target": "Flare/Matrix/Substitution.lean",
+      "source": "OCI/Proofs/Float/Substitution.lean",
+      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "source_sha256": "8f2224522b41941fcf7d3644ea5aa7bacb6388128c2cb557a20dd812ec8f77a1"
+    },
+    {
+      "target": "Flare/Matrix/Value.lean",
+      "source": "OCI/Implementation/Correctness/Float.lean",
+      "notes": "Extracted the row-major matrix interpretation only.",
+      "source_sha256": "a6dad7dd37793cc5e6a13a9d98a441efbd3f30ef5d5f99084fbd1eac8ec9a482"
+    }
+  ]
+}

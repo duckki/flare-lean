@@ -1,0 +1,4 @@
+/.lake/
+/docs-generated/
+.DS_Store
+__pycache__/
