@@ -10,7 +10,7 @@ open Flare.Binary64.Model.Rounding
 namespace Flare.Binary64.Model.NaturalConversion
 open Flare.Binary64.Model.Arithmetic Flare.Binary64.Model.Conversion
 
-private theorem round_nat_exact (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2^53)
+private theorem round_nat_exact (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 53)
     : round Format.binary64 s n 0
       = .finite s (n <<< (52 - n.log2)) ((n.log2 : Int) - 52) (Nat.shiftLeft_pos_iff.mpr hn) := by
   have hk : n.log2 < 53 := (Nat.log2_lt (Nat.ne_of_gt hn)).mpr hb
@@ -25,7 +25,7 @@ private theorem round_nat_exact (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2^53
   rw [he, shiftTarget_exact s _ _ hm (by omega)]
   simp [Nat.ne_of_gt (Nat.shiftLeft_pos_iff.mpr hn)]
 
-theorem ofNat_unpack (n : Nat) (hn : 0 < n) (hb : n < 2^53)
+theorem ofNat_unpack (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 53)
     : (Float.Model.ofNat n).unpack
       = .finite .positive (n <<< (52 - n.log2)) ((n.log2 : Int) - 52)
           (Nat.shiftLeft_pos_iff.mpr hn) := by
@@ -38,7 +38,7 @@ theorem ofNat_unpack (n : Nat) (hn : 0 < n) (hb : n < 2^53)
     (by omega)
     (by omega)
 
-theorem ofNat_exact (n : Nat) (hb : n < 2^53)
+theorem ofNat_exact (n : Nat) (hb : n < 2 ^ 53)
     : Flare.Binary64.Model.Value.toRational (Float.Model.ofNat n) = some (n : Rat) := by
   by_cases hn : n = 0
   · subst n; rfl
@@ -56,18 +56,18 @@ private theorem divCore_normal (m n : Nat) (e f : Int)
     (hm : m.log2 = 52) (hn : n.log2 = 52) (he : -52 ≤ e) (hf : f ≤ 0)
     : divCore Format.binary64 m e n f
       = ((m <<< 53) / n, e - f - 53, accuracyOfFraction ((m <<< 53) % n) n) := by
-  have ht : Format.binary64.targetExponent (totalExponent m e - totalExponent n f) = e - f - 53 :=
-    by
+  have ht
+      : Format.binary64.targetExponent (totalExponent m e - totalExponent n f) = e - f - 53 := by
     simp [Format.targetExponent, totalExponent, hm, hn, Format.mantissaBits, Format.minExponent]
     omega
   simp [divCore, ht]
 
 /-- The division used for time normalization: positive exact integers with numerator
 at most denominator. The conservative error includes quotient truncation and final rounding. -/
-theorem nat_div_error (n d : Nat) (hd : 0 < d) (hnd : n ≤ d) (hb : d < 2^53)
+theorem nat_div_error (n d : Nat) (hd : 0 < d) (hnd : n ≤ d) (hb : d < 2 ^ 53)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (Float.Model.ofNat n / Float.Model.ofNat d) = some q
-        ∧ |q - (n : Rat) / (d : Rat)| ≤ (2 : Rat)^(-51 : Int) := by
+        ∧ |q - (n : Rat) / (d : Rat)| ≤ (2 : Rat) ^ (-51 : Int) := by
   by_cases hn : n = 0
   · subst n
     refine ⟨0, ?_, by norm_num⟩
@@ -168,15 +168,15 @@ theorem nat_div_error (n d : Nat) (hd : 0 < d) (hnd : n ≤ d) (hb : d < 2^53)
       linarith only [htriangle, hrem, herr, hep]
 
 /-- Real-valued form of the bounded tick division theorem. -/
-theorem nat_div_error_real (n d : Nat) (hd : 0 < d) (hnd : n ≤ d) (hb : d < 2^53)
+theorem nat_div_error_real (n d : Nat) (hd : 0 < d) (hnd : n ≤ d) (hb : d < 2 ^ 53)
     : ∃ q : ℝ,
         Flare.Binary64.Model.Value.toReal (Float.Model.ofNat n / Float.Model.ofNat d) = some q
-        ∧ |q - (n : ℝ) / (d : ℝ)| ≤ (2 : ℝ)^(-51 : Int) := by
+        ∧ |q - (n : ℝ) / (d : ℝ)| ≤ (2 : ℝ) ^ (-51 : Int) := by
   obtain ⟨q, hq, herr⟩ := nat_div_error n d hd hnd hb
   refine ⟨(q : ℝ), by simp [Flare.Binary64.Model.Value.toReal, hq], ?_⟩
   have hcast := (Rat.cast_le (K := ℝ)).mpr herr
-  simpa only [Rat.cast_abs, Rat.cast_sub, Rat.cast_div, Rat.cast_natCast,
-    Rat.cast_zpow, Rat.cast_ofNat]
+  simpa only [Rat.cast_abs, Rat.cast_sub, Rat.cast_div, Rat.cast_natCast, Rat.cast_zpow,
+    Rat.cast_ofNat]
     using hcast
 
 end Flare.Binary64.Model.NaturalConversion

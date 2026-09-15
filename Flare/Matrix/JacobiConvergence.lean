@@ -83,7 +83,7 @@ structure Stored (n : Nat) (result : Spectrum) : Prop where
 /-- Finalization returns the native rescaled diagonal and the stored
 eigenvectors, with no reordering or additional numerical transformation. -/
 theorem finish_entries (n : Nat) (magnitude : Float) (a v : Array Float)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (ha : a.all Float.isFinite = true) (hE : energy (matrix n n a) ≤ 1024)
     (hvs : v.size = n * n) (hv : v.all Float.isFinite = true)
     : ∃ result,
@@ -97,7 +97,7 @@ theorem finish_entries (n : Nat) (magnitude : Float) (a v : Array Float)
             hm (by norm_num) (by norm_num) ?_).1
     rw [abs_mul]
     calc
-      _ ≤ 32 * (2 : ℝ)^(500 : Int) := mul_le_mul (hb i i hi hi) hmb (abs_nonneg _) (by norm_num)
+      _ ≤ 32 * (2 : ℝ) ^ (500 : Int) := mul_le_mul (hb i i hi hi) hmb (abs_nonneg _) (by norm_num)
       _ = _ := by rw [show (505 : Int) = 5 + 500 by norm_num, zpow_add₀ (by norm_num)]; norm_num
   have hmap : (Array.range n).mapM (fun i => finite (entry n a i i * magnitude)) =
       .ok ((Array.range n).map (fun i => entry n a i i * magnitude)) := by
@@ -123,7 +123,7 @@ theorem finish_entries (n : Nat) (magnitude : Float) (a v : Array Float)
 /-- The actual stopping branch rescales without overflow on a bounded input
 scale and the proved local energy profile. -/
 theorem finish_correct (n : Nat) (magnitude : Float) (a v : Array Float)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (ha : a.all Float.isFinite = true) (hE : energy (matrix n n a) ≤ 1024)
     (hvs : v.size = n * n) (hv : v.all Float.isFinite = true)
     : ∃ result, finish n magnitude a v = .ok result ∧ Stored n result := by
@@ -142,7 +142,7 @@ theorem selectedPivot_correct (n : Nat) (a : Array Float) (ha : a.all Float.isFi
           ∨ pivot.row < pivot.column
             ∧ pivot.column < n
             ∧ pivot.magnitude = (entry n a pivot.row pivot.column).abs)
-      ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude)^2 := by
+      ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude) ^ 2 := by
   obtain ⟨pivot, he, h⟩ := largestPivot_energy n a ha hsym
   simpa only [selectedPivot, he] using And.intro he h
 
@@ -190,8 +190,8 @@ theorem advance_correct (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
       ∧ (¬(selectedPivot n a).magnitude ≤ (1.0e-14 : Float)
           → rotate n a v (selectedPivot n a).row (selectedPivot n a).column = .ok (advance n a v)
             ∧ offEnergy (matrix n n (advance n a v).1)
-              ≤ (1 + (2 : ℝ)^(-36 : Int)) * offEnergy (matrix n n a)
-                - 2 * (value (selectedPivot n a).magnitude)^2) := by
+              ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * offEnergy (matrix n n a)
+                - 2 * (value (selectedPivot n a).magnitude) ^ 2) := by
   have hs := selectedPivot_correct n a h.matrix_finite h.symmetric
   by_cases hstop : (selectedPivot n a).magnitude ≤ (1.0e-14 : Float)
   · simp only [advance, hstop, ↓reduceIte]
@@ -266,7 +266,7 @@ private theorem finish_spec (n : Nat) (magnitude : Float) (a v : Array Float)
     : ⦃
         ⌜
           magnitude.isFinite = true
-          ∧ |value magnitude| ≤ (2 : ℝ)^(500 : Int)
+          ∧ |value magnitude| ≤ (2 : ℝ) ^ (500 : Int)
           ∧ a.all Float.isFinite = true
           ∧ energy (matrix n n a) ≤ 1024
           ∧ v.size = n * n
@@ -312,7 +312,7 @@ private def LoopInvariant (n : Nat) (a v : Array Float) (stop k : Nat) (post : S
     ∃ result, state.1 = some result ∧ post result
 
 private theorem iterations_triple (n : Nat) (magnitude : Float) (a v : Array Float)
-    (hn : n ≤ 18) (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hn : n ≤ 18) (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v) (stop : Nat) (hstop : stop < 32 * n * n)
     (hstopAt : (selectedPivot n (trajectory n a v stop).1).magnitude ≤ (1.0e-14 : Float))
     (post : Spectrum → Prop)
@@ -457,7 +457,7 @@ trajectory prefix. This execution trace transfers prefix error bounds to the
 returned spectrum, including an early return before the known stopping index. -/
 theorem iterations_trace (n : Nat) (magnitude : Float) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 18)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v)
     (hstart : offEnergy (matrix n n a) ≤ (1001 / 1000 : ℝ) * (n * (n - 1) : Nat))
     : ∃ result,
@@ -474,15 +474,17 @@ theorem iterations_trace (n : Nat) (magnitude : Float) (a v : Array Float)
   have h := iterations_triple n magnitude a v hn' hm hmb hstate stop hstop hstopAt
     post (fun k hk hst result he hstored => ⟨hstored, k, hk.trans_lt hstop, hst, he⟩)
   cases he : iterations n magnitude a v with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
-  | ok result => rw [he] at h; exact ⟨result, rfl, h True.intro⟩
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
+  | ok result =>
+      rw [he] at h; exact ⟨result, rfl, h True.intro⟩
 
 /-- The actual bounded outer loop returns finite spectrum storage, including
 the final rescaling. The singleton case needs no rotation. Normalized input
 energy and a bounded finite rescaling factor are the only numerical premises. -/
 theorem iterations_success (n : Nat) (magnitude : Float) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 18)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v)
     (hstart : offEnergy (matrix n n a) ≤ (1001 / 1000 : ℝ) * (n * (n - 1) : Nat))
     : ∃ result, iterations n magnitude a v = .ok result ∧ Stored n result := by

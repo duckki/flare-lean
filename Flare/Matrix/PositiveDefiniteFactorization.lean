@@ -47,7 +47,7 @@ private structure Prefix (n k : Nat) (a : Array Float) (f : Factor) : Prop where
   pivot_upper : ∀ j : Fin n, j.val < k → |value (f.diagonal.getD j.val 0.0)| ≤ 2048
   backward_error
     : ∀ i j : Fin n,
-        i.val < k ∨ j.val < k → |gram n k f i j - matrix n n a i j| ≤ (2 : ℝ)^(-13 : Int)
+        i.val < k ∨ j.val < k → |gram n k f i j - matrix n n a i j| ≤ (2 : ℝ) ^ (-13 : Int)
   pivot_equation
     : ∀ j : Fin n,
         j.val < k
@@ -68,7 +68,7 @@ private lemma prefix_schur_bounds (n k : Nat) (a : Array Float) (f : Factor)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 1024)
     (h : Prefix n k a f) (i j : Fin n) (hi : k ≤ i.val) (hj : k ≤ j.val)
     : (5 / 32 : ℝ) ≤ Factorization.schurResidual n k a f.lower f.diagonal j j
-      ∧ (Factorization.schurResidual n k a f.lower f.diagonal i j)^2
+      ∧ (Factorization.schurResidual n k a f.lower f.diagonal i j) ^ 2
         ≤ 1024 * Factorization.schurResidual n k a f.lower f.diagonal j j := by
   have hp (j : Fin n) (hj : j.val < k) : 0 < value (f.diagonal.getD j.val 0.0) := by
     linarith [h.pivot_lower j hj]
@@ -164,11 +164,11 @@ private theorem column_progress (n k : Nat) (a : Array Float) (f : Factor)
       exact hpe.trans (by norm_num)
     · exact (hcol i (by
         dsimp [j]; have := i.isLt; have hne : i.val ≠ k := fun he => hij (Fin.ext he); omega)).2.1
-  have hres (i t : Fin n) (ht : t.val ≤ k) :
-      Factorization.gramResidual n t.val result.lower result.diagonal (entry n a i.val t.val) i.val
-        t.val =
-        Factorization.gramResidual n t.val f.lower f.diagonal (entry n a i.val t.val) i.val t.val :=
-          by
+  have hres (i t : Fin n) (ht : t.val ≤ k)
+      : Factorization.gramResidual n t.val result.lower result.diagonal (entry n a i.val t.val)
+          i.val t.val
+        = Factorization.gramResidual n t.val f.lower f.diagonal (entry n a i.val t.val) i.val
+            t.val := by
     apply Factorization.gramResidual_congr
     · intro u hu
       exact hother i ⟨u, by omega⟩ (fun he => by
@@ -340,10 +340,11 @@ theorem factor_accuracy (n : Nat) (a : Array Float) (hn : n ≤ 12)
                 * (matrix n n f.lower).transpose)
                 i j
               - matrix n n a i j|
-            ≤ (2 : ℝ)^(-13 : Int)) := by
+            ≤ (2 : ℝ) ^ (-13 : Int)) := by
   have h := factor_triple n a hn haf hA ha
   cases he : Factorization.factorByResidual n a with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok f =>
       rw [he] at h
       have hf := h True.intro
@@ -380,14 +381,14 @@ theorem factor_gram_mass (n : Nat) (a : Array Float) (f : Factor) (M : ℝ)
           |value (entry n f.lower i.val k.val)
             * value (f.diagonal.getD k.val 0.0)
             * value (entry n f.lower j.val k.val)|)
-        ≤ M + (2 : ℝ)^(-13 : Int) := by
+        ≤ M + (2 : ℝ) ^ (-13 : Int) := by
   obtain ⟨f', hf', _, _, _, _, _, _, _, hd, herror⟩ := factor_accuracy n a hn haf hA
     (fun i j => (ha i j).trans hM')
   have hff : f' = f := Except.ok.inj (hf'.symm.trans he)
   subst f'
   intro i j
   apply Flare.Analysis.Factorization.gram_mass_bound (matrix n n f.lower)
-    (fun k : Fin n => value (f.diagonal.getD k.val 0.0)) (M + (2 : ℝ)^(-13 : Int)) (by positivity)
+    (fun k : Fin n => value (f.diagonal.getD k.val 0.0)) (M + (2 : ℝ) ^ (-13 : Int)) (by positivity)
     (fun k => (by norm_num : (0 : ℝ) ≤ 1 / 8).trans (hd k).1) _ i j
   intro k
   have he' := (abs_le.mp (herror k k)).2
@@ -437,8 +438,8 @@ theorem factor_backward_error (n : Nat) (a : Array Float) (f : Factor) (M : ℝ)
           - matrix n n a i j|
         ≤ (1002 / 1000 : ℝ)
           * (n + 5)
-          * (2 : ℝ)^(-53 : Int)
-          * (2 * M + (2 : ℝ)^(-13 : Int) + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+          * (2 : ℝ) ^ (-53 : Int)
+          * (2 * M + (2 : ℝ) ^ (-13 : Int) + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨f', hf', _, _, hlf, hdf, hz, hu, hlb, hdb, _⟩ :=
     factor_accuracy n a hn haf hA (fun i j => (ha i j).trans hM')
   have hff : f' = f := Except.ok.inj (hf'.symm.trans he)
@@ -567,12 +568,12 @@ theorem solveSPD_success (n columns : Nat) (B : Int) (a b : Array Float)
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 1024)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ r,
         Flare.Matrix.Operations.solveSPD n columns a b = .ok r
         ∧ r.size = n * columns
         ∧ r.all Float.isFinite = true
-        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ)^(B + 232) := by
+        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ) ^ (B + 232) := by
   obtain ⟨f, hf, _, _, hl, hd, _, _, hlb, hdb, _⟩ := factor_accuracy n a hn haf hA ha
   obtain ⟨r, hr, hs, hrf, hbound⟩ := LinearSolve.solve_success n columns B f b hn hB hB' hl hd hbf
     (fun i k hi hk => hlb ⟨i, hi⟩ ⟨k, by omega⟩) (fun i hi => (hdb ⟨i, hi⟩).1) hb

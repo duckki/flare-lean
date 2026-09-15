@@ -12,17 +12,17 @@ open scoped Matrix.Norms.L2Operator
 /-- The two operations in `combine`, with an absolute-term mass allowance. -/
 lemma combine_step (a b s : Float) (M : ℝ)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(990 : Int)) (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hM : M ≤ (2 : ℝ) ^ (990 : Int)) (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (hmass : |value a| + |value s * value b| ≤ M)
     : (s * b).isFinite = true
       ∧ (a + s * b).isFinite = true
-      ∧ |value (a + s * b) - (value a + value s * value b)| ≤ (2 : ℝ)^(-48 : Int) * M := by
+      ∧ |value (a + s * b) - (value a + value s * value b)| ≤ (2 : ℝ) ^ (-48 : Int) * M := by
   have hM0 : 0 ≤ M := (add_nonneg (abs_nonneg _) (abs_nonneg _)).trans hmass
   have hlim : 3 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
       _ ≤ 4 * M := by linarith only [hM0]
-      _ ≤ 4 * (2 : ℝ)^(990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(992 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (992 : Int) := by
         rw [show (992 : Int) = 990 + 2 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         norm_num only [show (2 : ℝ)^(2 : Int) = 4 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -57,7 +57,7 @@ lemma combine_step (a b s : Float) (M : ℝ)
 to its stored operands. The sign and both inputs may be rounded upstream values. -/
 theorem combine_accuracy (a b : Array Float) (s : Float) (M : ℝ)
     (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true) (hs : s.isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(990 : Int)) (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hM : M ≤ (2 : ℝ) ^ (990 : Int)) (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (hmass : ∀ i, i < a.size → |value (a.getD i 0.0)| + |value s * value (b.getD i 0.0)| ≤ M)
     : ∃ r,
         combine a b s = .ok r
@@ -66,7 +66,7 @@ theorem combine_accuracy (a b : Array Float) (s : Float) (M : ℝ)
         ∧ ∀ i,
             i < a.size
             → |value (r.getD i 0.0) - (value (a.getD i 0.0) + value s * value (b.getD i 0.0))|
-              ≤ (2 : ℝ)^(-48 : Int) * M := by
+              ≤ (2 : ℝ) ^ (-48 : Int) * M := by
   have hh (i : Nat) (hi : i < a.size) := combine_step (a.getD i 0.0) (b.getD i 0.0) s M
     (Flare.Matrix.Storage.getD_finite _ _ ha) (Flare.Matrix.Storage.getD_finite _ _ hb)
     hs hM hη (hmass i hi)
@@ -89,15 +89,16 @@ theorem combine_norm_accuracy (n : Nat) (a b : Array Float) (s : Float)
     (has : a.size = n * n) (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hs : s.isFinite = true)
     (hbound
-      : ‖matrix n n a‖ + |value s| * ‖matrix n n b‖ + (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(990 : Int))
+      : ‖matrix n n a‖ + |value s| * ‖matrix n n b‖ + (2 : ℝ) ^ (-1022 : Int)
+        ≤ (2 : ℝ) ^ (990 : Int))
     : ∃ r,
         combine a b s = .ok r
         ∧ r.size = n * n
         ∧ r.all Float.isFinite = true
         ∧ ∀ i j,
             |matrix n n r i j - (matrix n n a + value s • matrix n n b) i j|
-            ≤ (2 : ℝ)^(-48 : Int)
-              * (‖matrix n n a‖ + |value s| * ‖matrix n n b‖ + (2 : ℝ)^(-1022 : Int)) := by
+            ≤ (2 : ℝ) ^ (-48 : Int)
+              * (‖matrix n n a‖ + |value s| * ‖matrix n n b‖ + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨r, hr, hrs, hrf, he⟩ := combine_accuracy a b s _ ha hb hs hbound
     (le_add_of_nonneg_left (by positivity)) (by
       intro k hk
@@ -300,7 +301,7 @@ theorem combine_zero (a b : Array Float) (s : Float)
 The proof accounts for equal finite values with different signed-zero encodings. -/
 theorem combine_isHermitian (n : Nat) (a b : Array Float) (s : Float) (r : Array Float) (M : ℝ)
     (has : a.size = n * n) (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
-    (hs : s.isFinite = true) (hM : M ≤ (2 : ℝ)^(990 : Int)) (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hs : s.isFinite = true) (hM : M ≤ (2 : ℝ) ^ (990 : Int)) (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (hmass : ∀ i, i < a.size → |value (a.getD i 0.0)| + |value s * value (b.getD i 0.0)| ≤ M)
     (hA : (matrix n n a).IsHermitian) (hB : (matrix n n b).IsHermitian)
     (hr : combine a b s = .ok r)

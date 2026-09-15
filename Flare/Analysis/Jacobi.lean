@@ -147,7 +147,7 @@ theorem reciprocal_relative_perturbation (a b ε : ℝ) (ha : 0 < a)
 whose squared lower endpoint covers the input error ε. Near zero error this
 retains the square root's factor of one half. -/
 theorem sqrt_relative_sharp (a b ε δ : ℝ) (ha : 0 < a) (hb : 0 ≤ b)
-    (hδ : 0 ≤ δ) (hδ' : δ ≤ 1) (hεδ : ε ≤ 2 * δ - δ^2)
+    (hδ : 0 ≤ δ) (hδ' : δ ≤ 1) (hεδ : ε ≤ 2 * δ - δ ^ 2)
     (herr : |b - a| ≤ ε * a)
     : |Real.sqrt b - Real.sqrt a| ≤ δ * Real.sqrt a := by
   have hs := Real.sq_sqrt ha.le
@@ -266,7 +266,7 @@ set_option maxHeartbeats 4000000 in
 set_option exponentiation.threshold 400 in
 private lemma contraction_profile (n : Nat) (hn : 2 ≤ n) (hn' : n ≤ 18)
     : let D := n * (n - 1)
-      let ρ : ℝ := 1 + 2^(-36 : Int) - 2 / D
+      let ρ : ℝ := 1 + 2 ^ (-36 : Int) - 2 / D
       0 ≤ ρ
       ∧ ρ ≤ 1
       ∧ ρ ^ D ≤ 5 / 37
@@ -283,12 +283,12 @@ theorem energy_convergence (n : Nat) (E pivot : Nat → ℝ)
     (hn : 2 ≤ n) (hn' : n ≤ 18)
     (hE : ∀ k, k ≤ 32 * n * n → 0 ≤ E k)
     (hstart : E 0 ≤ (1001 / 1000 : ℝ) * (n * (n - 1) : Nat))
-    (hlargest : ∀ k, k < 32 * n * n → E k ≤ (n * (n - 1) : Nat) * (pivot k)^2)
+    (hlargest : ∀ k, k < 32 * n * n → E k ≤ (n * (n - 1) : Nat) * (pivot k) ^ 2)
     (hstep
       : ∀ k,
           k < 32 * n * n
           → (99 / 10000000000000000 : ℝ) < pivot k
-          → E (k + 1) ≤ (1 + (2 : ℝ)^(-36 : Int)) * E k - 2 * (pivot k)^2)
+          → E (k + 1) ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * E k - 2 * (pivot k) ^ 2)
     : ∃ k, k < 32 * n * n ∧ pivot k ≤ (99 / 10000000000000000 : ℝ) := by
   by_contra hnone
   have hp : ∀ k, k < 32 * n * n → (99 / 10000000000000000 : ℝ) < pivot k := by
@@ -310,13 +310,13 @@ theorem energy_convergence (n : Nat) (E pivot : Nat → ℝ)
     have he : 2 / (D : ℝ) * E k ≤ 2 * (pivot k)^2 := by
       change E k ≤ (D : ℝ) * (pivot k)^2 at hdom
       calc
-        _ ≤ 2 / (D : ℝ) * ((D : ℝ) * (pivot k)^2) :=
+        _ ≤ 2 / (D : ℝ) * ((D : ℝ) * (pivot k) ^ 2) :=
           mul_le_mul_of_nonneg_left hdom (by positivity)
         _ = _ := by field_simp
     have h := hstep k hk (hp k hk)
     calc
-      _ ≤ (1 + (2 : ℝ)^(-36 : Int)) * E k - 2 * (pivot k)^2 := h
-      _ ≤ (1 + (2 : ℝ)^(-36 : Int)) * E k - (2 / D) * E k := sub_le_sub_left he _
+      _ ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * E k - 2 * (pivot k) ^ 2 := h
+      _ ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * E k - (2 / D) * E k := sub_le_sub_left he _
       _ = _ := by dsimp [ρ]; ring
   have hpower : ∀ k, k ≤ 32 * n * n → E k ≤ ρ ^ k * E 0 := by
     intro k
@@ -332,7 +332,7 @@ theorem energy_convergence (n : Nat) (E pivot : Nat → ℝ)
   have hpow : ρ ^ (31 * n * n) ≤ (5 / 37 : ℝ)^32 := by
     calc
       _ ≤ ρ ^ (32 * D) := pow_le_pow_of_le_one hρ hρ' hcount
-      _ = (ρ ^ D)^32 := by rw [mul_comm 32 D, pow_mul]
+      _ = (ρ ^ D) ^ 32 := by rw [mul_comm 32 D, pow_mul]
       _ ≤ _ := pow_le_pow_left₀ (pow_nonneg hρ _) hblock 32
   have hsmall : E (31 * N) < (3 / 2 : ℝ) * N * δ^2 := by
     have h0 := hE 0 (by omega)

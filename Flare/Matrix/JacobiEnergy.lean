@@ -22,7 +22,7 @@ theorem largestPivot_energy (n : Nat) (a : Array Float) (ha : a.all Float.isFini
             ∨ pivot.row < pivot.column
               ∧ pivot.column < n
               ∧ pivot.magnitude = (entry n a pivot.row pivot.column).abs)
-        ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude)^2 := by
+        ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude) ^ 2 := by
   obtain ⟨pivot, he, hf, hnonneg, hselected, hmax⟩ := largestPivot_correct n a ha
   refine ⟨pivot, he, hf, hnonneg, hselected, offEnergy_le_max _ _ hnonneg ?_⟩
   intro i j hij
@@ -36,13 +36,13 @@ private theorem matrix_pair_energy (n p q : Nat) (a v : Array Float)
     (result : Array Float × Array Float) (hp : p < n) (hq : q < n)
     (ha : a.all Float.isFinite = true) (hab : ∀ i j, i < n → j < n → |value (entry n a i j)| ≤ 32)
     (h : RotationResult n p q a v result) (k : Fin n) (hk : k ∈ outside (⟨p, hp⟩ : Fin n) ⟨q, hq⟩)
-    : |((matrix n n result.1) k ⟨p, hp⟩)^2
-        + ((matrix n n result.1) k ⟨q, hq⟩)^2
-        - (((matrix n n a) k ⟨p, hp⟩)^2 + ((matrix n n a) k ⟨q, hq⟩)^2)|
-      ≤ (2 : ℝ)^(-40 : Int)
-        * (((matrix n n a) k ⟨p, hp⟩)^2
-            + ((matrix n n a) k ⟨q, hq⟩)^2
-            + ((2 : ℝ)^(-1022 : Int))^2) := by
+    : |((matrix n n result.1) k ⟨p, hp⟩) ^ 2
+        + ((matrix n n result.1) k ⟨q, hq⟩) ^ 2
+        - (((matrix n n a) k ⟨p, hp⟩) ^ 2 + ((matrix n n a) k ⟨q, hq⟩) ^ 2)|
+      ≤ (2 : ℝ) ^ (-40 : Int)
+        * (((matrix n n a) k ⟨p, hp⟩) ^ 2
+            + ((matrix n n a) k ⟨q, hq⟩) ^ 2
+            + ((2 : ℝ) ^ (-1022 : Int)) ^ 2) := by
   have hk' := (mem_outside (⟨p, hp⟩ : Fin n) ⟨q, hq⟩ k).mp hk
   have hkp : k.val ≠ p := by intro he; exact hk'.1 (Fin.ext he)
   have hkq : k.val ≠ q := by intro he; exact hk'.2 (Fin.ext he)
@@ -71,12 +71,12 @@ theorem rotation_offEnergy (n p q : Nat) (a v : Array Float) (result : Array Flo
     (hsym : ∀ i j, i < n → j < n → value (entry n a i j) = value (entry n a j i))
     (h : RotationResult n p q a v result)
     : offEnergy (matrix n n result.1)
-      ≤ (1 + (2 : ℝ)^(-40 : Int)) * offEnergy (matrix n n a)
-        - 2 * (value (entry n a p q))^2
-        + 2 * (2 : ℝ)^(-40 : Int) * n * ((2 : ℝ)^(-1022 : Int))^2 := by
+      ≤ (1 + (2 : ℝ) ^ (-40 : Int)) * offEnergy (matrix n n a)
+        - 2 * (value (entry n a p q)) ^ 2
+        + 2 * (2 : ℝ) ^ (-40 : Int) * n * ((2 : ℝ) ^ (-1022 : Int)) ^ 2 := by
   have hPQ : (⟨p, hp⟩ : Fin n) ≠ ⟨q, hq⟩ := by intro he; exact hpq (congrArg Fin.val he)
   apply offEnergy_step (matrix n n a) (matrix n n result.1) ⟨p, hp⟩ ⟨q, hq⟩
-    ((2 : ℝ)^(-40 : Int)) ((2 : ℝ)^(-1022 : Int)) hPQ (by positivity)
+    ((2 : ℝ) ^ (-40 : Int)) ((2 : ℝ) ^ (-1022 : Int)) hPQ (by positivity)
     (fun i j => hsym i.val j.val i.isLt j.isLt)
     (fun i j => h.symmetric n p q a v result hsym i.val j.val i.isLt j.isLt)
   · change value (entry n result.1 p q) = 0
@@ -100,12 +100,12 @@ theorem rotation_total_energy (n p q : Nat) (a v : Array Float) (result : Array 
     (hstop : (1.0e-14 : Float) < (entry n a p q).abs)
     (h : RotationResult n p q a v result)
     : energy (matrix n n result.1)
-      ≤ (1 + (2 : ℝ)^(-40 : Int)) * energy (matrix n n a)
-        + (2 : ℝ)^(-28 : Int)
-        + 2 * (2 : ℝ)^(-40 : Int) * n * ((2 : ℝ)^(-1022 : Int))^2 := by
+      ≤ (1 + (2 : ℝ) ^ (-40 : Int)) * energy (matrix n n a)
+        + (2 : ℝ) ^ (-28 : Int)
+        + 2 * (2 : ℝ) ^ (-40 : Int) * n * ((2 : ℝ) ^ (-1022 : Int)) ^ 2 := by
   have hPQ : (⟨p, hp⟩ : Fin n) ≠ ⟨q, hq⟩ := by intro he; exact hpq (congrArg Fin.val he)
   apply energy_step (matrix n n a) (matrix n n result.1) ⟨p, hp⟩ ⟨q, hq⟩
-    ((2 : ℝ)^(-28 : Int)) ((2 : ℝ)^(-40 : Int)) ((2 : ℝ)^(-1022 : Int)) hPQ (by positivity)
+    ((2 : ℝ) ^ (-28 : Int)) ((2 : ℝ) ^ (-40 : Int)) ((2 : ℝ) ^ (-1022 : Int)) hPQ (by positivity)
     (fun i j => hsym i.val j.val i.isLt j.isLt)
     (fun i j => h.symmetric n p q a v result hsym i.val j.val i.isLt j.isLt)
   · change value (entry n result.1 p q) = 0
@@ -135,7 +135,8 @@ theorem rotation_energy_step (n p q : Nat) (a v : Array Float) (result : Array F
     (hstop : (1.0e-14 : Float) < (entry n a p q).abs)
     (h : RotationResult n p q a v result)
     : offEnergy (matrix n n result.1)
-      ≤ (1 + (2 : ℝ)^(-36 : Int)) * offEnergy (matrix n n a) - 2 * (value (entry n a p q))^2 := by
+      ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * offEnergy (matrix n n a)
+        - 2 * (value (entry n a p q)) ^ 2 := by
   have hs := rotation_offEnergy n p q a v result hp hq hpq ha hab hsym h
   have hbf := abs_value (entry n a p q) (Flare.Matrix.Storage.getD_finite _ _ ha)
   have hbp := (lt_iff (1.0e-14 : Float) (entry n a p q).abs (by decide) hbf.1).mp hstop
@@ -175,14 +176,14 @@ theorem scan_rotation_progress (n : Nat) (a v : Array Float)
         largestPivot n a = .ok pivot
         ∧ pivot.magnitude.isFinite = true
         ∧ 0 ≤ value pivot.magnitude
-        ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude)^2
+        ∧ offEnergy (matrix n n a) ≤ (n : ℝ) * (n - 1) * (value pivot.magnitude) ^ 2
         ∧ (pivot.magnitude ≤ (1.0e-14 : Float)
             ∨ ∃ result,
                 rotate n a v pivot.row pivot.column = .ok result
                 ∧ RotationResult n pivot.row pivot.column a v result
                 ∧ offEnergy (matrix n n result.1)
-                  ≤ (1 + (2 : ℝ)^(-36 : Int)) * offEnergy (matrix n n a)
-                    - 2 * (value pivot.magnitude)^2) := by
+                  ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * offEnergy (matrix n n a)
+                    - 2 * (value pivot.magnitude) ^ 2) := by
   obtain ⟨pivot, he, hf, hnonneg, hselected, henergy⟩ := largestPivot_energy n a ha hsym
   refine ⟨pivot, he, hf, hnonneg, henergy, ?_⟩
   by_cases hstop : pivot.magnitude ≤ (1.0e-14 : Float)
@@ -218,10 +219,10 @@ theorem rotation_vector_energy (n p q : Nat) (a v : Array Float)
     (hv : v.all Float.isFinite = true) (hvb : ∀ i j, i < n → j < n → |value (entry n v i j)| ≤ 32)
     (h : RotationResult n p q a v result)
     : energy (matrix n n result.2)
-      ≤ (1 + (2 : ℝ)^(-40 : Int)) * energy (matrix n n v)
-        + (2 : ℝ)^(-40 : Int) * n * ((2 : ℝ)^(-1022 : Int))^2 := by
+      ≤ (1 + (2 : ℝ) ^ (-40 : Int)) * energy (matrix n n v)
+        + (2 : ℝ) ^ (-40 : Int) * n * ((2 : ℝ) ^ (-1022 : Int)) ^ 2 := by
   apply columnPair_energy_step (matrix n n v) (matrix n n result.2) ⟨p, hp⟩ ⟨q, hq⟩
-    ((2 : ℝ)^(-40 : Int)) ((2 : ℝ)^(-1022 : Int))
+    ((2 : ℝ) ^ (-40 : Int)) ((2 : ℝ) ^ (-1022 : Int))
     (fun he => hpq (congrArg Fin.val he)) (by positivity)
   · intro i
     have hη : (2 : ℝ)^(-1022 : Int) ≤ 1 :=

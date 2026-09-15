@@ -36,13 +36,14 @@ theorem pair_update_accuracy (c s x y : Float) (M : ℝ)
     (hc : c.isFinite = true) (hs : s.isFinite = true)
     (hx : x.isFinite = true) (hy : y.isFinite = true)
     (hcb : |value c| ≤ 2) (hsb : |value s| ≤ 2)
-    (hM : |value x| + |value y| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hM' : M ≤ (2 : ℝ)^(500 : Int))
+    (hM : |value x| + |value y| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hM' : M ≤ (2 : ℝ) ^ (500 : Int))
     : (c * x - s * y).isFinite = true
       ∧ (s * x + c * y).isFinite = true
-      ∧ |value (c * x - s * y) - (value c * value x - value s * value y)| ≤ (2 : ℝ)^(-47 : Int) * M
+      ∧ |value (c * x - s * y) - (value c * value x - value s * value y)|
+        ≤ (2 : ℝ) ^ (-47 : Int) * M
       ∧ |value (s * x + c * y) - (value s * value x + value c * value y)|
-        ≤ (2 : ℝ)^(-47 : Int) * M := by
+        ≤ (2 : ℝ) ^ (-47 : Int) * M := by
   let u : ℝ := (2 : ℝ)^(-51 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   have hu : 0 ≤ u := zpow_nonneg (by norm_num) _
@@ -53,8 +54,8 @@ theorem pair_update_accuracy (c s x y : Float) (M : ℝ)
   have hym : |value y| ≤ M := by linarith [abs_nonneg (value x)]
   have hbig : 4 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(500 : Int) := mul_le_mul_of_nonneg_left hM' (by norm_num)
-      _ = (2 : ℝ)^(502 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (500 : Int) := mul_le_mul_of_nonneg_left hM' (by norm_num)
+      _ = (2 : ℝ) ^ (502 : Int) := by
         rw [show (502 : Int) = 2 + 500 by rfl, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         norm_num
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -125,12 +126,12 @@ theorem pair_update_accuracy (c s x y : Float) (M : ℝ)
 succeed and have relative error at most 2⁻⁴⁸ against the corresponding real
 expression. The proof includes the two arithmetic roundings before square root. -/
 theorem root_one_add_square_accuracy (x : Float) (hx : x.isFinite = true)
-    (hxb : |value x| ≤ (2 : ℝ)^(60 : Int))
+    (hxb : |value x| ≤ (2 : ℝ) ^ (60 : Int))
     : (1.0 + x * x).isFinite = true
       ∧ (1.0 + x * x).sqrt.isFinite = true
       ∧ 0 < value (1.0 + x * x)
-      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x)^2)|
-        ≤ (2 : ℝ)^(-48 : Int) * Real.sqrt (1 + (value x)^2) := by
+      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x) ^ 2)|
+        ≤ (2 : ℝ) ^ (-48 : Int) * Real.sqrt (1 + (value x) ^ 2) := by
   let β := 1 + (value x)^2
   let u : ℝ := (2 : ℝ)^(-51 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
@@ -209,11 +210,11 @@ relative to the ideal reciprocal, even for large denominators. This includes
 the native division rounding, rather than just perturbing an exact division. -/
 theorem unit_div_accuracy (v b : Float) (a ε : ℝ)
     (hv : v.isFinite = true) (hb : b.isFinite = true) (hunit : |value v| = 1)
-    (ha : 1 ≤ a) (ha' : a ≤ (2 : ℝ)^(500 : Int))
+    (ha : 1 ≤ a) (ha' : a ≤ (2 : ℝ) ^ (500 : Int))
     (hε : 0 ≤ ε) (hε' : ε ≤ 1 / 2) (herr : |value b - a| ≤ ε * a)
     : (v / b).isFinite = true
       ∧ 0 < value b
-      ∧ |value (v / b) - value v / a| ≤ (2 * ε + 3 * (2 : ℝ)^(-50 : Int)) / a := by
+      ∧ |value (v / b) - value v / a| ≤ (2 * ε + 3 * (2 : ℝ) ^ (-50 : Int)) / a := by
   have ha0 : 0 < a := by linarith
   obtain ⟨hl, hb0, hrec⟩ := Flare.Analysis.Jacobi.reciprocal_relative_perturbation
     a (value b) ε ha0 hε hε' herr
@@ -223,9 +224,9 @@ theorem unit_div_accuracy (v b : Float) (a ε : ℝ)
   have hη : (2 : ℝ)^(-1022 : Int) ≤ 1 / a := by
     apply (le_div_iff₀ ha0).mpr
     calc
-      _ ≤ (2 : ℝ)^(-1022 : Int) * (2 : ℝ)^(500 : Int) :=
+      _ ≤ (2 : ℝ) ^ (-1022 : Int) * (2 : ℝ) ^ (500 : Int) :=
         mul_le_mul_of_nonneg_left ha' (by positivity)
-      _ = (2 : ℝ)^(-522 : Int) := by
+      _ = (2 : ℝ) ^ (-522 : Int) := by
         rw [← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         norm_num
       _ ≤ 1 := (zpow_le_one_iff_right₀ (by norm_num : (1 : ℝ) < 2)).mpr (by norm_num)
@@ -241,7 +242,7 @@ theorem unit_div_accuracy (v b : Float) (a ε : ℝ)
     apply hd.trans
     rw [hvb]
     calc
-      _ ≤ (2 : ℝ)^(-50 : Int) * (2 / a + 1 / a) :=
+      _ ≤ (2 : ℝ) ^ (-50 : Int) * (2 / a + 1 / a) :=
         mul_le_mul_of_nonneg_left (add_le_add hrecb hη) (by positivity)
       _ = _ := by ring
   have hre : |value v / value b - value v / a| ≤ 2 * ε / a := by
@@ -257,11 +258,12 @@ theorem unit_div_accuracy (v b : Float) (a ε : ℝ)
 /-- The native stable tangent calculation is finite and close to the exact
 formula, including its sign choice when τ is zero. The relative reciprocal
 bound remains useful when τ is large and the rotation is correspondingly tiny. -/
-theorem tangent_accuracy (τ : Float) (hτ : τ.isFinite = true) (hτb : |value τ| ≤ (2 : ℝ)^(60 : Int))
+theorem tangent_accuracy (τ : Float) (hτ : τ.isFinite = true)
+    (hτb : |value τ| ≤ (2 : ℝ) ^ (60 : Int))
     : let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
       t.isFinite = true
       ∧ |value t - Flare.Analysis.Jacobi.tangent (value τ)|
-        ≤ (2 : ℝ)^(-45 : Int) / (|value τ| + Real.sqrt (1 + (value τ)^2)) := by
+        ≤ (2 : ℝ) ^ (-45 : Int) / (|value τ| + Real.sqrt (1 + (value τ) ^ 2)) := by
   let r := (1.0 + τ * τ).sqrt
   let D := |value τ| + Real.sqrt (1 + (value τ)^2)
   let v : Float := if τ < 0.0 then -1.0 else 1.0
@@ -315,7 +317,7 @@ theorem tangent_accuracy (τ : Float) (hτ : τ.isFinite = true) (hτb : |value 
         3 * (2 : ℝ)^(-51 : Int) * D := by
       apply hd.trans
       calc
-        _ ≤ (2 : ℝ)^(-51 : Int) * (2 * D + D) :=
+        _ ≤ (2 : ℝ) ^ (-51 : Int) * (2 * D + D) :=
           mul_le_mul_of_nonneg_left (add_le_add hsum hη) (by positivity)
         _ = _ := by ring
     norm_num at herrd her ⊢
@@ -350,7 +352,7 @@ theorem rotation_coefficients_accuracy (t : Float) (ht : t.isFinite = true) (htb
       ∧ s.isFinite = true
       ∧ |value c| ≤ 2
       ∧ |value s| ≤ 2
-      ∧ |(value c)^2 + (value s)^2 - 1| ≤ (2 : ℝ)^(-43 : Int) := by
+      ∧ |(value c) ^ 2 + (value s) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int) := by
   let a := Real.sqrt (1 + (value t)^2)
   let r := (1.0 + t * t).sqrt
   let c := 1.0 / r
@@ -405,7 +407,7 @@ theorem rotation_coefficients_accuracy (t : Float) (ht : t.isFinite = true) (htb
   have hse : |value s - value t * value c| ≤ (2 : ℝ)^(-49 : Int) := by
     apply hsround.trans
     calc
-      _ ≤ (2 : ℝ)^(-51 : Int) * (1 + (2 : ℝ)^(-46 : Int) + 1) :=
+      _ ≤ (2 : ℝ) ^ (-51 : Int) * (1 + (2 : ℝ) ^ (-46 : Int) + 1) :=
         mul_le_mul_of_nonneg_left (add_le_add htc hη) (by positivity)
       _ ≤ _ := by norm_num
   have hsb : |value s| ≤ 2 := by
@@ -448,7 +450,7 @@ theorem rotation_coefficients_accuracy (t : Float) (ht : t.isFinite = true) (htb
 outputs and an explicit orthogonality defect. Its only numerical premise is a
 bound on the supplied τ; no computed-coefficient bound is assumed. -/
 theorem rotation_parameters_accuracy (τ : Float) (hτ : τ.isFinite = true)
-    (hτb : |value τ| ≤ (2 : ℝ)^(60 : Int))
+    (hτb : |value τ| ≤ (2 : ℝ) ^ (60 : Int))
     : let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
       let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
@@ -458,7 +460,7 @@ theorem rotation_parameters_accuracy (τ : Float) (hτ : τ.isFinite = true)
       ∧ |value t| ≤ 2
       ∧ |value c| ≤ 2
       ∧ |value s| ≤ 2
-      ∧ |(value c)^2 + (value s)^2 - 1| ≤ (2 : ℝ)^(-43 : Int) := by
+      ∧ |(value c) ^ 2 + (value s) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int) := by
   dsimp only
   let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
   have ht := tangent_accuracy τ hτ hτb
@@ -484,12 +486,15 @@ theorem pair_update_energy (c s x y : Float)
     (hc : c.isFinite = true) (hs : s.isFinite = true)
     (hx : x.isFinite = true) (hy : y.isFinite = true)
     (hcb : |value c| ≤ 2) (hsb : |value s| ≤ 2)
-    (hunit : |(value c)^2 + (value s)^2 - 1| ≤ (2 : ℝ)^(-43 : Int))
-    (hsize : |value x| + |value y| + (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(500 : Int))
+    (hunit : |(value c) ^ 2 + (value s) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int))
+    (hsize : |value x| + |value y| + (2 : ℝ) ^ (-1022 : Int) ≤ (2 : ℝ) ^ (500 : Int))
     : (c * x - s * y).isFinite = true
       ∧ (s * x + c * y).isFinite = true
-      ∧ |(value (c * x - s * y))^2 + (value (s * x + c * y))^2 - ((value x)^2 + (value y)^2)|
-        ≤ (2 : ℝ)^(-40 : Int) * ((value x)^2 + (value y)^2 + ((2 : ℝ)^(-1022 : Int))^2) := by
+      ∧ |(value (c * x - s * y)) ^ 2
+          + (value (s * x + c * y)) ^ 2
+          - ((value x) ^ 2 + (value y) ^ 2)|
+        ≤ (2 : ℝ) ^ (-40 : Int)
+          * ((value x) ^ 2 + (value y) ^ 2 + ((2 : ℝ) ^ (-1022 : Int)) ^ 2) := by
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let M := |value x| + |value y| + η
   have hη : 0 ≤ η := zpow_nonneg (by norm_num) _
@@ -514,12 +519,12 @@ division are all actual native operations; nonzero division is a conclusion. -/
 theorem pivot_parameter_bounded (a b d : Float)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hd : d.isFinite = true)
     (hab : |value a| ≤ 32) (hbb : |value b| ≤ 32) (hdb : |value d| ≤ 32)
-    (hbp : (2 : ℝ)^(-47 : Int) ≤ |value b|)
+    (hbp : (2 : ℝ) ^ (-47 : Int) ≤ |value b|)
     : (d - a).isFinite = true
       ∧ (2.0 * b).isFinite = true
       ∧ value (2.0 * b) ≠ 0
       ∧ ((d - a) / (2.0 * b)).isFinite = true
-      ∧ |value ((d - a) / (2.0 * b))| ≤ (2 : ℝ)^(60 : Int) := by
+      ∧ |value ((d - a) / (2.0 * b))| ≤ (2 : ℝ) ^ (60 : Int) := by
   have htwo : value (2.0 : Float) = 2 := by
     change (((2^52 : Nat) : ℝ) * (2 : ℝ)^(-51 : Int)) = 2
     norm_num
@@ -546,7 +551,7 @@ theorem pivot_parameter_bounded (a b d : Float)
     apply hde.trans
     rw [abs_mul, abs_of_nonneg (by norm_num : (0 : ℝ) ≤ 2)]
     calc
-      _ ≤ (2 : ℝ)^(-51 : Int) * (2 * |value b| + |value b|) :=
+      _ ≤ (2 : ℝ) ^ (-51 : Int) * (2 * |value b| + |value b|) :=
         mul_le_mul_of_nonneg_left (add_le_add le_rfl hη) (by positivity)
       _ ≤ _ := by norm_num; linarith [abs_nonneg (value b)]
   have hdl : |value b| ≤ |value (2.0 * b)| := by
@@ -563,8 +568,8 @@ theorem pivot_parameter_bounded (a b d : Float)
     apply (div_le_iff₀ hdpos).mpr
     calc
       _ ≤ 128 := hnb
-      _ = (2 : ℝ)^(54 : Int) * (2 : ℝ)^(-47 : Int) := by norm_num
-      _ ≤ (2 : ℝ)^(54 : Int) * |value b| := mul_le_mul_of_nonneg_left hbp (by positivity)
+      _ = (2 : ℝ) ^ (54 : Int) * (2 : ℝ) ^ (-47 : Int) := by norm_num
+      _ ≤ (2 : ℝ) ^ (54 : Int) * |value b| := mul_le_mul_of_nonneg_left hbp (by positivity)
       _ ≤ _ := mul_le_mul_of_nonneg_left hdl (by positivity)
   obtain ⟨htf, hte⟩ := Flare.Binary64.Division.div_error (d - a) (2.0 * b) 54 hnf hdf hdne
     (by norm_num) (by norm_num) hquot
@@ -579,7 +584,7 @@ theorem pivot_parameter_bounded (a b d : Float)
 used by the parameter and bounded-iteration proofs. No decimal-to-real equality
 is assumed for a binary64 literal. -/
 theorem stopping_threshold_bounds
-    : (2 : ℝ)^(-47 : Int) ≤ value (1.0e-14 : Float)
+    : (2 : ℝ) ^ (-47 : Int) ≤ value (1.0e-14 : Float)
       ∧ (99 / 10000000000000000 : ℝ) ≤ value (1.0e-14 : Float) := by
   change (2 : ℝ)^(-47 : Int) ≤ 6338253001141147 * (2 : ℝ)^(-99 : Int) ∧
     (99 / 10000000000000000 : ℝ) ≤ 6338253001141147 * (2 : ℝ)^(-99 : Int)
@@ -604,7 +609,7 @@ theorem pivot_rotation_parameters (a b d : Float)
       ∧ |value t| ≤ 2
       ∧ |value c| ≤ 2
       ∧ |value s| ≤ 2
-      ∧ |(value c)^2 + (value s)^2 - 1| ≤ (2 : ℝ)^(-43 : Int) := by
+      ∧ |(value c) ^ 2 + (value s) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int) := by
   have hbf := Flare.Binary64.Order.abs_value b hb
   have hp := (Flare.Binary64.Order.lt_iff 1.0e-14 b.abs (by decide) hbf.1).mp hstop
   rw [hbf.2] at hp

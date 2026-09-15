@@ -14,23 +14,21 @@ open Flare.Matrix.Dense
 
 /-- Forward row rounding allowance, expressed using stored operand magnitudes. -/
 noncomputable def forwardBound (n columns : Nat) (f : Factor) (b y : Array Float) (i j : Nat) : ℝ :=
-  i
-  * (2 : ℝ)^(-48 : Int)
+  i * (2 : ℝ) ^ (-48 : Int)
   * (|value (entry columns b i j)|
       + ∑ k ∈ Finset.range i, |value (entry n f.lower i k) * value (entry columns y k j)|
-      + (2 : ℝ)^(-1022 : Int))
+      + (2 : ℝ) ^ (-1022 : Int))
 
 /-- Backward row allowance after multiplication by the diagonal pivot. The
 quotient is canceled exactly in this ghost bound, avoiding amplification by an
 unnecessary inverse-pivot estimate. -/
 noncomputable def backwardBound (n columns : Nat) (f : Factor) (y x : Array Float) (i j : Nat)
     : ℝ :=
-  (n - i : Nat)
-  * (2 : ℝ)^(-47 : Int)
+  (n - i : Nat) * (2 : ℝ) ^ (-47 : Int)
   * (|value (entry columns y i j)|
       + |value (f.diagonal.getD i 0.0)|
         * ∑ k ∈ Finset.Ico (i + 1) n, |value (entry n f.lower k i) * value (entry columns x k j)|
-      + |value (f.diagonal.getD i 0.0)| * (2 : ℝ)^(-1022 : Int))
+      + |value (f.diagonal.getD i 0.0)| * (2 : ℝ) ^ (-1022 : Int))
 
 /-- Combined substitution allowance plus the proved factorization error
 2⁻¹³ times the absolute column sum of the computed solution. -/
@@ -39,7 +37,7 @@ noncomputable def residualBound (n columns : Nat) (f : Factor) (b y x : Array Fl
     : ℝ :=
   forwardBound n columns f b y i.val j.val
   + ∑ k : Fin n, |matrix n n f.lower i k| * backwardBound n columns f y x k.val j.val
-  + (2 : ℝ)^(-13 : Int) * ∑ k : Fin n, |matrix n columns x k j|
+  + (2 : ℝ) ^ (-13 : Int) * ∑ k : Fin n, |matrix n columns x k j|
 
 private lemma lower_sum (n i : Nat) (hi : i ≤ n) (f : Nat → ℝ)
     : (∑ k : Fin n, if k.val < i then f k.val else 0) = ∑ k ∈ Finset.range i, f k := by
@@ -150,12 +148,11 @@ private lemma backward_scaled (n columns : Nat) (f : Factor) (y x : Array Float)
           - (value (entry columns y i j) / value (f.diagonal.getD i 0.0)
               - ∑ k ∈ Finset.Ico (i + 1) n,
                   value (entry n f.lower k i) * value (entry columns x k j))|
-        ≤ (n - i : Nat)
-          * (2 : ℝ)^(-47 : Int)
+        ≤ (n - i : Nat) * (2 : ℝ) ^ (-47 : Int)
           * (|value (entry columns y i j) / value (f.diagonal.getD i 0.0)|
               + ∑ k ∈ Finset.Ico (i + 1) n,
                   |value (entry n f.lower k i) * value (entry columns x k j)|
-              + (2 : ℝ)^(-1022 : Int)))
+              + (2 : ℝ) ^ (-1022 : Int)))
     : |value (f.diagonal.getD i 0.0)
           * (value (entry columns x i j)
               + ∑ k ∈ Finset.Ico (i + 1) n,
@@ -173,7 +170,7 @@ theorem solveSPD_residual (n columns : Nat) (B : Int) (a b : Array Float)
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 1024)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ f y x,
         factor n a = .ok f
         ∧ LinearSolve.forward n columns f b = .ok y
@@ -236,7 +233,7 @@ theorem solveSPD_accuracy (n columns : Nat) (B : Int) (a b : Array Float)
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 1024)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ f y x,
         factor n a = .ok f
         ∧ LinearSolve.forward n columns f b = .ok y
@@ -277,30 +274,26 @@ theorem solveSPD_accuracy (n columns : Nat) (B : Int) (a b : Array Float)
 noncomputable def factorMassBound (n : Nat) (M : ℝ) : ℝ :=
   (1002 / 1000 : ℝ)
   * (n + 5)
-  * (2 : ℝ)^(-53 : Int)
-  * (2 * M + (2 : ℝ)^(-13 : Int) + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int))
+  * (2 : ℝ) ^ (-53 : Int)
+  * (2 * M + (2 : ℝ) ^ (-13 : Int) + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int))
 
 /-- Forward row allowance from the growing absolute product mass. -/
 noncomputable def forwardMassBound (n columns : Nat) (f : Factor) (b y : Array Float) (i j : Nat)
     : ℝ :=
-  (1001 / 1000 : ℝ)
-  * (i + 2)
-  * (2 : ℝ)^(-53 : Int)
+  (1001 / 1000 : ℝ) * (i + 2) * (2 : ℝ) ^ (-53 : Int)
   * (|value (entry columns b i j)|
       + ∑ k ∈ Finset.range i, |value (entry n f.lower i k) * value (entry columns y k j)|
-      + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int))
+      + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int))
 
 /-- Sharp backward row allowance after canceling the exact quotient by its
 stored pivot. All quantities are proof-side real interpretations. -/
 noncomputable def backwardMassBound (n columns : Nat) (f : Factor) (y x : Array Float) (i j : Nat)
     : ℝ :=
-  (1001 / 1000 : ℝ)
-  * ((n - i : Nat) + 3)
-  * (2 : ℝ)^(-53 : Int)
+  (1001 / 1000 : ℝ) * ((n - i : Nat) + 3) * (2 : ℝ) ^ (-53 : Int)
   * (|value (entry columns y i j)|
       + |value (f.diagonal.getD i 0.0)|
         * ∑ k ∈ Finset.Ico (i + 1) n, |value (entry n f.lower k i) * value (entry columns x k j)|
-      + |value (f.diagonal.getD i 0.0)| * ((2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)))
+      + |value (f.diagonal.getD i 0.0)| * ((2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)))
 
 /-- Combined componentwise residual allowance using the sharper factorization
 and substitution estimates. It contains no runtime certificate computation. -/
@@ -319,7 +312,7 @@ theorem solveSPD_mass_residual (n columns : Nat) (B : Int) (a b : Array Float) (
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ M)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ f y x,
         factor n a = .ok f
         ∧ LinearSolve.forward n columns f b = .ok y
@@ -384,20 +377,21 @@ theorem solveSPD_reduced_residual (n columns : Nat) (B : Int) (a b : Array Float
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ M)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ x,
         Flare.Matrix.Operations.solveSPD n columns a b = .ok x
         ∧ x.size = n * columns
         ∧ x.all Float.isFinite = true
-        ∧ let α := (1001 / 1000 : ℝ) * (n + 1) * (2 : ℝ)^(-53 : Int)
-          let β := (1001 / 1000 : ℝ) * (n + 3) * (2 : ℝ)^(-53 : Int)
+        ∧ let α := (1001 / 1000 : ℝ) * (n + 1) * (2 : ℝ) ^ (-53 : Int)
+          let β := (1001 / 1000 : ℝ) * (n + 3) * (2 : ℝ) ^ (-53 : Int)
           ∀ i j,
             |(matrix n n a * matrix n columns x - matrix n columns b) i j|
             ≤ α * |matrix n columns b i j|
-              + (((1001 / 1000 : ℝ) * α + (2001 / 1000 : ℝ) * β) * (M + (2 : ℝ)^(-13 : Int))
+              + (((1001 / 1000 : ℝ) * α + (2001 / 1000 : ℝ) * β) * (M + (2 : ℝ) ^ (-13 : Int))
                   + factorMassBound n M)
                 * (∑ t : Fin n, |matrix n columns x t j|)
-              + (α + 2 * β * (n * 128 * 2048)) * ((2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+              + (α + 2 * β * (n * 128 * 2048))
+                * ((2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨f, hf, _, _, hlf, hdf, hz, hu, hlb, hdb, _⟩ :=
     PositiveDefiniteFactorization.factor_accuracy n a hn haf hA (fun i j => (ha i j).trans hM')
   have hfactor := PositiveDefiniteFactorization.factor_backward_error n a f M hn hM hM' haf hA ha hf
@@ -454,9 +448,9 @@ theorem solveSPD_reduced_residual (n columns : Nat) (B : Int) (a b : Array Float
       using hh
   apply Flare.Analysis.Factorization.solve_residual_mass (matrix n n a) (matrix n n f.lower)
     (fun k : Fin n => value (f.diagonal.getD k.val 0.0)) (matrix n columns b) (matrix n columns y)
-    (matrix n columns x) α β ((2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) (M + (2 : ℝ)^(-13 : Int))
-    (n * 128 * 2048) (factorMassBound n M) hα hα' hβ hβ' (by positivity) (by positivity)
-    (by positivity) hdp
+    (matrix n columns x) α β ((2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int))
+    (M + (2 : ℝ) ^ (-13 : Int)) (n * 128 * 2048) (factorMassBound n M) hα hα' hβ hβ' (by positivity)
+    (by positivity) (by positivity) hdp
     (PositiveDefiniteFactorization.factor_gram_mass n a f M hn hM hM' haf hA ha hf) hp hfactor
   · intro i j
     have hh := hforward i.val j.val i.isLt j.isLt
@@ -502,14 +496,14 @@ theorem solveSPD_reduced_residual (n columns : Nat) (B : Int) (a b : Array Float
           (mul_nonneg (hdp i) (by positivity))) hβ
 
 private lemma noise_residual_coefficients (n : Nat) (hn : n ≤ 12)
-    : let α := (1001 / 1000 : ℝ) * (n + 1) * (2 : ℝ)^(-53 : Int)
-      let β := (1001 / 1000 : ℝ) * (n + 3) * (2 : ℝ)^(-53 : Int)
+    : let α := (1001 / 1000 : ℝ) * (n + 1) * (2 : ℝ) ^ (-53 : Int)
+      let β := (1001 / 1000 : ℝ) * (n + 3) * (2 : ℝ) ^ (-53 : Int)
       α ≤ 3 / 2000000000000000
-      ∧ ((1001 / 1000 : ℝ) * α + (2001 / 1000 : ℝ) * β) * (4 + (2 : ℝ)^(-13 : Int))
+      ∧ ((1001 / 1000 : ℝ) * α + (2001 / 1000 : ℝ) * β) * (4 + (2 : ℝ) ^ (-13 : Int))
           + factorMassBound n 4
         ≤ 71 / 2000000000000000
-      ∧ (α + 2 * β * (n * 128 * 2048)) * ((2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int))
-        ≤ (2 : ℝ)^(-1022 : Int) := by
+      ∧ (α + 2 * β * (n * 128 * 2048)) * ((2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int))
+        ≤ (2 : ℝ) ^ (-1022 : Int) := by
   dsimp only
   let α := (1001 / 1000 : ℝ) * (n + 1) * (2 : ℝ)^(-53 : Int)
   let β := (1001 / 1000 : ℝ) * (n + 3) * (2 : ℝ)^(-53 : Int)
@@ -524,8 +518,8 @@ private lemma noise_residual_coefficients (n : Nat) (hn : n ≤ 12)
     calc
       _ ≤ (1002 / 1000 : ℝ)
           * (12 + 5)
-          * (2 : ℝ)^(-53 : Int)
-          * (2 * 4 + (2 : ℝ)^(-13 : Int) + (2 : ℝ)^(-20 : Int)) := by
+          * (2 : ℝ) ^ (-53 : Int)
+          * (2 * 4 + (2 : ℝ) ^ (-13 : Int) + (2 : ℝ) ^ (-20 : Int)) := by
         gcongr
       _ ≤ _ := by norm_num
   refine ⟨hα, ?_, ?_⟩
@@ -540,14 +534,14 @@ private lemma noise_residual_coefficients (n : Nat) (hn : n ≤ 12)
     change (α + 2 * β * (n * 128 * 2048)) * _ ≤ _
     calc
       _ ≤ ((3 / 2000000000000000 : ℝ) + 2 * (7 / 4000000000000000) * (12 * 128 * 2048))
-          * ((2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) :=
+          * ((2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) :=
         mul_le_mul_of_nonneg_right hcoef (by positivity)
       _ ≤ _ := by
         rw [← mul_assoc]
         exact (mul_le_mul_of_nonneg_right
                 (by norm_num
                   : ((3 / 2000000000000000 : ℝ) + 2 * (7 / 4000000000000000) * (12 * 128 * 2048))
-                      * (2 : ℝ)^(20 : Int)
+                      * (2 : ℝ) ^ (20 : Int)
                     ≤ 1)
                 (by positivity)).trans_eq
           (one_mul _)
@@ -560,7 +554,7 @@ theorem noise_solve_nearest_accuracy (n columns : Nat) (B : Int) (a b : Array Fl
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (1 / 4 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 4)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ x,
         Flare.Matrix.Operations.solveSPD n columns a b = .ok x
         ∧ x.size = n * columns
@@ -570,7 +564,7 @@ theorem noise_solve_nearest_accuracy (n columns : Nat) (B : Int) (a b : Array Fl
               (fun i : Fin n =>
                 matrix n columns x i j - ((matrix n n a)⁻¹ * matrix n columns b) i j)‖
             ≤ (8 / 1000000000000 : ℝ) * ‖WithLp.toLp 2 (fun i : Fin n => matrix n columns b i j)‖
-              + (2 : ℝ)^(-1000 : Int) := by
+              + (2 : ℝ) ^ (-1000 : Int) := by
   have hweak : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef := by
     have hh := hA.add ((_root_.Matrix.PosSemidef.one (n := Fin n) (R := ℝ)).smul (by norm_num : (0 :
       ℝ) ≤ 1 / 16))
@@ -637,7 +631,7 @@ theorem noise_solve_accuracy (n columns : Nat) (B : Int) (a b : Array Float)
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (1 / 4 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 4)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ x,
         Flare.Matrix.Operations.solveSPD n columns a b = .ok x
         ∧ x.size = n * columns
@@ -647,7 +641,7 @@ theorem noise_solve_accuracy (n columns : Nat) (B : Int) (a b : Array Float)
               (fun i : Fin n =>
                 matrix n columns x i j - ((matrix n n a)⁻¹ * matrix n columns b) i j)‖
             ≤ (3 / 100000000000 : ℝ) * ‖WithLp.toLp 2 (fun i : Fin n => matrix n columns b i j)‖
-              + (2 : ℝ)^(-1000 : Int) := by
+              + (2 : ℝ) ^ (-1000 : Int) := by
   obtain ⟨x, hx, hxs, hxf, he⟩ :=
     noise_solve_nearest_accuracy n columns B a b hn hB hB' haf hbf hA ha hb
   refine ⟨x, hx, hxs, hxf, fun j => (he j).trans ?_⟩
@@ -667,18 +661,18 @@ theorem noise_solve_frobenius (n columns : Nat) (B : Int) (a b : Array Float)
     (haf : a.all Float.isFinite = true) (hbf : b.all Float.isFinite = true)
     (hA : (matrix n n a - (1 / 4 : ℝ) • 1).PosSemidef)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 4)
-    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : let F := (matrix n n a)⁻¹ * matrix n columns b
       ∃ x,
         Flare.Matrix.Operations.solveSPD n columns a b = .ok x
         ∧ x.size = n * columns
         ∧ x.all Float.isFinite = true
         ∧ ‖Flare.Analysis.MatrixError.entries (matrix n columns x)‖
-          ≤ (1001 / 1000 : ℝ) * ‖Flare.Analysis.MatrixError.entries F‖ + (2 : ℝ)^(-1000 : Int)
+          ≤ (1001 / 1000 : ℝ) * ‖Flare.Analysis.MatrixError.entries F‖ + (2 : ℝ) ^ (-1000 : Int)
         ∧ ‖Flare.Analysis.MatrixError.entries
             (matrix n n a * matrix n columns x - matrix n columns b)‖
           ≤ (501 / 1000000000000000 : ℝ) * ‖Flare.Analysis.MatrixError.entries F‖
-            + (2 : ℝ)^(-1000 : Int) := by
+            + (2 : ℝ) ^ (-1000 : Int) := by
   dsimp only
   have hweak : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef := by
     have hh := hA.add ((_root_.Matrix.PosSemidef.one (n := Fin n) (R := ℝ)).smul (by norm_num : (0 :
@@ -707,8 +701,8 @@ theorem noise_solve_frobenius (n columns : Nat) (B : Int) (a b : Array Float)
     dsimp only [F, E]
     rw [_root_.Matrix.mul_sub, ← _root_.Matrix.mul_assoc, _root_.Matrix.inv_mul_of_invertible,
       _root_.Matrix.one_mul]
-  have hCn : ‖Flare.Analysis.MatrixError.entries C‖ ≤ 48 * ‖Flare.Analysis.MatrixError.entries F‖ :=
-    by
+  have hCn
+      : ‖Flare.Analysis.MatrixError.entries C‖ ≤ 48 * ‖Flare.Analysis.MatrixError.entries F‖ := by
     rw [hCF]
     exact (Flare.Analysis.MatrixError.entries_mul_le A F).trans
       (mul_le_mul_of_nonneg_right hAn (norm_nonneg _))

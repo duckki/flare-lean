@@ -25,7 +25,7 @@ pivot is zero. This allows telescoping arbitrary bounded execution prefixes. -/
 theorem advance_energy (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
     (hk : k ≤ 32 * n * n) (h : State n k a v)
     : offEnergy (matrix n n (advance n a v).1)
-      ≤ (1 + (2 : ℝ)^(-36 : Int)) * offEnergy (matrix n n a) - 2 * (activePivot n a)^2 := by
+      ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * offEnergy (matrix n n a) - 2 * (activePivot n a) ^ 2 := by
   by_cases hstop : (selectedPivot n a).magnitude ≤ (1.0e-14 : Float)
   · simp only [advance, activePivot, hstop, ↓reduceIte, zero_pow (by decide : 2 ≠ 0), mul_zero,
     sub_zero]
@@ -37,11 +37,11 @@ theorem advance_energy (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
 roundoff term uses the already proved bound on every native matrix energy. -/
 theorem trajectory_pivot_sum (n : Nat) (a v : Array Float) (hn : n ≤ 18)
     (h : State n 0 a v) (k : Nat) (hk : k ≤ 32 * n * n)
-    : (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|)^2
-      ≤ k * (offEnergy (matrix n n a) + k * (2 : ℝ)^(-36 : Int) * 1024) / 2 := by
+    : (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|) ^ 2
+      ≤ k * (offEnergy (matrix n n a) + k * (2 : ℝ) ^ (-36 : Int) * 1024) / 2 := by
   apply pivot_magnitude_sum
     (fun i => offEnergy (matrix n n (trajectory n a v i).1))
-    (fun i => activePivot n (trajectory n a v i).1) ((2 : ℝ)^(-36 : Int)) 1024 k
+    (fun i => activePivot n (trajectory n a v i).1) ((2 : ℝ) ^ (-36 : Int)) 1024 k
     (by positivity) (offEnergy_nonneg _)
   · intro i hi
     have hstate := trajectory_state n a v hn h i (by omega)
@@ -79,10 +79,10 @@ theorem advance_similarity (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
     : ∃ J : Matrix (Fin n) (Fin n) ℝ,
         J ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (advance n a v).1 - J.transpose * matrix n n a * J‖
-          ≤ 141 * (2 : ℝ)^(-53 : Int) * ‖matrix n n a‖
-            + (64 * n + 13) * (2 : ℝ)^(-53 : Int) * (2 : ℝ)^(-1022 : Int)
-            + 512 * (2 : ℝ)^(-53 : Int) * activePivot n a
-        ∧ ‖matrix n n (advance n a v).2 - matrix n n v * J‖ ≤ 97 * (2 : ℝ)^(-53 : Int) := by
+          ≤ 141 * (2 : ℝ) ^ (-53 : Int) * ‖matrix n n a‖
+            + (64 * n + 13) * (2 : ℝ) ^ (-53 : Int) * (2 : ℝ) ^ (-1022 : Int)
+            + 512 * (2 : ℝ) ^ (-53 : Int) * activePivot n a
+        ∧ ‖matrix n n (advance n a v).2 - matrix n n v * J‖ ≤ 97 * (2 : ℝ) ^ (-53 : Int) := by
   by_cases hstop : (selectedPivot n a).magnitude ≤ (1.0e-14 : Float)
   · refine ⟨1, (unitary _).one_mem, ?_, ?_⟩ <;>
       simp only [advance, activePivot, hstop, ↓reduceIte, Matrix.transpose_one, Matrix.one_mul,
@@ -131,12 +131,13 @@ theorem trajectory_backward_error (n : Nat) (a v : Array Float) (hn : n ≤ 18)
     : ∃ W : Matrix (Fin n) (Fin n) ℝ,
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
-          ≤ 141 * (2 : ℝ)^(-53 : Int) * (∑ i ∈ Finset.range k, ‖matrix n n (trajectory n a v i).1‖)
-            + k * (64 * n + 13) * (2 : ℝ)^(-53 : Int) * (2 : ℝ)^(-1022 : Int)
+          ≤ 141 * (2 : ℝ) ^ (-53 : Int)
+              * (∑ i ∈ Finset.range k, ‖matrix n n (trajectory n a v i).1‖)
+            + k * (64 * n + 13) * (2 : ℝ) ^ (-53 : Int) * (2 : ℝ) ^ (-1022 : Int)
             + 512
-              * (2 : ℝ)^(-53 : Int)
+              * (2 : ℝ) ^ (-53 : Int)
               * (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|)
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)) := by
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   induction k with
   | zero => refine ⟨1, (unitary _).one_mem, ?_, ?_⟩ <;> simp [trajectory, hV]
   | succ k ih =>
@@ -189,7 +190,7 @@ theorem trajectory_norm_bound (n : Nat) (a v : Array Float) (hn : n ≤ 18)
   have hk' : (k : ℝ) ≤ 10368 := by exact_mod_cast hkN
   have he : (k : ℝ) * (n * (2 : ℝ)^(-33 : Int)) ≤ (1 / 40000 : ℝ) := by
     calc
-      _ ≤ 10368 * (18 * (2 : ℝ)^(-33 : Int)) := by gcongr
+      _ ≤ 10368 * (18 * (2 : ℝ) ^ (-33 : Int)) := by gcongr
       _ ≤ _ := by norm_num
   have hbound := htri.trans (add_le_add (hA.trans he) le_rfl)
   linarith only [hbound, hfloor]
@@ -199,20 +200,20 @@ starting norm throughout the complete diagnostic dimension range. -/
 theorem trajectory_pivot_sum_relative_squared (n : Nat) (a v : Array Float) (hn : n ≤ 18)
     (h : State n 0 a v) (hfloor : (1 / 2 : ℝ) ≤ ‖matrix n n a‖)
     (k : Nat) (hk : k ≤ 32 * n * n)
-    : (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|)^2
-      ≤ k * (n + 1) * ‖matrix n n a‖^2 / 2 := by
+    : (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|) ^ 2
+      ≤ k * (n + 1) * ‖matrix n n a‖ ^ 2 / 2 := by
   have hkN : k ≤ 10368 := by nlinarith only [hk, hn]
   have hk' : (k : ℝ) ≤ 10368 := by exact_mod_cast hkN
   have henergy := (offEnergy_le_energy (matrix n n a)).trans (energy_le_norm (matrix n n a))
   have hround : (k : ℝ) * (2 : ℝ)^(-36 : Int) * 1024 ≤ ‖matrix n n a‖^2 := by
     calc
-      _ ≤ 10368 * (2 : ℝ)^(-36 : Int) * 1024 := by gcongr
+      _ ≤ 10368 * (2 : ℝ) ^ (-36 : Int) * 1024 := by gcongr
       _ ≤ 1 / 4 := by norm_num
       _ ≤ _ := by nlinarith only [hfloor]
   have hsum := trajectory_pivot_sum n a v hn h k hk
   apply hsum.trans
   calc
-    _ ≤ (k : ℝ) * (n * ‖matrix n n a‖^2 + ‖matrix n n a‖^2) / 2 := by gcongr
+    _ ≤ (k : ℝ) * (n * ‖matrix n n a‖ ^ 2 + ‖matrix n n a‖ ^ 2) / 2 := by gcongr
     _ = _ := by ring
 
 /-- On the pseudoinverse dimension range, all active pivots sum to at most
@@ -228,7 +229,7 @@ theorem trajectory_pivot_sum_bound (n : Nat) (a v : Array Float) (hn : n ≤ 12)
   apply (sq_le_sq₀ (Finset.sum_nonneg fun _ _ => abs_nonneg _) (by positivity)).mp
   apply hsum.trans
   calc
-    _ ≤ 4608 * (12 + 1) * ‖matrix n n a‖^2 / 2 := by gcongr
+    _ ≤ 4608 * (12 + 1) * ‖matrix n n a‖ ^ 2 / 2 := by gcongr
     _ ≤ _ := by nlinarith only [sq_nonneg ‖matrix n n a‖]
 
 /-- The active pivots of a diagnostic-size trajectory sum to at most
@@ -244,7 +245,7 @@ theorem trajectory_pivot_sum_diagnostic (n : Nat) (a v : Array Float) (hn : n �
   apply (sq_le_sq₀ (Finset.sum_nonneg fun _ _ => abs_nonneg _) (by positivity)).mp
   apply hsum.trans
   calc
-    _ ≤ 10368 * (18 + 1) * ‖matrix n n a‖^2 / 2 := by gcongr
+    _ ≤ 10368 * (18 + 1) * ‖matrix n n a‖ ^ 2 / 2 := by gcongr
     _ ≤ _ := by nlinarith only [sq_nonneg ‖matrix n n a‖]
 
 /-- Uniform native trajectory error for the pseudoinverse dimension range.
@@ -254,16 +255,16 @@ private theorem trajectory_uniform_error_of_bounds (n : Nat) (a v : Array Float)
     (h : State n 0 a v) (hV : matrix n n v = 1) (hfloor : (1 / 2 : ℝ) ≤ ‖matrix n n a‖) (k : Nat)
     (hk : k ≤ 32 * n * n) (K P ε : ℝ) (hK : (k : ℝ) ≤ K)
     (hP : (∑ i ∈ Finset.range k, |activePivot n (trajectory n a v i).1|) ≤ P * ‖matrix n n a‖)
-    (hsmall : K * (64 * n + 13) * (2 : ℝ)^(-1022 : Int) ≤ 1 / 2)
+    (hsmall : K * (64 * n + 13) * (2 : ℝ) ^ (-1022 : Int) ≤ 1 / 2)
     (hcoef
-      : 141 * (2 : ℝ)^(-53 : Int) * K * (1001 / 1000)
-          + (2 : ℝ)^(-53 : Int)
-          + 512 * (2 : ℝ)^(-53 : Int) * P
+      : 141 * (2 : ℝ) ^ (-53 : Int) * K * (1001 / 1000)
+          + (2 : ℝ) ^ (-53 : Int)
+          + 512 * (2 : ℝ) ^ (-53 : Int) * P
         ≤ ε)
     : ∃ W : Matrix (Fin n) (Fin n) ℝ,
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖ ≤ ε * ‖matrix n n a‖
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)) := by
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   obtain ⟨W, hW, hA, hV'⟩ := trajectory_backward_error n a v (by omega) h hV k hk
   have hsum : (∑ i ∈ Finset.range k, ‖matrix n n (trajectory n a v i).1‖) ≤
       K * ((1001 / 1000 : ℝ) * ‖matrix n n a‖) := by
@@ -285,7 +286,7 @@ private theorem trajectory_uniform_error_of_bounds (n : Nat) (a v : Array Float)
       (2 : ℝ)^(-53 : Int) * ‖matrix n n a‖ := by
     have he := mul_le_mul_of_nonneg_left hsmall' (show 0 ≤ (2 : ℝ)^(-53 : Int) by positivity)
     calc
-      _ = (2 : ℝ)^(-53 : Int) * ((k : ℝ) * (64 * n + 13) * (2 : ℝ)^(-1022 : Int)) := by ring
+      _ = (2 : ℝ) ^ (-53 : Int) * ((k : ℝ) * (64 * n + 13) * (2 : ℝ) ^ (-1022 : Int)) := by ring
       _ ≤ _ := he
   refine ⟨W, hW, ?_, hV'⟩
   apply hA.trans
@@ -303,7 +304,7 @@ theorem trajectory_uniform_error_sharp (n : Nat) (a v : Array Float) (hn : n ≤
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
           ≤ (83 / 1000000000000 : ℝ) * ‖matrix n n a‖
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)) := by
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   have hnR : (n : ℝ) ≤ 12 := by exact_mod_cast hn
   have hkN : k ≤ 4608 := by nlinarith only [hk, hn]
   apply trajectory_uniform_error_of_bounds n a v (by omega) h hV hfloor k hk 4608 174 _
@@ -311,7 +312,7 @@ theorem trajectory_uniform_error_sharp (n : Nat) (a v : Array Float) (hn : n ≤
   · have hη : (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(-64 : Int) := zpow_le_zpow_right₀ (by norm_num) (by
     norm_num)
     calc
-      _ ≤ 4608 * (64 * 12 + 13) * (2 : ℝ)^(-64 : Int) := by gcongr
+      _ ≤ 4608 * (64 * 12 + 13) * (2 : ℝ) ^ (-64 : Int) := by gcongr
       _ ≤ _ := by norm_num
   · norm_num
 
@@ -321,8 +322,8 @@ theorem trajectory_uniform_error (n : Nat) (a v : Array Float) (hn : n ≤ 12)
     : ∃ W : Matrix (Fin n) (Fin n) ℝ,
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
-          ≤ 3 * (2 : ℝ)^(-35 : Int) * ‖matrix n n a‖
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)) := by
+          ≤ 3 * (2 : ℝ) ^ (-35 : Int) * ‖matrix n n a‖
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   obtain ⟨W, hW, he, hv⟩ := trajectory_uniform_error_sharp n a v hn h hV hfloor k hk
   refine ⟨W, hW, he.trans ?_, hv⟩
   exact mul_le_mul_of_nonneg_right (by norm_num) (norm_nonneg _)
@@ -335,8 +336,8 @@ theorem trajectory_diagnostic_error (n : Nat) (a v : Array Float) (hn : n ≤ 18
     : ∃ W : Matrix (Fin n) (Fin n) ℝ,
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
-          ≤ (2 : ℝ)^(-32 : Int) * ‖matrix n n a‖
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)) := by
+          ≤ (2 : ℝ) ^ (-32 : Int) * ‖matrix n n a‖
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   have hnR : (n : ℝ) ≤ 18 := by exact_mod_cast hn
   have hkN : k ≤ 10368 := by nlinarith only [hk, hn]
   apply trajectory_uniform_error_of_bounds n a v (by omega) h hV hfloor k hk 10368 320 _
@@ -344,7 +345,7 @@ theorem trajectory_diagnostic_error (n : Nat) (a v : Array Float) (hn : n ≤ 18
   · have hη : (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(-64 : Int) := zpow_le_zpow_right₀ (by norm_num) (by
     norm_num)
     calc
-      _ ≤ 10368 * (64 * 18 + 13) * (2 : ℝ)^(-64 : Int) := by gcongr
+      _ ≤ 10368 * (64 * 18 + 13) * (2 : ℝ) ^ (-64 : Int) := by gcongr
       _ ≤ _ := by norm_num
   · norm_num
 

@@ -11,7 +11,7 @@ open scoped Matrix.Norms.L2Operator
 
 /-- Squared Frobenius energy bounds the Euclidean operator norm. -/
 theorem norm_le_of_energy_le {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ) (C : ℝ)
-    (hC : 0 ≤ C) (hE : energy E ≤ C^2)
+    (hC : 0 ≤ C) (hE : energy E ≤ C ^ 2)
     : ‖E‖ ≤ C := by
   rw [cstar_norm_def]
   apply ContinuousLinearMap.opNorm_le_bound _ hC
@@ -27,7 +27,7 @@ theorem norm_le_of_energy_le {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ) (C : ℝ
 
 /-- A column's squared Euclidean norm is bounded by the squared matrix norm. -/
 theorem column_energy_le_norm {m n : Nat} (A : Matrix (Fin m) (Fin n) ℝ) (j : Fin n)
-    : ∑ i, (A i j)^2 ≤ ‖A‖^2 := by
+    : ∑ i, (A i j) ^ 2 ≤ ‖A‖ ^ 2 := by
   let x : EuclideanSpace ℝ (Fin n) := PiLp.single 2 j 1
   have hop := l2_opNorm_mulVec A x
   have hx : ‖x‖ = 1 := by simp [x]
@@ -52,7 +52,7 @@ theorem product_mass_le_norm {rows inner columns : Nat}
 
 /-- Frobenius energy costs at most one dimension factor relative to the
 operator norm, independently of the chosen coordinate basis. -/
-theorem energy_le_norm {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) : energy A ≤ n * ‖A‖^2 := by
+theorem energy_le_norm {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) : energy A ≤ n * ‖A‖ ^ 2 := by
   have h := Finset.sum_le_sum (s := Finset.univ) (fun j _ => column_energy_le_norm A j)
   rw [energy, Finset.sum_comm]
   simpa only [Finset.sum_const, Finset.card_univ,
@@ -62,7 +62,7 @@ theorem energy_le_norm {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) : energy A ≤
 have a Euclidean bound without a dimension factor on the matrix norm. -/
 theorem pair_magnitude_energy {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     (p q : Fin n) (η : ℝ) (hη : 0 ≤ η)
-    : ∑ i, (|A i p| + |A i q| + η)^2 ≤ (2 * ‖A‖ + n * η)^2 := by
+    : ∑ i, (|A i p| + |A i q| + η) ^ 2 ≤ (2 * ‖A‖ + n * η) ^ 2 := by
   let x : EuclideanSpace ℝ (Fin n) := WithLp.toLp 2 (fun i => |A i p|)
   let y : EuclideanSpace ℝ (Fin n) := WithLp.toLp 2 (fun i => |A i q|)
   let z : EuclideanSpace ℝ (Fin n) := WithLp.toLp 2 (fun _ => η)
@@ -143,7 +143,7 @@ theorem symmetric_pair_error {n : Nat} (A E : Matrix (Fin n) (Fin n) ℝ)
   have hpairSq : ∑ k ∈ outside p q, (E k p ^ 2 + E k q ^ 2) ≤
       2 * ε^2 * ∑ k, (|A k p| + |A k q| + η)^2 := by
     calc
-      _ ≤ ∑ k ∈ outside p q, 2 * ε^2 * (|A k p| + |A k q| + η)^2 := by
+      _ ≤ ∑ k ∈ outside p q, 2 * ε ^ 2 * (|A k p| + |A k q| + η) ^ 2 := by
         apply Finset.sum_le_sum
         intro k hk
         have hk' := (mem_outside p q k).mp hk
@@ -152,7 +152,7 @@ theorem symmetric_pair_error {n : Nat} (A E : Matrix (Fin n) (Fin n) ℝ)
         have h2 := (sq_le_sq₀ (abs_nonneg _) (by positivity)).mpr he.2
         rw [sq_abs] at h1 h2
         nlinarith only [h1, h2]
-      _ ≤ ∑ k, 2 * ε^2 * (|A k p| + |A k q| + η)^2 :=
+      _ ≤ ∑ k, 2 * ε ^ 2 * (|A k p| + |A k q| + η) ^ 2 :=
         Finset.sum_le_sum_of_subset_of_nonneg (Finset.subset_univ _) (by intros; positivity)
       _ = _ := by rw [Finset.mul_sum]
   have he := mul_le_mul_of_nonneg_left hpairSq (by norm_num : (0 : ℝ) ≤ 2)
@@ -267,14 +267,14 @@ theorem similarity_error_norm {n : Nat} (A B : Matrix (Fin n) (Fin n) ℝ)
       : ∀ k,
           k ≠ p
           → k ≠ q
-          → |B k p - ((1 / Real.sqrt (1 + t^2)) * A k p - (t / Real.sqrt (1 + t^2)) * A k q)|
+          → |B k p - ((1 / Real.sqrt (1 + t ^ 2)) * A k p - (t / Real.sqrt (1 + t ^ 2)) * A k q)|
               ≤ ε * (|A k p| + |A k q| + η)
-            ∧ |B k q - ((t / Real.sqrt (1 + t^2)) * A k p + (1 / Real.sqrt (1 + t^2)) * A k q)|
+            ∧ |B k q - ((t / Real.sqrt (1 + t ^ 2)) * A k p + (1 / Real.sqrt (1 + t ^ 2)) * A k q)|
               ≤ ε * (|A k p| + |A k q| + η))
     (hexterior : ∀ i j, i ≠ p → i ≠ q → j ≠ p → j ≠ q → B i j = A i j)
-    : let c := 1 / Real.sqrt (1 + t^2)
+    : let c := 1 / Real.sqrt (1 + t ^ 2)
       let J := JacobiRotation.plane p q c (t * c)
-      let r := A p q * t^2 + (A q q - A p p) * t - A p q
+      let r := A p q * t ^ 2 + (A q q - A p p) * t - A p q
       ‖B - J.transpose * A * J‖ ≤ 2 * ε * (2 * ‖A‖ + n * η) + δ + 2 * |r| := by
   let c := 1 / Real.sqrt (1 + t^2)
   let s := t * c
@@ -328,8 +328,8 @@ theorem similarity_error_norm {n : Nat} (A B : Matrix (Fin n) (Fin n) ℝ)
 /-- Telescoping the energy recurrence bounds the total squared pivot size,
 including a multiplicative roundoff allowance at each step. -/
 theorem pivot_energy_sum (E b : Nat → ℝ) (ε : ℝ) (k : Nat)
-    (hstep : ∀ i, i < k → E (i + 1) ≤ (1 + ε) * E i - 2 * (b i)^2)
-    : 2 * (∑ i ∈ Finset.range k, (b i)^2) + E k ≤ E 0 + ε * ∑ i ∈ Finset.range k, E i := by
+    (hstep : ∀ i, i < k → E (i + 1) ≤ (1 + ε) * E i - 2 * (b i) ^ 2)
+    : 2 * (∑ i ∈ Finset.range k, (b i) ^ 2) + E k ≤ E 0 + ε * ∑ i ∈ Finset.range k, E i := by
   induction k with
   | zero => simp
   | succ k ih =>
@@ -342,8 +342,8 @@ theorem pivot_energy_sum (E b : Nat → ℝ) (ε : ℝ) (k : Nat)
 pivot magnitudes, which is the quantity needed for tangent-error accumulation. -/
 theorem pivot_magnitude_sum (E b : Nat → ℝ) (ε M : ℝ) (k : Nat)
     (hε : 0 ≤ ε) (hend : 0 ≤ E k) (hM : ∀ i, i < k → E i ≤ M)
-    (hstep : ∀ i, i < k → E (i + 1) ≤ (1 + ε) * E i - 2 * (b i)^2)
-    : (∑ i ∈ Finset.range k, |b i|)^2 ≤ k * (E 0 + k * ε * M) / 2 := by
+    (hstep : ∀ i, i < k → E (i + 1) ≤ (1 + ε) * E i - 2 * (b i) ^ 2)
+    : (∑ i ∈ Finset.range k, |b i|) ^ 2 ≤ k * (E 0 + k * ε * M) / 2 := by
   have henergy := pivot_energy_sum E b ε k hstep
   have hsum : ∑ i ∈ Finset.range k, E i ≤ k * M := by
     simpa using Finset.sum_le_sum (s := Finset.range k) (fun i hi => hM i (Finset.mem_range.mp hi))

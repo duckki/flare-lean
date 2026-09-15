@@ -34,7 +34,7 @@ theorem shiftTarget_exact (s : Sign) (m : Nat) (e : Int) (hm : m.log2 = 52) (he 
     ExtendedMantissa.accuracy, Accuracy.roundToNearestEven, HShiftRight.hShiftRight,
     Nat.repeat]
 
-private theorem round_small (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2^32)
+private theorem round_small (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 32)
     : round Format.binary64 s n 0
       = .finite s (n <<< (52 - n.log2)) ((n.log2 : Int) - 52) (Nat.shiftLeft_pos_iff.mpr hn) := by
   have hk : n.log2 < 32 := (Nat.log2_lt (Nat.ne_of_gt hn)).mpr hb
@@ -90,7 +90,7 @@ theorem unpack_pack_normal (s : Sign) (m : Nat) (e : Int)
   simp only [hexp, hmant]
   cases s <;> rfl
 
-private theorem model_ofNat_small (n : Nat) (hn : 0 < n) (hb : n < 2^32)
+private theorem model_ofNat_small (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 32)
     : Float.Model.ofNat n
       = Float.Model.pack
           (.finite .positive (n <<< (52 - n.log2)) ((n.log2 : Int) - 52)
@@ -99,7 +99,7 @@ private theorem model_ofNat_small (n : Nat) (hn : 0 < n) (hb : n < 2^32)
   rw [Int.compare_eq_gt.mpr (by omega)]
   simp only [Int.toNat_natCast, round_small _ n hn hb]
 
-private theorem model_ofInt_neg_small (n : Nat) (hn : 0 < n) (hb : n < 2^32)
+private theorem model_ofInt_neg_small (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 32)
     : Float.Model.ofInt (-(n : Int)) = -Float.Model.ofNat n := by
   have hk : n.log2 < 32 := (Nat.log2_lt (Nat.ne_of_gt hn)).mpr hb
   rw [model_ofNat_small n hn hb]

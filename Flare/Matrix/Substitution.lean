@@ -23,14 +23,14 @@ def subtractProducts (indices : List Nat) (left right : Nat → Float) (initial 
 
 private lemma subtract_step (a b s : Float) (exact M : ℝ) (k : Nat)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
-    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ)^(990 : Int))
-    (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ) ^ (990 : Int))
+    (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (ht : |value a * value b| ≤ M) (he : |exact| ≤ M)
-    (herr : |value s - exact| ≤ k * (2 : ℝ)^(-48 : Int) * M)
+    (herr : |value s - exact| ≤ k * (2 : ℝ) ^ (-48 : Int) * M)
     : (a * b).isFinite = true
       ∧ (s - a * b).isFinite = true
       ∧ |value (s - a * b) - (exact - value a * value b)|
-        ≤ (k + 1 : Nat) * (2 : ℝ)^(-48 : Int) * M := by
+        ≤ (k + 1 : Nat) * (2 : ℝ) ^ (-48 : Int) * M := by
   have hM0 : 0 ≤ M := (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _).trans hη
   have hk' : (k : ℝ) ≤ 31 := by exact_mod_cast hk
   have hsbound : |value s| ≤ 2 * M := by
@@ -41,8 +41,8 @@ private lemma subtract_step (a b s : Float) (exact M : ℝ) (k : Nat)
     nlinarith
   have hlim : 4 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(992 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (992 : Int) := by
         rw [show (992 : Int) = 990 + 2 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(2 : Int) = 4 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -79,16 +79,16 @@ rounded division. No lower bound on individual products is needed. -/
 lemma subtract_mass_step (a b s : Float) (exact mass : ℝ) (k offset : Nat)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
     (hk : k ≤ 31) (hoff : 2 ≤ offset) (hoff' : offset ≤ 4)
-    (hM : mass + |value a * value b| ≤ (2 : ℝ)^(990 : Int))
-    (hη : (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int) ≤ mass)
+    (hM : mass + |value a * value b| ≤ (2 : ℝ) ^ (990 : Int))
+    (hη : (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int) ≤ mass)
     (he : |exact| ≤ mass)
-    (herr : |value s - exact| ≤ (1001 / 1000 : ℝ) * (k + offset) * (2 : ℝ)^(-53 : Int) * mass)
+    (herr : |value s - exact| ≤ (1001 / 1000 : ℝ) * (k + offset) * (2 : ℝ) ^ (-53 : Int) * mass)
     : (a * b).isFinite = true
       ∧ (s - a * b).isFinite = true
       ∧ |value (s - a * b) - (exact - value a * value b)|
         ≤ (1001 / 1000 : ℝ)
           * ((k + 1 : Nat) + offset)
-          * (2 : ℝ)^(-53 : Int)
+          * (2 : ℝ) ^ (-53 : Int)
           * (mass + |value a * value b|) := by
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let t := |value a * value b|
@@ -107,8 +107,8 @@ lemma subtract_mass_step (a b s : Float) (exact mass : ℝ) (k offset : Nat)
   norm_num only [show (2 : ℝ)^(20 : Int) = 1048576 by norm_num] at hη
   have hlim : 4 * (mass + t) ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(992 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (992 : Int) := by
         rw [show (992 : Int) = 990 + 2 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(2 : Int) = 4 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -222,8 +222,8 @@ private theorem subtractProducts_triple (indices : List Nat) (left right : Nat �
     (hi : initial.isFinite = true)
     (hl : ∀ k ∈ indices, (left k).isFinite = true)
     (hr : ∀ k ∈ indices, (right k).isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(990 : Int))
-    (hmass : |value initial| + productMass indices left right + (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hM : M ≤ (2 : ℝ) ^ (990 : Int))
+    (hmass : |value initial| + productMass indices left right + (2 : ℝ) ^ (-1022 : Int) ≤ M)
     : ⦃⌜True⌝
       ⦄ subtractProducts indices left right initial
       ⦃
@@ -232,13 +232,13 @@ private theorem subtractProducts_triple (indices : List Nat) (left right : Nat �
               ⌜
                 s.isFinite = true
                 ∧ |value s - (value initial - productSum indices left right)|
-                  ≤ indices.length * (2 : ℝ)^(-48 : Int) * M
+                  ≤ indices.length * (2 : ℝ) ^ (-48 : Int) * M
                 ⌝
         ⦄ := by
   have hη : (2 : ℝ)^(-1022 : Int) ≤ M := by
     linarith [abs_nonneg (value initial), productMass_nonneg indices left right]
   apply subtractProducts_triple_of_step indices left right initial (value initial)
-    (fun pref => pref.length * (2 : ℝ)^(-48 : Int) * M) hi (by simp)
+    (fun pref => pref.length * (2 : ℝ) ^ (-48 : Int) * M) hi (by simp)
   intro pref k suff s heq hs
   subst indices
   let indices := pref ++ k :: suff
@@ -281,24 +281,22 @@ theorem subtractProducts_mass_accuracy (indices : List Nat) (left right : Nat �
     (hM
       : |target|
           + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-          + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)
-        ≤ (2 : ℝ)^(990 : Int))
+          + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)
+        ≤ (2 : ℝ) ^ (990 : Int))
     (hinit
       : |value initial - target|
         ≤ (1001 / 1000 : ℝ)
           * offset
-          * (2 : ℝ)^(-53 : Int)
-          * (|target| + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)))
+          * (2 : ℝ) ^ (-53 : Int)
+          * (|target| + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)))
     : ∃ s,
         subtractProducts indices left right initial = .ok s
         ∧ s.isFinite = true
         ∧ |value s - (target - (indices.map (fun k => value (left k) * value (right k))).sum)|
-          ≤ (1001 / 1000 : ℝ)
-            * (indices.length + offset)
-            * (2 : ℝ)^(-53 : Int)
+          ≤ (1001 / 1000 : ℝ) * (indices.length + offset) * (2 : ℝ) ^ (-53 : Int)
             * (|target|
                 + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-                + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+                + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   let mass (pref : List Nat) := |target| + productMass pref left right +
     (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)
   let budget (pref : List Nat) :=
@@ -341,8 +339,10 @@ theorem subtractProducts_mass_accuracy (indices : List Nat) (left right : Nat �
           by simpa only [budget, List.length_append, List.length_singleton, hstep] using hh.2.2
         ⟩)
   cases he : subtractProducts indices left right initial with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
-  | ok s => rw [he] at h; exact ⟨s, rfl, h True.intro⟩
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
+  | ok s =>
+      rw [he] at h; exact ⟨s, rfl, h True.intro⟩
 
 /-- A complete native subtract-products loop succeeds and has a relative error
 bound with an explicit underflow allowance in M. Indices may repeat and need
@@ -353,22 +353,24 @@ theorem subtractProducts_accuracy (indices : List Nat) (left right : Nat → Flo
     (hi : initial.isFinite = true)
     (hl : ∀ k ∈ indices, (left k).isFinite = true)
     (hr : ∀ k ∈ indices, (right k).isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(990 : Int))
+    (hM : M ≤ (2 : ℝ) ^ (990 : Int))
     (hmass
       : |value initial|
           + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-          + (2 : ℝ)^(-1022 : Int)
+          + (2 : ℝ) ^ (-1022 : Int)
         ≤ M)
     : ∃ s,
         subtractProducts indices left right initial = .ok s
         ∧ s.isFinite = true
         ∧ |value s
             - (value initial - (indices.map (fun k => value (left k) * value (right k))).sum)|
-          ≤ indices.length * (2 : ℝ)^(-48 : Int) * M := by
+          ≤ indices.length * (2 : ℝ) ^ (-48 : Int) * M := by
   have h := subtractProducts_triple indices left right initial M hlen hi hl hr hM hmass
   cases he : subtractProducts indices left right initial with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
-  | ok s => rw [he] at h; exact ⟨s, rfl, h True.intro⟩
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
+  | ok s =>
+      rw [he] at h; exact ⟨s, rfl, h True.intro⟩
 
 /-- Replacing operands outside the visited indices cannot change execution. -/
 lemma subtractProducts_congr (indices : List Nat) (left right left' right' : Nat → Float)
@@ -458,10 +460,11 @@ private theorem forward_equations_triple (n columns : Nat) (f : Factor) (b : Arr
       ⦄ forwardByProducts n columns f b
       ⦃⇓? r => ⌜ForwardEquations n columns f b n 0 r⌝⦄ := by
   unfold forwardByProducts
-  mvcgen invariants
-  | inv1 => ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b xs.prefix.length 0 r⌝
-  | inv2 pref i suff hi initial hs =>
-    ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b i xs.prefix.length r⌝
+  mvcgen
+    invariants
+      | inv1 => ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b xs.prefix.length 0 r⌝
+      | inv2 pref i suff hi initial hs =>
+        ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b i xs.prefix.length r⌝
     with
       | vc1 =>
         rename_i prefI i suffI hi initial hinit prefJ j suffJ hj r hr s hs
@@ -511,12 +514,12 @@ theorem forward_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Array Flo
     (hn : n ≤ 12) (hB : 0 ≤ B) (hB' : B ≤ 512)
     (hl : f.lower.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
-    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ y,
         LinearSolve.forward n columns f b = .ok y
         ∧ y.size = n * columns
         ∧ y.all Float.isFinite = true
-        ∧ (∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+        ∧ (∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
         ∧ ∀ i j,
             i < n
             → j < columns
@@ -524,12 +527,11 @@ theorem forward_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Array Flo
                 - (value (entry columns b i j)
                     - ∑ k ∈ Finset.range i,
                         value (entry n f.lower i k) * value (entry columns y k j))|
-              ≤ i
-                * (2 : ℝ)^(-48 : Int)
+              ≤ i * (2 : ℝ) ^ (-48 : Int)
                 * (|value (entry columns b i j)|
                     + ∑ k ∈ Finset.range i,
                         |value (entry n f.lower i k) * value (entry columns y k j)|
-                    + (2 : ℝ)^(-1022 : Int)) := by
+                    + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨y, hy, hys, hyf, hyb⟩ :=
     LinearSolve.forward_success n columns B f b hn hB hB' hl hb hlb hbb
   refine ⟨y, hy, hys, hyf, hyb, ?_⟩
@@ -547,7 +549,7 @@ theorem forward_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Array Flo
     change |value (entry n f.lower i k) * value (entry columns y k j)| ≤ _
     rw [abs_mul]
     calc
-      _ ≤ 128 * (2 : ℝ)^(608 : Int) := mul_le_mul h1 h2 (abs_nonneg _) (by norm_num)
+      _ ≤ 128 * (2 : ℝ) ^ (608 : Int) := mul_le_mul h1 h2 (abs_nonneg _) (by norm_num)
       _ = _ := by
         rw [show (615 : Int) = 608 + 7 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(7 : Int) = 128 by norm_num]
@@ -555,7 +557,7 @@ theorem forward_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Array Flo
   have hmass : productMass (List.range i) left right ≤ i * (2 : ℝ)^(615 : Int) := by
     unfold productMass
     calc
-      _ ≤ ((List.range i).map (fun _ => (2 : ℝ)^(615 : Int))).sum := List.sum_le_sum hterm
+      _ ≤ ((List.range i).map (fun _ => (2 : ℝ) ^ (615 : Int))).sum := List.sum_le_sum hterm
       _ = _ := by simp
   have hinit : |value initial| ≤ (2 : ℝ)^(615 : Int) :=
     (hbb i j hi hj).trans (zpow_le_zpow_right₀ (by norm_num) (by omega))
@@ -565,12 +567,12 @@ theorem forward_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Array Flo
     have hi' : (i : ℝ) ≤ 12 := by exact_mod_cast (by omega : i ≤ 12)
     have hm := mul_le_mul_of_nonneg_right hi' (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (615 : Int))
     calc
-      M ≤ (2 : ℝ)^(615 : Int) + 12 * (2 : ℝ)^(615 : Int) + (2 : ℝ)^(615 : Int) :=
+      M ≤ (2 : ℝ) ^ (615 : Int) + 12 * (2 : ℝ) ^ (615 : Int) + (2 : ℝ) ^ (615 : Int) :=
         add_le_add (add_le_add hinit (hmass.trans hm)) hη
-      _ = 14 * (2 : ℝ)^(615 : Int) := by ring
-      _ ≤ 16 * (2 : ℝ)^(615 : Int) :=
+      _ = 14 * (2 : ℝ) ^ (615 : Int) := by ring
+      _ ≤ 16 * (2 : ℝ) ^ (615 : Int) :=
         mul_le_mul_of_nonneg_right (by norm_num) (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
-      _ = (2 : ℝ)^(619 : Int) := by
+      _ = (2 : ℝ) ^ (619 : Int) := by
         rw [show (619 : Int) = 615 + 4 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(4 : Int) = 16 by norm_num]
         ring
@@ -606,20 +608,18 @@ theorem divideSubtractProducts_mass_accuracy (indices : List Nat) (left right : 
     (hM
       : |value numerator / value denominator|
           + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-          + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)
-        ≤ (2 : ℝ)^(990 : Int))
+          + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)
+        ≤ (2 : ℝ) ^ (990 : Int))
     : ∃ s,
         divideSubtractProducts indices left right numerator denominator = .ok s
         ∧ s.isFinite = true
         ∧ |value s
             - (value numerator / value denominator
                 - (indices.map (fun k => value (left k) * value (right k))).sum)|
-          ≤ (1001 / 1000 : ℝ)
-            * (indices.length + 4)
-            * (2 : ℝ)^(-53 : Int)
+          ≤ (1001 / 1000 : ℝ) * (indices.length + 4) * (2 : ℝ) ^ (-53 : Int)
             * (|value numerator / value denominator|
                 + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-                + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+                + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   have hq : |value numerator / value denominator| ≤ (2 : ℝ)^(990 : Int) := by
     apply le_trans _ hM
     change _ ≤ _ + productMass indices left right + _
@@ -652,11 +652,11 @@ theorem divideSubtractProducts_accuracy (indices : List Nat) (left right : Nat �
     (hd0 : value denominator ≠ 0)
     (hl : ∀ k ∈ indices, (left k).isFinite = true)
     (hr : ∀ k ∈ indices, (right k).isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(980 : Int))
+    (hM : M ≤ (2 : ℝ) ^ (980 : Int))
     (hmass
       : |value numerator / value denominator|
           + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-          + (2 : ℝ)^(-1022 : Int)
+          + (2 : ℝ) ^ (-1022 : Int)
         ≤ M)
     : ∃ s,
         divideSubtractProducts indices left right numerator denominator = .ok s
@@ -664,7 +664,7 @@ theorem divideSubtractProducts_accuracy (indices : List Nat) (left right : Nat �
         ∧ |value s
             - (value numerator / value denominator
                 - (indices.map (fun k => value (left k) * value (right k))).sum)|
-          ≤ (indices.length + 1 : Nat) * (2 : ℝ)^(-47 : Int) * M := by
+          ≤ (indices.length + 1 : Nat) * (2 : ℝ) ^ (-47 : Int) * M := by
   have hmass0 := productMass_nonneg indices left right
   change 0 ≤ (indices.map (fun k => |value (left k) * value (right k)|)).sum at hmass0
   have hη0 := zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) (-1022 : Int)
@@ -686,8 +686,8 @@ theorem divideSubtractProducts_accuracy (indices : List Nat) (left right : Nat �
     linarith
   have hM' : 2 * M ≤ (2 : ℝ)^(990 : Int) := by
     calc
-      _ ≤ 2 * (2 : ℝ)^(980 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(981 : Int) := by
+      _ ≤ 2 * (2 : ℝ) ^ (980 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (981 : Int) := by
         rw [show (981 : Int) = 980 + 1 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), zpow_one]
         ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -818,10 +818,11 @@ private theorem backward_equations_triple (n columns : Nat) (f : Factor) (y : Ar
       ⦄ backwardByProducts n columns f y
       ⦃⇓? r => ⌜BackwardEquations n columns f y n 0 r⌝⦄ := by
   unfold backwardByProducts
-  mvcgen invariants
-  | inv1 => ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y xs.prefix.length 0 r⌝
-  | inv2 pref t suff ht initial i hs =>
-    ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y t xs.prefix.length r⌝
+  mvcgen
+    invariants
+      | inv1 => ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y xs.prefix.length 0 r⌝
+      | inv2 pref t suff ht initial i hs =>
+        ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y t xs.prefix.length r⌝
     with
       | vc1 =>
         rename_i prefT t suffT ht initial i hinit prefJ j suffJ hj r hr s hs
@@ -873,12 +874,12 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
     (hy : y.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
     (hdb : ∀ i, i < n → (1 / 8 : ℝ) ≤ value (f.diagonal.getD i 0.0))
-    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
     : ∃ r,
         LinearSolve.backward n columns f y = .ok r
         ∧ r.size = n * columns
         ∧ r.all Float.isFinite = true
-        ∧ (∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ)^(B + 232))
+        ∧ (∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ) ^ (B + 232))
         ∧ ∀ i j,
             i < n
             → j < columns
@@ -886,12 +887,11 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
                 - (value (entry columns y i j) / value (f.diagonal.getD i 0.0)
                     - ∑ k ∈ Finset.Ico (i + 1) n,
                         value (entry n f.lower k i) * value (entry columns r k j))|
-              ≤ (n - i : Nat)
-                * (2 : ℝ)^(-47 : Int)
+              ≤ (n - i : Nat) * (2 : ℝ) ^ (-47 : Int)
                 * (|value (entry columns y i j) / value (f.diagonal.getD i 0.0)|
                     + ∑ k ∈ Finset.Ico (i + 1) n,
                         |value (entry n f.lower k i) * value (entry columns r k j)|
-                    + (2 : ℝ)^(-1022 : Int)) := by
+                    + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨r, hr, hrs, hrf, hrb⟩ :=
     LinearSolve.backward_success n columns B f y hn hB hB' hl hd hy hlb hdb hyb
   refine ⟨r, hr, hrs, hrf, hrb, ?_⟩
@@ -915,7 +915,7 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
     change |value (entry n f.lower k i) * value (entry columns r k j)| ≤ _
     rw [abs_mul]
     calc
-      _ ≤ 128 * (2 : ℝ)^(744 : Int) := mul_le_mul h1 h2 (abs_nonneg _) (by norm_num)
+      _ ≤ 128 * (2 : ℝ) ^ (744 : Int) := mul_le_mul h1 h2 (abs_nonneg _) (by norm_num)
       _ = _ := by
         rw [show (751 : Int) = 744 + 7 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(7 : Int) = 128 by norm_num]
@@ -924,15 +924,15 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
     have hlen : (indices.length : ℝ) ≤ 12 := by
       dsimp [indices]; simp only [List.length_range']; exact_mod_cast (by omega : n - (i + 1) ≤ 12)
     calc
-      _ ≤ (indices.map (fun _ => (2 : ℝ)^(751 : Int))).sum := List.sum_le_sum hterm
-      _ = indices.length * (2 : ℝ)^(751 : Int) := by simp
+      _ ≤ (indices.map (fun _ => (2 : ℝ) ^ (751 : Int))).sum := List.sum_le_sum hterm
+      _ = indices.length * (2 : ℝ) ^ (751 : Int) := by simp
       _ ≤ _ := mul_le_mul_of_nonneg_right hlen (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
   have hq : |value numerator / value denominator| ≤ (2 : ℝ)^(751 : Int) := by
     have hy' := (hyb i j hi hj).trans
       (zpow_le_zpow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (by omega : B + 96 ≤ 608))
     rw [abs_div, abs_of_pos hdp]
     calc
-      _ ≤ 8 * (2 : ℝ)^(608 : Int) := by
+      _ ≤ 8 * (2 : ℝ) ^ (608 : Int) := by
         apply (div_le_iff₀ hdp).mpr
         have hm := mul_le_mul_of_nonneg_left (hdb i hi)
           (mul_nonneg (by norm_num : (0 : ℝ) ≤ 8)
@@ -940,10 +940,10 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
         change |value numerator| ≤ (2 : ℝ)^(608 : Int) at hy'
         change 8 * (2 : ℝ)^(608 : Int) * (1 / 8) ≤ 8 * (2 : ℝ)^(608 : Int) * value denominator at hm
         calc
-          _ ≤ (2 : ℝ)^(608 : Int) := hy'
-          _ = 8 * (2 : ℝ)^(608 : Int) * (1 / 8) := by ring
+          _ ≤ (2 : ℝ) ^ (608 : Int) := hy'
+          _ = 8 * (2 : ℝ) ^ (608 : Int) * (1 / 8) := by ring
           _ ≤ _ := hm
-      _ = (2 : ℝ)^(611 : Int) := by
+      _ = (2 : ℝ) ^ (611 : Int) := by
         rw [show (611 : Int) = 608 + 3 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(3 : Int) = 8 by norm_num]
         ring
@@ -952,12 +952,12 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
     zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   have hM : M ≤ (2 : ℝ)^(980 : Int) := by
     calc
-      M ≤ (2 : ℝ)^(751 : Int) + 12 * (2 : ℝ)^(751 : Int) + (2 : ℝ)^(751 : Int) :=
+      M ≤ (2 : ℝ) ^ (751 : Int) + 12 * (2 : ℝ) ^ (751 : Int) + (2 : ℝ) ^ (751 : Int) :=
         add_le_add (add_le_add hq hmass) hη
-      _ = 14 * (2 : ℝ)^(751 : Int) := by ring
-      _ ≤ 16 * (2 : ℝ)^(751 : Int) :=
+      _ = 14 * (2 : ℝ) ^ (751 : Int) := by ring
+      _ ≤ 16 * (2 : ℝ) ^ (751 : Int) :=
         mul_le_mul_of_nonneg_right (by norm_num) (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
-      _ = (2 : ℝ)^(755 : Int) := by
+      _ = (2 : ℝ) ^ (755 : Int) := by
         rw [show (755 : Int) = 751 + 4 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(4 : Int) = 16 by norm_num]
         ring
@@ -982,41 +982,41 @@ theorem backward_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Array Fl
     ← List.sum_toFinset _ hnodup, hfinset]
     using herr
 
-private lemma product_magnitude (l x : ℝ) (hl : |l| ≤ 128) (hx : |x| ≤ (2 : ℝ)^(800 : Int))
-    : |l * x| ≤ (2 : ℝ)^(900 : Int) := by
+private lemma product_magnitude (l x : ℝ) (hl : |l| ≤ 128) (hx : |x| ≤ (2 : ℝ) ^ (800 : Int))
+    : |l * x| ≤ (2 : ℝ) ^ (900 : Int) := by
   rw [abs_mul]
   calc
-    _ ≤ 128 * (2 : ℝ)^(800 : Int) := mul_le_mul hl hx (abs_nonneg _) (by norm_num)
-    _ = (2 : ℝ)^(807 : Int) := by
+    _ ≤ 128 * (2 : ℝ) ^ (800 : Int) := mul_le_mul hl hx (abs_nonneg _) (by norm_num)
+    _ = (2 : ℝ) ^ (807 : Int) := by
       rw [show (807 : Int) = 800 + 7 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
       rw [show (2 : ℝ)^(7 : Int) = 128 by norm_num]; ring
     _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
 
 private lemma row_mass_bound (indices : List Nat) (left right : Nat → Float) (target : ℝ)
-    (hlen : indices.length ≤ 32) (hi : |target| ≤ (2 : ℝ)^(900 : Int))
-    (ht : ∀ k ∈ indices, |value (left k) * value (right k)| ≤ (2 : ℝ)^(900 : Int))
+    (hlen : indices.length ≤ 32) (hi : |target| ≤ (2 : ℝ) ^ (900 : Int))
+    (ht : ∀ k ∈ indices, |value (left k) * value (right k)| ≤ (2 : ℝ) ^ (900 : Int))
     : |target|
         + (indices.map (fun k => |value (left k) * value (right k)|)).sum
-        + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)
-      ≤ (2 : ℝ)^(990 : Int) := by
+        + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)
+      ≤ (2 : ℝ) ^ (990 : Int) := by
   have hsum : (indices.map (fun k => |value (left k) * value (right k)|)).sum ≤
       32 * (2 : ℝ)^(900 : Int) := by
     have hn : (indices.length : ℝ) ≤ 32 := by exact_mod_cast hlen
     calc
-      _ ≤ (indices.map (fun _ => (2 : ℝ)^(900 : Int))).sum := List.sum_le_sum ht
-      _ = indices.length * (2 : ℝ)^(900 : Int) := by simp
+      _ ≤ (indices.map (fun _ => (2 : ℝ) ^ (900 : Int))).sum := List.sum_le_sum ht
+      _ = indices.length * (2 : ℝ) ^ (900 : Int) := by simp
       _ ≤ _ := mul_le_mul_of_nonneg_right hn (by positivity)
   have hη : (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(900 : Int) := by
     rw [← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
     exact zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   calc
-    _ ≤ (2 : ℝ)^(900 : Int) + 32 * (2 : ℝ)^(900 : Int) + (2 : ℝ)^(900 : Int) :=
+    _ ≤ (2 : ℝ) ^ (900 : Int) + 32 * (2 : ℝ) ^ (900 : Int) + (2 : ℝ) ^ (900 : Int) :=
       add_le_add (add_le_add hi hsum) hη
-    _ ≤ 64 * (2 : ℝ)^(900 : Int) := by
+    _ ≤ 64 * (2 : ℝ) ^ (900 : Int) := by
       calc
-        _ = 34 * (2 : ℝ)^(900 : Int) := by ring
+        _ = 34 * (2 : ℝ) ^ (900 : Int) := by ring
         _ ≤ _ := mul_le_mul_of_nonneg_right (by norm_num) (by positivity)
-    _ = (2 : ℝ)^(906 : Int) := by
+    _ = (2 : ℝ) ^ (906 : Int) := by
       rw [show (906 : Int) = 900 + 6 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
       rw [show (2 : ℝ)^(6 : Int) = 64 by norm_num]; ring
     _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -1027,12 +1027,12 @@ theorem forward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Arra
     (hn : n ≤ 12) (hB : 0 ≤ B) (hB' : B ≤ 512)
     (hl : f.lower.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
-    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ y,
         LinearSolve.forward n columns f b = .ok y
         ∧ y.size = n * columns
         ∧ y.all Float.isFinite = true
-        ∧ (∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+        ∧ (∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
         ∧ ∀ i j,
             i < n
             → j < columns
@@ -1040,13 +1040,11 @@ theorem forward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (b : Arra
                 - (value (entry columns b i j)
                     - ∑ k ∈ Finset.range i,
                         value (entry n f.lower i k) * value (entry columns y k j))|
-              ≤ (1001 / 1000 : ℝ)
-                * (i + 2)
-                * (2 : ℝ)^(-53 : Int)
+              ≤ (1001 / 1000 : ℝ) * (i + 2) * (2 : ℝ) ^ (-53 : Int)
                 * (|value (entry columns b i j)|
                     + ∑ k ∈ Finset.range i,
                         |value (entry n f.lower i k) * value (entry columns y k j)|
-                    + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+                    + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨y, hy, hys, hyf, hyb⟩ :=
     LinearSolve.forward_success n columns B f b hn hB hB' hl hb hlb hbb
   refine ⟨y, hy, hys, hyf, hyb, ?_⟩
@@ -1082,12 +1080,12 @@ theorem backward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Arr
     (hy : y.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
     (hdb : ∀ i, i < n → (1 / 8 : ℝ) ≤ value (f.diagonal.getD i 0.0))
-    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
     : ∃ r,
         LinearSolve.backward n columns f y = .ok r
         ∧ r.size = n * columns
         ∧ r.all Float.isFinite = true
-        ∧ (∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ)^(B + 232))
+        ∧ (∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ) ^ (B + 232))
         ∧ ∀ i j,
             i < n
             → j < columns
@@ -1095,13 +1093,11 @@ theorem backward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Arr
                 - (value (entry columns y i j) / value (f.diagonal.getD i 0.0)
                     - ∑ k ∈ Finset.Ico (i + 1) n,
                         value (entry n f.lower k i) * value (entry columns r k j))|
-              ≤ (1001 / 1000 : ℝ)
-                * ((n - i : Nat) + 3)
-                * (2 : ℝ)^(-53 : Int)
+              ≤ (1001 / 1000 : ℝ) * ((n - i : Nat) + 3) * (2 : ℝ) ^ (-53 : Int)
                 * (|value (entry columns y i j) / value (f.diagonal.getD i 0.0)|
                     + ∑ k ∈ Finset.Ico (i + 1) n,
                         |value (entry n f.lower k i) * value (entry columns r k j)|
-                    + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+                    + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨r, hr, hrs, hrf, hrb⟩ :=
     LinearSolve.backward_success n columns B f y hn hB hB' hl hd hy hlb hdb hyb
   refine ⟨r, hr, hrs, hrf, hrb, ?_⟩
@@ -1118,13 +1114,13 @@ theorem backward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Arr
       (zpow_le_zpow_right₀ (by norm_num) (by omega))
     rw [abs_div, abs_of_pos hdp]
     calc
-      _ ≤ 8 * (2 : ℝ)^(800 : Int) := by
+      _ ≤ 8 * (2 : ℝ) ^ (800 : Int) := by
         apply (div_le_iff₀ hdp).mpr
         have hh := mul_le_mul_of_nonneg_left (hdb i hi)
           (by positivity : 0 ≤ 8 * (2 : ℝ)^(800 : Int))
         change 8 * (2 : ℝ)^(800 : Int) * (1 / 8) ≤ 8 * (2 : ℝ)^(800 : Int) * value denominator at hh
         nlinarith only [hh, hy']
-      _ = (2 : ℝ)^(803 : Int) := by
+      _ = (2 : ℝ) ^ (803 : Int) := by
         rw [show (803 : Int) = 800 + 3 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(3 : Int) = 8 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -1152,8 +1148,7 @@ theorem backward_mass_accuracy (n columns : Nat) (B : Int) (f : Factor) (y : Arr
       dsimp [indices]; simp only [List.length_range']; omega
     exact_mod_cast hh
   have hnodup : indices.Nodup := List.nodup_range'
-  simpa only [left, right, numerator, denominator, hlength,
-    ← List.sum_toFinset _ hnodup, hfinset]
+  simpa only [left, right, numerator, denominator, hlength, ← List.sum_toFinset _ hnodup, hfinset]
     using herr
 
 end Flare.Matrix.Substitution

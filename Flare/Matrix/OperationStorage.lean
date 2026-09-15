@@ -35,8 +35,8 @@ private theorem push_storage (a : Array Float) (x : Float) (n : Nat)
     (ha : a.size = n ∧ a.all Float.isFinite = true) (hx : x.isFinite = true)
     : (a.push x).size = n + 1 ∧ (a.push x).all Float.isFinite = true := by
   refine ⟨by simpa only [Array.size_push] using congrArg (· + 1) ha.1, ?_⟩
-  simpa only [← Array.all_toList, Array.toList_push, List.all_append,
-    List.all_cons, List.all_nil, Bool.and_true, Bool.and_eq_true]
+  simpa only [← Array.all_toList, Array.toList_push, List.all_append, List.all_cons, List.all_nil,
+    Bool.and_true, Bool.and_eq_true]
     using And.intro ha.2 hx
 
 @[spec]

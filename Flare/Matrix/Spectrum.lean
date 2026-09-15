@@ -99,7 +99,7 @@ theorem normalization_accuracy (a : Array Float) (ha : a.all Float.isFinite = tr
         ∧ ∀ i,
             i < a.size
             → |value (r.getD i 0.0) - value (a.getD i 0.0) / value (maxAbs a)|
-              ≤ (2 : ℝ)^(-51 : Int) := by
+              ≤ (2 : ℝ) ^ (-51 : Int) := by
   obtain ⟨hf, _, hb⟩ := maxAbs_correct a ha
   have hp := magnitude_positive a ha hn
   have he (i : Nat) (hi : i < a.size) :=

@@ -52,7 +52,7 @@ theorem completedMatrix_lower_bound {N k : Nat} (A L : Matrix (Fin N) (Fin N) �
     (hd : ∀ j : Fin N, j.val < k → 0 ≤ d j)
     (herr
       : ∀ i j : Fin N,
-          i.val < k ∨ j.val < k → |prefixGram L d hk i j - A i j| ≤ (2 : ℝ)^(-13 : Int))
+          i.val < k ∨ j.val < k → |prefixGram L d hk i j - A i j| ≤ (2 : ℝ) ^ (-13 : Int))
     : (completedMatrix A L d hk - (5 / 32 : ℝ) • 1).PosSemidef := by
   have hAsym := (NumericalBounds.posDef_of_lower_bound A (3 / 16) (by norm_num) hA).isHermitian
   have hGsym := (prefixGram_posSemidef L d hk hd).isHermitian
@@ -100,7 +100,7 @@ theorem prefix_schur_lower_bound {N k : Nat} (A L : Matrix (Fin N) (Fin N) ℝ)
     (htri : ∀ i j : Fin N, j.val < k → i.val < j.val → L i j = 0)
     (herr
       : ∀ i j : Fin N,
-          i.val < k ∨ j.val < k → |prefixGram L d hk i j - A i j| ≤ (2 : ℝ)^(-13 : Int))
+          i.val < k ∨ j.val < k → |prefixGram L d hk i j - A i j| ≤ (2 : ℝ) ^ (-13 : Int))
     : ((A - prefixGram L d hk).submatrix (trailingIndex hk) (trailingIndex hk)
         - (5 / 32 : ℝ) • 1).PosSemidef := by
   let e : Fin k ⊕ Fin (N - k) ≃ Fin N := finSumFinEquiv.trans (finCongr (Nat.add_sub_of_le hk))
@@ -143,8 +143,8 @@ theorem prefix_schur_lower_bound {N k : Nat} (A L : Matrix (Fin N) (Fin N) ℝ)
     e
   have hM' : (fromBlocks (P * D * P.transpose) (P * D * C.transpose) (C * D * P.transpose) B -
       (5 / 32 : ℝ) • 1).PosSemidef := by
-    simpa only [submatrix_sub, submatrix_smul, Pi.sub_apply, Pi.smul_apply,
-      submatrix_one_equiv, hblock]
+    simpa only [submatrix_sub, submatrix_smul, Pi.sub_apply, Pi.smul_apply, submatrix_one_equiv,
+      hblock]
       using hM
   have h := NumericalBounds.factor_schur_lower_bound P D C B (5 / 32) (by norm_num) hP hD hM'
   convert h using 1
@@ -160,7 +160,7 @@ theorem schur_column_bounds {N k : Nat} (A L : Matrix (Fin N) (Fin N) ℝ)
       : ((A - prefixGram L d hk).submatrix (trailingIndex hk) (trailingIndex hk)
           - (5 / 32 : ℝ) • 1).PosSemidef) (i j : Fin N) (hi : k ≤ i.val) (hj : k ≤ j.val)
     : (5 / 32 : ℝ) ≤ (A - prefixGram L d hk) j j
-      ∧ ((A - prefixGram L d hk) i j)^2 ≤ 1024 * (A - prefixGram L d hk) j j := by
+      ∧ ((A - prefixGram L d hk) i j) ^ 2 ≤ 1024 * (A - prefixGram L d hk) j j := by
   let ii : Fin (N - k) := ⟨i.val - k, by omega⟩
   let jj : Fin (N - k) := ⟨j.val - k, by omega⟩
   have hii : trailingIndex hk ii = i := by apply Fin.ext; dsimp [trailingIndex, ii]; omega
@@ -203,7 +203,7 @@ theorem gram_mass_bound {n : Nat} (L : Matrix (Fin n) (Fin n) ℝ) (d : Fin n �
     rw [← abs_mul]
     congr 1
     calc
-      _ = L i k * L j k * (Real.sqrt (d k))^2 := by rw [Real.sq_sqrt (hd k)]; ring
+      _ = L i k * L j k * (Real.sqrt (d k)) ^ 2 := by rw [Real.sq_sqrt (hd k)]; ring
       _ = _ := by ring
   have hs := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
     (fun k => |L i k * Real.sqrt (d k)|) (fun k => |L j k * Real.sqrt (d k)|)

@@ -17,8 +17,8 @@ structure State (n step : Nat) (a v : Array Float) : Prop where
   vectors_size : v.size = n * n
   vectors_finite : v.all Float.isFinite = true
   symmetric : ∀ i j, i < n → j < n → value (entry n a i j) = value (entry n a j i)
-  matrix_energy : energy (matrix n n a) ≤ (n : ℝ)^2 + 1 / 4 + step * (2 : ℝ)^(-20 : Int)
-  vectors_energy : energy (matrix n n v) ≤ (n : ℝ) + step * (2 : ℝ)^(-20 : Int)
+  matrix_energy : energy (matrix n n a) ≤ (n : ℝ) ^ 2 + 1 / 4 + step * (2 : ℝ) ^ (-20 : Int)
+  vectors_energy : energy (matrix n n v) ≤ (n : ℝ) + step * (2 : ℝ) ^ (-20 : Int)
 
 /-- The energy invariant implies the local magnitude profile throughout the
 entire runtime rotation allowance. -/
@@ -45,10 +45,10 @@ theorem entries_of_energy (n : Nat) (a : Array Float) (h : energy (matrix n n a)
 private lemma energy_allowance (n : Nat) (E E' : ℝ) (hn : n ≤ 18) (hE : E ≤ 1024)
     (h
       : E'
-        ≤ (1 + (2 : ℝ)^(-40 : Int)) * E
-          + (2 : ℝ)^(-28 : Int)
-          + 2 * (2 : ℝ)^(-40 : Int) * n * ((2 : ℝ)^(-1022 : Int))^2)
-    : E' ≤ E + (2 : ℝ)^(-20 : Int) := by
+        ≤ (1 + (2 : ℝ) ^ (-40 : Int)) * E
+          + (2 : ℝ) ^ (-28 : Int)
+          + 2 * (2 : ℝ) ^ (-40 : Int) * n * ((2 : ℝ) ^ (-1022 : Int)) ^ 2)
+    : E' ≤ E + (2 : ℝ) ^ (-20 : Int) := by
   have hη : (2 : ℝ)^(-1022 : Int) ≤ 1 :=
     (zpow_le_one_iff_right₀ (by norm_num : (1 : ℝ) < 2)).mpr (by norm_num)
   have hη0 : 0 ≤ (2 : ℝ)^(-1022 : Int) := by positivity
@@ -70,8 +70,8 @@ theorem state_rotate (n step p q : Nat) (a v : Array Float)
         rotate n a v p q = .ok result
         ∧ State n (step + 1) result.1 result.2
         ∧ offEnergy (matrix n n result.1)
-          ≤ (1 + (2 : ℝ)^(-36 : Int)) * offEnergy (matrix n n a)
-            - 2 * (value (entry n a p q))^2 := by
+          ≤ (1 + (2 : ℝ) ^ (-36 : Int)) * offEnergy (matrix n n a)
+            - 2 * (value (entry n a p q)) ^ 2 := by
   have hE := state_energy_bound n step a v hn hstep h
   have ha := entries_of_energy n a hE.1
   have hv := entries_of_energy n v hE.2

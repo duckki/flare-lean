@@ -23,7 +23,7 @@ theorem norm_le_entries {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ) (ε : ℝ)
   apply (sq_le_sq₀ (norm_nonneg _) (by positivity)).mp
   have hrow (i : Fin n) : ∑ j, (E i j)^2 ≤ n * ε^2 := by
     calc
-      _ ≤ ∑ _j : Fin n, ε^2 :=
+      _ ≤ ∑ _j : Fin n, ε ^ 2 :=
         Finset.sum_le_sum
           fun j _ => by
             have h := (sq_le_sq₀ (abs_nonneg _) hε).mpr (hE i j)
@@ -57,8 +57,7 @@ theorem entry_le_norm {m n : Nat} (E : Matrix (Fin m) (Fin n) ℝ) (i : Fin m) (
 theorem orthogonal_mem_unitary {n : Nat} (J : Matrix (Fin n) (Fin n) ℝ)
     (hJ : J.transpose * J = 1 ∧ J * J.transpose = 1)
     : J ∈ unitary (Matrix (Fin n) (Fin n) ℝ) := by
-  simpa only [Unitary.mem_iff, star_eq_conjTranspose,
-    conjTranspose_eq_transpose_of_trivial]
+  simpa only [Unitary.mem_iff, star_eq_conjTranspose, conjTranspose_eq_transpose_of_trivial]
     using hJ
 
 /-- Transpose preserves the Euclidean operator norm on real matrices. -/
@@ -131,7 +130,7 @@ theorem accumulate_vectors {n : Nat} (V J : Nat → Matrix (Fin n) (Fin n) ℝ)
 defect for the rounded eigenvectors. No exact native orthogonality is assumed. -/
 theorem orthogonality_error {n : Nat} (V W : Matrix (Fin n) (Fin n) ℝ)
     (ε : ℝ) (hW : W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)) (hε : ‖V - W‖ ≤ ε)
-    : ‖V.transpose * V - 1‖ ≤ ε^2 + 2 * ε := by
+    : ‖V.transpose * V - 1‖ ≤ ε ^ 2 + 2 * ε := by
   have hε0 : 0 ≤ ε := (norm_nonneg _).trans hε
   have hWW : W.transpose * W = 1 := by
     simpa only [star_eq_conjTranspose, conjTranspose_eq_transpose_of_trivial] using hW.1
@@ -191,7 +190,7 @@ theorem eigen_residual {n : Nat} (A T D V W : Matrix (Fin n) (Fin n) ℝ)
 orthogonal reconstruction by a quadratic frame-error bound. -/
 theorem reconstruction_frame_error {n : Nat} (V W R : Matrix (Fin n) (Fin n) ℝ)
     (δ : ℝ) (hW : W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)) (hδ : ‖V - W‖ ≤ δ)
-    : ‖V * R * V.transpose - W * R * W.transpose‖ ≤ ‖R‖ * (δ^2 + 2 * δ) := by
+    : ‖V * R * V.transpose - W * R * W.transpose‖ ≤ ‖R‖ * (δ ^ 2 + 2 * δ) := by
   have hδ0 := (norm_nonneg (V - W)).trans hδ
   have hWT : W.transpose ∈ unitary (Matrix (Fin n) (Fin n) ℝ) := by
     simpa only [star_eq_conjTranspose, conjTranspose_eq_transpose_of_trivial]
@@ -248,7 +247,7 @@ theorem projected_frame_error {m n : Nat} (F : Matrix (Fin m) (Fin n) ℝ)
     (hW : W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)) (hR : R.transpose = R)
     (hδ : ‖V - W‖ ≤ δ)
     : ‖F * (V * R * V.transpose - W * R * W.transpose) * F.transpose‖
-      ≤ ‖F‖^2 * ‖R‖ * δ^2 + 2 * ‖F‖ * ‖F * (W * R * W.transpose)‖ * δ := by
+      ≤ ‖F‖ ^ 2 * ‖R‖ * δ ^ 2 + 2 * ‖F‖ * ‖F * (W * R * W.transpose)‖ * δ := by
   have hδ0 := (norm_nonneg _).trans hδ
   let E := F * (V - W)
   let G := F * W
@@ -317,7 +316,7 @@ theorem norm_le_of_psd_order {n : Nat} (A B : Matrix (Fin n) (Fin n) ℝ)
 without replacing it by a dimension-dependent entrywise estimate. -/
 theorem gram_norm_bound {m n : Nat} (F : Matrix (Fin m) (Fin n) ℝ)
     (B : Matrix (Fin n) (Fin n) ℝ) (h : (B - F.transpose * F).PosSemidef)
-    : ‖F‖^2 ≤ ‖B‖ := by
+    : ‖F‖ ^ 2 ≤ ‖B‖ := by
   have hpsd : (F.transpose * F).PosSemidef := by
     simpa only [conjTranspose_eq_transpose_of_trivial] using posSemidef_conjTranspose_mul_self F
   have hn := norm_le_of_psd_order _ B hpsd h

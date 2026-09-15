@@ -15,7 +15,7 @@ rev = "v4.33.1"
 [[require]]
 name = "leanfmt"
 git = "https://github.com/duckki/leanfmt.git"
-rev = "v0.4.1"
+rev = "v0.4.4"
 
 [[lean_lib]]
 name = "Flare"

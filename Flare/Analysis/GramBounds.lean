@@ -179,7 +179,7 @@ theorem gram_operand_norms {o m : Nat} (R : Matrix (Fin o) (Fin o) ℝ)
     (hR : R.PosDef) (hfloor : (R - (1 / 4 : ℝ) • 1).PosSemidef)
     (hY : Y.PosSemidef) (hRn : ‖R‖ ≤ 48)
     : let T := Y + C.transpose * R⁻¹ * C
-      ‖R⁻¹ * C‖^2 ≤ 4 * ‖T‖ ∧ ‖C‖^2 ≤ 48 * ‖T‖ ∧ ‖C‖ * ‖R⁻¹ * C‖ ≤ 14 * ‖T‖ := by
+      ‖R⁻¹ * C‖ ^ 2 ≤ 4 * ‖T‖ ∧ ‖C‖ ^ 2 ≤ 48 * ‖T‖ ∧ ‖C‖ * ‖R⁻¹ * C‖ ≤ 14 * ‖T‖ := by
   let T := Y + C.transpose * R⁻¹ * C
   have hf := gram_norm_bound (R⁻¹ * C) ((4 : ℝ) • T)
     (noise_information_domination R C Y hR hfloor hY)

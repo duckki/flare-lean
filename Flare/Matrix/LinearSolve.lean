@@ -48,17 +48,17 @@ lemma solve_split (n columns : Nat) (f : Factor) (b : Array Float)
   unfold solve forward backward
   simp only [bind_assoc, pure_bind]
 
-private lemma zpow_shift (E k : Int) : (2 : ℝ)^(E + k) = (2 : ℝ)^E * (2 : ℝ)^k :=
+private lemma zpow_shift (E k : Int) : (2 : ℝ) ^ (E + k) = (2 : ℝ) ^ E * (2 : ℝ) ^ k :=
   zpow_add₀ (by norm_num) _ _
 
 /-- A forward-substitution step cannot overflow on the stated operand bounds.
 The two arithmetic operations are separately rounded, as in the runtime. -/
 lemma forward_step (E : Int) (s l y : Float) (hE : 0 ≤ E) (hE' : E ≤ 1000)
     (hs : s.isFinite = true) (hl : l.isFinite = true) (hy : y.isFinite = true)
-    (hsb : |value s| ≤ (2 : ℝ)^E) (hlb : |value l| ≤ 128) (hyb : |value y| ≤ (2 : ℝ)^E)
+    (hsb : |value s| ≤ (2 : ℝ) ^ E) (hlb : |value l| ≤ 128) (hyb : |value y| ≤ (2 : ℝ) ^ E)
     : (l * y).isFinite = true
       ∧ (s - l * y).isFinite = true
-      ∧ |value (s - l * y)| ≤ (2 : ℝ)^(E + 8) := by
+      ∧ |value (s - l * y)| ≤ (2 : ℝ) ^ (E + 8) := by
   have hp : 0 < (2 : ℝ)^E := zpow_pos (by norm_num) _
   have ht : |value l * value y| ≤ 128 * (2 : ℝ)^E := by
     rw [abs_mul]
@@ -114,10 +114,11 @@ private lemma stored_set (n columns : Nat) (r : Array Float)
       Array.getElem?_setIfInBounds_ne hn] using hh
 
 private def ForwardState (n columns : Nat) (B : Int) (i j : Nat) (r : Array Float) : Prop :=
-  Stored n columns (fun a b => a < i ∨ a = i ∧ b < j) (fun a => (2 : ℝ)^(B + 8 * ((a : Int) + 1))) r
+  Stored n columns (fun a b => a < i ∨ a = i ∧ b < j) (fun a => (2 : ℝ) ^ (B + 8 * ((a : Int) + 1)))
+    r
 
 private def ForwardAccumulator (B : Int) (k : Nat) (s : Float) : Prop :=
-  s.isFinite = true ∧ |value s| ≤ (2 : ℝ)^(B + 8 * ((k : Int) + 1))
+  s.isFinite = true ∧ |value s| ≤ (2 : ℝ) ^ (B + 8 * ((k : Int) + 1))
 
 @[spec]
 private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
@@ -131,7 +132,7 @@ private theorem forward_triple (n columns : Nat) (B : Int) (f : Factor) (b : Arr
     (hn : n ≤ 12) (hB : 0 ≤ B) (hB' : B ≤ 512)
     (hl : f.lower.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
-    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ⦃⌜True⌝⦄ forward n columns f b ⦃⇓ r => ⌜ForwardState n columns B n 0 r⌝⦄ := by
   have step (i j k : Nat) (r : Array Float) (s : Float) (hi : i < n) (hj : j < columns)
       (hk : k < i) (hr : ForwardState n columns B i j r) (hs : ForwardAccumulator B k s) :
@@ -208,11 +209,11 @@ private theorem forward_triple (n columns : Nat) (B : Int) (f : Factor) (b : Arr
 finiteness while allowing the solved rows to be larger than the right-hand side. -/
 lemma backward_step (E : Int) (k : Nat) (s l x : Float) (hE : 0 ≤ E) (hE' : E ≤ 1000)
     (hk : k ≤ 11) (hs : s.isFinite = true) (hl : l.isFinite = true) (hx : x.isFinite = true)
-    (hsb : |value s| ≤ (1 + 130 * k) * (2 : ℝ)^E)
-    (hlb : |value l| ≤ 128) (hxb : |value x| ≤ (2 : ℝ)^E)
+    (hsb : |value s| ≤ (1 + 130 * k) * (2 : ℝ) ^ E)
+    (hlb : |value l| ≤ 128) (hxb : |value x| ≤ (2 : ℝ) ^ E)
     : (l * x).isFinite = true
       ∧ (s - l * x).isFinite = true
-      ∧ |value (s - l * x)| ≤ (1 + 130 * (k + 1 : Nat)) * (2 : ℝ)^E := by
+      ∧ |value (s - l * x)| ≤ (1 + 130 * (k + 1 : Nat)) * (2 : ℝ) ^ E := by
   have hp : 0 < (2 : ℝ)^E := zpow_pos (by norm_num) _
   have hk' : (k : ℝ) ≤ 11 := by exact_mod_cast hk
   have ht : |value l * value x| ≤ 128 * (2 : ℝ)^E := by
@@ -239,8 +240,8 @@ lemma backward_step (E : Int) (k : Nat) (s l x : Float) (hE : 0 ≤ E) (hE' : E 
 
 private lemma divide_start (B : Int) (hB : 0 ≤ B) (hB' : B ≤ 512) (y d : Float)
     (hy : y.isFinite = true) (hd : d.isFinite = true)
-    (hyb : |value y| ≤ (2 : ℝ)^(B + 96)) (hdb : (1 / 8 : ℝ) ≤ value d)
-    : (y / d).isFinite = true ∧ |value (y / d)| ≤ (2 : ℝ)^(B + 100) := by
+    (hyb : |value y| ≤ (2 : ℝ) ^ (B + 96)) (hdb : (1 / 8 : ℝ) ≤ value d)
+    : (y / d).isFinite = true ∧ |value (y / d)| ≤ (2 : ℝ) ^ (B + 100) := by
   have hdp : 0 < value d := by linarith
   have hq : |value y / value d| ≤ (2 : ℝ)^(B + 99) := by
     rw [abs_div, abs_of_pos hdp]
@@ -260,10 +261,10 @@ private lemma divide_start (B : Int) (hB : 0 ≤ B) (hB' : B ≤ 512) (y d : Flo
 
 private def BackwardState (n columns : Nat) (B : Int) (step j : Nat) (r : Array Float) : Prop :=
   Stored n columns (fun a b => n - 1 - a < step ∨ n - 1 - a = step ∧ b < j)
-    (fun a => (2 : ℝ)^(B + 100 + 11 * ((n : Int) - a))) r
+    (fun a => (2 : ℝ) ^ (B + 100 + 11 * ((n : Int) - a))) r
 
 private def BackwardAccumulator (B : Int) (step k : Nat) (s : Float) : Prop :=
-  s.isFinite = true ∧ |value s| ≤ (1 + 130 * k) * (2 : ℝ)^(B + 100 + 11 * (step : Int))
+  s.isFinite = true ∧ |value s| ≤ (1 + 130 * k) * (2 : ℝ) ^ (B + 100 + 11 * (step : Int))
 
 private lemma range_from_current {a n k : Nat} {pref suff : List Nat}
     (h : [a:n].toList = pref ++ k :: suff)
@@ -282,7 +283,7 @@ private theorem backward_triple (n columns : Nat) (B : Int) (f : Factor) (y : Ar
     (hy : y.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
     (hdb : ∀ i, i < n → (1 / 8 : ℝ) ≤ value (f.diagonal.getD i 0.0))
-    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
     : ⦃⌜True⌝⦄ backward n columns f y ⦃⇓ r => ⌜BackwardState n columns B n 0 r⌝⦄ := by
   have start (step j : Nat) (hs : step < n) (hj : j < columns) :
       (entry columns y (n - 1 - step) j / f.diagonal.getD (n - 1 - step) 0.0).isFinite = true ∧
@@ -298,7 +299,7 @@ private theorem backward_triple (n columns : Nat) (B : Int) (f : Factor) (y : Ar
       (1 + 130 * (0 : Nat)) * (2 : ℝ)^(B + 100 + 11 * (step : Int))
     simp only [Nat.cast_zero, mul_zero, add_zero, one_mul]
     calc
-      _ ≤ (2 : ℝ)^(B + 100) := hh.2
+      _ ≤ (2 : ℝ) ^ (B + 100) := hh.2
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by omega)
   have step (t j k count : Nat) (r : Array Float) (s : Float) (ht : t < n) (hj : j < columns)
       (hk : k < n) (hik : n - 1 - t < k) (hcount : count ≤ 11)
@@ -391,15 +392,16 @@ theorem forward_success (n columns : Nat) (B : Int) (f : Factor) (b : Array Floa
     (hn : n ≤ 12) (hB : 0 ≤ B) (hB' : B ≤ 512)
     (hl : f.lower.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
-    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ y,
         forward n columns f b = .ok y
         ∧ y.size = n * columns
         ∧ y.all Float.isFinite = true
-        ∧ ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96) := by
+        ∧ ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96) := by
   have h := forward_triple n columns B f b hn hB hB' hl hb hlb hbb
   cases he : forward n columns f b with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok y =>
       rw [he] at h
       have hy := h True.intro
@@ -415,15 +417,16 @@ theorem backward_success (n columns : Nat) (B : Int) (f : Factor) (y : Array Flo
     (hy : y.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
     (hdb : ∀ i, i < n → (1 / 8 : ℝ) ≤ value (f.diagonal.getD i 0.0))
-    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ)^(B + 96))
+    (hyb : ∀ i j, i < n → j < columns → |value (entry columns y i j)| ≤ (2 : ℝ) ^ (B + 96))
     : ∃ r,
         backward n columns f y = .ok r
         ∧ r.size = n * columns
         ∧ r.all Float.isFinite = true
-        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ)^(B + 232) := by
+        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ) ^ (B + 232) := by
   have h := backward_triple n columns B f y hn hB hB' hl hd hy hlb hdb hyb
   cases he : backward n columns f y with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok r =>
       rw [he] at h
       have hr := h True.intro
@@ -442,12 +445,12 @@ theorem solve_success (n columns : Nat) (B : Int) (f : Factor) (b : Array Float)
     (hd : f.diagonal.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hlb : ∀ i k, i < n → k < i → |value (entry n f.lower i k)| ≤ 128)
     (hdb : ∀ i, i < n → (1 / 8 : ℝ) ≤ value (f.diagonal.getD i 0.0))
-    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ)^B)
+    (hbb : ∀ i j, i < n → j < columns → |value (entry columns b i j)| ≤ (2 : ℝ) ^ B)
     : ∃ r,
         solve n columns f b = .ok r
         ∧ r.size = n * columns
         ∧ r.all Float.isFinite = true
-        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ)^(B + 232) := by
+        ∧ ∀ i j, i < n → j < columns → |value (entry columns r i j)| ≤ (2 : ℝ) ^ (B + 232) := by
   obtain ⟨y, hy, _, hyf, hyb⟩ := forward_success n columns B f b hn hB hB' hl hb hlb hbb
   obtain ⟨r, hr, hrs, hrf, hrb⟩ := backward_success n columns B f y hn hB hB' hl hd hyf hlb hdb hyb
   refine ⟨r, ?_, hrs, hrf, hrb⟩

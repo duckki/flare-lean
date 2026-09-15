@@ -13,7 +13,7 @@ open Float.Model Float.Model.UnpackedFloat
 open Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Binary64.Model.Rounding
 
-private lemma core_shape (m : Nat) (e : Int) (hm : 0 < m) (hmb : m < 2^53)
+private lemma core_shape (m : Nat) (e : Int) (hm : 0 < m) (hmb : m < 2 ^ 53)
     (he : -1074 ≤ e) (he' : e ≤ 971)
     : (let t := ((m.log2 : Int) + e + 2) / 2 - 53;
         let shifted := m <<< (e - 2 * t).toNat;
@@ -106,8 +106,8 @@ private lemma positive_error (x : Float.Model) (m : Nat) (e : Int) (hm : 0 < m)
     (hu : x.unpack = .finite .positive m e hm)
     : ∃ q : ℝ,
         Flare.Binary64.Value.modelToReal x.sqrt = some q
-        ∧ |q - Real.sqrt ((m : ℝ) * (2 : ℝ)^e)|
-          ≤ (2 : ℝ)^(-53 : Int) * Real.sqrt ((m : ℝ) * (2 : ℝ)^e) := by
+        ∧ |q - Real.sqrt ((m : ℝ) * (2 : ℝ) ^ e)|
+          ≤ (2 : ℝ) ^ (-53 : Int) * Real.sqrt ((m : ℝ) * (2 : ℝ) ^ e) := by
   obtain ⟨hmb, he, he', _⟩ := unpack_finite_shape x .positive m e hm hu
   let t := ((m.log2 : Int) + e + 2) / 2 - 53
   let shifted := m <<< (e - 2 * t).toNat
@@ -167,7 +167,8 @@ private lemma positive_error (x : Float.Model) (m : Nat) (e : Int) (hm : 0 < m)
     have hrootlo := mul_le_mul_of_nonneg_right hrlo hδ.le
     apply herror.trans
     calc
-      (1 / 2 : ℝ) * (2 : ℝ)^t = (2 : ℝ)^(-53 : Int) * ((2^52 : ℝ) * (2 : ℝ)^t) := by norm_num; ring
+      (1 / 2 : ℝ) * (2 : ℝ) ^ t = (2 : ℝ) ^ (-53 : Int) * ((2 ^ 52 : ℝ) * (2 : ℝ) ^ t) := by
+        norm_num; ring
       _ ≤ _ := mul_le_mul_of_nonneg_left (hrootlo.trans hfloor.1) (by positivity)
 
 /-- Native square root is rounded within half a spacing unit, yielding the
@@ -175,7 +176,7 @@ standard binary64 `2⁻⁵³` relative bound. The proof follows integer-root rou
 including its carry case, signed zero and positive subnormal inputs. -/
 theorem sqrt_error_nearest (x : Float) (hx : x.isFinite = true) (hn : 0 ≤ value x)
     : x.sqrt.isFinite = true
-      ∧ |value x.sqrt - Real.sqrt (value x)| ≤ (2 : ℝ)^(-53 : Int) * Real.sqrt (value x) := by
+      ∧ |value x.sqrt - Real.sqrt (value x)| ≤ (2 : ℝ) ^ (-53 : Int) * Real.sqrt (value x) := by
   change x.toModel.unpack.isFinite = true at hx
   cases hu : x.toModel.unpack with
   | notANumber => simp [hu, UnpackedFloat.isFinite] at hx
@@ -212,7 +213,7 @@ error at most 2⁻⁵⁰. This convenient allowance follows from the sharper nea
 rounding theorem and includes signed zero and positive subnormal inputs. -/
 theorem sqrt_error (x : Float) (hx : x.isFinite = true) (hn : 0 ≤ value x)
     : x.sqrt.isFinite = true
-      ∧ |value x.sqrt - Real.sqrt (value x)| ≤ (2 : ℝ)^(-50 : Int) * Real.sqrt (value x) := by
+      ∧ |value x.sqrt - Real.sqrt (value x)| ≤ (2 : ℝ) ^ (-50 : Int) * Real.sqrt (value x) := by
   have h := sqrt_error_nearest x hx hn
   exact ⟨h.1, h.2.trans (mul_le_mul_of_nonneg_right (by norm_num) (Real.sqrt_nonneg _))⟩
 

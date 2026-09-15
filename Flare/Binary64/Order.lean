@@ -11,8 +11,8 @@ open Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Binary64.Model.Rounding
 
 private lemma exponent_lt (m n : Nat) (e f : Int) (hn : 0 < n)
-    (hm : m < 2^53) (he : -1074 ≤ e) (hnc : n.log2 = 52 ∨ f = -1074) (hef : e < f)
-    : (m : ℝ) * (2 : ℝ)^e < (n : ℝ) * (2 : ℝ)^f := by
+    (hm : m < 2 ^ 53) (he : -1074 ≤ e) (hnc : n.log2 = 52 ∨ f = -1074) (hef : e < f)
+    : (m : ℝ) * (2 : ℝ) ^ e < (n : ℝ) * (2 : ℝ) ^ f := by
   have hnlog : n.log2 = 52 := by rcases hnc with h | h; exact h; omega
   have hnb : 2^52 ≤ n := ((Nat.log2_eq_iff (Nat.ne_of_gt hn)).mp hnlog).1
   have hmlt : (m : ℝ) < (2 : ℝ)^53 := by exact_mod_cast hm
@@ -25,9 +25,10 @@ private lemma exponent_lt (m n : Nat) (e f : Int) (hn : 0 < n)
     (hpow.trans (mul_le_mul_of_nonneg_right hnle (zpow_pos (by norm_num) _).le))
 
 private lemma compare_magnitudes (m n : Nat) (e f : Int) (hm : 0 < m) (hn : 0 < n)
-    (hmb : m < 2^53) (hnb : n < 2^53) (he : -1074 ≤ e) (hf : -1074 ≤ f)
+    (hmb : m < 2 ^ 53) (hnb : n < 2 ^ 53) (he : -1074 ≤ e) (hf : -1074 ≤ f)
     (hmc : m.log2 = 52 ∨ e = -1074) (hnc : n.log2 = 52 ∨ f = -1074)
-    : ((compare e f).then (compare m n)).Compares ((m : ℝ) * (2 : ℝ)^e) ((n : ℝ) * (2 : ℝ)^f) := by
+    : ((compare e f).then (compare m n)).Compares ((m : ℝ) * (2 : ℝ) ^ e)
+        ((n : ℝ) * (2 : ℝ) ^ f) := by
   rcases lt_trichotomy e f with hef | hef | hef
   · rw [Int.compare_eq_lt.mpr hef]
     exact exponent_lt m n e f hn hmb he hnc hef
@@ -161,7 +162,7 @@ theorem max_value (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true
 private lemma pack_finite_value (x : Float.Model) (s s' : Sign) (m : Nat) (e : Int)
     (hm : 0 < m) (hu : x.unpack = .finite s m e hm)
     : Flare.Binary64.Value.modelToReal (Float.Model.pack (.finite s' m e hm))
-      = some ((s'.apply (m : Int) : ℝ) * (2 : ℝ)^e) := by
+      = some ((s'.apply (m : Int) : ℝ) * (2 : ℝ) ^ e) := by
   obtain ⟨hmb, he, he', hc⟩ := unpack_finite_shape x s m e hm hu
   unfold Flare.Binary64.Value.modelToReal
   rcases hc with hlog | heq

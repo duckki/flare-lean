@@ -16,7 +16,7 @@ noncomputable def entries {n m : Nat} (A : Matrix (Fin n) (Fin m) ℝ)
 
 /-- The flattened norm is the Frobenius norm. -/
 lemma entries_norm_sq {n m : Nat} (A : Matrix (Fin n) (Fin m) ℝ)
-    : ‖entries A‖^2 = ∑ i, ∑ j, (A i j)^2 := by
+    : ‖entries A‖ ^ 2 = ∑ i, ∑ j, (A i j) ^ 2 := by
   simp only [entries, EuclideanSpace.norm_sq_eq, Real.norm_eq_abs, sq_abs,
     Fintype.sum_prod_type]
 
@@ -62,8 +62,8 @@ theorem entries_mul_le {n m k : Nat} (A : Matrix (Fin n) (Fin m) ℝ) (B : Matri
     (l2_opNorm_mulVec A (WithLp.toLp 2 (fun i => B i j)))
   change ‖WithLp.toLp 2 (A.mulVec (fun i => B i j))‖^2 ≤
     (‖A‖ * ‖WithLp.toLp 2 (fun i => B i j)‖)^2 at hh
-  simpa only [mul_pow, EuclideanSpace.norm_sq_eq, Real.norm_eq_abs, sq_abs,
-    Matrix.mul_apply, mulVec, dotProduct]
+  simpa only [mul_pow, EuclideanSpace.norm_sq_eq, Real.norm_eq_abs, sq_abs, Matrix.mul_apply,
+    mulVec, dotProduct]
     using hh
 
 /-- Entrywise absolute domination transfers to the flattened norm. -/
@@ -220,7 +220,7 @@ theorem bounded_rectangle {n m : Nat} (A : Matrix (Fin n) (Fin m) ℝ)
 
 /-- The operator norm controls every real quadratic form. -/
 theorem quadratic_norm_bound {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ) (x : Fin n → ℝ)
-    : |x ⬝ᵥ E.mulVec x| ≤ ‖E‖ * ∑ i, (x i)^2 := by
+    : |x ⬝ᵥ E.mulVec x| ≤ ‖E‖ * ∑ i, (x i) ^ 2 := by
   let v : EuclideanSpace ℝ (Fin n) := WithLp.toLp 2 x
   let w : EuclideanSpace ℝ (Fin n) := WithLp.toLp 2 (E.mulVec x)
   have hh : |x ⬝ᵥ E.mulVec x| ≤ ‖v‖ * ‖w‖ := by
@@ -230,7 +230,7 @@ theorem quadratic_norm_bound {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ) (x : Fin
   have he : ‖w‖ ≤ ‖E‖ * ‖v‖ := l2_opNorm_mulVec E v
   calc
     _ ≤ ‖v‖ * (‖E‖ * ‖v‖) := hh.trans (mul_le_mul_of_nonneg_left he (norm_nonneg v))
-    _ = ‖E‖ * ‖v‖^2 := by ring
+    _ = ‖E‖ * ‖v‖ ^ 2 := by ring
     _ = _ := by simp only [v, EuclideanSpace.norm_sq_eq, Real.norm_eq_abs, sq_abs]
 
 /-- A Hermitian matrix lies above minus its operator norm times identity. -/
@@ -263,8 +263,9 @@ theorem perturbation_lower_bound_norm {n : Nat} (A E : Matrix (Fin n) (Fin n) �
 the disjoint row/column sets into the native contiguous layout is exact. -/
 theorem block_entries_norm_sq {n m : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     (B : Matrix (Fin n) (Fin m) ℝ) (D : Matrix (Fin m) (Fin m) ℝ)
-    : ‖entries ((fromBlocks A B B.transpose D).submatrix finSumFinEquiv.symm finSumFinEquiv.symm)‖^2
-      = ‖entries A‖^2 + 2 * ‖entries B‖^2 + ‖entries D‖^2 := by
+    : ‖entries ((fromBlocks A B B.transpose D).submatrix finSumFinEquiv.symm finSumFinEquiv.symm)‖
+        ^ 2
+      = ‖entries A‖ ^ 2 + 2 * ‖entries B‖ ^ 2 + ‖entries D‖ ^ 2 := by
   rw [entries_norm_sq]
   rw [← (finSumFinEquiv (m := n) (n := m)).sum_comp]
   simp only [submatrix_apply, Equiv.symm_apply_apply]

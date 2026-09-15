@@ -17,7 +17,7 @@ namespace Flare.Binary64.Model.Rounding
 open Flare.Binary64.Model.Conversion
 
 private theorem shift_mantissa (em : ExtendedMantissa) (k : Nat)
-    : (em >>> k).mantissa = em.mantissa / 2^k := by
+    : (em >>> k).mantissa = em.mantissa / 2 ^ k := by
   induction k generalizing em with
   | zero => simp [HShiftRight.hShiftRight, Nat.repeat]
   | succ k ih =>
@@ -34,16 +34,17 @@ private theorem rounded_mantissa_bounds (em : ExtendedMantissa)
       Accuracy.roundToNearestEven]
   omega
 
-private theorem shift_floor_bound (m : Nat) (s : Nat) (hs : m.log2 ≤ 52 + s) : m / 2^s < 2^53 := by
-  apply (Nat.div_lt_iff_lt_mul (by positivity : 0 < 2^s)).mpr
+private theorem shift_floor_bound (m : Nat) (s : Nat) (hs : m.log2 ≤ 52 + s)
+    : m / 2 ^ s < 2 ^ 53 := by
+  apply (Nat.div_lt_iff_lt_mul (by positivity : 0 < 2 ^ s)).mpr
   have h := Nat.lt_log2_self (n := m)
   have hp : 2^(m.log2 + 1) ≤ 2^(53+s) := Nat.pow_le_pow_right (by decide) (by omega)
   rw [← Nat.pow_add]
   exact lt_of_lt_of_le h hp
 
 private theorem shift_floor_normal (m s : Nat) (hm : m ≠ 0) (hs : m.log2 = 52 + s)
-    : 2^52 ≤ m / 2^s := by
-  apply (Nat.le_div_iff_mul_le (by positivity : 0 < 2^s)).mpr
+    : 2 ^ 52 ≤ m / 2 ^ s := by
+  apply (Nat.le_div_iff_mul_le (by positivity : 0 < 2 ^ s)).mpr
   rw [← Nat.pow_add, ← hs]
   exact Nat.log2_self_le hm
 
@@ -55,7 +56,7 @@ private theorem target_shift_bounds (m : Nat) (e : Int)
   norm_num
   omega
 
-private theorem shift_small_identity (m : Nat) (e : Int) (hm : m < 2^53) (he : -1074 ≤ e)
+private theorem shift_small_identity (m : Nat) (e : Int) (hm : m < 2 ^ 53) (he : -1074 ≤ e)
     : shiftToTargetExponent Format.binary64 m e .exact
       = (ExtendedMantissa.mk m false false, e) := by
   have hk : m.log2 ≤ 52 := by
@@ -70,8 +71,8 @@ private theorem shift_small_identity (m : Nat) (e : Int) (hm : m < 2^53) (he : -
     Nat.repeat, ExtendedMantissa.ofMantissaAndAccuracy]
 
 private theorem shift_overflow_identity (e : Int) (he : -1074 ≤ e)
-    : shiftToTargetExponent Format.binary64 (2^53) e .exact
-      = (ExtendedMantissa.mk (2^52) false false, e + 1) := by
+    : shiftToTargetExponent Format.binary64 (2 ^ 53) e .exact
+      = (ExtendedMantissa.mk (2 ^ 52) false false, e + 1) := by
   have ht : Format.binary64.targetExponent (totalExponent (2^53) e) = e + 1 := by
     simp only [Format.targetExponent, totalExponent, Nat.log2_two_pow,
       Format.mantissaBits, Format.minExponent]
@@ -89,10 +90,10 @@ private theorem round_eq_firstRounded (s : Sign) (m : Nat) (e : Int) (a : Accura
       roundWithAccuracy Format.binary64 s m e a
       = if h : r = 0 then
           .zero s
-        else if r < 2^53 then
+        else if r < 2 ^ 53 then
           .finite s r first.2 (Nat.pos_of_ne_zero h)
         else
-          .finite s (2^52) (first.2 + 1) (by decide) := by
+          .finite s (2 ^ 52) (first.2 + 1) (by decide) := by
   dsimp only
   have hshift := target_shift_bounds m e
   dsimp only at hshift
@@ -123,7 +124,7 @@ private theorem round_eq_firstRounded (s : Sign) (m : Nat) (e : Int) (a : Accura
     rw [hmax, shift_overflow_identity _ he]
     rfl
 
-theorem unpack_pack_subnormal (s : Sign) (m : Nat) (hp : 0 < m) (hm : m < 2^52)
+theorem unpack_pack_subnormal (s : Sign) (m : Nat) (hp : 0 < m) (hm : m < 2 ^ 52)
     : (Float.Model.pack (.finite s m (-1074) hp)).unpack = .finite s m (-1074) hp := by
   have hk : m.log2 < 52 := (Nat.log2_lt (Nat.ne_of_gt hp)).mpr hm
   have hne : (BitVec.ofNat 52 m) ≠ 0#52 := by
@@ -146,7 +147,7 @@ theorem unpack_pack_subnormal (s : Sign) (m : Nat) (hp : 0 < m) (hm : m < 2^52)
 
 private theorem first_floor (m : Nat) (e : Int) (a : Accuracy)
     : (shiftToTargetExponent Format.binary64 m e a).1.mantissa
-      = m / 2^((Format.binary64.targetExponent (totalExponent m e) - e).toNat) := by
+      = m / 2 ^ ((Format.binary64.targetExponent (totalExponent m e) - e).toNat) := by
   simp [shiftToTargetExponent, shiftToExponent, shift_mantissa,
     ExtendedMantissa.ofMantissaAndAccuracy]
   cases a with
@@ -154,7 +155,7 @@ private theorem first_floor (m : Nat) (e : Int) (a : Accuracy)
   | inexact o => cases o <;> rfl
 
 private theorem first_canonical (m : Nat) (e : Int) (a : Accuracy) (hc : 52 ≤ m.log2 ∨ e ≤ -1074)
-    : 2^52 ≤ (shiftToTargetExponent Format.binary64 m e a).1.roundedMantissa
+    : 2 ^ 52 ≤ (shiftToTargetExponent Format.binary64 m e a).1.roundedMantissa
       ∨ (shiftToTargetExponent Format.binary64 m e a).2 = -1074 := by
   let t := Format.binary64.targetExponent (totalExponent m e)
   let k := (t - e).toNat
@@ -185,7 +186,7 @@ theorem round_rational_value (s : Sign) (m : Nat) (e : Int) (a : Accuracy)
         (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
       = some
           (((s.apply ((shiftToTargetExponent Format.binary64 m e a).1.roundedMantissa : Int)) : Rat)
-            * (2 : Rat)^((shiftToTargetExponent Format.binary64 m e a).2)) := by
+            * (2 : Rat) ^ ((shiftToTargetExponent Format.binary64 m e a).2)) := by
   have hl : -1074 ≤ (shiftToTargetExponent Format.binary64 m e a).2 := (target_shift_bounds m e).1
   have hc' := first_canonical m e a hc
   rw [round_eq_firstRounded]
@@ -217,8 +218,8 @@ theorem round_rational_value (s : Sign) (m : Nat) (e : Int) (a : Accuracy)
     all_goals rw [zpow_add₀ (by norm_num : (2 : Rat) ≠ 0)]
     all_goals norm_num; ring
 
-private theorem floor_round_error (m r k : Nat) (hr : m / 2^k ≤ r ∧ r ≤ m / 2^k + 1)
-    : |(r : Rat) * (2 : Rat)^k - (m : Rat)| ≤ (2 : Rat)^k := by
+private theorem floor_round_error (m r k : Nat) (hr : m / 2 ^ k ≤ r ∧ r ≤ m / 2 ^ k + 1)
+    : |(r : Rat) * (2 : Rat) ^ k - (m : Rat)| ≤ (2 : Rat) ^ k := by
   have hd : 0 < 2^k := Nat.two_pow_pos k
   have hlo := Nat.div_mul_le_self m (2^k)
   have hhi : m < (m / 2^k + 1) * 2^k := by
@@ -232,9 +233,9 @@ private theorem floor_round_error (m r k : Nat) (hr : m / 2^k ≤ r ∧ r ≤ m 
   rw [abs_le]
   constructor <;> linarith
 
-private theorem dyadic_round_error (m r k : Nat) (e : Int) (hr : m / 2^k ≤ r ∧ r ≤ m / 2^k + 1)
-    : |(r : Rat) * (2 : Rat)^(e + (k : Int)) - (m : Rat) * (2 : Rat)^e|
-      ≤ (2 : Rat)^(e + (k : Int)) := by
+private theorem dyadic_round_error (m r k : Nat) (e : Int) (hr : m / 2 ^ k ≤ r ∧ r ≤ m / 2 ^ k + 1)
+    : |(r : Rat) * (2 : Rat) ^ (e + (k : Int)) - (m : Rat) * (2 : Rat) ^ e|
+      ≤ (2 : Rat) ^ (e + (k : Int)) := by
   have h := floor_round_error m r k hr
   have hp : 0 ≤ (2 : Rat)^e := le_of_lt (zpow_pos (by norm_num : (0 : Rat) < 2) e)
   have hmul := mul_le_mul_of_nonneg_right h hp
@@ -251,8 +252,8 @@ private theorem round_error (s : Sign) (m : Nat) (e : Int) (a : Accuracy)
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
           = some q
-        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat)^e|
-          ≤ (2 : Rat)^((shiftToTargetExponent Format.binary64 m e a).2) := by
+        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat) ^ e|
+          ≤ (2 : Rat) ^ ((shiftToTargetExponent Format.binary64 m e a).2) := by
   rw [round_rational_value s m e a hc he]
   refine ⟨_, rfl, ?_⟩
   have hr := rounded_mantissa_bounds (shiftToTargetExponent Format.binary64 m e a).1
@@ -266,7 +267,7 @@ private theorem round_error (s : Sign) (m : Nat) (e : Int) (a : Accuracy)
 
 theorem unpack_finite_shape (v : Float.Model) (s : Sign) (m : Nat) (e : Int)
     (hp : 0 < m) (hu : v.unpack = .finite s m e hp)
-    : m < 2^53 ∧ -1074 ≤ e ∧ e ≤ 971 ∧ (m.log2 = 52 ∨ e = -1074) := by
+    : m < 2 ^ 53 ∧ -1074 ≤ e ∧ e ≤ 971 ∧ (m.log2 = 52 ∨ e = -1074) := by
   unfold Float.Model.unpack UnpackedFloat.unpack at hu
   dsimp only at hu
   split at hu
@@ -311,7 +312,7 @@ theorem unpack_finite_shape (v : Float.Model) (s : Sign) (m : Nat) (e : Int)
       exact ⟨by omega, by omega, by omega, Or.inl hlog⟩
 
 private theorem target_le_of_value_le (m : Nat) (e N : Int) (hm : 0 < m)
-    (hN : -1022 ≤ N) (hv : (m : Rat) * (2 : Rat)^e ≤ (2 : Rat)^N)
+    (hN : -1022 ≤ N) (hv : (m : Rat) * (2 : Rat) ^ e ≤ (2 : Rat) ^ N)
     : Format.binary64.targetExponent (totalExponent m e) ≤ N - 52 := by
   have hl : (2 : Rat)^m.log2 ≤ (m : Rat) := by
     exact_mod_cast Nat.log2_self_le (Nat.ne_of_gt hm)
@@ -333,7 +334,7 @@ private theorem first_exponent_eq_target (m : Nat) (e : Int) (a : Accuracy)
   omega
 
 theorem decrease_preserves_value (m k : Nat) (e : Int)
-    : ((m <<< k : Nat) : Rat) * (2 : Rat)^(e - (k : Int)) = (m : Rat) * (2 : Rat)^e := by
+    : ((m <<< k : Nat) : Rat) * (2 : Rat) ^ (e - (k : Int)) = (m : Rat) * (2 : Rat) ^ e := by
   rw [Nat.shiftLeft_eq]
   push_cast
   rw [← zpow_natCast, mul_assoc, ← zpow_add₀ (by norm_num : (2 : Rat) ≠ 0)]
@@ -342,11 +343,11 @@ theorem decrease_preserves_value (m k : Nat) (e : Int)
 
 theorem round_direct_error (s : Sign) (m : Nat) (e N : Int)
     (hm : 0 < m) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : (m : Rat) * (2 : Rat)^e ≤ (2 : Rat)^N)
+    (hv : (m : Rat) * (2 : Rat) ^ e ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (Float.Model.pack (round Format.binary64 s m e))
           = some q
-        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat)^e| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat) ^ e| ≤ (2 : Rat) ^ (N - 52) := by
   let t := Format.binary64.targetExponent (totalExponent m e)
   let k := (e - t).toNat
   have ht : t = max ((m.log2 : Int) + e - 52) (-1074) := by
@@ -381,12 +382,12 @@ theorem round_direct_error (s : Sign) (m : Nat) (e N : Int)
 theorem round_with_accuracy_error (s : Sign) (m : Nat) (e N : Int) (a : Accuracy)
     (hm : 0 < m) (hc : 52 ≤ m.log2 ∨ e ≤ -1074)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : (m : Rat) * (2 : Rat)^e ≤ (2 : Rat)^N)
+    (hv : (m : Rat) * (2 : Rat) ^ e ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
           = some q
-        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat)^e| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat) ^ e| ≤ (2 : Rat) ^ (N - 52) := by
   have ht := target_le_of_value_le m e N hm hN hv
   have he := first_exponent_eq_target m e a hc
   obtain ⟨q, hq, herror⟩ := round_error s m e a hc (by rw [he]; omega)
@@ -402,7 +403,7 @@ theorem round_zero_with_accuracy_error (s : Sign) (e N : Int) (a : Accuracy)
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (roundWithAccuracy Format.binary64 s 0 e a))
           = some q
-        ∧ |q| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q| ≤ (2 : Rat) ^ (N - 52) := by
   have ht : (shiftToTargetExponent Format.binary64 0 e a).2 = -1074 := by
     rw [first_exponent_eq_target _ _ _ (Or.inr he)]
     simp [Format.targetExponent, totalExponent, Format.mantissaBits, Format.minExponent]
@@ -415,12 +416,12 @@ theorem round_zero_with_accuracy_error (s : Sign) (e N : Int) (a : Accuracy)
 
 theorem normalize_error (m : Int) (e N : Int) (zs : Sign)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |(m : Rat) * (2 : Rat)^e| ≤ (2 : Rat)^N)
+    (hv : |(m : Rat) * (2 : Rat) ^ e| ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (UnpackedFloat.normalize Format.binary64 m e zs))
           = some q
-        ∧ |q - (m : Rat) * (2 : Rat)^e| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (m : Rat) * (2 : Rat) ^ e| ≤ (2 : Rat) ^ (N - 52) := by
   by_cases hz : m = 0
   · subst m
     refine ⟨0, ?_, ?_⟩
@@ -461,9 +462,12 @@ theorem pack_unpack_rational (v : Float.Model)
     : Flare.Binary64.Model.Value.toRational (Float.Model.pack v.unpack)
       = Flare.Binary64.Model.Value.toRational v := by
   cases hu : v.unpack with
-  | notANumber => unfold Flare.Binary64.Model.Value.toRational; rw [hu]; rfl
-  | infinity s => unfold Flare.Binary64.Model.Value.toRational; rw [hu]; cases s <;> rfl
-  | zero s => unfold Flare.Binary64.Model.Value.toRational; rw [hu]; cases s <;> rfl
+  | notANumber =>
+      unfold Flare.Binary64.Model.Value.toRational; rw [hu]; rfl
+  | infinity s =>
+      unfold Flare.Binary64.Model.Value.toRational; rw [hu]; cases s <;> rfl
+  | zero s =>
+      unfold Flare.Binary64.Model.Value.toRational; rw [hu]; cases s <;> rfl
   | finite s m e hp =>
       have ⟨hb, he, he', hc⟩ := unpack_finite_shape v s m e hp hu
       unfold Flare.Binary64.Model.Value.toRational

@@ -13,14 +13,15 @@ open Flare.Binary64.Model.Rounding
 
 lemma quotient_core_bounds (m n : Nat) (e f N : Int)
     (hm : 0 < m) (hn : 0 < n) (hN : -1022 ≤ N)
-    (hv : (m : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f) ≤ (2 : Rat)^N)
+    (hv : (m : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f) ≤ (2 : Rat) ^ N)
     : (let t := min (e - f) (max ((m.log2 : Int) - n.log2 + e - f - 53) (-1074));
         let shifted := m <<< (e - f - t).toNat;
         let p := shifted / n;
         t ≤ N - 52
         ∧ (52 ≤ p.log2 ∨ t ≤ -1074)
-        ∧ (p : Rat) * (2 : Rat)^t ≤ (m : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f)
-        ∧ (m : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f) ≤ ((p : Rat) + 1) * (2 : Rat)^t) := by
+        ∧ (p : Rat) * (2 : Rat) ^ t ≤ (m : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f)
+        ∧ (m : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f)
+          ≤ ((p : Rat) + 1) * (2 : Rat) ^ t) := by
   dsimp only
   let t := min (e - f) (max ((m.log2 : Int) - n.log2 + e - f - 53) (-1074))
   let shifted := m <<< (e - f - t).toNat
@@ -92,15 +93,15 @@ lemma quotient_core_bounds (m n : Nat) (e f N : Int)
 
 private lemma finite_div_error (s : Sign) (m n : Nat) (e f N : Int)
     (hm : 0 < m) (hn : 0 < n) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : (m : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f) ≤ (2 : Rat)^N)
+    (hv : (m : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f) ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack
               (let (p, t, a) := divCore Format.binary64 m e n f;
                 roundWithAccuracy Format.binary64 s p t a))
           = some q
-        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f)|
-          ≤ (2 : Rat)^(N - 51) := by
+        ∧ |q - (s.apply (m : Int) : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f)|
+          ≤ (2 : Rat) ^ (N - 51) := by
   let t := min (e - f) (max ((m.log2 : Int) - n.log2 + e - f - 53) (-1074))
   let shifted := m <<< (e - f - t).toNat
   let p := shifted / n
@@ -157,7 +158,7 @@ theorem model_div_error_of_core (a b : Float.Model) (av bv ε : Rat)
       : ∀ (s : Sign) (m n : Nat) (e f : Int),
           0 < m
           → 0 < n
-          → (s.apply (m : Int) : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f) = av / bv
+          → (s.apply (m : Int) : Rat) * (2 : Rat) ^ e / ((n : Rat) * (2 : Rat) ^ f) = av / bv
           → ∃ q,
               Flare.Binary64.Model.Value.toRational
                   (Float.Model.pack
@@ -218,10 +219,10 @@ private lemma model_div_error (a b : Float.Model) (av bv : Rat) (N : Int)
     (ha : Flare.Binary64.Model.Value.toRational a = some av)
     (hb : Flare.Binary64.Model.Value.toRational b = some bv)
     (hbv : bv ≠ 0) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |av / bv| ≤ (2 : Rat)^N)
+    (hv : |av / bv| ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (a / b) = some q
-        ∧ |q - av / bv| ≤ (2 : Rat)^(N - 51) := by
+        ∧ |q - av / bv| ≤ (2 : Rat) ^ (N - 51) := by
   apply model_div_error_of_core a b av bv _ ha hb hbv (zpow_pos (by norm_num : (0 : Rat) < 2) _).le
   intro s m n e f hm hn heq
   have hmag : (m : Rat) * (2 : Rat)^e / ((n : Rat) * (2 : Rat)^f) = |av / bv| := by
@@ -246,8 +247,8 @@ both operand signs, signed zero, and gradual underflow. -/
 theorem div_error (a b : Float) (N : Int)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hbv : value b ≠ 0)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |value a / value b| ≤ (2 : ℝ)^N)
-    : (a / b).isFinite = true ∧ |value (a / b) - value a / value b| ≤ (2 : ℝ)^(N - 51) := by
+    (hv : |value a / value b| ≤ (2 : ℝ) ^ N)
+    : (a / b).isFinite = true ∧ |value (a / b) - value a / value b| ≤ (2 : ℝ) ^ (N - 51) := by
   obtain ⟨av, hav, hva⟩ := finite_rational a ha
   obtain ⟨bv, hbv', hvb⟩ := finite_rational b hb
   have hbn : bv ≠ 0 := by intro h; simp [hvb, h] at hbv
@@ -262,17 +263,17 @@ theorem div_error (a b : Float) (N : Int)
   refine ⟨finite_of_value _ _ he, ?_⟩
   have herr' := (Rat.cast_le (K := ℝ)).mpr herr
   rw [hva, hvb]
-  simpa only [value, he, Option.getD_some, Rat.cast_abs, Rat.cast_sub, Rat.cast_div,
-    Rat.cast_zpow, Rat.cast_ofNat]
+  simpa only [value, he, Option.getD_some, Rat.cast_abs, Rat.cast_sub, Rat.cast_div, Rat.cast_zpow,
+    Rat.cast_ofNat]
     using herr'
 
 /-- Native division with magnitude-scaled error and an absolute underflow
 allowance. The denominator is finite and nonzero in the real interpretation. -/
 theorem div_error_relative (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
-    (hb0 : value b ≠ 0) (hx : |value a / value b| ≤ (2 : ℝ)^(1000 : Int))
+    (hb0 : value b ≠ 0) (hx : |value a / value b| ≤ (2 : ℝ) ^ (1000 : Int))
     : (a / b).isFinite = true
       ∧ |value (a / b) - value a / value b|
-        ≤ (2 : ℝ)^(-50 : Int) * (|value a / value b| + (2 : ℝ)^(-1022 : Int)) := by
+        ≤ (2 : ℝ) ^ (-50 : Int) * (|value a / value b| + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨E, hE, hE', hv, hs⟩ := bounded_exponent (value a / value b) hx
   have h := div_error a b E ha hb hb0 hE (by omega) hv
   exact ⟨h.1, h.2.trans (scaled_error_bound _ E 51 hs)⟩

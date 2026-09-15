@@ -9,10 +9,10 @@ open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 
 /-- Both Jacobi square-root expressions satisfy a seven-unit relative bound,
 including the large pivot parameter used by the stable tangent formula. -/
-theorem root_precision (x : Float) (hx : x.isFinite = true) (hxb : |value x| ≤ (2 : ℝ)^(60 : Int))
+theorem root_precision (x : Float) (hx : x.isFinite = true) (hxb : |value x| ≤ (2 : ℝ) ^ (60 : Int))
     : (1.0 + x * x).sqrt.isFinite = true
-      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x)^2)|
-        ≤ 7 * (2 : ℝ)^(-53 : Int) * Real.sqrt (1 + (value x)^2) := by
+      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x) ^ 2)|
+        ≤ 7 * (2 : ℝ) ^ (-53 : Int) * Real.sqrt (1 + (value x) ^ 2) := by
   let u : ℝ := (2 : ℝ)^(-53 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   have hu : 0 ≤ u := by positivity
@@ -67,8 +67,8 @@ theorem root_precision (x : Float) (hx : x.isFinite = true) (hxb : |value x| ≤
 /-- Specialization of the relative denominator bound to the computed tangent. -/
 theorem root_small_precision (x : Float) (hx : x.isFinite = true) (hxb : |value x| ≤ 2)
     : (1.0 + x * x).sqrt.isFinite = true
-      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x)^2)|
-        ≤ 7 * (2 : ℝ)^(-53 : Int) * Real.sqrt (1 + (value x)^2) :=
+      ∧ |value (1.0 + x * x).sqrt - Real.sqrt (1 + (value x) ^ 2)|
+        ≤ 7 * (2 : ℝ) ^ (-53 : Int) * Real.sqrt (1 + (value x) ^ 2) :=
   root_precision x hx (hxb.trans (by norm_num))
 
 /-- Rounded division of a unit-magnitude numerator by an approximate positive
@@ -76,10 +76,10 @@ denominator. A k-unit relative denominator error costs at most k+10 units in
 the quotient, retaining the reciprocal scale. -/
 theorem unit_div_precision (v b : Float) (a k : ℝ)
     (hv : v.isFinite = true) (hb : b.isFinite = true) (hvunit : |value v| = 1)
-    (ha : 1 ≤ a) (ha' : a ≤ (2 : ℝ)^(64 : Int)) (hk : 0 ≤ k) (hk' : k ≤ 32)
-    (he : |value b - a| ≤ k * (2 : ℝ)^(-53 : Int) * a)
+    (ha : 1 ≤ a) (ha' : a ≤ (2 : ℝ) ^ (64 : Int)) (hk : 0 ≤ k) (hk' : k ≤ 32)
+    (he : |value b - a| ≤ k * (2 : ℝ) ^ (-53 : Int) * a)
     : (v / b).isFinite = true
-      ∧ |value (v / b) - value v / a| ≤ (k + 10) * (2 : ℝ)^(-53 : Int) / a := by
+      ∧ |value (v / b) - value v / a| ≤ (k + 10) * (2 : ℝ) ^ (-53 : Int) / a := by
   let u : ℝ := (2 : ℝ)^(-53 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   have hu : 0 ≤ u := by positivity
@@ -111,8 +111,8 @@ theorem unit_div_precision (v b : Float) (a k : ℝ)
   have hηscale : η ≤ u / a := by
     apply (le_div_iff₀ ha0).mpr
     calc
-      _ ≤ η * (2 : ℝ)^(64 : Int) := mul_le_mul_of_nonneg_left ha' (by positivity)
-      _ = (2 : ℝ)^(-958 : Int) := by dsimp [η]; rw [← zpow_add₀ (by norm_num)]; rfl
+      _ ≤ η * (2 : ℝ) ^ (64 : Int) := mul_le_mul_of_nonneg_left ha' (by positivity)
+      _ = (2 : ℝ) ^ (-958 : Int) := by dsimp [η]; rw [← zpow_add₀ (by norm_num)]; rfl
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   have hu8 : (2 : ℝ)^(-50 : Int) = 8 * u := by norm_num [u]
   rw [hu8] at herr
@@ -134,8 +134,8 @@ theorem unit_div_precision (v b : Float) (a k : ℝ)
 17 and 22 unit roundoffs respectively. The cosine error retains its reciprocal
 scale, which avoids multiplying the sine error by the tangent magnitude. -/
 theorem coefficients_precision (t : Float) (ht : t.isFinite = true) (htb : |value t| ≤ 2)
-    : let u : ℝ := (2 : ℝ)^(-53 : Int)
-      let a := Real.sqrt (1 + (value t)^2)
+    : let u : ℝ := (2 : ℝ) ^ (-53 : Int)
+      let a := Real.sqrt (1 + (value t) ^ 2)
       let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
       c.isFinite = true
@@ -204,12 +204,12 @@ theorem coefficients_precision (t : Float) (ht : t.isFinite = true) (htb : |valu
 positive denominator. This scale is essential for small rotations when the
 pivot parameter is large; the sign convention includes zero. -/
 theorem tangent_precision (τ : Float) (hτ : τ.isFinite = true)
-    (hτb : |value τ| ≤ (2 : ℝ)^(60 : Int))
-    : let D := |value τ| + Real.sqrt (1 + (value τ)^2)
+    (hτb : |value τ| ≤ (2 : ℝ) ^ (60 : Int))
+    : let D := |value τ| + Real.sqrt (1 + (value τ) ^ 2)
       let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
       t.isFinite = true
-      ∧ |value t - Flare.Analysis.Jacobi.tangent (value τ)| ≤ 22 * (2 : ℝ)^(-53 : Int) / D
-      ∧ |value t| ≤ 1 + 22 * (2 : ℝ)^(-53 : Int) := by
+      ∧ |value t - Flare.Analysis.Jacobi.tangent (value τ)| ≤ 22 * (2 : ℝ) ^ (-53 : Int) / D
+      ∧ |value t| ≤ 1 + 22 * (2 : ℝ) ^ (-53 : Int) := by
   let u : ℝ := (2 : ℝ)^(-53 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let r := (1.0 + τ * τ).sqrt
@@ -249,8 +249,8 @@ theorem tangent_precision (τ : Float) (hτ : τ.isFinite = true)
   have hlarge : |value τ.abs + value r| ≤ (2 : ℝ)^(1000 : Int) := by
     calc
       _ ≤ 2 * D := hsum.trans (mul_le_mul_of_nonneg_right (by norm_num [u]) hD0.le)
-      _ ≤ 2 * (2 : ℝ)^(63 : Int) := mul_le_mul_of_nonneg_left hDb (by norm_num)
-      _ = (2 : ℝ)^(64 : Int) := by norm_num
+      _ ≤ 2 * (2 : ℝ) ^ (63 : Int) := mul_le_mul_of_nonneg_left hDb (by norm_num)
+      _ = (2 : ℝ) ^ (64 : Int) := by norm_num
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   obtain ⟨hbf, hb⟩ := add_error_relative τ.abs r habsf hroot.1 hlarge
   have hu4 : (2 : ℝ)^(-51 : Int) = 4 * u := by norm_num [u]
@@ -299,15 +299,15 @@ theorem tangent_precision (τ : Float) (hτ : τ.isFinite = true)
 their exact expressions. M bounds each input magnitude plus underflow. -/
 theorem diagonal_precision (a b d t : Float) (M : ℝ)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hd : d.isFinite = true)
-    (ht : t.isFinite = true) (htb : |value t| ≤ 1 + 22 * (2 : ℝ)^(-53 : Int))
-    (haM : |value a| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hbM : |value b| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hdM : |value d| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hM : M ≤ (2 : ℝ)^(500 : Int))
+    (ht : t.isFinite = true) (htb : |value t| ≤ 1 + 22 * (2 : ℝ) ^ (-53 : Int))
+    (haM : |value a| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hbM : |value b| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hdM : |value d| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hM : M ≤ (2 : ℝ) ^ (500 : Int))
     : (a - t * b).isFinite = true
       ∧ (d + t * b).isFinite = true
-      ∧ |value (a - t * b) - (value a - value t * value b)| ≤ 13 * (2 : ℝ)^(-53 : Int) * M
-      ∧ |value (d + t * b) - (value d + value t * value b)| ≤ 13 * (2 : ℝ)^(-53 : Int) * M := by
+      ∧ |value (a - t * b) - (value a - value t * value b)| ≤ 13 * (2 : ℝ) ^ (-53 : Int) * M
+      ∧ |value (d + t * b) - (value d + value t * value b)| ≤ 13 * (2 : ℝ) ^ (-53 : Int) * M := by
   let u : ℝ := (2 : ℝ)^(-53 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let E := 4 * u * (1 + 22 * u) * M
@@ -324,8 +324,8 @@ theorem diagonal_precision (a b d t : Float) (M : ℝ)
       _ ≤ _ := mul_le_mul_of_nonneg_left hbM (by positivity)
   have h4M : 4 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(500 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(502 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (500 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (502 : Int) := by
         rw [show (4 : ℝ) = (2 : ℝ)^(2 : Int) by norm_num, ← zpow_add₀ (by norm_num)]
         rfl
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -383,15 +383,15 @@ final addition/subtraction instead of bounding every term by the whole pair. -/
 theorem pair_precision (t x y : Float) (M : ℝ)
     (ht : t.isFinite = true) (htb : |value t| ≤ 2)
     (hx : x.isFinite = true) (hy : y.isFinite = true)
-    (hM : |value x| + |value y| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hM' : M ≤ (2 : ℝ)^(500 : Int))
+    (hM : |value x| + |value y| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hM' : M ≤ (2 : ℝ) ^ (500 : Int))
     : let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
-      let a := Real.sqrt (1 + (value t)^2)
+      let a := Real.sqrt (1 + (value t) ^ 2)
       |value (c * x - s * y) - ((1 / a) * value x - (value t / a) * value y)|
-        ≤ (2 : ℝ)^(-48 : Int) * M
+        ≤ (2 : ℝ) ^ (-48 : Int) * M
       ∧ |value (s * x + c * y) - ((value t / a) * value x + (1 / a) * value y)|
-        ≤ (2 : ℝ)^(-48 : Int) * M := by
+        ≤ (2 : ℝ) ^ (-48 : Int) * M := by
   let u : ℝ := (2 : ℝ)^(-53 : Int)
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let X := |value x| + |value y|
@@ -407,8 +407,8 @@ theorem pair_precision (t x y : Float) (M : ℝ)
   have hηM : η ≤ M := by change X + η ≤ M at hM; linarith only [hM, hX]
   have hlarge : 2 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 2 * (2 : ℝ)^(500 : Int) := mul_le_mul_of_nonneg_left hM' (by norm_num)
-      _ = (2 : ℝ)^(501 : Int) := by
+      _ ≤ 2 * (2 : ℝ) ^ (500 : Int) := mul_le_mul_of_nonneg_left hM' (by norm_num)
+      _ = (2 : ℝ) ^ (501 : Int) := by
         rw [show (501 : Int) = 1 + 500 by rfl, zpow_add₀ (by norm_num), zpow_one]
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   have hcoeff : 1 + 22 * u ≤ 2 := by norm_num [u]
@@ -483,26 +483,36 @@ theorem pair_precision (t x y : Float) (M : ℝ)
   have hsY := coefficient (value s) (value t / a) (value y) hs
   have hsX := coefficient (value s) (value t / a) (value x) hs
   have hcY := coefficient (value c) (1 / a) (value y) hce
-  have hps : |(value (c * x) - value (s * y)) - ((1 / a) * value x - (value t / a) * value y)| ≤ E +
-    22 * u * X := by
-    have he : (value (c * x) - value (s * y)) - ((1 / a) * value x - (value t / a) * value y) =
-        ((value (c * x) - value c * value x) - (value (s * y) - value s * value y)) +
-        ((value c * value x - (1 / a) * value x) - (value s * value y - (value t / a) * value y)) :=
-          by ring
+  have hps
+      : |(value (c * x) - value (s * y)) - ((1 / a) * value x - (value t / a) * value y)|
+        ≤ E + 22 * u * X := by
+    have he
+        : (value (c * x) - value (s * y)) - ((1 / a) * value x - (value t / a) * value y)
+          = ((value (c * x) - value c * value x) - (value (s * y) - value s * value y))
+            + ((value c * value x - (1 / a) * value x)
+                - (value s * value y - (value t / a) * value y)) := by
+      ring
     rw [he]
-    exact ((abs_add_le _ _).trans (add_le_add ((abs_sub _ _).trans hpError)
-      ((abs_sub _ _).trans (add_le_add hcX hsY)))).trans_eq (by dsimp [X]; ring)
-  have hqs : |(value (s * x) + value (c * y)) - ((value t / a) * value x + (1 / a) * value y)| ≤ E +
-    22 * u * X := by
-    have he : (value (s * x) + value (c * y)) - ((value t / a) * value x + (1 / a) * value y) =
-        ((value (s * x) - value s * value x) + (value (c * y) - value c * value y)) +
-        ((value s * value x - (value t / a) * value x) + (value c * value y - (1 / a) * value y)) :=
-          by ring
+    exact ((abs_add_le _ _).trans
+            (add_le_add ((abs_sub _ _).trans hpError)
+              ((abs_sub _ _).trans (add_le_add hcX hsY)))).trans_eq
+      (by dsimp [X]; ring)
+  have hqs
+      : |(value (s * x) + value (c * y)) - ((value t / a) * value x + (1 / a) * value y)|
+        ≤ E + 22 * u * X := by
+    have he
+        : (value (s * x) + value (c * y)) - ((value t / a) * value x + (1 / a) * value y)
+          = ((value (s * x) - value s * value x) + (value (c * y) - value c * value y))
+            + ((value s * value x - (value t / a) * value x)
+                + (value c * value y - (1 / a) * value y)) := by
+      ring
     rw [he]
-    exact ((abs_add_le _ _).trans (add_le_add ((abs_add_le _ _).trans hqError)
-      ((abs_add_le _ _).trans (add_le_add hsX hcY)))).trans_eq (by dsimp [X]; ring)
-  have hbudget : 4 * u * ((1 + 22 * u) * X + E + η) + (E + 22 * u * X) ≤ (2 : ℝ)^(-48 : Int) * M :=
-    by
+    exact ((abs_add_le _ _).trans
+            (add_le_add ((abs_add_le _ _).trans hqError)
+              ((abs_add_le _ _).trans (add_le_add hsX hcY)))).trans_eq
+      (by dsimp [X]; ring)
+  have hbudget
+      : 4 * u * ((1 + 22 * u) * X + E + η) + (E + 22 * u * X) ≤ (2 : ℝ) ^ (-48 : Int) * M := by
     have hsmall : 4 * u * ((1 + 22 * u) * X + E + η) + (E + 22 * u * X) ≤
         (2 : ℝ)^(-48 : Int) * (X + η) := by
       dsimp only [E]

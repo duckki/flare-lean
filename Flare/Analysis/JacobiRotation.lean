@@ -137,13 +137,15 @@ theorem similarity_error {n : Nat} (A B : Matrix (Fin n) (Fin n) ℝ)
       : ∀ k,
           k ≠ p
           → k ≠ q
-          → |B k p - ((1 / Real.sqrt (1 + t^2)) * A k p - (t / Real.sqrt (1 + t^2)) * A k q)| ≤ ε
-            ∧ |B k q - ((t / Real.sqrt (1 + t^2)) * A k p + (1 / Real.sqrt (1 + t^2)) * A k q)| ≤ ε)
+          → |B k p - ((1 / Real.sqrt (1 + t ^ 2)) * A k p - (t / Real.sqrt (1 + t ^ 2)) * A k q)|
+              ≤ ε
+            ∧ |B k q - ((t / Real.sqrt (1 + t ^ 2)) * A k p + (1 / Real.sqrt (1 + t ^ 2)) * A k q)|
+              ≤ ε)
     (hexterior : ∀ i j, i ≠ p → i ≠ q → j ≠ p → j ≠ q → B i j = A i j)
-    : let c := 1 / Real.sqrt (1 + t^2)
+    : let c := 1 / Real.sqrt (1 + t ^ 2)
       let s := t * c
       let J := plane p q c s
-      let r := A p q * t^2 + (A q q - A p p) * t - A p q
+      let r := A p q * t ^ 2 + (A q q - A p p) * t - A p q
       ∀ i j, |B i j - (J.transpose * A * J) i j| ≤ ε + 2 * |r| := by
   dsimp only
   let c := 1 / Real.sqrt (1 + t^2)

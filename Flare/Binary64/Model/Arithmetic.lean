@@ -15,7 +15,7 @@ private theorem unpack_cases (v : Float.Model) (x : Rat)
     : (∃ s, v.unpack = .zero s ∧ x = 0)
       ∨ ∃ s m e,
         ∃ hp : 0 < m,
-          v.unpack = .finite s m e hp ∧ x = (s.apply (m : Int) : Rat) * (2 : Rat)^e := by
+          v.unpack = .finite s m e hp ∧ x = (s.apply (m : Int) : Rat) * (2 : Rat) ^ e := by
   cases hu : v.unpack with
   | notANumber =>
       simp [Flare.Binary64.Model.Value.toRational, hu,
@@ -35,8 +35,8 @@ private theorem unpack_cases (v : Float.Model) (x : Rat)
         Flare.Binary64.Model.Value.unpackedToRational] using h.symm
 
 private theorem aligned_value (s : Sign) (m : Nat) (e target : Int) (ht : target ≤ e)
-    : (s.apply ((decreaseExponent m e target).1 : Int) : Rat) * (2 : Rat)^target
-      = (s.apply (m : Int) : Rat) * (2 : Rat)^e := by
+    : (s.apply ((decreaseExponent m e target).1 : Int) : Rat) * (2 : Rat) ^ target
+      = (s.apply (m : Int) : Rat) * (2 : Rat) ^ e := by
   have h := decrease_preserves_value m (e - target).toNat e
   have he : e - ((e - target).toNat : Int) = target := by omega
   rw [he] at h
@@ -53,7 +53,7 @@ theorem add_error_of_normalize (a b : Float.Model) (x y ε : Rat)
     (hb : Flare.Binary64.Model.Value.toRational b = some y) (hpos : 0 ≤ ε)
     (hround
       : ∀ (m e : Int),
-          (m : Rat) * (2 : Rat)^e = x + y
+          (m : Rat) * (2 : Rat) ^ e = x + y
           → ∃ q,
               Flare.Binary64.Model.Value.toRational
                   (Float.Model.pack (UnpackedFloat.normalize Format.binary64 m e .positive))
@@ -87,9 +87,10 @@ theorem add_error_of_normalize (a b : Float.Model) (x y ε : Rat)
         e).1 : Int)
       have hx := aligned_value sa ma ea e (min_le_left _ _)
       have hy := aligned_value sb mb eb e (min_le_right _ _)
-      have hvalue : (m : Rat) * (2 : Rat)^e =
-          (sa.apply (ma : Int) : Rat) * (2 : Rat)^ea + (sb.apply (mb : Int) : Rat) * (2 : Rat)^eb :=
-            by
+      have hvalue
+          : (m : Rat) * (2 : Rat) ^ e
+            = (sa.apply (ma : Int) : Rat) * (2 : Rat) ^ ea
+              + (sb.apply (mb : Int) : Rat) * (2 : Rat) ^ eb := by
         dsimp only [m]
         rw [Int.cast_add, add_mul, hx, hy]
       obtain ⟨q, hq, herr⟩ := hround m e hvalue
@@ -104,10 +105,10 @@ theorem add_error_of_normalize (a b : Float.Model) (x y ε : Rat)
 theorem add_error (a b : Float.Model) (x y : Rat) (N : Int)
     (ha : Flare.Binary64.Model.Value.toRational a = some x)
     (hb : Flare.Binary64.Model.Value.toRational b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x + y| ≤ (2 : Rat)^N)
+    (hv : |x + y| ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (a + b) = some q
-        ∧ |q - (x + y)| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (x + y)| ≤ (2 : Rat) ^ (N - 52) := by
   apply add_error_of_normalize a b x y _ ha hb (zpow_pos (by norm_num : (0 : Rat) < 2) _).le
   intro m e hvalue
   obtain ⟨q, hq, herr⟩ := normalize_error m e N .positive hN hN' (by rw [hvalue]; exact hv)
@@ -116,7 +117,7 @@ theorem add_error (a b : Float.Model) (x y : Rat) (N : Int)
 private theorem pack_changed_sign (v : Float.Model) (s t : Sign) (m : Nat) (e : Int)
     (hp : 0 < m) (hu : v.unpack = .finite s m e hp)
     : Flare.Binary64.Model.Value.toRational (Float.Model.pack (.finite t m e hp))
-      = some ((t.apply (m : Int) : Rat) * (2 : Rat)^e) := by
+      = some ((t.apply (m : Int) : Rat) * (2 : Rat) ^ e) := by
   obtain ⟨hm, he, he', hc⟩ := unpack_finite_shape v s m e hp hu
   unfold Flare.Binary64.Model.Value.toRational
   rcases hc with hc | rfl
@@ -135,7 +136,7 @@ theorem sub_error_of_normalize (a b : Float.Model) (x y ε : Rat)
     (hb : Flare.Binary64.Model.Value.toRational b = some y) (hpos : 0 ≤ ε)
     (hround
       : ∀ (m e : Int),
-          (m : Rat) * (2 : Rat)^e = x - y
+          (m : Rat) * (2 : Rat) ^ e = x - y
           → ∃ q,
               Flare.Binary64.Model.Value.toRational
                   (Float.Model.pack (UnpackedFloat.normalize Format.binary64 m e .positive))
@@ -169,9 +170,10 @@ theorem sub_error_of_normalize (a b : Float.Model) (x y ε : Rat)
         e).1 : Int)
       have hx := aligned_value sa ma ea e (min_le_left _ _)
       have hy := aligned_value sb mb eb e (min_le_right _ _)
-      have hvalue : (m : Rat) * (2 : Rat)^e =
-          (sa.apply (ma : Int) : Rat) * (2 : Rat)^ea - (sb.apply (mb : Int) : Rat) * (2 : Rat)^eb :=
-            by
+      have hvalue
+          : (m : Rat) * (2 : Rat) ^ e
+            = (sa.apply (ma : Int) : Rat) * (2 : Rat) ^ ea
+              - (sb.apply (mb : Int) : Rat) * (2 : Rat) ^ eb := by
         dsimp only [m]
         rw [Int.cast_sub, sub_mul, hx, hy]
       obtain ⟨q, hq, herr⟩ := hround m e hvalue
@@ -186,10 +188,10 @@ theorem sub_error_of_normalize (a b : Float.Model) (x y ε : Rat)
 theorem sub_error (a b : Float.Model) (x y : Rat) (N : Int)
     (ha : Flare.Binary64.Model.Value.toRational a = some x)
     (hb : Flare.Binary64.Model.Value.toRational b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x - y| ≤ (2 : Rat)^N)
+    (hv : |x - y| ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (a - b) = some q
-        ∧ |q - (x - y)| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (x - y)| ≤ (2 : Rat) ^ (N - 52) := by
   apply sub_error_of_normalize a b x y _ ha hb (zpow_pos (by norm_num : (0 : Rat) < 2) _).le
   intro m e hvalue
   obtain ⟨q, hq, herr⟩ := normalize_error m e N .positive hN hN' (by rw [hvalue]; exact hv)
@@ -204,7 +206,7 @@ theorem mul_error_of_round (a b : Float.Model) (x y ε : Rat)
       : ∀ (s : Sign) (m : Nat) (e : Int),
           0 < m
           → (52 ≤ m.log2 ∨ e ≤ -1074)
-          → (s.apply (m : Int) : Rat) * (2 : Rat)^e = x * y
+          → (s.apply (m : Int) : Rat) * (2 : Rat) ^ e = x * y
           → ∃ q,
               Flare.Binary64.Model.Value.toRational
                   (Float.Model.pack (roundWithAccuracy Format.binary64 s m e .exact))
@@ -266,10 +268,10 @@ theorem mul_error_of_round (a b : Float.Model) (x y ε : Rat)
 theorem mul_error (a b : Float.Model) (x y : Rat) (N : Int)
     (ha : Flare.Binary64.Model.Value.toRational a = some x)
     (hb : Flare.Binary64.Model.Value.toRational b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x * y| ≤ (2 : Rat)^N)
+    (hv : |x * y| ≤ (2 : Rat) ^ N)
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (a * b) = some q
-        ∧ |q - (x * y)| ≤ (2 : Rat)^(N - 52) := by
+        ∧ |q - (x * y)| ≤ (2 : Rat) ^ (N - 52) := by
   apply mul_error_of_round a b x y _ ha hb (zpow_pos (by norm_num : (0 : Rat) < 2) _).le
   intro s m e hm hc hvalue
   have habs : |(s.apply (m : Int) : Rat) * (2 : Rat)^e| = (m : Rat) * (2 : Rat)^e := by
@@ -297,9 +299,10 @@ theorem finite_of_real (v : Float.Model) (x : ℝ) (h : Flare.Binary64.Model.Val
 theorem add_error_real (a b : Float.Model) (x y : ℝ) (N : Int)
     (ha : Flare.Binary64.Model.Value.toReal a = some x)
     (hb : Flare.Binary64.Model.Value.toReal b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x + y| ≤ (2 : ℝ)^N)
+    (hv : |x + y| ≤ (2 : ℝ) ^ N)
     : ∃ q : ℝ,
-        Flare.Binary64.Model.Value.toReal (a + b) = some q ∧ |q - (x + y)| ≤ (2 : ℝ)^(N - 52) := by
+        Flare.Binary64.Model.Value.toReal (a + b) = some q
+        ∧ |q - (x + y)| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨u, hu, rfl⟩ := rational_of_real a x ha
   obtain ⟨v, hv', rfl⟩ := rational_of_real b y hb
   have hbound : |u + v| ≤ (2 : Rat)^N := by
@@ -315,9 +318,10 @@ theorem add_error_real (a b : Float.Model) (x y : ℝ) (N : Int)
 theorem sub_error_real (a b : Float.Model) (x y : ℝ) (N : Int)
     (ha : Flare.Binary64.Model.Value.toReal a = some x)
     (hb : Flare.Binary64.Model.Value.toReal b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x - y| ≤ (2 : ℝ)^N)
+    (hv : |x - y| ≤ (2 : ℝ) ^ N)
     : ∃ q : ℝ,
-        Flare.Binary64.Model.Value.toReal (a - b) = some q ∧ |q - (x - y)| ≤ (2 : ℝ)^(N - 52) := by
+        Flare.Binary64.Model.Value.toReal (a - b) = some q
+        ∧ |q - (x - y)| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨u, hu, rfl⟩ := rational_of_real a x ha
   obtain ⟨v, hv', rfl⟩ := rational_of_real b y hb
   have hbound : |u - v| ≤ (2 : Rat)^N := by
@@ -333,9 +337,10 @@ theorem sub_error_real (a b : Float.Model) (x y : ℝ) (N : Int)
 theorem mul_error_real (a b : Float.Model) (x y : ℝ) (N : Int)
     (ha : Flare.Binary64.Model.Value.toReal a = some x)
     (hb : Flare.Binary64.Model.Value.toReal b = some y) (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |x * y| ≤ (2 : ℝ)^N)
+    (hv : |x * y| ≤ (2 : ℝ) ^ N)
     : ∃ q : ℝ,
-        Flare.Binary64.Model.Value.toReal (a * b) = some q ∧ |q - (x * y)| ≤ (2 : ℝ)^(N - 52) := by
+        Flare.Binary64.Model.Value.toReal (a * b) = some q
+        ∧ |q - (x * y)| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨u, hu, rfl⟩ := rational_of_real a x ha
   obtain ⟨v, hv', rfl⟩ := rational_of_real b y hb
   have hbound : |u * v| ≤ (2 : Rat)^N := by

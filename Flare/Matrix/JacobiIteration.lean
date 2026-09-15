@@ -223,7 +223,8 @@ theorem largestPivot_correct (n : Nat) (a : Array Float) (ha : a.all Float.isFin
         ∧ ∀ i j, i < j → j < n → |value (entry n a i j)| ≤ value pivot.magnitude := by
   have h := largestPivot_triple n a ha
   cases he : largestPivot n a with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok pivot =>
       rw [he] at h
       have hp := h True.intro
@@ -504,8 +505,10 @@ theorem rotatePairs_correct (n p q : Nat) (c s : Float) (a v : Array Float)
         ∧ ∀ i j, i < n → j < n → entry n result.2 i j = vectorPairEntry n p q c s v n i j := by
   have h := rotatePairs_triple n p q c s a v hp hq hpq hc hs hcb hsb has hvs ha hv hab hvb
   cases he : rotatePairs n p q c s a v with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
-  | ok result => rw [he] at h; exact ⟨result, rfl, h True.intro⟩
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
+  | ok result =>
+      rw [he] at h; exact ⟨result, rfl, h True.intro⟩
 
 /-- Native tangent expression for the selected pivot. Proof notation only. -/
 def pivotT (n : Nat) (a : Array Float) (p q : Nat) : Float :=
@@ -537,8 +540,8 @@ theorem diagonal_updates (a b d t : Float)
     (hdb : |value d| ≤ 32) (htb : |value t| ≤ 2)
     : (a - t * b).isFinite = true
       ∧ (d + t * b).isFinite = true
-      ∧ |value (a - t * b) - (value a - value t * value b)| ≤ (2 : ℝ)^(-43 : Int)
-      ∧ |value (d + t * b) - (value d + value t * value b)| ≤ (2 : ℝ)^(-43 : Int) := by
+      ∧ |value (a - t * b) - (value a - value t * value b)| ≤ (2 : ℝ) ^ (-43 : Int)
+      ∧ |value (d + t * b) - (value d + value t * value b)| ≤ (2 : ℝ) ^ (-43 : Int) := by
   have hprod : |value t * value b| ≤ 64 := by
     rw [abs_mul]
     nlinarith [abs_nonneg (value b), abs_nonneg (value t)]
@@ -618,7 +621,7 @@ theorem rotate_correct (n p q : Nat) (a v : Array Float)
         ∧ s.isFinite = true
         ∧ |value c| ≤ 2
         ∧ |value s| ≤ 2
-        ∧ |(value c)^2 + (value s)^2 - 1| ≤ (2 : ℝ)^(-43 : Int)
+        ∧ |(value c) ^ 2 + (value s) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int)
         ∧ result.1.size = n * n
         ∧ result.1.all Float.isFinite = true
         ∧ result.2.size = n * n
@@ -669,7 +672,8 @@ structure RotationResult (n p q : Nat) (a v : Array Float) (result : Array Float
   sine_finite : (pivotS n a p q).isFinite = true
   cosine_bound : |value (pivotC n a p q)| ≤ 2
   sine_bound : |value (pivotS n a p q)| ≤ 2
-  unit_error : |(value (pivotC n a p q))^2 + (value (pivotS n a p q))^2 - 1| ≤ (2 : ℝ)^(-43 : Int)
+  unit_error
+    : |(value (pivotC n a p q)) ^ 2 + (value (pivotS n a p q)) ^ 2 - 1| ≤ (2 : ℝ) ^ (-43 : Int)
   pivot_zero : entry n result.1 p q = 0.0 ∧ entry n result.1 q p = 0.0
   diagonal_p : entry n result.1 p p = entry n a p p - pivotT n a p q * entry n a p q
   diagonal_q : entry n result.1 q q = entry n a q q + pivotT n a p q * entry n a p q

@@ -22,9 +22,9 @@ This strengthens the norm-defect bound with an explicit orthogonal reference. -/
 theorem coefficients_reference (t : Float) (ht : t.isFinite = true) (htb : |value t| ≤ 2)
     : let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
-      let c₀ := 1 / Real.sqrt (1 + (value t)^2)
+      let c₀ := 1 / Real.sqrt (1 + (value t) ^ 2)
       let s₀ := value t * c₀
-      |value c - c₀| ≤ (2 : ℝ)^(-46 : Int) ∧ |value s - s₀| ≤ (2 : ℝ)^(-44 : Int) := by
+      |value c - c₀| ≤ (2 : ℝ) ^ (-46 : Int) ∧ |value s - s₀| ≤ (2 : ℝ) ^ (-44 : Int) := by
   have h := JacobiPrecision.coefficients_precision t ht htb
   have ha : 1 ≤ Real.sqrt (1 + (value t)^2) := by
     have hs := Real.sq_sqrt (show 0 ≤ 1 + (value t)^2 by positivity)
@@ -32,21 +32,21 @@ theorem coefficients_reference (t : Float) (ht : t.isFinite = true) (htb : |valu
     nlinarith [sq_nonneg (value t)]
   refine ⟨(h.2.2.1.trans (div_le_self (by positivity) ha)).trans (by norm_num), ?_⟩
   simpa only [mul_one_div]
-    using h.2.2.2.1.trans (by norm_num : 22 * (2 : ℝ)^(-53 : Int) ≤ (2 : ℝ)^(-44 : Int))
+    using h.2.2.2.1.trans (by norm_num : 22 * (2 : ℝ) ^ (-53 : Int) ≤ (2 : ℝ) ^ (-44 : Int))
 
 /-- One native pair update is close to multiplication by the exact orthogonal
 reference. The underflow allowance is included in M. -/
 theorem pair_reference (t x y : Float) (M : ℝ)
     (ht : t.isFinite = true) (htb : |value t| ≤ 2)
     (hx : x.isFinite = true) (hy : y.isFinite = true)
-    (hM : |value x| + |value y| + (2 : ℝ)^(-1022 : Int) ≤ M)
-    (hM' : M ≤ (2 : ℝ)^(500 : Int))
+    (hM : |value x| + |value y| + (2 : ℝ) ^ (-1022 : Int) ≤ M)
+    (hM' : M ≤ (2 : ℝ) ^ (500 : Int))
     : let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
-      let c₀ := 1 / Real.sqrt (1 + (value t)^2)
+      let c₀ := 1 / Real.sqrt (1 + (value t) ^ 2)
       let s₀ := value t * c₀
-      |value (c * x - s * y) - (c₀ * value x - s₀ * value y)| ≤ (2 : ℝ)^(-48 : Int) * M
-      ∧ |value (s * x + c * y) - (s₀ * value x + c₀ * value y)| ≤ (2 : ℝ)^(-48 : Int) * M := by
+      |value (c * x - s * y) - (c₀ * value x - s₀ * value y)| ≤ (2 : ℝ) ^ (-48 : Int) * M
+      ∧ |value (s * x + c * y) - (s₀ * value x + c₀ * value y)| ≤ (2 : ℝ) ^ (-48 : Int) * M := by
   have h := JacobiPrecision.pair_precision t x y M ht htb hx hy hM hM'
   simpa only [mul_one_div] using h
 
@@ -57,20 +57,20 @@ private theorem bounded_pair (n p q : Nat) (a : Array Float) (t : Float)
     (k : Fin n)
     : let c := 1.0 / (1.0 + t * t).sqrt
       let s := t * c
-      let c₀ := 1 / Real.sqrt (1 + (value t)^2)
+      let c₀ := 1 / Real.sqrt (1 + (value t) ^ 2)
       let s₀ := value t * c₀
       |value (pairP n p q c s a k.val)
           - (c₀ * value (entry n a k.val p) - s₀ * value (entry n a k.val q))|
-        ≤ (2 : ℝ)^(-48 : Int) * 65
+        ≤ (2 : ℝ) ^ (-48 : Int) * 65
       ∧ |value (pairQ n p q c s a k.val)
           - (s₀ * value (entry n a k.val p) + c₀ * value (entry n a k.val q))|
-        ≤ (2 : ℝ)^(-48 : Int) * 65 := by
+        ≤ (2 : ℝ) ^ (-48 : Int) * 65 := by
   have hη : (2 : ℝ)^(-1022 : Int) ≤ 1 :=
     (zpow_le_one_iff_right₀ (by norm_num : (1 : ℝ) < 2)).mpr (by norm_num)
   exact pair_reference t (entry n a k.val p) (entry n a k.val q) 65 ht htb
     (Flare.Matrix.Storage.getD_finite _ _ ha) (Flare.Matrix.Storage.getD_finite _ _ ha)
     (by linarith [hab k.val p k.isLt hp, hab k.val q k.isLt hq])
-    (((by norm_num : (65 : ℝ) ≤ (2 : ℝ)^(7 : Int))).trans
+    (((by norm_num : (65 : ℝ) ≤ (2 : ℝ) ^ (7 : Int))).trans
       (zpow_le_zpow_right₀ (by norm_num) (by norm_num)))
 
 /-- A complete native rotation is an entrywise perturbation of an exact
@@ -85,18 +85,18 @@ theorem rotation_similarity (n p q : Nat) (a v : Array Float) (result : Array Fl
     (hstop : (1.0e-14 : Float) < (entry n a p q).abs)
     (h : RotationResult n p q a v result)
     : let t := value (pivotT n a p q)
-      let c := 1 / Real.sqrt (1 + t^2)
+      let c := 1 / Real.sqrt (1 + t ^ 2)
       let J := plane (⟨p, hp⟩ : Fin n) ⟨q, hq⟩ c (t * c)
       let r :=
-        value (entry n a p q) * t^2
+        value (entry n a p q) * t ^ 2
         + (value (entry n a q q) - value (entry n a p p)) * t
         - value (entry n a p q)
       J.transpose * J = 1
       ∧ J * J.transpose = 1
       ∧ (∀ i j,
           |matrix n n result.1 i j - (J.transpose * matrix n n a * J) i j|
-          ≤ (2 : ℝ)^(-48 : Int) * 65 + 2 * |r|)
-      ∧ ∀ i j, |matrix n n result.2 i j - (matrix n n v * J) i j| ≤ (2 : ℝ)^(-48 : Int) * 65 := by
+          ≤ (2 : ℝ) ^ (-48 : Int) * 65 + 2 * |r|)
+      ∧ ∀ i j, |matrix n n result.2 i j - (matrix n n v * J) i j| ≤ (2 : ℝ) ^ (-48 : Int) * 65 := by
   let P : Fin n := ⟨p, hp⟩
   let Q : Fin n := ⟨q, hq⟩
   have hPQ : P ≠ Q := by intro he; exact hpq (congrArg Fin.val he)
@@ -176,12 +176,12 @@ theorem rotation_similarity_norm (n p q : Nat) (a v : Array Float)
     (hsym : ∀ i j, i < n → j < n → value (entry n a i j) = value (entry n a j i))
     (hstop : (1.0e-14 : Float) < (entry n a p q).abs) (h : RotationResult n p q a v result)
     : let t := value (pivotT n a p q)
-      let c := 1 / Real.sqrt (1 + t^2)
+      let c := 1 / Real.sqrt (1 + t ^ 2)
       let J := plane (⟨p, hp⟩ : Fin n) ⟨q, hq⟩ c (t * c)
-      let u : ℝ := (2 : ℝ)^(-53 : Int)
+      let u : ℝ := (2 : ℝ) ^ (-53 : Int)
       ‖matrix n n result.1 - J.transpose * matrix n n a * J‖
       ≤ 141 * u * ‖matrix n n a‖
-        + (64 * n + 13) * u * (2 : ℝ)^(-1022 : Int)
+        + (64 * n + 13) * u * (2 : ℝ) ^ (-1022 : Int)
         + 512 * u * |value (entry n a p q)| := by
   let P : Fin n := ⟨p, hp⟩
   let Q : Fin n := ⟨q, hq⟩
@@ -276,11 +276,11 @@ theorem rotation_vectors_norm (n p q : Nat) (a v : Array Float) (result : Array 
     (hstop : (1.0e-14 : Float) < (entry n a p q).abs)
     (h : RotationResult n p q a v result)
     : let t := value (pivotT n a p q)
-      let c := 1 / Real.sqrt (1 + t^2)
+      let c := 1 / Real.sqrt (1 + t ^ 2)
       let J := plane (⟨p, hp⟩ : Fin n) ⟨q, hq⟩ c (t * c)
       ‖matrix n n result.2 - matrix n n v * J‖
-      ≤ 96 * (2 : ℝ)^(-53 : Int) * ‖matrix n n v‖
-        + 48 * n * (2 : ℝ)^(-53 : Int) * (2 : ℝ)^(-1022 : Int) := by
+      ≤ 96 * (2 : ℝ) ^ (-53 : Int) * ‖matrix n n v‖
+        + 48 * n * (2 : ℝ) ^ (-53 : Int) * (2 : ℝ) ^ (-1022 : Int) := by
   let P : Fin n := ⟨p, hp⟩
   let Q : Fin n := ⟨q, hq⟩
   have hPQ : P ≠ Q := fun he => hpq (congrArg Fin.val he)
@@ -328,8 +328,9 @@ theorem advance_similarity (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
     (hk : k ≤ 32 * n * n) (h : State n k a v)
     : ∃ J : Matrix (Fin n) (Fin n) ℝ,
         J ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
-        ∧ ‖matrix n n (advance n a v).1 - J.transpose * matrix n n a * J‖ ≤ n * (2 : ℝ)^(-33 : Int)
-        ∧ ‖matrix n n (advance n a v).2 - matrix n n v * J‖ ≤ n * ((2 : ℝ)^(-48 : Int) * 65) := by
+        ∧ ‖matrix n n (advance n a v).1 - J.transpose * matrix n n a * J‖
+          ≤ n * (2 : ℝ) ^ (-33 : Int)
+        ∧ ‖matrix n n (advance n a v).2 - matrix n n v * J‖ ≤ n * ((2 : ℝ) ^ (-48 : Int) * 65) := by
   by_cases hstop : (selectedPivot n a).magnitude ≤ (1.0e-14 : Float)
   · refine ⟨1, (unitary _).one_mem, ?_, ?_⟩ <;>
       simp only [advance, hstop, ↓reduceIte, Matrix.transpose_one, Matrix.one_mul,
@@ -380,8 +381,8 @@ theorem trajectory_backward_error (n : Nat) (a v : Array Float) (hn : n ≤ 18)
     : ∃ W : Matrix (Fin n) (Fin n) ℝ,
         W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
         ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
-          ≤ k * (n * (2 : ℝ)^(-33 : Int))
-        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (n * ((2 : ℝ)^(-48 : Int) * 65)) := by
+          ≤ k * (n * (2 : ℝ) ^ (-33 : Int))
+        ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (n * ((2 : ℝ) ^ (-48 : Int) * 65)) := by
   induction k with
   | zero => refine ⟨1, (unitary _).one_mem, ?_, ?_⟩ <;> simp [trajectory, hV]
   | succ k ih =>

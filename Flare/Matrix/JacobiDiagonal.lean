@@ -15,8 +15,8 @@ an underflow allowance proportional to the selected pivot. -/
 theorem pivot_parameter_relative (a b d : Float)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hd : d.isFinite = true)
     (hab : |value a| ≤ 32) (hbb : |value b| ≤ 32) (hdb : |value d| ≤ 32)
-    (hbp : (2 : ℝ)^(-47 : Int) ≤ |value b|)
-    : let u : ℝ := (2 : ℝ)^(-53 : Int)
+    (hbp : (2 : ℝ) ^ (-47 : Int) ≤ |value b|)
+    : let u : ℝ := (2 : ℝ) ^ (-53 : Int)
       let τ := (d - a) / (2.0 * b)
       |2 * value b * value τ - (value d - value a)|
       ≤ 32 * u * |value d - value a| + u * |value b| := by
@@ -25,8 +25,8 @@ theorem pivot_parameter_relative (a b d : Float)
   have hu : 0 ≤ u := by positivity
   have hη : η ≤ u * |value b| := by
     calc
-      _ ≤ (2 : ℝ)^(-100 : Int) := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
-      _ = u * (2 : ℝ)^(-47 : Int) := by dsimp [u]; rw [← zpow_add₀ (by norm_num)]; rfl
+      _ ≤ (2 : ℝ) ^ (-100 : Int) := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
+      _ = u * (2 : ℝ) ^ (-47 : Int) := by dsimp [u]; rw [← zpow_add₀ (by norm_num)]; rfl
       _ ≤ _ := mul_le_mul_of_nonneg_left hbp hu
   have htwo : value (2.0 : Float) = 2 := by
     change (((2^52 : Nat) : ℝ) * (2 : ℝ)^(-51 : Int)) = 2
@@ -74,8 +74,8 @@ theorem pivot_parameter_relative (a b d : Float)
     apply (div_le_iff₀ hdpos).mpr
     calc
       _ ≤ 128 := hnb128
-      _ = (2 : ℝ)^(54 : Int) * (2 : ℝ)^(-47 : Int) := by norm_num
-      _ ≤ (2 : ℝ)^(54 : Int) * |value b| := mul_le_mul_of_nonneg_left hbp (by positivity)
+      _ = (2 : ℝ) ^ (54 : Int) * (2 : ℝ) ^ (-47 : Int) := by norm_num
+      _ ≤ (2 : ℝ) ^ (54 : Int) * |value b| := mul_le_mul_of_nonneg_left hbp (by positivity)
       _ ≤ _ := mul_le_mul_of_nonneg_left hdl (by positivity)
   have hτ := Flare.Binary64.Division.div_error_relative (d - a) (2.0 * b) hnf hdf (abs_pos.mp hdpos)
     (hquot.trans (zpow_le_zpow_right₀ (by norm_num) (by norm_num)))
@@ -110,8 +110,8 @@ theorem pivot_polynomial_relative (a b d : Float)
     (hstop : (1.0e-14 : Float) < b.abs)
     : let τ := (d - a) / (2.0 * b)
       let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
-      |value b * (value t)^2 + (value d - value a) * value t - value b|
-      ≤ 256 * (2 : ℝ)^(-53 : Int) * |value b| := by
+      |value b * (value t) ^ 2 + (value d - value a) * value t - value b|
+      ≤ 256 * (2 : ℝ) ^ (-53 : Int) * |value b| := by
   have habs := abs_value b hb
   have hbp := (lt_iff (1.0e-14 : Float) b.abs (by decide) habs.1).mp hstop
   rw [habs.2] at hbp
@@ -132,9 +132,9 @@ pivot may produce a large parameter; the residual remains uniformly controlled. 
 theorem pivot_parameter_residual (a b d : Float)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hd : d.isFinite = true)
     (hab : |value a| ≤ 32) (hbb : |value b| ≤ 32) (hdb : |value d| ≤ 32)
-    (hbp : (2 : ℝ)^(-47 : Int) ≤ |value b|)
+    (hbp : (2 : ℝ) ^ (-47 : Int) ≤ |value b|)
     : let τ := (d - a) / (2.0 * b)
-      |2 * value b * value τ - (value d - value a)| ≤ (2 : ℝ)^(-38 : Int) := by
+      |2 * value b * value τ - (value d - value a)| ≤ (2 : ℝ) ^ (-38 : Int) := by
   have h := pivot_parameter_relative a b d ha hb hd hab hbb hdb hbp
   have hΔ : |value d - value a| ≤ 64 := (abs_sub _ _).trans (by linarith only [hab, hdb])
   exact h.trans
@@ -150,7 +150,8 @@ theorem pivot_polynomial_residual (a b d : Float)
     (hstop : (1.0e-14 : Float) < b.abs)
     : let τ := (d - a) / (2.0 * b)
       let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
-      |value b * (value t)^2 + (value d - value a) * value t - value b| ≤ (2 : ℝ)^(-35 : Int) := by
+      |value b * (value t) ^ 2 + (value d - value a) * value t - value b|
+      ≤ (2 : ℝ) ^ (-35 : Int) := by
   exact (pivot_polynomial_relative a b d ha hb hd hab hbb hdb hstop).trans
     ((mul_le_mul_of_nonneg_left hbb (by positivity)).trans (by norm_num))
 
@@ -165,10 +166,10 @@ theorem diagonal_energy (a b d : Float)
       let t := (if τ < 0.0 then (-1.0 : Float) else 1.0) / (τ.abs + (1.0 + τ * τ).sqrt)
       (a - t * b).isFinite = true
       ∧ (d + t * b).isFinite = true
-      ∧ |(value (a - t * b))^2
-          + (value (d + t * b))^2
-          - ((value a)^2 + (value d)^2 + 2 * (value b)^2)|
-        ≤ (2 : ℝ)^(-28 : Int) := by
+      ∧ |(value (a - t * b)) ^ 2
+          + (value (d + t * b)) ^ 2
+          - ((value a) ^ 2 + (value d) ^ 2 + 2 * (value b) ^ 2)|
+        ≤ (2 : ℝ) ^ (-28 : Int) := by
   have hparams := Jacobi.pivot_rotation_parameters a b d ha hb hd hab hbb hdb hstop
   have hquad := pivot_polynomial_residual a b d ha hb hd hab hbb hdb hstop
   have hdiag := JacobiIteration.diagonal_updates a b d _ ha hb hd hparams.2.1 hab hbb hdb

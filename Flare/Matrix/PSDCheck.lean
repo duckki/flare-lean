@@ -15,7 +15,7 @@ open scoped Matrix.Norms.L2Operator
 /-- The native tolerance is finite and remains above nine billionths of its
 selected real scale, including the rounding of the decimal literal and product. -/
 theorem tolerance_lower_bound (m : Float) (hm : m.isFinite = true)
-    (hmb : |value m| ≤ (2 : ℝ)^(500 : Int))
+    (hmb : |value m| ≤ (2 : ℝ) ^ (500 : Int))
     : (1.0e-8 * max 1.0 m).isFinite = true
       ∧ (9 / 1000000000 : ℝ) * max 1 (value m) ≤ value (1.0e-8 * max 1.0 m) := by
   obtain ⟨hsf, hsv⟩ := max_value 1.0 m (by decide) hm
@@ -63,7 +63,7 @@ the diagnostic, not a converse claiming exact PSD from a passing check. -/
 theorem checkPSD_accepts_nearPSD (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     (hPSD
       : (matrix n n input + ((4 / 1000000000 : ℝ) * max 1 (value (maxAbs input))) • 1).PosSemidef)
     : checkPSD n input = .ok () := by
@@ -129,7 +129,7 @@ are accepted by the complete native diagnostic on its supported profile. -/
 theorem checkPSD_accepts_psd (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     (hPSD : (matrix n n input).PosSemidef)
     : checkPSD n input = .ok () := by
   apply checkPSD_accepts_nearPSD n input hn hn' hs hf hsym hb
@@ -146,7 +146,7 @@ theorem checkPSD_accepts_approximation (n : Nat) (input : Array Float)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hN : (matrix n n input).IsHermitian) (hA : A.PosSemidef) (hε : 0 ≤ ε)
     (he : ∀ i j, |matrix n n input i j - A i j| ≤ ε)
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     (hmargin : n * ε ≤ (4 / 1000000000 : ℝ) * max 1 (value (maxAbs input)))
     : checkPSD n input = .ok () := by
   refine checkPSD_accepts_nearPSD n input hn hn' hs hf ?_ hb ?_
@@ -172,7 +172,7 @@ theorem checkPSD_accepts_norm_approximation (n : Nat) (input : Array Float)
     (A : Matrix (Fin n) (Fin n) ℝ) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : (matrix n n input).IsHermitian)
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     (hA : A.PosSemidef)
     (he : ‖matrix n n input - A‖ ≤ (4 / 1000000000 : ℝ) * max 1 (value (maxAbs input)))
     : checkPSD n input = .ok () := by

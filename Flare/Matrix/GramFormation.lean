@@ -16,17 +16,16 @@ norms. Finite execution follows from a bound on the exact dot-product mass. -/
 theorem multiply_frobenius_accuracy (rows inner columns : Nat) (a b : Array Float)
     (hinner : inner ≤ 32) (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hbound
-      : ‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ)^(-1022 : Int)
-        ≤ (2 : ℝ)^(990 : Int))
+      : ‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ) ^ (-1022 : Int)
+        ≤ (2 : ℝ) ^ (990 : Int))
     : ∃ r,
         multiply rows inner columns a b = .ok r
         ∧ r.size = rows * columns
         ∧ r.all Float.isFinite = true
         ∧ ‖entries (matrix rows columns r - matrix rows inner a * matrix inner columns b)‖
-          ≤ inner
-            * (2 : ℝ)^(-50 : Int)
+          ≤ inner * (2 : ℝ) ^ (-50 : Int)
             * (‖entries (matrix rows inner a)‖ * ‖entries (matrix inner columns b)‖
-                + Real.sqrt rows * Real.sqrt columns * (2 : ℝ)^(-1022 : Int)) := by
+                + Real.sqrt rows * Real.sqrt columns * (2 : ℝ) ^ (-1022 : Int)) := by
   let mass (i j : Nat) := (∑ k ∈ Finset.range inner,
     |value (entry inner a i k) * value (entry columns b k j)|) + (2 : ℝ)^(-1022 : Int)
   have hlim (i j : Nat) (hi : i < rows) (hj : j < columns) : mass i j ≤ (2 : ℝ)^(990 : Int) := by
@@ -43,7 +42,7 @@ theorem multiply_frobenius_accuracy (rows inner columns : Nat) (a b : Array Floa
     (fun _ _ _ _ => le_add_of_nonneg_right (by positivity))
   refine ⟨r, hr, hrs, hrf, ?_⟩
   apply product_roundoff_norm (matrix rows inner a) (matrix inner columns b) _
-    (inner * (2 : ℝ)^(-50 : Int)) ((2 : ℝ)^(-1022 : Int)) (by positivity) (by positivity)
+    (inner * (2 : ℝ) ^ (-50 : Int)) ((2 : ℝ) ^ (-1022 : Int)) (by positivity) (by positivity)
   intro i j
   have hh := he i j
   dsimp only [mass] at hh
@@ -103,7 +102,7 @@ theorem known_noise_gram_accuracy (o m : Nat) (r c : Array Float)
         ∧ (mirrorLower m raw).all Float.isFinite = true
         ∧ (matrix m m (mirrorLower m raw)).IsHermitian
         ∧ ‖matrix m m (mirrorLower m raw) - G‖
-          ≤ (127 / 10000000000000 : ℝ) * ‖T‖ + (2 : ℝ)^(-980 : Int) := by
+          ≤ (127 / 10000000000000 : ℝ) * ‖T‖ + (2 : ℝ) ^ (-980 : Int) := by
   dsimp only
   let R := matrix o o r
   let C := matrix o m c
@@ -135,7 +134,7 @@ theorem known_noise_gram_accuracy (o m : Nat) (r c : Array Float)
       (mul_nonneg (Real.sqrt_nonneg _) (norm_nonneg C))
     have hid : (Real.sqrt (m : ℝ) * ‖C‖) * (Real.sqrt m * ‖F‖) = m * (‖C‖ * ‖F‖) := by
       calc
-        _ = (Real.sqrt (m : ℝ))^2 * (‖C‖ * ‖F‖) := by ring
+        _ = (Real.sqrt (m : ℝ)) ^ 2 * (‖C‖ * ‖F‖) := by ring
         _ = _ := by rw [Real.sq_sqrt (Nat.cast_nonneg m)]
     rw [hid] at hh
     exact hh.trans
@@ -156,16 +155,16 @@ theorem known_noise_gram_accuracy (o m : Nat) (r c : Array Float)
     nlinarith only [hh, hCFrob, hsmall]
   have hCT := Flare.Matrix.Multiplication.transpose_matrix o m c hc
   have ht := Flare.Matrix.Multiplication.transpose_storage o m c hc
-  have hlim : ‖matrix m o (transpose o m c)‖ * ‖X‖ + (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(990 : Int) :=
-    by
-      rw [hCT, Flare.Analysis.SpectralPerturbation.norm_transpose]
-      have hprod := mul_le_mul hCn ((norm_le_entries X).trans hXn) (norm_nonneg X) (by norm_num : (0
-        : ℝ) ≤ 48)
-      calc
-        _ ≤ (2 : ℝ)^(16 : Int) := by
-          norm_num only [show (2 : ℝ)^(16 : Int) = 65536 by norm_num]
-          linarith only [hprod, hηδ, hδ1]
-        _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
+  have hlim
+      : ‖matrix m o (transpose o m c)‖ * ‖X‖ + (2 : ℝ) ^ (-1022 : Int) ≤ (2 : ℝ) ^ (990 : Int) := by
+    rw [hCT, Flare.Analysis.SpectralPerturbation.norm_transpose]
+    have hprod := mul_le_mul hCn ((norm_le_entries X).trans hXn) (norm_nonneg X) (by norm_num : (0
+      : ℝ) ≤ 48)
+    calc
+      _ ≤ (2 : ℝ) ^ (16 : Int) := by
+        norm_num only [show (2 : ℝ)^(16 : Int) = 65536 by norm_num]
+        linarith only [hprod, hηδ, hδ1]
+      _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   obtain ⟨raw, hraw, hrs, hrf, he⟩ := multiply_frobenius_accuracy m o m (transpose o m c) x
     (by omega) ht.2.1 hxf hlim
   rw [hCT, entries_transpose_norm] at he
@@ -228,7 +227,7 @@ theorem known_noise_cross_accuracy (n o m : Nat) (h r c : Array Float)
         ∧ raw.size = n * m
         ∧ raw.all Float.isFinite = true
         ∧ ‖entries (matrix n m raw - (matrix o n h).transpose * (matrix o o r)⁻¹ * matrix o m c)‖
-          ≤ (18 / 10000000000 : ℝ) * S + (2 : ℝ)^(-980 : Int) := by
+          ≤ (18 / 10000000000 : ℝ) * S + (2 : ℝ) ^ (-980 : Int) := by
   let H := matrix o n h
   let R := matrix o o r
   let C := matrix o m c
@@ -280,16 +279,16 @@ theorem known_noise_cross_accuracy (n o m : Nat) (h r c : Array Float)
     linarith only [hE, hFfS]
   have htr := Flare.Matrix.Multiplication.transpose_storage o n h hh
   have htm := Flare.Matrix.Multiplication.transpose_matrix o n h hh
-  have hlim : ‖matrix n o (transpose o n h)‖ * ‖X‖ + (2 : ℝ)^(-1022 : Int) ≤ (2 : ℝ)^(990 : Int) :=
-    by
-      rw [htm, Flare.Analysis.SpectralPerturbation.norm_transpose]
-      have hp := mul_le_mul hHn ((norm_le_entries X).trans hXn) (norm_nonneg X) (by norm_num : (0 :
-        ℝ) ≤ 36)
-      calc
-        _ ≤ (2 : ℝ)^(16 : Int) := by
-          norm_num only [show (2 : ℝ)^(16 : Int) = 65536 by norm_num]
-          linarith only [hp, hηδ, hδ1]
-        _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
+  have hlim
+      : ‖matrix n o (transpose o n h)‖ * ‖X‖ + (2 : ℝ) ^ (-1022 : Int) ≤ (2 : ℝ) ^ (990 : Int) := by
+    rw [htm, Flare.Analysis.SpectralPerturbation.norm_transpose]
+    have hp := mul_le_mul hHn ((norm_le_entries X).trans hXn) (norm_nonneg X) (by norm_num : (0 :
+      ℝ) ≤ 36)
+    calc
+      _ ≤ (2 : ℝ) ^ (16 : Int) := by
+        norm_num only [show (2 : ℝ)^(16 : Int) = 65536 by norm_num]
+        linarith only [hp, hηδ, hδ1]
+      _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   obtain ⟨raw, heq, hrs, hrf, he⟩ := multiply_frobenius_accuracy n o m (transpose o n h) x
     (by omega) htr.2.1 hxf hlim
   rw [htm, entries_transpose_norm] at he

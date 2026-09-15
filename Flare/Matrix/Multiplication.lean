@@ -32,7 +32,7 @@ lemma mapM_eq_ok_map {α β ε : Type} (a : Array α) (f : α → Except ε β)
   apply Array.toList_inj.mp
   simp
 
-private lemma power_sub (E k : Int) : (2 : ℝ)^(E - k) = (2 : ℝ)^E / (2 : ℝ)^k :=
+private lemma power_sub (E k : Int) : (2 : ℝ) ^ (E - k) = (2 : ℝ) ^ E / (2 : ℝ) ^ k :=
   zpow_sub₀ (by norm_num) _ _
 
 /-- One dot-product step, including successful finite multiplication and addition.
@@ -40,13 +40,13 @@ The exponent bounds magnitudes of exact terms, not the individual operands. -/
 lemma dot_step (E : Int) (k : Nat) (a b s : Float) (prefixSum : ℝ)
     (hE : 0 ≤ E) (hE' : E ≤ 1016) (hk : k ≤ 31)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
-    (ht : |value a * value b| ≤ (2 : ℝ)^E)
-    (hp : |prefixSum| ≤ k * (2 : ℝ)^E)
-    (herr : |value s - prefixSum| ≤ k * (2 : ℝ)^(E - 45))
+    (ht : |value a * value b| ≤ (2 : ℝ) ^ E)
+    (hp : |prefixSum| ≤ k * (2 : ℝ) ^ E)
+    (herr : |value s - prefixSum| ≤ k * (2 : ℝ) ^ (E - 45))
     : (a * b).isFinite = true
       ∧ (s + a * b).isFinite = true
       ∧ |value (s + a * b) - (prefixSum + value a * value b)|
-        ≤ (k + 1 : Nat) * (2 : ℝ)^(E - 45) := by
+        ≤ (k + 1 : Nat) * (2 : ℝ) ^ (E - 45) := by
   have hr : 0 < (2 : ℝ)^E := zpow_pos (by norm_num) _
   have hk' : (k : ℝ) ≤ 31 := by exact_mod_cast hk
   have hm := mul_error a b E ha hb (by omega) (by omega) ht
@@ -86,14 +86,14 @@ lemma dot_step (E : Int) (k : Nat) (a b s : Float) (prefixSum : ℝ)
 keeps cancellation separate from roundoff and includes gradual underflow. -/
 lemma dot_relative_step (a b s : Float) (exact M : ℝ) (k : Nat)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
-    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ)^(990 : Int))
-    (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ) ^ (990 : Int))
+    (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (ht : |value a * value b| ≤ M) (he : |exact| ≤ M)
-    (herr : |value s - exact| ≤ k * (2 : ℝ)^(-48 : Int) * M)
+    (herr : |value s - exact| ≤ k * (2 : ℝ) ^ (-48 : Int) * M)
     : (a * b).isFinite = true
       ∧ (s + a * b).isFinite = true
       ∧ |value (s + a * b) - (exact + value a * value b)|
-        ≤ (k + 1 : Nat) * (2 : ℝ)^(-48 : Int) * M := by
+        ≤ (k + 1 : Nat) * (2 : ℝ) ^ (-48 : Int) * M := by
   have hM0 : 0 ≤ M := (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _).trans hη
   have hk' : (k : ℝ) ≤ 31 := by exact_mod_cast hk
   have hsbound : |value s| ≤ 2 * M := by
@@ -104,8 +104,8 @@ lemma dot_relative_step (a b s : Float) (exact M : ℝ) (k : Nat)
     nlinarith
   have hlim : 4 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(992 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (992 : Int) := by
         rw [show (992 : Int) = 990 + 2 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(2 : Int) = 4 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -139,14 +139,14 @@ lemma dot_relative_step (a b s : Float) (exact M : ℝ) (k : Nat)
 keeps cancellation separate from roundoff and includes gradual underflow. -/
 lemma dot_nearest_step (a b s : Float) (exact M : ℝ) (k : Nat)
     (ha : a.isFinite = true) (hb : b.isFinite = true) (hs : s.isFinite = true)
-    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ)^(990 : Int))
-    (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hk : k ≤ 31) (hM : M ≤ (2 : ℝ) ^ (990 : Int))
+    (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (ht : |value a * value b| ≤ M) (he : |exact| ≤ M)
-    (herr : |value s - exact| ≤ k * (2 : ℝ)^(-50 : Int) * M)
+    (herr : |value s - exact| ≤ k * (2 : ℝ) ^ (-50 : Int) * M)
     : (a * b).isFinite = true
       ∧ (s + a * b).isFinite = true
       ∧ |value (s + a * b) - (exact + value a * value b)|
-        ≤ (k + 1 : Nat) * (2 : ℝ)^(-50 : Int) * M := by
+        ≤ (k + 1 : Nat) * (2 : ℝ) ^ (-50 : Int) * M := by
   have hM0 : 0 ≤ M := (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _).trans hη
   have hk' : (k : ℝ) ≤ 31 := by exact_mod_cast hk
   have hsbound : |value s| ≤ 2 * M := by
@@ -157,8 +157,8 @@ lemma dot_nearest_step (a b s : Float) (exact M : ℝ) (k : Nat)
     nlinarith
   have hlim : 4 * M ≤ (2 : ℝ)^(1000 : Int) := by
     calc
-      _ ≤ 4 * (2 : ℝ)^(990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
-      _ = (2 : ℝ)^(992 : Int) := by
+      _ ≤ 4 * (2 : ℝ) ^ (990 : Int) := mul_le_mul_of_nonneg_left hM (by norm_num)
+      _ = (2 : ℝ) ^ (992 : Int) := by
         rw [show (992 : Int) = 990 + 2 by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
         rw [show (2 : ℝ)^(2 : Int) = 4 by norm_num]; ring
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
@@ -199,13 +199,13 @@ private def DotState (inner columns : Nat) (a b : Array Float) (i j : Nat)
 
 private lemma prefixProduct_bound (inner columns : Nat) (a b : Array Float) (i j k : Nat)
     (E : Int) (hk : k ≤ inner)
-    (ht : ∀ t, t < inner → |value (entry inner a i t) * value (entry columns b t j)| ≤ (2 : ℝ)^E)
-    : |prefixProduct inner columns a b i j k| ≤ k * (2 : ℝ)^E := by
+    (ht : ∀ t, t < inner → |value (entry inner a i t) * value (entry columns b t j)| ≤ (2 : ℝ) ^ E)
+    : |prefixProduct inner columns a b i j k| ≤ k * (2 : ℝ) ^ E := by
   unfold prefixProduct
   calc
     _ ≤ ∑ t ∈ Finset.range k, |value (entry inner a i t) * value (entry columns b t j)| :=
       Finset.abs_sum_le_sum_abs _ _
-    _ ≤ ∑ _t ∈ Finset.range k, (2 : ℝ)^E := Finset.sum_le_sum fun t ht' => ht t (by
+    _ ≤ ∑ _t ∈ Finset.range k, (2 : ℝ) ^ E := Finset.sum_le_sum fun t ht' => ht t (by
       have := Finset.mem_range.mp ht'; omega)
     _ = _ := by simp
 
@@ -217,11 +217,11 @@ private lemma dot_start (inner columns : Nat) (a b : Array Float) (i j : Nat) (�
 private lemma dot_update (inner columns : Nat) (a b : Array Float) (i j k : Nat)
     (E : Int) (s : Float) (hE : 0 ≤ E) (hE' : E ≤ 1016) (hinner : inner ≤ 32)
     (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true) (hk : k < inner)
-    (ht : ∀ t, t < inner → |value (entry inner a i t) * value (entry columns b t j)| ≤ (2 : ℝ)^E)
-    (hs : DotState inner columns a b i j ((2 : ℝ)^(E - 45)) k s)
+    (ht : ∀ t, t < inner → |value (entry inner a i t) * value (entry columns b t j)| ≤ (2 : ℝ) ^ E)
+    (hs : DotState inner columns a b i j ((2 : ℝ) ^ (E - 45)) k s)
     : (entry inner a i k * entry columns b k j).isFinite = true
       ∧ (s + entry inner a i k * entry columns b k j).isFinite = true
-      ∧ DotState inner columns a b i j ((2 : ℝ)^(E - 45)) (k + 1)
+      ∧ DotState inner columns a b i j ((2 : ℝ) ^ (E - 45)) (k + 1)
           (s + entry inner a i k * entry columns b k j) := by
   have hh := dot_step E k (entry inner a i k) (entry columns b k j) s
     (prefixProduct inner columns a b i j k) hE hE' (by omega)
@@ -349,10 +349,10 @@ private theorem multiply_triple (rows inner columns : Nat) (a b : Array Float) (
           i < rows
           → j < columns
           → k < inner
-          → |value (entry inner a i k) * value (entry columns b k j)| ≤ (2 : ℝ)^E)
+          → |value (entry inner a i k) * value (entry columns b k j)| ≤ (2 : ℝ) ^ E)
     : ⦃⌜True⌝
       ⦄ Flare.Matrix.Dense.multiply rows inner columns a b
-      ⦃⇓ r => ⌜ProductState rows inner columns a b (fun _ _ => (2 : ℝ)^(E - 45)) rows 0 r⌝⦄ := by
+      ⦃⇓ r => ⌜ProductState rows inner columns a b (fun _ _ => (2 : ℝ) ^ (E - 45)) rows 0 r⌝⦄ := by
   apply multiply_triple_of_step rows inner columns a b (fun _ _ => (2 : ℝ)^(E - 45))
   intro i j k s hi hj hk hs
   exact dot_update inner columns a b i j k E s hE hE' hinner ha hb hk
@@ -370,14 +370,14 @@ theorem multiply_accuracy (rows inner columns : Nat) (a b : Array Float) (E : In
           i < rows
           → j < columns
           → k < inner
-          → |value (entry inner a i k) * value (entry columns b k j)| ≤ (2 : ℝ)^E)
+          → |value (entry inner a i k) * value (entry columns b k j)| ≤ (2 : ℝ) ^ E)
     : ∃ r,
         Flare.Matrix.Operations.multiply rows inner columns a b = .ok r
         ∧ r.size = rows * columns
         ∧ r.all Float.isFinite = true
         ∧ ∀ i j,
             |matrix rows columns r i j - (matrix rows inner a * matrix inner columns b) i j|
-            ≤ inner * (2 : ℝ)^(E - 45) := by
+            ≤ inner * (2 : ℝ) ^ (E - 45) := by
   have hproof := multiply_triple rows inner columns a b E hE hE' hinner ha hb ht
   cases he : Flare.Matrix.Dense.multiply rows inner columns a b with
   | error e =>
@@ -409,7 +409,7 @@ each exact dot product. This sharper bound uses the same executable schedule
 and the same loop invariant proof as `multiply_accuracy`. -/
 theorem multiply_mass_accuracy (rows inner columns : Nat) (a b : Array Float) (M : ℝ)
     (hinner : inner ≤ 32) (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
-    (hM : M ≤ (2 : ℝ)^(990 : Int)) (hη : (2 : ℝ)^(-1022 : Int) ≤ M)
+    (hM : M ≤ (2 : ℝ) ^ (990 : Int)) (hη : (2 : ℝ) ^ (-1022 : Int) ≤ M)
     (hmass
       : ∀ i j,
           i < rows
@@ -422,7 +422,7 @@ theorem multiply_mass_accuracy (rows inner columns : Nat) (a b : Array Float) (M
         ∧ r.all Float.isFinite = true
         ∧ ∀ i j,
             |matrix rows columns r i j - (matrix rows inner a * matrix inner columns b) i j|
-            ≤ inner * (2 : ℝ)^(-48 : Int) * M := by
+            ≤ inner * (2 : ℝ) ^ (-48 : Int) * M := by
   have hproof : ⦃⌜True⌝⦄ Flare.Matrix.Dense.multiply rows inner columns a b
       ⦃⇓ r => ⌜ProductState rows inner columns a b (fun _ _ => (2 : ℝ)^(-48 : Int) * M) rows 0 r⌝⦄
         := by
@@ -473,8 +473,8 @@ and the same loop invariant proof as `multiply_accuracy`. -/
 theorem multiply_entrywise_accuracy (rows inner columns : Nat) (a b : Array Float)
     (M : Nat → Nat → ℝ) (hinner : inner ≤ 32) (ha : a.all Float.isFinite = true)
     (hb : b.all Float.isFinite = true)
-    (hM : ∀ i j, i < rows → j < columns → M i j ≤ (2 : ℝ)^(990 : Int))
-    (hη : ∀ i j, i < rows → j < columns → (2 : ℝ)^(-1022 : Int) ≤ M i j)
+    (hM : ∀ i j, i < rows → j < columns → M i j ≤ (2 : ℝ) ^ (990 : Int))
+    (hη : ∀ i j, i < rows → j < columns → (2 : ℝ) ^ (-1022 : Int) ≤ M i j)
     (hmass
       : ∀ i j,
           i < rows
@@ -487,7 +487,7 @@ theorem multiply_entrywise_accuracy (rows inner columns : Nat) (a b : Array Floa
         ∧ r.all Float.isFinite = true
         ∧ ∀ i j,
             |matrix rows columns r i j - (matrix rows inner a * matrix inner columns b) i j|
-            ≤ inner * (2 : ℝ)^(-50 : Int) * M i.val j.val := by
+            ≤ inner * (2 : ℝ) ^ (-50 : Int) * M i.val j.val := by
   have hproof : ⦃⌜True⌝⦄ Flare.Matrix.Dense.multiply rows inner columns a b
       ⦃⇓ r => ⌜ProductState rows inner columns a b (fun i j => (2 : ℝ)^(-50 : Int) * M i j) rows 0
         r⌝⦄ := by
@@ -538,8 +538,8 @@ with an explicit underflow term and no presumed successful execution. -/
 theorem multiply_norm_accuracy (rows inner columns : Nat) (a b : Array Float)
     (hinner : inner ≤ 32) (ha : a.all Float.isFinite = true) (hb : b.all Float.isFinite = true)
     (hbound
-      : ‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ)^(-1022 : Int)
-        ≤ (2 : ℝ)^(990 : Int))
+      : ‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ) ^ (-1022 : Int)
+        ≤ (2 : ℝ) ^ (990 : Int))
     : ∃ r,
         Flare.Matrix.Operations.multiply rows inner columns a b = .ok r
         ∧ r.size = rows * columns
@@ -547,8 +547,8 @@ theorem multiply_norm_accuracy (rows inner columns : Nat) (a b : Array Float)
         ∧ ∀ i j,
             |matrix rows columns r i j - (matrix rows inner a * matrix inner columns b) i j|
             ≤ inner
-              * (2 : ℝ)^(-48 : Int)
-              * (‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ)^(-1022 : Int)) := by
+              * (2 : ℝ) ^ (-48 : Int)
+              * (‖matrix rows inner a‖ * ‖matrix inner columns b‖ + (2 : ℝ) ^ (-1022 : Int)) := by
   apply multiply_mass_accuracy rows inner columns a b _ hinner ha hb hbound
     (le_add_of_nonneg_left (by positivity))
   intro i j hi hj
@@ -622,7 +622,8 @@ theorem multiply_zero (rows inner columns : Nat) (a b : Array Float)
     refine ⟨ht.1, hh.1, hh.1, ?_⟩
     simp only [hp i j (k + 1) hi hj (by omega), hh.2, sub_self, abs_zero, mul_zero, le_refl]
   cases he : Flare.Matrix.Dense.multiply rows inner columns a b with
-  | error e => rw [he] at hproof; exact False.elim (hproof True.intro)
+  | error e =>
+      rw [he] at hproof; exact False.elim (hproof True.intro)
   | ok r =>
       rw [he] at hproof
       have hs := hproof True.intro

@@ -15,7 +15,7 @@ open Flare.Matrix.Dense Std.Do
 
 set_option mvcgen.warning false
 
-private lemma power_sub (E k : Int) : (2 : ℝ)^(E - k) = (2 : ℝ)^E / (2 : ℝ)^k :=
+private lemma power_sub (E k : Int) : (2 : ℝ) ^ (E - k) = (2 : ℝ) ^ E / (2 : ℝ) ^ k :=
   zpow_sub₀ (by norm_num) _ _
 
 /-- A rounded LDLᵀ term (l*d)*r is finite with a bound for both roundings.
@@ -23,11 +23,11 @@ The exponent choices include gradual underflow and zero-valued factors. -/
 lemma gram_term (L D : Int) (l d r : Float)
     (hL : 0 ≤ L) (hD : 0 ≤ D) (hE : 2 * L + D ≤ 1000)
     (hl : l.isFinite = true) (hd : d.isFinite = true) (hr : r.isFinite = true)
-    (hlb : |value l| ≤ (2 : ℝ)^L) (hdb : |value d| ≤ (2 : ℝ)^D)
-    (hrb : |value r| ≤ (2 : ℝ)^L)
+    (hlb : |value l| ≤ (2 : ℝ) ^ L) (hdb : |value d| ≤ (2 : ℝ) ^ D)
+    (hrb : |value r| ≤ (2 : ℝ) ^ L)
     : (l * d).isFinite = true
       ∧ ((l * d) * r).isFinite = true
-      ∧ |value ((l * d) * r) - value l * value d * value r| ≤ (2 : ℝ)^(2 * L + D - 50) := by
+      ∧ |value ((l * d) * r) - value l * value d * value r| ≤ (2 : ℝ) ^ (2 * L + D - 50) := by
   have hpL : 0 < (2 : ℝ)^L := zpow_pos (by norm_num) _
   have hpD : 0 < (2 : ℝ)^D := zpow_pos (by norm_num) _
   have hprod : |value l * value d| ≤ (2 : ℝ)^(L + D) := by
@@ -43,10 +43,10 @@ lemma gram_term (L D : Int) (l d r : Float)
   have hsecond : |value (l * d) * value r| ≤ (2 : ℝ)^(2 * L + D + 1) := by
     rw [abs_mul]
     calc
-      _ ≤ (2 * (2 : ℝ)^(L + D)) * (2 : ℝ)^L :=
+      _ ≤ (2 * (2 : ℝ) ^ (L + D)) * (2 : ℝ) ^ L :=
         mul_le_mul hfirst hrb (abs_nonneg _)
           (mul_nonneg (by norm_num) (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _))
-      _ = (2 : ℝ)^((L + D) + L) * (2 : ℝ)^(1 : Int) := by
+      _ = (2 : ℝ) ^ ((L + D) + L) * (2 : ℝ) ^ (1 : Int) := by
         rw [zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0) (L + D) L]
         norm_num only [zpow_one]
         ring
@@ -57,7 +57,7 @@ lemma gram_term (L D : Int) (l d r : Float)
       (2 : ℝ)^(2 * L + D - 52) := by
     rw [← sub_mul, abs_mul]
     calc
-      _ ≤ (2 : ℝ)^(L + D - 52) * (2 : ℝ)^L :=
+      _ ≤ (2 : ℝ) ^ (L + D - 52) * (2 : ℝ) ^ L :=
         mul_le_mul hm.2 hrb (abs_nonneg _) (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
       _ = _ := by rw [← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]; congr 1; omega
   have htri := abs_sub_le (value ((l * d) * r)) (value (l * d) * value r)
@@ -75,8 +75,8 @@ lemma gram_term_relative (l d r : Float)
     : (l * d).isFinite = true
       ∧ ((l * d) * r).isFinite = true
       ∧ |value ((l * d) * r) - value l * value d * value r|
-        ≤ 3 * (2 : ℝ)^(-53 : Int) * |value l * value d * value r|
-          + 256 * (2 : ℝ)^(-53 : Int) * (2 : ℝ)^(-1022 : Int) := by
+        ≤ 3 * (2 : ℝ) ^ (-53 : Int) * |value l * value d * value r|
+          + 256 * (2 : ℝ) ^ (-53 : Int) * (2 : ℝ) ^ (-1022 : Int) := by
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   have hη : 0 ≤ η := zpow_nonneg (by norm_num) _
   have hη' : η ≤ 1 := by dsimp [η]; exact (zpow_le_zpow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (show
@@ -97,7 +97,7 @@ lemma gram_term_relative (l d r : Float)
   have hsecond : |value (l * d) * value r| ≤ (2 : ℝ)^(26 : Int) := by
     rw [abs_mul]
     calc
-      _ ≤ (2 : ℝ)^(19 : Int) * 128 := mul_le_mul hfirst hrb (abs_nonneg _) (by positivity)
+      _ ≤ (2 : ℝ) ^ (19 : Int) * 128 := mul_le_mul hfirst hrb (abs_nonneg _) (by positivity)
       _ = _ := by norm_num
   have hm' := Flare.Binary64.Nearest.mul_error_nearest (l * d) r hm.1 hr
     (hsecond.trans (zpow_le_zpow_right₀ (by norm_num) (by norm_num)))
@@ -106,7 +106,7 @@ lemma gram_term_relative (l d r : Float)
         128 * (2 : ℝ)^(-53 : Int) * η := by
     rw [← sub_mul, abs_mul]
     calc
-      _ ≤ ((2 : ℝ)^(-53 : Int) * (|value l * value d| + η)) * |value r| :=
+      _ ≤ ((2 : ℝ) ^ (-53 : Int) * (|value l * value d| + η)) * |value r| :=
         mul_le_mul_of_nonneg_right hm.2 (abs_nonneg _)
       _ ≤ _ := by
         simp only [abs_mul]
@@ -130,15 +130,15 @@ lemma gram_step (L D : Int) (k : Nat) (l d r s : Float) (exact : ℝ)
     (hL : 0 ≤ L) (hD : 0 ≤ D) (hE : 2 * L + D ≤ 1000) (hk : k ≤ 11)
     (hl : l.isFinite = true) (hd : d.isFinite = true) (hr : r.isFinite = true)
     (hs : s.isFinite = true)
-    (hlb : |value l| ≤ (2 : ℝ)^L) (hdb : |value d| ≤ (2 : ℝ)^D)
-    (hrb : |value r| ≤ (2 : ℝ)^L)
-    (hexact : |exact| ≤ (k + 1 : Nat) * (2 : ℝ)^(2 * L + D))
-    (herr : |value s - exact| ≤ k * (2 : ℝ)^(2 * L + D - 44))
+    (hlb : |value l| ≤ (2 : ℝ) ^ L) (hdb : |value d| ≤ (2 : ℝ) ^ D)
+    (hrb : |value r| ≤ (2 : ℝ) ^ L)
+    (hexact : |exact| ≤ (k + 1 : Nat) * (2 : ℝ) ^ (2 * L + D))
+    (herr : |value s - exact| ≤ k * (2 : ℝ) ^ (2 * L + D - 44))
     : (l * d).isFinite = true
       ∧ ((l * d) * r).isFinite = true
       ∧ (s - (l * d) * r).isFinite = true
       ∧ |value (s - (l * d) * r) - (exact - value l * value d * value r)|
-        ≤ (k + 1 : Nat) * (2 : ℝ)^(2 * L + D - 44) := by
+        ≤ (k + 1 : Nat) * (2 : ℝ) ^ (2 * L + D - 44) := by
   let E := 2 * L + D
   have hp : 0 < (2 : ℝ)^E := zpow_pos (by norm_num) _
   have hk' : (k : ℝ) ≤ 11 := by exact_mod_cast hk
@@ -146,7 +146,7 @@ lemma gram_step (L D : Int) (k : Nat) (l d r s : Float) (exact : ℝ)
   have hreal : |value l * value d * value r| ≤ (2 : ℝ)^E := by
     rw [abs_mul, abs_mul]
     calc
-      _ ≤ ((2 : ℝ)^L * (2 : ℝ)^D) * (2 : ℝ)^L :=
+      _ ≤ ((2 : ℝ) ^ L * (2 : ℝ) ^ D) * (2 : ℝ) ^ L :=
         mul_le_mul (mul_le_mul hlb hdb (abs_nonneg _) (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _))
           hrb (abs_nonneg _)
           (mul_nonneg (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
@@ -197,7 +197,7 @@ lemma gram_step (L D : Int) (k : Nat) (l d r s : Float) (exact : ℝ)
   nlinarith [hsub.2]
 
 private noncomputable def residualBudget (k : Nat) (mass : ℝ) : ℝ :=
-  (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ)^(-53 : Int) * mass
+  (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ) ^ (-53 : Int) * mass
 
 /-- One native Gram-residual step with a growing absolute term mass. The
 small budget slack absorbs second-order rounding and subnormal errors. -/
@@ -205,17 +205,17 @@ lemma gram_step_relative (k : Nat) (l d r s : Float) (exact mass : ℝ)
     (hk : k ≤ 11) (hl : l.isFinite = true) (hd : d.isFinite = true)
     (hr : r.isFinite = true) (hs : s.isFinite = true)
     (hlb : |value l| ≤ 128) (hdb : |value d| ≤ 2048) (hrb : |value r| ≤ 128)
-    (hmass : mass + |value l * value d * value r| ≤ (2 : ℝ)^(50 : Int))
-    (hη : (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int) ≤ mass)
+    (hmass : mass + |value l * value d * value r| ≤ (2 : ℝ) ^ (50 : Int))
+    (hη : (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int) ≤ mass)
     (hexact : |exact| ≤ mass)
-    (herr : |value s - exact| ≤ (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ)^(-53 : Int) * mass)
+    (herr : |value s - exact| ≤ (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ) ^ (-53 : Int) * mass)
     : (l * d).isFinite = true
       ∧ ((l * d) * r).isFinite = true
       ∧ (s - (l * d) * r).isFinite = true
       ∧ |value (s - (l * d) * r) - (exact - value l * value d * value r)|
         ≤ (1001 / 1000 : ℝ)
           * ((k + 1 : Nat) + 4)
-          * (2 : ℝ)^(-53 : Int)
+          * (2 : ℝ) ^ (-53 : Int)
           * (mass + |value l * value d * value r|) := by
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   let t := |value l * value d * value r|
@@ -246,8 +246,8 @@ lemma gram_step_relative (k : Nat) (l d r s : Float) (exact mass : ℝ)
     calc
       _ ≤ |value s| + |value ((l * d) * r)| := abs_sub _ _
       _ ≤ 4 * (mass + t) := by linarith
-      _ ≤ 4 * (2 : ℝ)^(50 : Int) := mul_le_mul_of_nonneg_left hmass (by norm_num)
-      _ = (2 : ℝ)^(52 : Int) := by norm_num
+      _ ≤ 4 * (2 : ℝ) ^ (50 : Int) := mul_le_mul_of_nonneg_left hmass (by norm_num)
+      _ = (2 : ℝ) ^ (52 : Int) := by norm_num
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   have hsub := Flare.Binary64.Nearest.sub_error_nearest s ((l * d) * r) hs ht.2.1 hlim
   refine ⟨ht.1, ht.2.1, hsub.1, ?_⟩
@@ -276,12 +276,12 @@ backward error after multiplication by that same pivot. -/
 lemma gram_quotient_backward (k : Nat) (r d : Float) (exact mass : ℝ)
     (hk : k ≤ 11) (hr : r.isFinite = true) (hd : d.isFinite = true)
     (hdlo : (1 / 8 : ℝ) ≤ value d) (hdhi : value d ≤ 2048)
-    (hmass : mass ≤ 4096) (hη : (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int) ≤ mass)
+    (hmass : mass ≤ 4096) (hη : (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int) ≤ mass)
     (hexact : |exact| ≤ mass)
-    (herr : |value r - exact| ≤ (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ)^(-53 : Int) * mass)
+    (herr : |value r - exact| ≤ (1001 / 1000 : ℝ) * (k + 4) * (2 : ℝ) ^ (-53 : Int) * mass)
     : (r / d).isFinite = true
       ∧ |value (r / d) * value d - exact|
-        ≤ (1002 / 1000 : ℝ) * (k + 6) * (2 : ℝ)^(-53 : Int) * mass := by
+        ≤ (1002 / 1000 : ℝ) * (k + 6) * (2 : ℝ) ^ (-53 : Int) * mass := by
   let η : ℝ := (2 : ℝ)^(-1022 : Int)
   have hη0 : 0 ≤ η := zpow_nonneg (by norm_num) _
   have hm0 : 0 ≤ mass := (abs_nonneg _).trans hexact
@@ -298,7 +298,7 @@ lemma gram_quotient_backward (k : Nat) (r d : Float) (exact mass : ℝ)
     rw [abs_div, abs_of_pos hdk]
     calc
       _ ≤ 65536 := (div_le_iff₀ hdk).mpr (by linarith)
-      _ = (2 : ℝ)^(16 : Int) := by norm_num
+      _ = (2 : ℝ) ^ (16 : Int) := by norm_num
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   have hdv := Flare.Binary64.Nearest.div_error_nearest r d hr hd hdk.ne' hq
   refine ⟨hdv.1, ?_⟩
@@ -399,16 +399,16 @@ private def ResidualState (n : Nat) (lower diagonal : Array Float) (initial : Fl
 
 private lemma gramPrefix_bound (n k : Nat) (lower diagonal : Array Float)
     (initial : Float) (i j : Nat) (L D : Int)
-    (hinit : |value initial| ≤ (2 : ℝ)^(2 * L + D))
-    (hl : ∀ t, t < k → |value (entry n lower i t)| ≤ (2 : ℝ)^L)
-    (hd : ∀ t, t < k → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ)^D)
-    (hr : ∀ t, t < k → |value (entry n lower j t)| ≤ (2 : ℝ)^L)
-    : |gramPrefix n k lower diagonal initial i j| ≤ (k + 1 : Nat) * (2 : ℝ)^(2 * L + D) := by
+    (hinit : |value initial| ≤ (2 : ℝ) ^ (2 * L + D))
+    (hl : ∀ t, t < k → |value (entry n lower i t)| ≤ (2 : ℝ) ^ L)
+    (hd : ∀ t, t < k → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ) ^ D)
+    (hr : ∀ t, t < k → |value (entry n lower j t)| ≤ (2 : ℝ) ^ L)
+    : |gramPrefix n k lower diagonal initial i j| ≤ (k + 1 : Nat) * (2 : ℝ) ^ (2 * L + D) := by
   have hterm (t : Nat) (ht : t < k) : |value (entry n lower i t) * value (diagonal.getD t 0.0) *
       value (entry n lower j t)| ≤ (2 : ℝ)^(2 * L + D) := by
     rw [abs_mul, abs_mul]
     calc
-      _ ≤ ((2 : ℝ)^L * (2 : ℝ)^D) * (2 : ℝ)^L :=
+      _ ≤ ((2 : ℝ) ^ L * (2 : ℝ) ^ D) * (2 : ℝ) ^ L :=
         mul_le_mul
           (mul_le_mul (hl t ht) (hd t ht) (abs_nonneg _)
             (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)) (hr t ht) (abs_nonneg _)
@@ -424,7 +424,7 @@ private lemma gramPrefix_bound (n k : Nat) (lower diagonal : Array Float)
         + |∑ t ∈ Finset.range k,
             value (entry n lower i t) * value (diagonal.getD t 0.0) * value (entry n lower j t)| :=
       abs_sub _ _
-    _ ≤ (2 : ℝ)^(2 * L + D) + ∑ _t ∈ Finset.range k, (2 : ℝ)^(2 * L + D) :=
+    _ ≤ (2 : ℝ) ^ (2 * L + D) + ∑ _t ∈ Finset.range k, (2 : ℝ) ^ (2 * L + D) :=
       add_le_add hinit
         ((Finset.abs_sum_le_sum_abs _ _).trans
           (Finset.sum_le_sum fun t ht => hterm t (Finset.mem_range.mp ht)))
@@ -487,17 +487,17 @@ private theorem gramResidual_triple (n upto : Nat) (lower diagonal : Array Float
     (initial : Float) (i j : Nat) (L D : Int)
     (hL : 0 ≤ L) (hD : 0 ≤ D) (hE : 2 * L + D ≤ 1000) (hk : upto ≤ 12)
     (hfinite : lower.all Float.isFinite = true) (hdiag : diagonal.all Float.isFinite = true)
-    (hinit : initial.isFinite = true) (hib : |value initial| ≤ (2 : ℝ)^(2 * L + D))
-    (hl : ∀ t, t < upto → |value (entry n lower i t)| ≤ (2 : ℝ)^L)
-    (hd : ∀ t, t < upto → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ)^D)
-    (hr : ∀ t, t < upto → |value (entry n lower j t)| ≤ (2 : ℝ)^L)
+    (hinit : initial.isFinite = true) (hib : |value initial| ≤ (2 : ℝ) ^ (2 * L + D))
+    (hl : ∀ t, t < upto → |value (entry n lower i t)| ≤ (2 : ℝ) ^ L)
+    (hd : ∀ t, t < upto → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ) ^ D)
+    (hr : ∀ t, t < upto → |value (entry n lower j t)| ≤ (2 : ℝ) ^ L)
     : ⦃⌜True⌝
       ⦄ gramResidual n upto lower diagonal initial i j
       ⦃
         ⇓ s
           =>
               ⌜
-                ResidualState n lower diagonal initial i j (fun k => k * (2 : ℝ)^(2 * L + D - 44))
+                ResidualState n lower diagonal initial i j (fun k => k * (2 : ℝ) ^ (2 * L + D - 44))
                   upto s
                 ⌝
         ⦄ := by
@@ -519,10 +519,10 @@ theorem gramResidual_accuracy (n upto : Nat) (lower diagonal : Array Float)
     (initial : Float) (i j : Nat) (L D : Int)
     (hL : 0 ≤ L) (hD : 0 ≤ D) (hE : 2 * L + D ≤ 1000) (hk : upto ≤ 12)
     (hfinite : lower.all Float.isFinite = true) (hdiag : diagonal.all Float.isFinite = true)
-    (hinit : initial.isFinite = true) (hib : |value initial| ≤ (2 : ℝ)^(2 * L + D))
-    (hl : ∀ t, t < upto → |value (entry n lower i t)| ≤ (2 : ℝ)^L)
-    (hd : ∀ t, t < upto → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ)^D)
-    (hr : ∀ t, t < upto → |value (entry n lower j t)| ≤ (2 : ℝ)^L)
+    (hinit : initial.isFinite = true) (hib : |value initial| ≤ (2 : ℝ) ^ (2 * L + D))
+    (hl : ∀ t, t < upto → |value (entry n lower i t)| ≤ (2 : ℝ) ^ L)
+    (hd : ∀ t, t < upto → |value (diagonal.getD t 0.0)| ≤ (2 : ℝ) ^ D)
+    (hr : ∀ t, t < upto → |value (entry n lower j t)| ≤ (2 : ℝ) ^ L)
     : ∃ s,
         gramResidual n upto lower diagonal initial i j = .ok s
         ∧ s.isFinite = true
@@ -532,11 +532,12 @@ theorem gramResidual_accuracy (n upto : Nat) (lower diagonal : Array Float)
                     value (entry n lower i t)
                     * value (diagonal.getD t 0.0)
                     * value (entry n lower j t))|
-          ≤ upto * (2 : ℝ)^(2 * L + D - 44) := by
+          ≤ upto * (2 : ℝ) ^ (2 * L + D - 44) := by
   have h := gramResidual_triple n upto lower diagonal initial i j L D
     hL hD hE hk hfinite hdiag hinit hib hl hd hr
   cases he : gramResidual n upto lower diagonal initial i j with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok s =>
       rw [he] at h
       exact ⟨s, rfl, h True.intro⟩
@@ -560,15 +561,13 @@ theorem gramResidual_relative_accuracy (n upto : Nat) (lower diagonal : Array Fl
                     value (entry n lower i t)
                     * value (diagonal.getD t 0.0)
                     * value (entry n lower j t))|
-          ≤ (1001 / 1000 : ℝ)
-            * (upto + 4)
-            * (2 : ℝ)^(-53 : Int)
+          ≤ (1001 / 1000 : ℝ) * (upto + 4) * (2 : ℝ) ^ (-53 : Int)
             * (|value initial|
                 + ∑ t ∈ Finset.range upto,
                     |value (entry n lower i t)
                       * value (diagonal.getD t 0.0)
                       * value (entry n lower j t)|
-                + (2 : ℝ)^(20 : Int) * (2 : ℝ)^(-1022 : Int)) := by
+                + (2 : ℝ) ^ (20 : Int) * (2 : ℝ) ^ (-1022 : Int)) := by
   let term (t : Nat) := value (entry n lower i t) * value (diagonal.getD t 0.0) *
     value (entry n lower j t)
   let mass (k : Nat) := |value initial| + ∑ t ∈ Finset.range k, |term t| +
@@ -621,7 +620,8 @@ theorem gramResidual_relative_accuracy (n upto : Nat) (lower diagonal : Array Fl
       refine ⟨hh.1, hh.2.1, hh.2.2.1, ?_⟩
       simpa only [budget, residualBudget, hmass_succ, term] using hh.2.2.2)
   cases he : gramResidual n upto lower diagonal initial i j with
-  | error e => rw [he] at h; exact False.elim (h True.intro)
+  | error e =>
+      rw [he] at h; exact False.elim (h True.intro)
   | ok s =>
       rw [he] at h
       exact ⟨s, rfl, h True.intro⟩
@@ -646,7 +646,7 @@ theorem schurResidual_accuracy (n upto : Nat) (a lower diagonal : Array Float)
     : ∃ s,
         gramResidual n upto lower diagonal (entry n a i.val j.val) i.val j.val = .ok s
         ∧ s.isFinite = true
-        ∧ |value s - schurResidual n upto a lower diagonal i j| ≤ (2 : ℝ)^(-14 : Int) := by
+        ∧ |value s - schurResidual n upto a lower diagonal i j| ≤ (2 : ℝ) ^ (-14 : Int) := by
   obtain ⟨s, he, hf, herr⟩ := gramResidual_accuracy n upto lower diagonal
     (entry n a i.val j.val) i.val j.val 7 11 (by norm_num) (by norm_num) (by norm_num) hn hl hd
     (Flare.Matrix.Storage.getD_finite _ _ ha) ((hab i j).trans (by norm_num))
@@ -676,7 +676,7 @@ lemma schurResidual_diagonal_le (n upto : Nat) (a lower diagonal : Array Float)
 residual loop. The runtime comparison is proved true through binary64 order. -/
 theorem pivot_positive (pivot : Float) (exact : ℝ)
     (hf : pivot.isFinite = true) (hlo : (5 / 32 : ℝ) ≤ exact) (hhi : exact ≤ 1024)
-    (he : |value pivot - exact| ≤ (2 : ℝ)^(-10 : Int))
+    (he : |value pivot - exact| ≤ (2 : ℝ) ^ (-10 : Int))
     : 0.0 < pivot ∧ (1 / 8 : ℝ) ≤ value pivot ∧ |value pivot| ≤ 2048 := by
   have hε : (2 : ℝ)^(-10 : Int) = 1 / 1024 := by norm_num
   rw [hε] at he
@@ -694,12 +694,12 @@ Schur complement; it does not presume a bound on the computed quotient. -/
 theorem column_division (residual pivot : Float) (exactResidual exactPivot : ℝ)
     (hr : residual.isFinite = true) (hp : pivot.isFinite = true)
     (hlo : (5 / 32 : ℝ) ≤ exactPivot) (hhi : exactPivot ≤ 1024)
-    (hsq : exactResidual^2 ≤ 1024 * exactPivot)
-    (her : |value residual - exactResidual| ≤ (2 : ℝ)^(-14 : Int))
-    (hep : |value pivot - exactPivot| ≤ (2 : ℝ)^(-14 : Int))
+    (hsq : exactResidual ^ 2 ≤ 1024 * exactPivot)
+    (her : |value residual - exactResidual| ≤ (2 : ℝ) ^ (-14 : Int))
+    (hep : |value pivot - exactPivot| ≤ (2 : ℝ) ^ (-14 : Int))
     : (residual / pivot).isFinite = true
       ∧ |value (residual / pivot)| ≤ 128
-      ∧ |value (residual / pivot) * value pivot - exactResidual| ≤ (2 : ℝ)^(-13 : Int) := by
+      ∧ |value (residual / pivot) * value pivot - exactResidual| ≤ (2 : ℝ) ^ (-13 : Int) := by
   have hε : (2 : ℝ)^(-14 : Int) ≤ (2 : ℝ)^(-10 : Int) := by norm_num
   have hpb := pivot_positive pivot exactPivot hp hlo hhi (hep.trans hε)
   have hpp : 0 < value pivot := by linarith [hpb.2.1]
@@ -850,7 +850,7 @@ theorem factorColumn_accuracy (n : Nat) (j : Fin n) (a : Array Float) (f : Facto
     (hsq
       : ∀ i : Fin n,
           j.val < i.val
-          → (schurResidual n j.val a f.lower f.diagonal i j)^2
+          → (schurResidual n j.val a f.lower f.diagonal i j) ^ 2
             ≤ 1024 * schurResidual n j.val a f.lower f.diagonal j j)
     : ∃ result,
         factorColumn n j.val a f = .ok result
@@ -862,7 +862,7 @@ theorem factorColumn_accuracy (n : Nat) (j : Fin n) (a : Array Float) (f : Facto
         ∧ (1 / 8 : ℝ) ≤ value (result.diagonal.getD j.val 0.0)
         ∧ |value (result.diagonal.getD j.val 0.0)| ≤ 2048
         ∧ |value (result.diagonal.getD j.val 0.0) - schurResidual n j.val a f.lower f.diagonal j j|
-          ≤ (2 : ℝ)^(-14 : Int)
+          ≤ (2 : ℝ) ^ (-14 : Int)
         ∧ gramResidual n j.val f.lower f.diagonal (entry n a j.val j.val) j.val j.val
           = .ok (result.diagonal.getD j.val 0.0)
         ∧ (∀ i k : Fin n, k ≠ j → entry n result.lower i.val k.val = entry n f.lower i.val k.val)
@@ -874,7 +874,7 @@ theorem factorColumn_accuracy (n : Nat) (j : Fin n) (a : Array Float) (f : Facto
             → |value (entry n result.lower i.val j.val)| ≤ 128
               ∧ |value (entry n result.lower i.val j.val) * value (result.diagonal.getD j.val 0.0)
                   - schurResidual n j.val a f.lower f.diagonal i j|
-                ≤ (2 : ℝ)^(-13 : Int)
+                ≤ (2 : ℝ) ^ (-13 : Int)
               ∧ ∃ r,
                   gramResidual n j.val f.lower f.diagonal (entry n a i.val j.val) i.val j.val
                     = .ok r

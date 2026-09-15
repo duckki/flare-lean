@@ -13,7 +13,7 @@ theorem round_canonical_value (s : Sign) (m : Nat) (e : Int) (a : Accuracy)
     (hm : m.log2 = 52) (he : -1074 ≤ e) (he' : e ≤ 970)
     : Flare.Binary64.Model.Value.toRational
         (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
-      = some ((s.apply (a.roundToNearestEven m : Int) : Rat) * (2 : Rat)^e) := by
+      = some ((s.apply (a.roundToNearestEven m : Int) : Rat) * (2 : Rat) ^ e) := by
   have ht : Format.binary64.targetExponent (totalExponent m e) = e := by
     simp only [Format.targetExponent, totalExponent, Format.mantissaBits, Format.minExponent, hm]
     omega
@@ -71,7 +71,7 @@ theorem roundedMantissa_nearest (em : ExtendedMantissa) (x : Rat) (h : MantissaR
 /-- Repeated native right shifts retain the represented exact mantissa value
 at the shifted scale. -/
 theorem shift_rep (em : ExtendedMantissa) (x : Rat) (k : Nat) (h : MantissaRep em x)
-    : MantissaRep (em >>> k) (x / (2 : Rat)^k) := by
+    : MantissaRep (em >>> k) (x / (2 : Rat) ^ k) := by
   induction k with
   | zero => simpa only [HShiftRight.hShiftRight, Nat.repeat, pow_zero, div_one] using h
   | succ k ih =>
@@ -83,7 +83,7 @@ theorem shift_rep (em : ExtendedMantissa) (x : Rat) (k : Nat) (h : MantissaRep e
 half-ulp error, including any number of discarded bits and gradual underflow. -/
 theorem shift_rounded_nearest (m k : Nat)
     : |(((ExtendedMantissa.ofMantissaAndAccuracy m .exact >>> k).roundedMantissa : Nat) : Rat)
-        - (m : Rat) / (2 : Rat)^k|
+        - (m : Rat) / (2 : Rat) ^ k|
       ≤ 1 / 2 :=
   roundedMantissa_nearest _ _
     (shift_rep _ _ k
@@ -99,8 +99,8 @@ theorem roundWithAccuracy_nearest (s : Sign) (m : Nat) (e : Int) (a : Accuracy) 
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
           = some q
-        ∧ |q - (s.apply 1 : Rat) * x * (2 : Rat)^e|
-          ≤ (1 / 2 : Rat) * (2 : Rat)^((shiftToTargetExponent Format.binary64 m e a).2) := by
+        ∧ |q - (s.apply 1 : Rat) * x * (2 : Rat) ^ e|
+          ≤ (1 / 2 : Rat) * (2 : Rat) ^ ((shiftToTargetExponent Format.binary64 m e a).2) := by
   let k := (Format.binary64.targetExponent (totalExponent m e) - e).toNat
   let em := ExtendedMantissa.ofMantissaAndAccuracy m a >>> k
   have hshift : shiftToTargetExponent Format.binary64 m e a = (em, e + (k : Int)) := rfl
@@ -138,8 +138,8 @@ private lemma first_exponent_target (m : Nat) (e : Int) (a : Accuracy)
 
 private lemma nearest_scale_bound (m : Nat) (e : Int) (x : Rat)
     (hc : 52 ≤ m.log2 ∨ e ≤ -1074) (hx : (m : Rat) ≤ x)
-    : (1 / 2 : Rat) * (2 : Rat)^(max ((m.log2 : Int) + e - 52) (-1074))
-      ≤ (2 : Rat)^(-53 : Int) * (x * (2 : Rat)^e + (2 : Rat)^(-1022 : Int)) := by
+    : (1 / 2 : Rat) * (2 : Rat) ^ (max ((m.log2 : Int) + e - 52) (-1074))
+      ≤ (2 : Rat) ^ (-53 : Int) * (x * (2 : Rat) ^ e + (2 : Rat) ^ (-1022 : Int)) := by
   have hx0 : 0 ≤ x := (Nat.cast_nonneg m).trans hx
   have hη : (1 / 2 : Rat) * (2 : Rat)^(-1074 : Int) =
       (2 : Rat)^(-53 : Int) * (2 : Rat)^(-1022 : Int) := by
@@ -177,13 +177,13 @@ the fractional input tail, and the magnitude bound proves finite packing. -/
 theorem roundWithAccuracy_relative_nearest (s : Sign) (m : Nat) (e : Int) (a : Accuracy) (x : Rat)
     (hc : 52 ≤ m.log2 ∨ e ≤ -1074)
     (hrep : MantissaRep (ExtendedMantissa.ofMantissaAndAccuracy m a) x)
-    (hbound : x * (2 : Rat)^e ≤ (2 : Rat)^(1000 : Int))
+    (hbound : x * (2 : Rat) ^ e ≤ (2 : Rat) ^ (1000 : Int))
     : ∃ q,
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (roundWithAccuracy Format.binary64 s m e a))
           = some q
-        ∧ |q - (s.apply 1 : Rat) * x * (2 : Rat)^e|
-          ≤ (2 : Rat)^(-53 : Int) * (x * (2 : Rat)^e + (2 : Rat)^(-1022 : Int)) := by
+        ∧ |q - (s.apply 1 : Rat) * x * (2 : Rat) ^ e|
+          ≤ (2 : Rat) ^ (-53 : Int) * (x * (2 : Rat) ^ e + (2 : Rat) ^ (-1022 : Int)) := by
   have hx : (m : Rat) ≤ x := by
     have hh := mantissaRep_lower _ x hrep
     cases a with
@@ -213,12 +213,12 @@ theorem roundWithAccuracy_relative_nearest (s : Sign) (m : Nat) (e : Int) (a : A
 /-- The model's exponent-decreasing wrapper preserves the nearest-rounding
 bound for an exact positive integer mantissa. -/
 theorem round_relative_nearest (s : Sign) (m : Nat) (e : Int) (hm : 0 < m)
-    (hbound : (m : Rat) * (2 : Rat)^e ≤ (2 : Rat)^(1000 : Int))
+    (hbound : (m : Rat) * (2 : Rat) ^ e ≤ (2 : Rat) ^ (1000 : Int))
     : ∃ q,
         Flare.Binary64.Model.Value.toRational (Float.Model.pack (round Format.binary64 s m e))
           = some q
-        ∧ |q - (s.apply 1 : Rat) * (m : Rat) * (2 : Rat)^e|
-          ≤ (2 : Rat)^(-53 : Int) * ((m : Rat) * (2 : Rat)^e + (2 : Rat)^(-1022 : Int)) := by
+        ∧ |q - (s.apply 1 : Rat) * (m : Rat) * (2 : Rat) ^ e|
+          ≤ (2 : Rat) ^ (-53 : Int) * ((m : Rat) * (2 : Rat) ^ e + (2 : Rat) ^ (-1022 : Int)) := by
   let t := Format.binary64.targetExponent (totalExponent m e)
   let k := (e - t).toNat
   have ht : t = max ((m.log2 : Int) + e - 52) (-1074) := by
@@ -240,13 +240,14 @@ theorem round_relative_nearest (s : Sign) (m : Nat) (e : Int) (hm : 0 < m)
 /-- Exact signed normalization, including either signed-zero branch, has the
 binary64 unit-roundoff bound without presuming correctly rounded arithmetic. -/
 theorem normalize_relative_nearest (m : Int) (e : Int) (zs : Sign)
-    (hbound : |(m : Rat) * (2 : Rat)^e| ≤ (2 : Rat)^(1000 : Int))
+    (hbound : |(m : Rat) * (2 : Rat) ^ e| ≤ (2 : Rat) ^ (1000 : Int))
     : ∃ q,
         Flare.Binary64.Model.Value.toRational
             (Float.Model.pack (UnpackedFloat.normalize Format.binary64 m e zs))
           = some q
-        ∧ |q - (m : Rat) * (2 : Rat)^e|
-          ≤ (2 : Rat)^(-53 : Int) * (|(m : Rat) * (2 : Rat)^e| + (2 : Rat)^(-1022 : Int)) := by
+        ∧ |q - (m : Rat) * (2 : Rat) ^ e|
+          ≤ (2 : Rat) ^ (-53 : Int)
+            * (|(m : Rat) * (2 : Rat) ^ e| + (2 : Rat) ^ (-1022 : Int)) := by
   by_cases hz : m = 0
   · subst m
     refine ⟨0, ?_, ?_⟩

@@ -217,9 +217,10 @@ theorem symmetric_true (n : Nat) (a : Array Float)
     (h : ∀ i j, i < n → j < i → (entry n a i j == entry n a j i) = true)
     : Flare.Matrix.Dense.symmetric n a = true := by
   apply Id.of_wp_run_eq (prog := Flare.Matrix.Dense.symmetric n a) rfl (fun b => b = true)
-  mvcgen [Flare.Matrix.Dense.symmetric, Id.run] invariants
-  · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
-  · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
+  mvcgen [Flare.Matrix.Dense.symmetric, Id.run]
+    invariants
+      · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
+      · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
     with
       | vc1 =>
         rename_i pref i suff hi initial hinit pref' j suff' hj result hne hs

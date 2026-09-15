@@ -16,7 +16,7 @@ set_option mvcgen.warning false
 /-- The actual binary64 cutoff is close to its intended relative scale on
 the bounded, non-negligible spectral magnitudes in the stated numerical profile. -/
 theorem cutoff_precision (m : Float) (hm : m.isFinite = true)
-    (hmlo : (1 / 16 : ℝ) ≤ value m) (hmhi : value m ≤ (2 : ℝ)^(30 : Int))
+    (hmlo : (1 / 16 : ℝ) ≤ value m) (hmhi : value m ≤ (2 : ℝ) ^ (30 : Int))
     : (1.0e-10 * m).isFinite = true
       ∧ (999 / 10000000000000 : ℝ) * value m ≤ value (1.0e-10 * m)
       ∧ value (1.0e-10 * m) ≤ (1001 / 10000000000000 : ℝ) * value m := by
@@ -31,14 +31,14 @@ theorem cutoff_precision (m : Float) (hm : m.isFinite = true)
   have hc1 : value (1.0e-10 : Float) ≤ 1 := by rw [hliteral]; norm_num
   have hη : η ≤ u * value m := by
     calc
-      _ ≤ (2 : ℝ)^(-57 : Int) := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
+      _ ≤ (2 : ℝ) ^ (-57 : Int) := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
       _ = u * (1 / 16 : ℝ) := by norm_num [u]
       _ ≤ _ := mul_le_mul_of_nonneg_left hmlo hu
   have hprod : |value (1.0e-10 : Float) * value m| ≤ (2 : ℝ)^(1000 : Int) := by
     rw [abs_of_nonneg (mul_nonneg hc0 hm0.le)]
     calc
       _ ≤ 1 * value m := mul_le_mul_of_nonneg_right hc1 hm0.le
-      _ ≤ (2 : ℝ)^(30 : Int) := by simpa only [one_mul] using hmhi
+      _ ≤ (2 : ℝ) ^ (30 : Int) := by simpa only [one_mul] using hmhi
       _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
   obtain ⟨hf, he⟩ := mul_error_relative 1.0e-10 m (by decide) hm hprod
   rw [abs_of_nonneg (mul_nonneg hc0 hm0.le), show (2 : ℝ)^(-51 : Int) = 4 * u by norm_num [u]] at he
@@ -54,7 +54,7 @@ theorem cutoff_precision (m : Float) (hm : m.isFinite = true)
 65-unit absolute roundoff bound. Its native result has magnitude at most nine. -/
 theorem reciprocal_precision (x : Float) (hx : x.isFinite = true) (hlo : (1 / 8 : ℝ) ≤ value x)
     : (1.0 / x).isFinite = true
-      ∧ |value (1.0 / x) - 1 / value x| ≤ 65 * (2 : ℝ)^(-53 : Int)
+      ∧ |value (1.0 / x) - 1 / value x| ≤ 65 * (2 : ℝ) ^ (-53 : Int)
       ∧ |value (1.0 / x)| ≤ 9 := by
   have hxp : 0 < value x := by linarith only [hlo]
   have hquot : |value (1.0 : Float) / value x| ≤ 8 := by
@@ -84,7 +84,8 @@ theorem reciprocal_if_precision (cutoff x : Float) (hc : cutoff.isFinite = true)
     (hx : x.isFinite = true) (hretain : value cutoff < |value x| → (1 / 8 : ℝ) ≤ value x)
     : let r := if cutoff < x.abs then 1.0 / x else 0.0
       r.isFinite = true
-      ∧ |value r - (if value cutoff < |value x| then 1 / value x else 0)| ≤ 65 * (2 : ℝ)^(-53 : Int)
+      ∧ |value r - (if value cutoff < |value x| then 1 / value x else 0)|
+        ≤ 65 * (2 : ℝ) ^ (-53 : Int)
       ∧ |value r| ≤ 9 := by
   have habs := abs_value x hx
   have hcmp := lt_iff cutoff x.abs hc habs.1
@@ -120,8 +121,8 @@ theorem cutoff_from_spectral_enclosure (n : Nat) (A W : Matrix (Fin n) (Fin n) �
     (hW : W ∈ unitary (Matrix (Fin n) (Fin n) ℝ))
     (he
       : ‖spectrumDiagonal n s - W.transpose * A * W‖
-        ≤ (9 / 100000000000 : ℝ) * ‖A‖ + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int))
-    (hlo : (1 / 8 : ℝ) ≤ ‖A‖) (hhi : ‖A‖ ≤ (2 : ℝ)^(20 : Int))
+        ≤ (9 / 100000000000 : ℝ) * ‖A‖ + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int))
+    (hlo : (1 / 8 : ℝ) ≤ ‖A‖) (hhi : ‖A‖ ≤ (2 : ℝ) ^ (20 : Int))
     : let cutoff := 1.0e-10 * maxAbs s.values
       cutoff.isFinite = true
       ∧ (99 / 1000000000000 : ℝ) * ‖A‖ ≤ value cutoff
@@ -176,7 +177,7 @@ theorem reciprocals_success (cutoff : Float) (xs : Array Float)
                         1 / value (xs.getD i 0.0)
                       else
                         0)|
-                ≤ 65 * (2 : ℝ)^(-53 : Int)
+                ≤ 65 * (2 : ℝ) ^ (-53 : Int)
               ∧ |value (rs.getD i 0.0)| ≤ 9 := by
   let g := fun x : Float => if cutoff < x.abs then 1.0 / x else 0.0
   have hg (i : Nat) (hi : i < xs.size) := reciprocal_if_precision cutoff (xs.getD i 0.0)
@@ -313,7 +314,7 @@ theorem scaleColumns_success (n : Nat) (vectors reciprocals : Array Float)
             → entry n result i j = entry n vectors i j * reciprocals.getD j 0.0
               ∧ |value (entry n result i j)
                   - value (entry n vectors i j) * value (reciprocals.getD j 0.0)|
-                ≤ (2 : ℝ)^(-47 : Int)
+                ≤ (2 : ℝ) ^ (-47 : Int)
               ∧ |value (entry n result i j)| ≤ 19 := by
   have hprod (i j : Nat) (hi : i < n) (hj : j < n) :
       |value (entry n vectors i j) * value (reciprocals.getD j 0.0)| ≤ 18 := by
@@ -327,7 +328,8 @@ theorem scaleColumns_success (n : Nat) (vectors reciprocals : Array Float)
   have hproof := scaleColumns_triple n vectors reciprocals hs hv (fun i j hi hj => (hround i j hi
     hj).1)
   cases he : scaleColumns n vectors reciprocals with
-  | error e => rw [he] at hproof; exact False.elim (hproof True.intro)
+  | error e =>
+      rw [he] at hproof; exact False.elim (hproof True.intro)
   | ok result =>
       rw [he] at hproof
       have hstate := hproof True.intro
@@ -388,7 +390,7 @@ theorem fromSpectrum_accuracy (n : Nat) (e : Spectrum) (hn : n ≤ 12)
         ∧ result.all Float.isFinite = true
         ∧ ∀ i j,
             |matrix n n result i j - (V * Matrix.diagonal r * V.transpose) i j|
-            ≤ n * (2 : ℝ)^(-43 : Int) := by
+            ≤ n * (2 : ℝ) ^ (-43 : Int) := by
   have hvb (i j : Nat) (hi : i < n) (hj : j < n) : |value (entry n e.vectors i j)| ≤ 2 :=
     (entry_le_norm (matrix n n e.vectors) ⟨i, hi⟩ ⟨j, hj⟩).trans (hVnorm.trans (by norm_num))
   have hvalues := hs.values_size
@@ -466,20 +468,20 @@ theorem fromSpectrum_accuracy (n : Nat) (e : Spectrum) (hn : n ≤ 12)
   rw [htrans] at hp
   have herror (i j : Fin n) : |matrix n n product i j - (V * R * V.transpose) i j| ≤ n * (2 :
     ℝ)^(-43 : Int) := by
-    have hmul : |((matrix n n scaled - V * R) * V.transpose) i j| ≤ n * (2 * (2 : ℝ)^(-45 : Int)) :=
-      by
-        rw [Matrix.mul_apply]
-        apply (Finset.abs_sum_le_sum_abs _ _).trans
-        calc
-          _ ≤ ∑ _k : Fin n, (2 : ℝ)^(-45 : Int) * 2 := by
-            apply Finset.sum_le_sum
-            intro k _
-            rw [abs_mul]
-            exact mul_le_mul (hscaled i k) (hvb j.val k.val j.isLt k.isLt) (abs_nonneg _)
-              (by positivity)
-          _ = _ := by
-            simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-            ring
+    have hmul
+        : |((matrix n n scaled - V * R) * V.transpose) i j| ≤ n * (2 * (2 : ℝ) ^ (-45 : Int)) := by
+      rw [Matrix.mul_apply]
+      apply (Finset.abs_sum_le_sum_abs _ _).trans
+      calc
+        _ ≤ ∑ _k : Fin n, (2 : ℝ) ^ (-45 : Int) * 2 := by
+          apply Finset.sum_le_sum
+          intro k _
+          rw [abs_mul]
+          exact mul_le_mul (hscaled i k) (hvb j.val k.val j.isLt k.isLt) (abs_nonneg _)
+            (by positivity)
+        _ = _ := by
+          simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+          ring
     have hid : matrix n n product i j - (V * R * V.transpose) i j =
         (matrix n n product i j - (matrix n n scaled * V.transpose) i j) +
         ((matrix n n scaled - V * R) * V.transpose) i j := by
@@ -527,11 +529,11 @@ theorem symmetricPseudoInverse_spectral_reconstruction (n : Nat) (input : Array 
     (A : Matrix (Fin n) (Fin n) ℝ) (hn : 1 ≤ n) (hn' : n ≤ 12)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
-    (hlo : (1 / 8 : ℝ) ≤ ‖matrix n n input‖) (hhi : ‖matrix n n input‖ ≤ (2 : ℝ)^(20 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
+    (hlo : (1 / 8 : ℝ) ≤ ‖matrix n n input‖) (hhi : ‖matrix n n input‖ ≤ (2 : ℝ) ^ (20 : Int))
     (hA : A.PosSemidef) (hgap : (A * A - (1 / 4 : ℝ) • A).PosSemidef)
     (hform : ‖matrix n n input - A‖ ≤ (14 / 1000000000000 : ℝ) * ‖matrix n n input‖)
-    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int))
+    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int))
       ∃ result,
         symmetricPseudoInverse n input = .ok result
         ∧ result.size = n * n
@@ -548,7 +550,8 @@ theorem symmetricPseudoInverse_spectral_reconstruction (n : Nat) (input : Array 
                 ∧ ‖D‖ ≤ 8
                 ∧ Z = W * D * W.transpose
                 ∧ ‖V - W‖ ≤ δ
-                ∧ ‖matrix n n result - V * D * V.transpose‖ ≤ (n : ℝ)^2 * (2 : ℝ)^(-43 : Int) := by
+                ∧ ‖matrix n n result - V * D * V.transpose‖
+                  ≤ (n : ℝ) ^ 2 * (2 : ℝ) ^ (-43 : Int) := by
   have : NeZero n := ⟨by omega⟩
   let N := matrix n n input
   let ε := (985 / 10000000000000 : ℝ) * ‖N‖
@@ -651,11 +654,11 @@ theorem symmetricPseudoInverse_backward_error (n : Nat) (input : Array Float)
     (A : Matrix (Fin n) (Fin n) ℝ) (hn : 1 ≤ n) (hn' : n ≤ 12)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
-    (hlo : (1 / 8 : ℝ) ≤ ‖matrix n n input‖) (hhi : ‖matrix n n input‖ ≤ (2 : ℝ)^(20 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
+    (hlo : (1 / 8 : ℝ) ≤ ‖matrix n n input‖) (hhi : ‖matrix n n input‖ ≤ (2 : ℝ) ^ (20 : Int))
     (hA : A.PosSemidef) (hgap : (A * A - (1 / 4 : ℝ) • A).PosSemidef)
     (hform : ‖matrix n n input - A‖ ≤ (14 / 1000000000000 : ℝ) * ‖matrix n n input‖)
-    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int))
+    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int))
       ∃ result,
         symmetricPseudoInverse n input = .ok result
         ∧ result.size = n * n
@@ -666,7 +669,8 @@ theorem symmetricPseudoInverse_backward_error (n : Nat) (input : Array Float)
             ∧ Z.PosSemidef
             ∧ ‖Z‖ ≤ 8
             ∧ ‖B - A‖ ≤ (2 / 10000000000 : ℝ) * ‖matrix n n input‖
-            ∧ ‖matrix n n result - Z‖ ≤ (n : ℝ)^2 * (2 : ℝ)^(-43 : Int) + 8 * (δ^2 + 2 * δ) := by
+            ∧ ‖matrix n n result - Z‖
+              ≤ (n : ℝ) ^ 2 * (2 : ℝ) ^ (-43 : Int) + 8 * (δ ^ 2 + 2 * δ) := by
   obtain ⟨result, hr, hrs, hrf, B, Z, hB, hBZ, hZ, hZn, hBA, V, W, D, hW, _, hDn, hZeq, hV, hround⟩
     :=
     symmetricPseudoInverse_spectral_reconstruction n input A hn hn' hs hf hsym hb hlo hhi hA hgap
@@ -687,7 +691,7 @@ theorem symmetricPseudoInverse_zero (n : Nat) (input : Array Float) (hn : 1 ≤ 
         symmetricPseudoInverse n input = .ok result
         ∧ result.size = n * n
         ∧ result.all Float.isFinite = true
-        ∧ ‖matrix n n result‖ ≤ (n : ℝ)^2 * (2 : ℝ)^(-43 : Int) := by
+        ∧ ‖matrix n n result‖ ≤ (n : ℝ) ^ 2 * (2 : ℝ) ^ (-43 : Int) := by
   have hentry (i j : Nat) (hi : i < n) (hj : j < n) : value (entry n input i j) = 0 :=
     congrArg (fun A : Matrix (Fin n) (Fin n) ℝ => A ⟨i, hi⟩ ⟨j, hj⟩) hzero
   have hflat (i : Nat) (hi : i < input.size) : value (input.getD i 0.0) = 0 := by
@@ -752,10 +756,10 @@ theorem symmetricPseudoInverse_accuracy (n : Nat) (input : Array Float)
     (A : Matrix (Fin n) (Fin n) ℝ) (hn : 1 ≤ n) (hn' : n ≤ 12)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hhi : ‖matrix n n input‖ ≤ (2 : ℝ)^(20 : Int))
+    (hhi : ‖matrix n n input‖ ≤ (2 : ℝ) ^ (20 : Int))
     (hA : A.PosSemidef) (hgap : (A * A - (1 / 4 : ℝ) • A).PosSemidef)
     (hform : ‖matrix n n input - A‖ ≤ (14 / 1000000000000 : ℝ) * ‖matrix n n input‖)
-    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int))
+    : let δ := (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int))
       ∃ result,
         symmetricPseudoInverse n input = .ok result
         ∧ result.size = n * n
@@ -763,8 +767,8 @@ theorem symmetricPseudoInverse_accuracy (n : Nat) (input : Array Float)
         ∧ ∀ X : Matrix (Fin n) (Fin n) ℝ,
             Flare.Analysis.MoorePenrose A X
             → ‖matrix n n result - X‖
-              ≤ (n : ℝ)^2 * (2 : ℝ)^(-43 : Int)
-                + 8 * (δ^2 + 2 * δ)
+              ≤ (n : ℝ) ^ 2 * (2 : ℝ) ^ (-43 : Int)
+                + 8 * (δ ^ 2 + 2 * δ)
                 + 112 * ((2 / 10000000000 : ℝ) * ‖matrix n n input‖) := by
   let N := matrix n n input
   let δ := (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int))

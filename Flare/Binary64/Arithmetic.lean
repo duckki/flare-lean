@@ -45,8 +45,8 @@ bound whenever the exact product lies in the stated exponent range. -/
 theorem mul_error (a b : Float) (N : Int)
     (ha : a.isFinite = true) (hb : b.isFinite = true)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |value a * value b| ≤ (2 : ℝ)^N)
-    : (a * b).isFinite = true ∧ |value (a * b) - value a * value b| ≤ (2 : ℝ)^(N - 52) := by
+    (hv : |value a * value b| ≤ (2 : ℝ) ^ N)
+    : (a * b).isFinite = true ∧ |value (a * b) - value a * value b| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨q, hq, herr⟩ := Flare.Binary64.Model.Arithmetic.mul_error_real
     a.toModel b.toModel (value a) (value b) N
     (by rw [← interpretation_eq]; exact finite_value a ha)
@@ -61,8 +61,8 @@ rounding bound established from Float.Model rather than assumed. -/
 theorem add_error (a b : Float) (N : Int)
     (ha : a.isFinite = true) (hb : b.isFinite = true)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |value a + value b| ≤ (2 : ℝ)^N)
-    : (a + b).isFinite = true ∧ |value (a + b) - (value a + value b)| ≤ (2 : ℝ)^(N - 52) := by
+    (hv : |value a + value b| ≤ (2 : ℝ) ^ N)
+    : (a + b).isFinite = true ∧ |value (a + b) - (value a + value b)| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨q, hq, herr⟩ := Flare.Binary64.Model.Arithmetic.add_error_real
     a.toModel b.toModel (value a) (value b) N
     (by rw [← interpretation_eq]; exact finite_value a ha)
@@ -76,8 +76,8 @@ theorem add_error (a b : Float) (N : Int)
 theorem sub_error (a b : Float) (N : Int)
     (ha : a.isFinite = true) (hb : b.isFinite = true)
     (hN : -1022 ≤ N) (hN' : N ≤ 1022)
-    (hv : |value a - value b| ≤ (2 : ℝ)^N)
-    : (a - b).isFinite = true ∧ |value (a - b) - (value a - value b)| ≤ (2 : ℝ)^(N - 52) := by
+    (hv : |value a - value b| ≤ (2 : ℝ) ^ N)
+    : (a - b).isFinite = true ∧ |value (a - b) - (value a - value b)| ≤ (2 : ℝ) ^ (N - 52) := by
   obtain ⟨q, hq, herr⟩ := Flare.Binary64.Model.Arithmetic.sub_error_real
     a.toModel b.toModel (value a) (value b) N
     (by rw [← interpretation_eq]; exact finite_value a ha)
@@ -90,30 +90,30 @@ theorem sub_error (a b : Float) (N : Int)
 /-- Native multiplication has a relative error bound plus a tiny absolute
 underflow term. No positive lower bound on the exact result is required. -/
 theorem mul_error_relative (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
-    (hx : |value a * value b| ≤ (2 : ℝ)^(1000 : Int))
+    (hx : |value a * value b| ≤ (2 : ℝ) ^ (1000 : Int))
     : (a * b).isFinite = true
       ∧ |value (a * b) - value a * value b|
-        ≤ (2 : ℝ)^(-51 : Int) * (|value a * value b| + (2 : ℝ)^(-1022 : Int)) := by
+        ≤ (2 : ℝ) ^ (-51 : Int) * (|value a * value b| + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨E, hE, hE', hv, hs⟩ := bounded_exponent (value a * value b) hx
   have h := mul_error a b E ha hb hE (by omega) hv
   exact ⟨h.1, h.2.trans (scaled_error_bound _ E 52 hs)⟩
 
 /-- Native addition with magnitude-scaled rounding and an underflow allowance. -/
 theorem add_error_relative (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
-    (hx : |value a + value b| ≤ (2 : ℝ)^(1000 : Int))
+    (hx : |value a + value b| ≤ (2 : ℝ) ^ (1000 : Int))
     : (a + b).isFinite = true
       ∧ |value (a + b) - (value a + value b)|
-        ≤ (2 : ℝ)^(-51 : Int) * (|value a + value b| + (2 : ℝ)^(-1022 : Int)) := by
+        ≤ (2 : ℝ) ^ (-51 : Int) * (|value a + value b| + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨E, hE, hE', hv, hs⟩ := bounded_exponent (value a + value b) hx
   have h := add_error a b E ha hb hE (by omega) hv
   exact ⟨h.1, h.2.trans (scaled_error_bound _ E 52 hs)⟩
 
 /-- Native subtraction with magnitude-scaled rounding, including cancellation. -/
 theorem sub_error_relative (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
-    (hx : |value a - value b| ≤ (2 : ℝ)^(1000 : Int))
+    (hx : |value a - value b| ≤ (2 : ℝ) ^ (1000 : Int))
     : (a - b).isFinite = true
       ∧ |value (a - b) - (value a - value b)|
-        ≤ (2 : ℝ)^(-51 : Int) * (|value a - value b| + (2 : ℝ)^(-1022 : Int)) := by
+        ≤ (2 : ℝ) ^ (-51 : Int) * (|value a - value b| + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨E, hE, hE', hv, hs⟩ := bounded_exponent (value a - value b) hx
   have h := sub_error a b E ha hb hE (by omega) hv
   exact ⟨h.1, h.2.trans (scaled_error_bound _ E 52 hs)⟩

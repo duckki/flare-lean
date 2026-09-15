@@ -52,7 +52,7 @@ theorem componentwise_residual_norm {n : Nat} (r b x : EuclideanSpace ℝ (Fin n
   have hsqrt : (Real.sqrt (n : ℝ))^2 = n := Real.sq_sqrt (Nat.cast_nonneg n)
   have heq : Real.sqrt (n : ℝ) * c * (Real.sqrt n * ‖x‖) = n * c * ‖x‖ := by
     calc
-      _ = (Real.sqrt (n : ℝ))^2 * c * ‖x‖ := by ring
+      _ = (Real.sqrt (n : ℝ)) ^ 2 * c * ‖x‖ := by ring
       _ = _ := by rw [hsqrt]
   rw [heq] at hh
   change Real.sqrt (n : ℝ) * c * S ≤ _ at hh

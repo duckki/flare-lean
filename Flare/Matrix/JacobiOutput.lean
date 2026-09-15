@@ -46,7 +46,7 @@ theorem stopped_diagonal_error (n : Nat) (a : Array Float)
 /-- Rescaling rounds each diagonal entry once. The final spectrum keeps the
 trajectory's eigenvectors exactly. Underflow is retained explicitly. -/
 theorem finish_rescaling (n : Nat) (magnitude : Float) (a v : Array Float)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (ha : a.all Float.isFinite = true)
     (hE : Flare.Analysis.JacobiEnergy.energy (matrix n n a) ≤ 1024) (hvs : v.size = n * n)
     (hv : v.all Float.isFinite = true)
@@ -56,7 +56,7 @@ theorem finish_rescaling (n : Nat) (magnitude : Float) (a v : Array Float)
         ∧ result.vectors = v
         ∧ ‖spectrumDiagonal n result
             - value magnitude • Matrix.diagonal (fun i => matrix n n a i i)‖
-          ≤ (2 : ℝ)^(-51 : Int) * (32 * |value magnitude| + (2 : ℝ)^(-1022 : Int)) := by
+          ≤ (2 : ℝ) ^ (-51 : Int) * (32 * |value magnitude| + (2 : ℝ) ^ (-1022 : Int)) := by
   obtain ⟨result, he, hstored, hvec, hdiag⟩ := finish_entries n magnitude a v hm hmb ha hE hvs hv
   refine ⟨result, he, hstored, hvec, ?_⟩
   have hδ : 0 ≤ (2 : ℝ)^(-51 : Int) * (32 * |value magnitude| + (2 : ℝ)^(-1022 : Int)) := by
@@ -70,8 +70,8 @@ theorem finish_rescaling (n : Nat) (magnitude : Float) (a v : Array Float)
       exact mul_le_mul_of_nonneg_right (hbound i.val i.val i.isLt i.isLt) (abs_nonneg _)
     have hlarge : 32 * |value magnitude| ≤ (2 : ℝ)^(1000 : Int) := by
       calc
-        _ ≤ 32 * (2 : ℝ)^(500 : Int) := mul_le_mul_of_nonneg_left hmb (by norm_num)
-        _ = (2 : ℝ)^(505 : Int) := by
+        _ ≤ 32 * (2 : ℝ) ^ (500 : Int) := mul_le_mul_of_nonneg_left hmb (by norm_num)
+        _ = (2 : ℝ) ^ (505 : Int) := by
           rw [show (505 : Int) = 5 + 500 by rfl, zpow_add₀ (by norm_num)]; norm_num
         _ ≤ _ := zpow_le_zpow_right₀ (by norm_num) (by norm_num)
     have herr := (mul_error_relative (entry n a i.val i.val) magnitude
@@ -95,7 +95,7 @@ a diagonalization enclosure and an eigenvector enclosure. The rotation errors,
 stopping tolerance and final multiplication error remain separate. -/
 private theorem iterations_spectral_of_trajectory (n : Nat) (magnitude : Float) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 18)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v) (_hV : matrix n n v = 1)
     (hstart
       : Flare.Analysis.JacobiEnergy.offEnergy (matrix n n a)
@@ -115,7 +115,7 @@ private theorem iterations_spectral_of_trajectory (n : Nat) (magnitude : Float) 
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * (value magnitude • matrix n n a) * W‖
               ≤ |value magnitude| * (δ + n * value (1.0e-14 : Float))
-                + (2 : ℝ)^(-51 : Int) * (32 * |value magnitude| + (2 : ℝ)^(-1022 : Int))
+                + (2 : ℝ) ^ (-51 : Int) * (32 * |value magnitude| + (2 : ℝ) ^ (-1022 : Int))
             ∧ ‖matrix n n result.vectors - W‖ ≤ (32 * n * n : Nat) * δV := by
   obtain ⟨result, he, hstored, k, hk, hstop, hfinish⟩ := iterations_trace n magnitude a v hn hn' hm
     hmb hstate hstart
@@ -157,7 +157,7 @@ private theorem iterations_spectral_of_trajectory (n : Nat) (magnitude : Float) 
 /-- Coarse enclosure of the returned normalized spectrum. -/
 theorem iterations_spectral (n : Nat) (magnitude : Float) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 18)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v) (hV : matrix n n v = 1)
     (hstart
       : Flare.Analysis.JacobiEnergy.offEnergy (matrix n n a)
@@ -169,10 +169,10 @@ theorem iterations_spectral (n : Nat) (magnitude : Float) (a v : Array Float)
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * (value magnitude • matrix n n a) * W‖
               ≤ |value magnitude|
-                  * ((32 * n * n : Nat) * (n * (2 : ℝ)^(-33 : Int)) + n * value (1.0e-14 : Float))
-                + (2 : ℝ)^(-51 : Int) * (32 * |value magnitude| + (2 : ℝ)^(-1022 : Int))
+                  * ((32 * n * n : Nat) * (n * (2 : ℝ) ^ (-33 : Int)) + n * value (1.0e-14 : Float))
+                + (2 : ℝ) ^ (-51 : Int) * (32 * |value magnitude| + (2 : ℝ) ^ (-1022 : Int))
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (n * ((2 : ℝ)^(-48 : Int) * 65)) := by
+              ≤ (32 * n * n : Nat) * (n * ((2 : ℝ) ^ (-48 : Int) * 65)) := by
   apply iterations_spectral_of_trajectory n magnitude a v hn hn' hm hmb hstate hV hstart _ _
     (by positivity)
   intro k hk
@@ -184,7 +184,7 @@ theorem iterations_spectral (n : Nat) (magnitude : Float) (a v : Array Float)
 including the actual stopping test and native eigenvalue rescaling. -/
 theorem iterations_spectral_uniform (n : Nat) (magnitude : Float) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 12)
-    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ)^(500 : Int))
+    (hm : magnitude.isFinite = true) (hmb : |value magnitude| ≤ (2 : ℝ) ^ (500 : Int))
     (hstate : State n 0 a v) (hV : matrix n n v = 1)
     (hstart
       : Flare.Analysis.JacobiEnergy.offEnergy (matrix n n a)
@@ -197,10 +197,10 @@ theorem iterations_spectral_uniform (n : Nat) (magnitude : Float) (a v : Array F
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * (value magnitude • matrix n n a) * W‖
               ≤ |value magnitude|
-                  * (3 * (2 : ℝ)^(-35 : Int) * ‖matrix n n a‖ + n * value (1.0e-14 : Float))
-                + (2 : ℝ)^(-51 : Int) * (32 * |value magnitude| + (2 : ℝ)^(-1022 : Int))
+                  * (3 * (2 : ℝ) ^ (-35 : Int) * ‖matrix n n a‖ + n * value (1.0e-14 : Float))
+                + (2 : ℝ) ^ (-51 : Int) * (32 * |value magnitude| + (2 : ℝ) ^ (-1022 : Int))
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int)) := by
+              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   apply iterations_spectral_of_trajectory n magnitude a v hn (by omega) hm hmb hstate hV hstart _ _
     (by positivity)
   intro k hk
@@ -214,7 +214,7 @@ theorem normalization_rescaling (n : Nat) (input a : Array Float)
     (hzero : (maxAbs input == 0.0) = false)
     (hmap : input.mapM (fun x => finite (x / maxAbs input)) = .ok a)
     : ‖value (maxAbs input) • matrix n n a - matrix n n input‖
-      ≤ n * (|value (maxAbs input)| * (2 : ℝ)^(-51 : Int)) := by
+      ≤ n * (|value (maxAbs input)| * (2 : ℝ) ^ (-51 : Int)) := by
   obtain ⟨normalized, he, _, _, herr⟩ := Spectrum.normalization_accuracy input hf hzero
   rw [hmap] at he
   have heq : normalized = a := (Except.ok.inj he).symm
@@ -256,7 +256,7 @@ theorem normalization_norm_bounds (n : Nat) (input a : Array Float) (hn : 1 ≤ 
     (hmap : input.mapM (fun x => finite (x / maxAbs input)) = .ok a)
     : (1 / 2 : ℝ) ≤ ‖matrix n n a‖
       ∧ value (maxAbs input) * ‖matrix n n a‖
-        ≤ (1 + n * (2 : ℝ)^(-51 : Int)) * ‖matrix n n input‖ := by
+        ≤ (1 + n * (2 : ℝ) ^ (-51 : Int)) * ‖matrix n n input‖ := by
   have hm := Spectrum.magnitude_positive input hf hzero
   have hscale := magnitude_le_norm n input hn hs hf
   have he := normalization_rescaling n input a hs hf hzero hmap
@@ -278,7 +278,7 @@ theorem normalization_norm_bounds (n : Nat) (input a : Array Float) (hn : 1 ≤ 
       nlinarith only [hnorm]
     calc
       (1 / 2 : ℝ) = 1 - 1 / 2 := by norm_num
-      _ ≤ 1 - (n : ℝ) * (2 : ℝ)^(-51 : Int) := sub_le_sub_left hsmall 1
+      _ ≤ 1 - (n : ℝ) * (2 : ℝ) ^ (-51 : Int) := sub_le_sub_left hsmall 1
       _ ≤ _ := sub_le_iff_le_add.mpr (by simpa only [add_comm] using hl)
   · have hb := mul_le_mul_of_nonneg_left hscale
       (show 0 ≤ (n : ℝ) * (2 : ℝ)^(-51 : Int) by positivity)
@@ -291,7 +291,7 @@ The bound is not tight enough to prove the native rank threshold correct. -/
 theorem jacobiEigen_spectral (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     : ∃ result,
         jacobiEigen n input = .ok result
         ∧ Stored n result
@@ -299,12 +299,12 @@ theorem jacobiEigen_spectral (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn'
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * matrix n n input * W‖
               ≤ |value (maxAbs input)|
-                  * ((32 * n * n : Nat) * (n * (2 : ℝ)^(-33 : Int))
+                  * ((32 * n * n : Nat) * (n * (2 : ℝ) ^ (-33 : Int))
                       + n * value (1.0e-14 : Float)
-                      + (n + 32) * (2 : ℝ)^(-51 : Int))
-                + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int)
+                      + (n + 32) * (2 : ℝ) ^ (-51 : Int))
+                + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int)
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (n * ((2 : ℝ)^(-48 : Int) * 65)) := by
+              ≤ (32 * n * n : Nat) * (n * ((2 : ℝ) ^ (-48 : Int) * 65)) := by
   have hm := Spectrum.maxAbs_correct input hf
   by_cases hzero : (maxAbs input == 0.0) = true
   · obtain ⟨result, he, hstored⟩ := JacobiInitialization.jacobiEigen_success n input hn hn' hs hf
@@ -362,11 +362,11 @@ theorem jacobiEigen_spectral (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn'
 private theorem jacobiEigen_spectral_of_trajectory (n : Nat) (input : Array Float) (hn : 1 ≤ n)
     (hn' : n ≤ 18) (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int)) (δ ε : ℝ)
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int)) (δ ε : ℝ)
     (hδ : 0 ≤ δ)
     (hcoef
-      : δ * (1 + n * (2 : ℝ)^(-51 : Int))
-          + (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ)^(-51 : Int))
+      : δ * (1 + n * (2 : ℝ) ^ (-51 : Int))
+          + (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ) ^ (-51 : Int))
         ≤ ε)
     (htrajectory
       : ∀ a v,
@@ -379,16 +379,16 @@ private theorem jacobiEigen_spectral_of_trajectory (n : Nat) (input : Array Floa
                   W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
                   ∧ ‖matrix n n (trajectory n a v k).1 - W.transpose * matrix n n a * W‖
                     ≤ δ * ‖matrix n n a‖
-                  ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ)^(-53 : Int)))
+                  ∧ ‖matrix n n (trajectory n a v k).2 - W‖ ≤ k * (97 * (2 : ℝ) ^ (-53 : Int)))
     : ∃ result,
         jacobiEigen n input = .ok result
         ∧ Stored n result
         ∧ ∃ W : Matrix (Fin n) (Fin n) ℝ,
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * matrix n n input * W‖
-              ≤ ε * ‖matrix n n input‖ + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int)
+              ≤ ε * ‖matrix n n input‖ + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int)
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int)) := by
+              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   have hm := Spectrum.maxAbs_correct input hf
   by_cases hzero : (maxAbs input == 0.0) = true
   · obtain ⟨result, he, hstored⟩ := JacobiInitialization.jacobiEigen_success n input hn (by omega)
@@ -453,20 +453,21 @@ private theorem jacobiEigen_spectral_of_trajectory (n : Nat) (input : Array Floa
       apply htri.trans
       calc
         _ = δ * (value (maxAbs input) * ‖matrix n n a‖)
-            + value (maxAbs input) * (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ)^(-51 : Int))
-            + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int) := by
+            + value (maxAbs input)
+              * (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ) ^ (-51 : Int))
+            + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int) := by
           ring
-        _ ≤ δ * ((1 + n * (2 : ℝ)^(-51 : Int)) * ‖matrix n n input‖)
-            + ‖matrix n n input‖ * (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ)^(-51 : Int))
-            + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int) :=
+        _ ≤ δ * ((1 + n * (2 : ℝ) ^ (-51 : Int)) * ‖matrix n n input‖)
+            + ‖matrix n n input‖ * (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ) ^ (-51 : Int))
+            + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int) :=
           add_le_add
             (add_le_add (mul_le_mul_of_nonneg_left hnorms.2 (by positivity))
               (mul_le_mul_of_nonneg_right hscale (by positivity)))
             le_rfl
-        _ = (δ * (1 + n * (2 : ℝ)^(-51 : Int))
-                + (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ)^(-51 : Int)))
+        _ = (δ * (1 + n * (2 : ℝ) ^ (-51 : Int))
+                + (n * value (1.0e-14 : Float) + (n + 32) * (2 : ℝ) ^ (-51 : Int)))
               * ‖matrix n n input‖
-            + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int) := by
+            + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int) := by
           ring
         _ ≤ _ := add_le_add (mul_le_mul_of_nonneg_right hcoef (norm_nonneg _)) le_rfl
 
@@ -476,7 +477,7 @@ stopping and final binary64 rescaling. The absolute term covers underflow. -/
 theorem jacobiEigen_spectral_sharp (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 12)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     : ∃ result,
         jacobiEigen n input = .ok result
         ∧ Stored n result
@@ -484,9 +485,9 @@ theorem jacobiEigen_spectral_sharp (n : Nat) (input : Array Float) (hn : 1 ≤ n
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * matrix n n input * W‖
               ≤ (84 / 1000000000000 : ℝ) * ‖matrix n n input‖
-                + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int)
+                + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int)
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int)) := by
+              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   apply jacobiEigen_spectral_of_trajectory n input hn (by omega) hs hf hsym hb
     ((83 / 1000000000000 : ℝ)) _ (by positivity)
   · have hnR : (n : ℝ) ≤ 12 := by exact_mod_cast hn'
@@ -496,8 +497,8 @@ theorem jacobiEigen_spectral_sharp (n : Nat) (input : Array Float) (hn : 1 ≤ n
     have ht0 : 0 ≤ value (1.0e-14 : Float) :=
       (show 0 ≤ (2 : ℝ)^(-47 : Int) by positivity).trans Jacobi.stopping_threshold_bounds.1
     calc
-      _ ≤ ((83 / 1000000000000 : ℝ)) * (1 + 12 * (2 : ℝ)^(-51 : Int))
-          + (12 * (2 : ℝ)^(-46 : Int) + (12 + 32) * (2 : ℝ)^(-51 : Int)) := by
+      _ ≤ ((83 / 1000000000000 : ℝ)) * (1 + 12 * (2 : ℝ) ^ (-51 : Int))
+          + (12 * (2 : ℝ) ^ (-46 : Int) + (12 + 32) * (2 : ℝ) ^ (-51 : Int)) := by
         gcongr
       _ ≤ _ := by norm_num
   · intro a v hstate hV hfloor k hk
@@ -506,7 +507,7 @@ theorem jacobiEigen_spectral_sharp (n : Nat) (input : Array Float) (hn : 1 ≤ n
 theorem jacobiEigen_spectral_uniform (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 12)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     : ∃ result,
         jacobiEigen n input = .ok result
         ∧ Stored n result
@@ -514,9 +515,9 @@ theorem jacobiEigen_spectral_uniform (n : Nat) (input : Array Float) (hn : 1 ≤
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * matrix n n input * W‖
               ≤ (9 / 100000000000 : ℝ) * ‖matrix n n input‖
-                + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int)
+                + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int)
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int)) := by
+              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int)) := by
   obtain ⟨r, hr, hrs, W, hW, he, hv⟩ := jacobiEigen_spectral_sharp n input hn hn' hs hf hsym hb
   refine ⟨r, hr, hrs, W, hW, he.trans ?_, hv⟩
   exact add_le_add (mul_le_mul_of_nonneg_right (by norm_num) (norm_nonneg _)) le_rfl
@@ -527,7 +528,7 @@ eighteen rows, with relative spectral error at most 2.4e-10 plus underflow. -/
 theorem jacobiEigen_spectral_diagnostic (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     : ∃ result,
         jacobiEigen n input = .ok result
         ∧ Stored n result
@@ -535,11 +536,11 @@ theorem jacobiEigen_spectral_diagnostic (n : Nat) (input : Array Float) (hn : 1 
             W ∈ unitary (Matrix (Fin n) (Fin n) ℝ)
             ∧ ‖spectrumDiagonal n result - W.transpose * matrix n n input * W‖
               ≤ (24 / 100000000000 : ℝ) * ‖matrix n n input‖
-                + (2 : ℝ)^(-51 : Int) * (2 : ℝ)^(-1022 : Int)
+                + (2 : ℝ) ^ (-51 : Int) * (2 : ℝ) ^ (-1022 : Int)
             ∧ ‖matrix n n result.vectors - W‖
-              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ)^(-53 : Int)) := by
-  apply jacobiEigen_spectral_of_trajectory n input hn (by omega) hs hf hsym hb ((2 : ℝ)^(-32 : Int))
-    _ (by positivity)
+              ≤ (32 * n * n : Nat) * (97 * (2 : ℝ) ^ (-53 : Int)) := by
+  apply jacobiEigen_spectral_of_trajectory n input hn (by omega) hs hf hsym hb
+    ((2 : ℝ) ^ (-32 : Int)) _ (by positivity)
   · have hnR : (n : ℝ) ≤ 18 := by exact_mod_cast hn'
     have ht : value (1.0e-14 : Float) ≤ (2 : ℝ)^(-46 : Int) := by
       change 6338253001141147 * (2 : ℝ)^(-99 : Int) ≤ (2 : ℝ)^(-46 : Int)
@@ -547,8 +548,8 @@ theorem jacobiEigen_spectral_diagnostic (n : Nat) (input : Array Float) (hn : 1 
     have ht0 : 0 ≤ value (1.0e-14 : Float) :=
       (show 0 ≤ (2 : ℝ)^(-47 : Int) by positivity).trans Jacobi.stopping_threshold_bounds.1
     calc
-      _ ≤ ((2 : ℝ)^(-32 : Int)) * (1 + 18 * (2 : ℝ)^(-51 : Int))
-          + (18 * (2 : ℝ)^(-46 : Int) + (18 + 32) * (2 : ℝ)^(-51 : Int)) := by
+      _ ≤ ((2 : ℝ) ^ (-32 : Int)) * (1 + 18 * (2 : ℝ) ^ (-51 : Int))
+          + (18 * (2 : ℝ) ^ (-46 : Int) + (18 + 32) * (2 : ℝ) ^ (-51 : Int)) := by
         gcongr
       _ ≤ _ := by norm_num
   · intro a v hstate hV hfloor k hk

@@ -67,7 +67,7 @@ theorem difference_norm {n : Nat} (A B X Y : Matrix (Fin n) (Fin n) ℝ) (L M ε
     (hX : X.transpose = X) (hY : Y.transpose = Y)
     (hAX : MoorePenrose A X) (hBY : MoorePenrose B Y)
     (hL : ‖X‖ ≤ L) (hM : ‖Y‖ ≤ M) (he : ‖B - A‖ ≤ ε)
-    : ‖Y - X‖ ≤ (L * M + L^2 + M^2) * ε := by
+    : ‖Y - X‖ ≤ (L * M + L ^ 2 + M ^ 2) * ε := by
   have hL0 := (norm_nonneg X).trans hL
   have hM0 := (norm_nonneg Y).trans hM
   have hε0 := (norm_nonneg (B - A)).trans he
@@ -87,7 +87,7 @@ theorem difference_norm {n : Nat} (A B X Y : Matrix (Fin n) (Fin n) ℝ) (L M ε
   have h2 : ‖(Y * Y) * (B - A) * (1 - A * X)‖ ≤ M^2 * ε := by
     calc
       _ ≤ ‖(Y * Y) * (B - A)‖ * ‖1 - A * X‖ := norm_mul_le _ _
-      _ ≤ (M^2 * ε) * 1 :=
+      _ ≤ (M ^ 2 * ε) * 1 :=
         mul_le_mul
           ((norm_mul_le _ _).trans (mul_le_mul hYY he (norm_nonneg _) (sq_nonneg M))) hPX
           (norm_nonneg _) (by positivity)
@@ -95,7 +95,7 @@ theorem difference_norm {n : Nat} (A B X Y : Matrix (Fin n) (Fin n) ℝ) (L M ε
   have h3 : ‖(1 - Y * B) * (B - A) * (X * X)‖ ≤ ε * L^2 := by
     calc
       _ ≤ ‖(1 - Y * B) * (B - A)‖ * ‖X * X‖ := norm_mul_le _ _
-      _ ≤ (1 * ε) * L^2 :=
+      _ ≤ (1 * ε) * L ^ 2 :=
         mul_le_mul
           ((norm_mul_le _ _).trans (mul_le_mul hPY he (norm_nonneg _) (by norm_num))) hXX
           (norm_nonneg _) (by positivity)
@@ -140,7 +140,7 @@ theorem projected_difference_norm {m n : Nat} (A B X Y : Matrix (Fin n) (Fin n) 
     (hAX : MoorePenrose A X) (hBY : MoorePenrose B Y)
     (hF : F * (A * X) = F) (hq : ‖F * X‖ ≤ q)
     (hL : ‖X‖ ≤ L) (hM : ‖Y‖ ≤ M) (he : ‖A - B‖ ≤ ε)
-    : ‖F * (Y - X) * F.transpose‖ ≤ q^2 * ε * (1 + (M + L) * ε) := by
+    : ‖F * (Y - X) * F.transpose‖ ≤ q ^ 2 * ε * (1 + (M + L) * ε) := by
   have hq0 := (norm_nonneg _).trans hq
   have hL0 := (norm_nonneg _).trans hL
   have hM0 := (norm_nonneg _).trans hM
@@ -202,7 +202,7 @@ theorem dominated_transport {m n : Nat} (A X : Matrix (Fin n) (Fin n) ℝ)
     (F : Matrix (Fin m) (Fin n) ℝ) (β : ℝ) (hβ : 0 ≤ β)
     (hA : A.PosSemidef) (hAX : MoorePenrose A X)
     (hdom : (β • A - F.transpose * F).PosSemidef)
-    : F * (A * X) = F ∧ ‖F * X‖^2 ≤ β * ‖X‖ := by
+    : F * (A * X) = F ∧ ‖F * X‖ ^ 2 ≤ β * ‖X‖ := by
   have hXpsd := Flare.Analysis.MoorePenrose.posSemidef hA hAX
   have hAsym : A.transpose = A := by
     simpa only [IsHermitian, conjTranspose_eq_transpose_of_trivial] using hA.isHermitian

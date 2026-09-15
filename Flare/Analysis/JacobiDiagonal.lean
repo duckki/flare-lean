@@ -46,7 +46,7 @@ theorem scaled_quotient_relative (u v b τ δ ε η : ℝ)
 /-- The stable tangent cancels a large pivot parameter. Its scaled perturbation
 keeps the product bounded even when the parameter itself is large. -/
 theorem tangent_product_bound (τ t ε : ℝ) (hε : 0 ≤ ε)
-    (he : |t - Jacobi.tangent τ| ≤ ε / (|τ| + Real.sqrt (1 + τ^2)))
+    (he : |t - Jacobi.tangent τ| ≤ ε / (|τ| + Real.sqrt (1 + τ ^ 2)))
     : |τ * t| ≤ 1 / 2 + ε := by
   have hp := Jacobi.tangent_properties τ
   have hsq : (Jacobi.tangent τ)^2 ≤ 1 := by
@@ -59,9 +59,9 @@ theorem tangent_product_bound (τ t ε : ℝ) (hε : 0 ≤ ε)
   have hpert : |τ * (t - Jacobi.tangent τ)| ≤ ε := by
     rw [abs_mul]
     calc
-      _ ≤ |τ| * (ε / (|τ| + Real.sqrt (1 + τ^2))) :=
+      _ ≤ |τ| * (ε / (|τ| + Real.sqrt (1 + τ ^ 2))) :=
         mul_le_mul_of_nonneg_left he (abs_nonneg _)
-      _ ≤ (|τ| + Real.sqrt (1 + τ^2)) * (ε / (|τ| + Real.sqrt (1 + τ^2))) :=
+      _ ≤ (|τ| + Real.sqrt (1 + τ ^ 2)) * (ε / (|τ| + Real.sqrt (1 + τ ^ 2))) :=
         mul_le_mul_of_nonneg_right hD (div_nonneg hε hp.1.le)
       _ = _ := by field_simp
   rw [show τ * t = τ * Jacobi.tangent τ + τ * (t - Jacobi.tangent τ) by ring]
@@ -73,9 +73,9 @@ difference without assuming that the pivot parameter is small. -/
 theorem pivot_residual_relative (a b d τ t u : ℝ)
     (hu : 0 ≤ u) (hu' : u ≤ 1 / 10000) (ht : |t| ≤ 2)
     (hprod : |τ * t| ≤ 1 / 2 + 22 * u)
-    (hquad : |t^2 + 2 * τ * t - 1| ≤ 110 * u)
+    (hquad : |t ^ 2 + 2 * τ * t - 1| ≤ 110 * u)
     (hparam : |2 * b * τ - (d - a)| ≤ 32 * u * |d - a| + u * |b|)
-    : |(d - a) * t| ≤ 2 * |b| ∧ |b * t^2 + (d - a) * t - b| ≤ 256 * u * |b| := by
+    : |(d - a) * t| ≤ 2 * |b| ∧ |b * t ^ 2 + (d - a) * t - b| ≤ 256 * u * |b| := by
   have hscaled : |(2 * b * τ - (d - a)) * t| ≤
       32 * u * |(d - a) * t| + 2 * u * |b| := by
     rw [abs_mul, abs_mul]

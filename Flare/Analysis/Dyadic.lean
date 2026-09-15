@@ -9,9 +9,12 @@ namespace Flare.Analysis.Dyadic
 
 /-- Select a normal-range dyadic scale from the magnitude of a real result.
 The normal underflow threshold also covers zero and subnormal results. -/
-lemma bounded_exponent (x : ℝ) (hx : |x| ≤ (2 : ℝ)^(1000 : Int))
+lemma bounded_exponent (x : ℝ) (hx : |x| ≤ (2 : ℝ) ^ (1000 : Int))
     : ∃ E : Int,
-        -1022 ≤ E ∧ E ≤ 1000 ∧ |x| ≤ (2 : ℝ)^E ∧ (2 : ℝ)^E ≤ 2 * (|x| + (2 : ℝ)^(-1022 : Int)) := by
+        -1022 ≤ E
+        ∧ E ≤ 1000
+        ∧ |x| ≤ (2 : ℝ) ^ E
+        ∧ (2 : ℝ) ^ E ≤ 2 * (|x| + (2 : ℝ) ^ (-1022 : Int)) := by
   let s := max ((2 : ℝ)^(-1022 : Int)) |x|
   have hmin : 0 < (2 : ℝ)^(-1022 : Int) := zpow_pos (by norm_num) _
   have hs : 0 < s := hmin.trans_le (le_max_left _ _)
@@ -28,13 +31,14 @@ lemma bounded_exponent (x : ℝ) (hx : |x| ≤ (2 : ℝ)^(1000 : Int))
   linarith
 
 /-- Convert a dyadic absolute error allowance into a magnitude-scaled bound. -/
-lemma scaled_error_bound (x : ℝ) (E p : Int) (hE : (2 : ℝ)^E ≤ 2 * (|x| + (2 : ℝ)^(-1022 : Int)))
-    : (2 : ℝ)^(E - p) ≤ (2 : ℝ)^(1 - p) * (|x| + (2 : ℝ)^(-1022 : Int)) := by
+lemma scaled_error_bound (x : ℝ) (E p : Int)
+    (hE : (2 : ℝ) ^ E ≤ 2 * (|x| + (2 : ℝ) ^ (-1022 : Int)))
+    : (2 : ℝ) ^ (E - p) ≤ (2 : ℝ) ^ (1 - p) * (|x| + (2 : ℝ) ^ (-1022 : Int)) := by
   calc
-    _ = (2 : ℝ)^E * (2 : ℝ)^(-p) := by
+    _ = (2 : ℝ) ^ E * (2 : ℝ) ^ (-p) := by
       rw [← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
       congr 1
-    _ ≤ (2 * (|x| + (2 : ℝ)^(-1022 : Int))) * (2 : ℝ)^(-p) :=
+    _ ≤ (2 * (|x| + (2 : ℝ) ^ (-1022 : Int))) * (2 : ℝ) ^ (-p) :=
       mul_le_mul_of_nonneg_right hE (zpow_nonneg (by norm_num : (0 : ℝ) ≤ 2) _)
     _ = _ := by
       rw [show 1 - p = 1 + (-p) by omega, zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0), zpow_one]

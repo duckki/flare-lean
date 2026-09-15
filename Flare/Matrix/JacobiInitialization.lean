@@ -49,7 +49,7 @@ private theorem identity_energy (n : Nat) : energy (matrix n n (identity n)) = n
 
 private theorem energy_le_entries (n : Nat) (A : Matrix (Fin n) (Fin n) ℝ) (M : ℝ)
     (hM : 0 ≤ M) (hA : ∀ i j, |A i j| ≤ M)
-    : energy A ≤ (n : ℝ)^2 * M^2 := by
+    : energy A ≤ (n : ℝ) ^ 2 * M ^ 2 := by
   have hs : energy A ≤ ∑ _ : Fin n, ∑ _ : Fin n, M^2 := by
     apply Finset.sum_le_sum
     intro i _
@@ -57,8 +57,8 @@ private theorem energy_le_entries (n : Nat) (A : Matrix (Fin n) (Fin n) ℝ) (M 
     intro j _
     have h := (sq_le_sq₀ (abs_nonneg (A i j)) hM).mpr (hA i j)
     simpa only [sq_abs] using h
-  simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, pow_two, mul_assoc
-  ]
+  simpa only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, pow_two,
+    mul_assoc]
     using hs
 
 /-- Actual normalization initializes the full native iteration invariant and
@@ -133,7 +133,7 @@ It proves finite spectrum storage; spectral approximation is a separate claim. -
 theorem jacobiEigen_success (n : Nat) (input : Array Float) (hn : 1 ≤ n) (hn' : n ≤ 18)
     (hs : input.size = n * n) (hf : input.all Float.isFinite = true)
     (hsym : ∀ i j, i < n → j < n → value (entry n input i j) = value (entry n input j i))
-    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ)^(500 : Int))
+    (hb : ∀ i, i < input.size → |value (input.getD i 0.0)| ≤ (2 : ℝ) ^ (500 : Int))
     : ∃ result, jacobiEigen n input = .ok result ∧ Stored n result := by
   by_cases hzero : (maxAbs input == 0.0) = true
   · refine ⟨⟨Array.replicate n 0.0, identity n⟩, ?_, ⟨by simp, ?_, identity_size n, identity_finite

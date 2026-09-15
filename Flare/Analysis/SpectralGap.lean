@@ -16,7 +16,7 @@ larger in magnitude than its eigen-equation residual. This includes negatives. -
 theorem residual_lower_bound {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (α d : ℝ)
     (hA : A.PosSemidef) (hgap : (A * A - α • A).PosSemidef) (hd : d ≤ α / 2)
     (x : Fin n → ℝ)
-    : d^2 * (∑ i, (x i)^2) ≤ ∑ i, (A.mulVec x i - d * x i)^2 := by
+    : d ^ 2 * (∑ i, (x i) ^ 2) ≤ ∑ i, (A.mulVec x i - d * x i) ^ 2 := by
   have hP : (A * A - (2 * d) • A).PosSemidef := by
     convert hgap.add (hA.smul (show 0 ≤ α - 2 * d by linarith only [hd])) using 1
     module
@@ -202,7 +202,7 @@ theorem orthogonal_truncation_accuracy {n : Nat} (A W X : Matrix (Fin n) (Fin n)
     (he : ‖diagonal d - W.transpose * A * W‖ ≤ ε)
     : let b := fun j => if θ < |d j| then d j else 0
       let Z := W * diagonal (fun j => (b j)⁻¹) * W.transpose
-      ‖Z - X‖ ≤ (‖X‖ * (2 / α) + ‖X‖^2 + (2 / α)^2) * (ε + θ) := by
+      ‖Z - X‖ ≤ (‖X‖ * (2 / α) + ‖X‖ ^ 2 + (2 / α) ^ 2) * (ε + θ) := by
   have ht := orthogonal_truncation A W d α ε θ hα hθ hA hgap hW he
   have hXpsd := MoorePenrose.posSemidef hA hX
   apply PseudoinversePerturbation.difference_norm A _ X _ ‖X‖ (2 / α) (ε + θ)
@@ -226,8 +226,8 @@ theorem eigenvalues_gap {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (α : ℝ)
   have hg := (orthogonal_gap A W α hA hgap hW).2
   rw [hd] at hg
   have hi : 0 ≤ (hA.isHermitian.eigenvalues i)^2 - α * hA.isHermitian.eigenvalues i := by
-    simpa only [diagonal_mul_diagonal, Matrix.sub_apply, diagonal_apply_eq,
-      Matrix.smul_apply, smul_eq_mul, pow_two]
+    simpa only [diagonal_mul_diagonal, Matrix.sub_apply, diagonal_apply_eq, Matrix.smul_apply,
+      smul_eq_mul, pow_two]
       using hg.diag_nonneg (i := i)
   by_cases hz : hA.isHermitian.eigenvalues i = 0
   · exact Or.inl hz
@@ -298,18 +298,13 @@ theorem pseudoinverse_norm {n : Nat} (A X : Matrix (Fin n) (Fin n) ℝ) (α : �
   rw [hXeq]
   have hW : (hA.isHermitian.eigenvectorUnitary : Matrix (Fin n) (Fin n) ℝ) ∈ unitary _ :=
     hA.isHermitian.eigenvectorUnitary.property
-  have hWt : (hA.isHermitian.eigenvectorUnitary : Matrix (Fin n) (Fin n) ℝ).transpose ∈ unitary _ :=
-    by
+  have hWt
+      : (hA.isHermitian.eigenvectorUnitary : Matrix (Fin n) (Fin n) ℝ).transpose ∈ unitary _ := by
     simpa only [star_eq_conjTranspose, conjTranspose_eq_transpose_of_trivial]
       using Unitary.star_mem hW
-  simpa only [
-    e,
-    Unitary.conjStarAlgAut_apply,
-    star_eq_conjTranspose,
-    conjTranspose_eq_transpose_of_trivial,
-    CStarRing.norm_mul_mem_unitary _ hWt,
-    CStarRing.norm_mem_unitary_mul _ hW
-  ]
+  simpa only [e, Unitary.conjStarAlgAut_apply, star_eq_conjTranspose,
+    conjTranspose_eq_transpose_of_trivial, CStarRing.norm_mul_mem_unitary _ hWt,
+    CStarRing.norm_mem_unitary_mul _ hW]
     using hZ
 
 /-- A small relative formation error preserves a nonzero norm floor. If the

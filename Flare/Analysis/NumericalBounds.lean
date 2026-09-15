@@ -57,7 +57,7 @@ theorem schur_lower_bound {n m : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
 finite-dimensional bound, with no spectral computation or native premise. -/
 lemma quadratic_perturbation_bound {n : Nat} (E : Matrix (Fin n) (Fin n) ℝ)
     (ε : ℝ) (hε : 0 ≤ ε) (hE : ∀ i j, |E i j| ≤ ε) (x : Fin n → ℝ)
-    : |x ⬝ᵥ E.mulVec x| ≤ n * ε * ∑ i, (x i)^2 := by
+    : |x ⬝ᵥ E.mulVec x| ≤ n * ε * ∑ i, (x i) ^ 2 := by
   have heq : x ⬝ᵥ E.mulVec x = ∑ i, ∑ j, x i * E i j * x j := by
     simp only [dotProduct, mulVec, Finset.mul_sum, mul_assoc]
   have hentry : ∀ i j, |x i * E i j * x j| ≤ |x i| * ε * |x j| := by
@@ -109,7 +109,7 @@ theorem perturbation_lower_bound {n : Nat} (A E : Matrix (Fin n) (Fin n) ℝ)
 /-- The matrix lower bound is a lower bound on every quadratic form. -/
 lemma quadratic_lower_bound {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (α : ℝ)
     (hA : (A - α • 1).PosSemidef) (x : Fin n → ℝ)
-    : α * (∑ i, (x i)^2) ≤ x ⬝ᵥ A.mulVec x := by
+    : α * (∑ i, (x i) ^ 2) ≤ x ⬝ᵥ A.mulVec x := by
   have h := hA.dotProduct_mulVec_nonneg x
   rw [star_trivial, sub_mulVec, smul_mulVec, one_mulVec, dotProduct_sub, dotProduct_smul] at h
   have hself : x ⬝ᵥ x = ∑ i, (x i)^2 := by simp only [dotProduct, pow_two]
@@ -177,7 +177,7 @@ lemma factor_schur_diagonal_le {n m : Nat} (D : Matrix (Fin n) (Fin n) ℝ)
 the scalar Cauchy inequality. In LDLᵀ this bounds a Schur residual by its pivots. -/
 lemma entry_sq_le_diagonal_product {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     (hA : A.PosSemidef) (i j : Fin n)
-    : (A i j)^2 ≤ A i i * A j j := by
+    : (A i j) ^ 2 ≤ A i i * A j j := by
   have hsym : A j i = A i j := by
     have h := congr_fun (congr_fun hA.isHermitian.eq i) j
     simpa only [conjTranspose_apply, star_trivial] using h
@@ -205,7 +205,7 @@ lemma entry_sq_le_diagonal_product {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
 the solution error is at most the equation residual divided by α. -/
 theorem residual_squared_bound {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     (α : ℝ) (hα : 0 < α) (hA : (A - α • 1).PosSemidef) (x : Fin n → ℝ)
-    : α^2 * (∑ i, (x i)^2) ≤ ∑ i, (A.mulVec x i)^2 := by
+    : α ^ 2 * (∑ i, (x i) ^ 2) ≤ ∑ i, (A.mulVec x i) ^ 2 := by
   have hq := quadratic_lower_bound A α hA x
   have hx : 0 ≤ ∑ i, (x i)^2 := Finset.sum_nonneg (fun i _ => sq_nonneg _)
   have hcs := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ x (A.mulVec x)
@@ -262,7 +262,7 @@ theorem residual_entrywise_bound {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     rw [mulVec_sub, hexact]
   have hr : ∑ i, (A.mulVec error i)^2 ≤ n * δ^2 := by
     calc
-      _ ≤ ∑ _i : Fin n, δ^2 :=
+      _ ≤ ∑ _i : Fin n, δ ^ 2 :=
         Finset.sum_le_sum
           fun i _ => by
             rw [hmul]
