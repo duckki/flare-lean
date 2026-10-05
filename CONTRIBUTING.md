@@ -94,13 +94,17 @@ this guards against v0.4.1 dropping unparsed text after an indentation error.
   100-column Lean code and comments (URLs exempt), 1,500-line Lean files, no tabs
   or trailing whitespace, modern `fun`/`<|` syntax, scoped diagnostic/resource
   options and `open Classical`, and no double underscores in declaration names.
-- `lake build` and `python3 scripts/check_layout.py` for elaboration and layering.
+- An incremental Lake build of `Flare` and `Lint.lean`, followed by
+  `python3 scripts/check_layout.py` for layering.
 - Import coverage using Lean's dependency reader, rooted at `Flare.lean`,
   `Tests/ProofAudit.lean`, and the lint executable. Nested and untracked Lean
   files are included; orphan files fail the check.
-- Lean's normal and extra linters with warnings as errors, including a run of
-  `Tests/ProofAudit.lean`. Missing-documentation lint is disabled. Experimental
-  Mathlib analyses enabled by `linter.all` are outside this check.
+- Lean's normal and extra linters with warnings as errors, configured in
+  `lakefile.toml` so they run during elaboration and reuse Lake's build cache.
+  `Tests/ProofAudit.lean` is elaborated once separately with the same options;
+  library files are not elaborated again after the build. Missing-documentation
+  lint is disabled. Experimental Mathlib analyses enabled by `linter.all` are
+  outside this check.
 
 `schur_reflexive` retains its extracted `DecidableEq` parameter through a scoped
 `unusedDecidableInType` exception. Review any removal of an existing hypothesis

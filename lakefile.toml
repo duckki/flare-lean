@@ -6,6 +6,8 @@ lintDriver = "lint"
 [leanOptions]
 autoImplicit = false
 warningAsError = true
+linter.extra = true
+linter.missingDocs = false
 
 [[require]]
 name = "mathlib"

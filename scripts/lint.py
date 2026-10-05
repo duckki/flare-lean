@@ -146,34 +146,17 @@ def check_imports(files, jobs):
     print(f"import-closure: ok ({len(files)} Lean files, including untracked files)", flush=True)
 
 
-def check_lean(files, jobs):
-    # Use Lean's normal and extra linters with warnings as errors. linter.all also enables
-    # experimental Mathlib tactic analyses, unlike graphql-lean's smaller imports.
-    def lint(name):
-        result = subprocess.run(
-            ["lake", "env", "lean", "-D", "warningAsError=true", "-D",
-             "linter.extra=true", "-D", "linter.missingDocs=false", name],
-            cwd=ROOT, text=True, capture_output=True,
-        )
-        return name, result
-
-    failures = []
-    with ThreadPoolExecutor(max_workers=jobs) as pool:
-        for name, result in pool.map(lint, files):
-            if result.stdout:
-                print(result.stdout, end="", flush=True)
-            if result.stderr:
-                print(result.stderr, end="", file=sys.stderr, flush=True)
-            if result.returncode:
-                failures.append(name)
-    if failures:
-        raise RuntimeError("Lean lint failed: " + ", ".join(failures))
-    print(f"lean-lint: ok ({len(files)} files; warnings are errors)", flush=True)
+def check_proof_audit():
+    # Library modules and Lint.lean are already linted by Lake's incremental build.
+    # The audit is outside those targets, so elaborate it once with the same options.
+    run(["lake", "env", "lean", "-D", "warningAsError=true", "-D",
+         "linter.extra=true", "-D", "linter.missingDocs=false", "Tests/ProofAudit.lean"])
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--jobs", type=int, default=4, help="concurrent Lean processes (default: 4)")
+    parser.add_argument("--jobs", type=int, default=4,
+                        help="concurrent import-closure checks (default: 4)")
     parser.add_argument("--style-only", action="store_true", help="run only the fast text checks")
     args = parser.parse_args()
     if args.jobs < 1:
@@ -188,10 +171,12 @@ def main():
         raise RuntimeError(f"community-style: {len(issues)} issue(s)\n" + "\n".join(issues))
     print(f"community-style: ok (Lean code/comments ≤ {LINE_WIDTH} columns; URLs exempt)", flush=True)
     if not args.style_only:
-        run(["lake", "build"])
+        run(["lake", "build", "Flare", "+Lint"])
         run(["python3", "scripts/check_layout.py"])
         check_imports(lean_files, args.jobs)
-        check_lean(lean_files, args.jobs)
+        check_proof_audit()
+        print(f"lean-lint: ok ({len(lean_files)} files; incremental build; warnings are errors)",
+              flush=True)
     return 0
 
 

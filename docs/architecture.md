@@ -99,8 +99,10 @@ isolation, and complete public entry-point coverage.
 
 The `Lint.lean` executable delegates to `scripts/lint.py`; it adds no public
 library. `lake lint` includes the proof audit and a Lean-derived dependency check
-covering all repository Lean files. `make check` adds formatting and tooling
-regression checks. See [the contribution guide](../CONTRIBUTING.md) for details.
+covering all repository Lean files. Normal and extra Lean linters run as part of
+the incremental Lake build; only the audit is elaborated separately. `make check`
+adds formatting and tooling regression checks. See
+[the contribution guide](../CONTRIBUTING.md) for details.
 
 ## Separating future contributions
 
