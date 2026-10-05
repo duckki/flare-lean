@@ -83,11 +83,11 @@ theorem similarity_entries {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
     rw [hA q p]
     ring
   · rw [entries]
-    simp only [hpq.symm, if_false, ite_true]
+    simp only [hpq.symm, ite_false, ite_true]
     rw [hA q p]
     ring
   · rw [entries]
-    simp only [hpq.symm, if_false, ite_true]
+    simp only [hpq.symm, ite_false, ite_true]
     rw [hA q p]
     ring
   · intro k hkp hkq

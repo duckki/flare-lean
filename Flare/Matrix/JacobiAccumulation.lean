@@ -110,7 +110,7 @@ theorem advance_similarity (n k : Nat) (a v : Array Float) (hn : n ≤ 18)
     have habs := (Flare.Binary64.Order.abs_value (entry n a (selectedPivot n a).row (selectedPivot n
       a).column)
       (Flare.Matrix.Storage.getD_finite _ _ h.matrix_finite)).2
-    rw [activePivot, if_neg hstop, hpivot, habs]
+    rw [activePivot, ite_eq_right hstop, hpivot, habs]
     exact hnew
   · have hv := JacobiSpectral.rotation_vectors_norm n (selectedPivot n a).row (selectedPivot n
     a).column

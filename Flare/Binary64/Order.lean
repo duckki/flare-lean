@@ -153,10 +153,10 @@ theorem max_value (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true
   change (if a ≤ b then b else a).isFinite = true ∧
     value (if a ≤ b then b else a) = max (value a) (value b)
   by_cases h : a ≤ b
-  · rw [if_pos h, max_eq_right ((le_iff a b ha hb).mp h)]
+  · rw [ite_eq_left h, max_eq_right ((le_iff a b ha hb).mp h)]
     exact ⟨hb, rfl⟩
   · have h' : value b ≤ value a := le_of_not_ge (fun hh => h ((le_iff a b ha hb).mpr hh))
-    rw [if_neg h, max_eq_left h']
+    rw [ite_eq_right h, max_eq_left h']
     exact ⟨ha, rfl⟩
 
 private lemma pack_finite_value (x : Float.Model) (s s' : Sign) (m : Nat) (e : Int)

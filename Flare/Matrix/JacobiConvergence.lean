@@ -333,7 +333,7 @@ private theorem iterations_triple (n : Nat) (magnitude : Float) (a v : Array Flo
         b.2.2 = (trajectory n a v pref.length).2 ∧ pref.length ≤ stop := by
     have hc := Flare.Matrix.Storage.range_current hcur
     have hpref : pref.length < 32 * n * n + 1 := by omega
-    rw [LoopInvariant, if_pos hpref] at hb
+    rw [LoopInvariant, ite_eq_left hpref] at hb
     refine ⟨?_, hb.2⟩
     rw [hb.2.1, hb.2.2.1]
     exact trajectory_state n a v hn hstate pref.length (by omega)
@@ -406,7 +406,7 @@ private theorem iterations_triple (n : Nat) (magnitude : Float) (a v : Array Flo
           exact hstopAt
         have hnext : (pref ++ [cur]).length < 32 * n * n + 1 := by
           simp only [List.length_append, List.length_singleton]; omega
-        rw [LoopInvariant, if_pos hnext]
+        rw [LoopInvariant, ite_eq_left hnext]
         refine ⟨rfl, ?_, ?_, by simp only [List.length_append, List.length_singleton]; omega⟩
         · change result.1 = _
           rw [hresult]

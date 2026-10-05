@@ -136,7 +136,7 @@ theorem unpack_pack_subnormal (s : Sign) (m : Nat) (hp : 0 < m) (hm : m < 2 ^ 52
   unfold Float.Model.unpack Float.Model.pack
   simp only [UnpackedFloat.pack, Format.exponentBias, Format.binary64, Format.mantissaBits]
   norm_num
-  simp only [show m.log2 + 1 ≠ 53 by omega, ↓reduceIte,
+  simp only [show m.log2 ≠ 52 by omega, ↓reduceIte,
     UnpackedFloat.unpack, unpackExponent_packComponents,
     unpackMantissa_packComponents, unpackSign_components]
   simp only [hne, ↓reduceIte, ↓reduceDIte]

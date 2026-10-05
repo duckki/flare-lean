@@ -750,7 +750,7 @@ private lemma columnStorage_set (n j : Nat) (original a : Array Float) (i : Nat)
   refine ⟨(Array.size_set! ..).trans h.1, Flare.Matrix.Storage.all_set _ _ _ h.2.1 hx, ?_⟩
   intro r k hr hk hkj
   rw [Flare.Matrix.Storage.entry_set n a i j r k x h.1 hi hj hk,
-    if_neg (fun he => hkj he.2)]
+    ite_eq_right (fun he => hkj he.2)]
   exact h.2.2 r k hr hk hkj
 
 private def fillColumn (n j : Nat) (a diagonal : Array Float) (pivot : Float)
@@ -811,13 +811,13 @@ private lemma fillColumn_success (n j : Nat) (a original diagonal : Array Float)
         · have hki : k = i := (List.mem_cons.mp hk).resolve_right hmem
           subst k
           rw [hsame i hin hmem, Flare.Matrix.Storage.entry_set n lower i j i j x hstart.1 hin hj hj,
-            if_pos ⟨rfl, rfl⟩]
+            ite_eq_left ⟨rfl, rfl⟩]
           exact hxp
       · intro k hk hnot
         have hki : k ≠ i := fun he => hnot (by simp [he])
         have hmem : k ∉ xs := fun he => hnot (by simp [he])
         rw [hsame k hk hmem, Flare.Matrix.Storage.entry_set n lower i j k j x hstart.1 hin hj hj,
-          if_neg (fun he => hki he.1)]
+          ite_eq_right (fun he => hki he.1)]
 
 private lemma factorColumn_eq (n j : Nat) (a : Array Float) (f : Factor)
     : factorColumn n j a f
@@ -938,7 +938,7 @@ theorem factorColumn_accuracy (n : Nat) (j : Fin n) (a : Array Float) (f : Facto
       simp only [List.mem_range']
       rintro ⟨k, _, he⟩
       omega), Flare.Matrix.Storage.entry_set n f.lower j.val j.val i.val j.val 1.0
-        hls j.isLt j.isLt j.isLt, if_neg (by omega)]
+        hls j.isLt j.isLt j.isLt, ite_eq_right (by omega)]
   · intro i hi
     have hv := hvalues i.val (by
       rw [List.mem_range']

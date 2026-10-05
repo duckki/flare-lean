@@ -17,7 +17,7 @@ lemma kernel_offDiagonal {n m : Nat}
     rw [fromBlocks_mulVec]
     change Sum.elim (A *ᵥ 0 + B *ᵥ v) (B.transpose *ᵥ 0 + D *ᵥ v) = _
     simp only [mulVec_zero, zero_add, hv]
-  have hm := (h.dotProduct_mulVec_zero_iff (Sum.elim 0 v)).mp (by
+  have hm := h.dotProduct_mulVec_zero_iff.mp (by
     rw [hmul, star_trivial, sumElim_dotProduct_sumElim]
     simp)
   rw [hmul] at hm
@@ -32,7 +32,7 @@ lemma identity_posDef {n : Nat} {A D : Matrix (Fin n) (Fin n) ℝ}
   intro v hv
   refine lt_of_le_of_ne (hD.dotProduct_mulVec_nonneg v) ?_
   intro he
-  have hdv := (hD.dotProduct_mulVec_zero_iff v).mp he.symm
+  have hdv := hD.dotProduct_mulVec_zero_iff.mp he.symm
   have hb := kernel_offDiagonal (A := A) (B := 1) (by simpa only [transpose_one] using h) v hdv
   exact hv (by simpa using hb)
 

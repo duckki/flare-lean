@@ -190,7 +190,7 @@ theorem reciprocals_success (cutoff : Float) (xs : Array Float)
     have hfin : (g xs[i]).isFinite = true := by simpa [g, hi] using (hg i hi).1
     dsimp [g] at hfin ⊢
     split_ifs with hbranch
-    · rw [if_pos hbranch] at hfin
+    · rw [ite_eq_left hbranch] at hfin
       simp only [finite, hfin, ↓reduceIte]
     · rfl
   refine ⟨xs.map g, he, Array.size_map .., ?_, ?_⟩
@@ -435,11 +435,11 @@ theorem fromSpectrum_accuracy (n : Nat) (e : Spectrum) (hn : n ≤ 12)
     by_cases hj : value cutoff < |value (e.values.getD j.val 0.0)|
     · have hret := hretain j.val j.isLt hj
       have hpos : 0 < value (e.values.getD j.val 0.0) := by linarith only [hret]
-      simp only [r, if_pos hj]
+      simp only [r, ite_eq_left hj]
       rw [abs_of_pos (one_div_pos.mpr hpos)]
       apply (div_le_iff₀ hpos).mpr
       linarith only [hret]
-    · simp only [r, if_neg hj, abs_zero]
+    · simp only [r, ite_eq_right hj, abs_zero]
       norm_num
   have hscaledNorm : ‖matrix n n scaled‖ ≤ (81 / 10 : ℝ) := by
     have he := norm_le_entries (matrix n n scaled - V * R) ((2 : ℝ)^(-45 : Int)) (by positivity)

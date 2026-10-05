@@ -64,9 +64,9 @@ theorem completedMatrix_lower_bound {N k : Nat} (A L : Matrix (Fin N) (Fin N) �
     simp only [conjTranspose_apply, star_trivial] at ha hg
     simp only [completedMatrix, star_trivial]
     by_cases hij : i.val < k ∨ j.val < k
-    · rw [if_pos hij, if_pos (Or.comm.mp hij)]
+    · rw [ite_eq_left hij, ite_eq_left (Or.comm.mp hij)]
       exact hg
-    · rw [if_neg hij, if_neg (fun h => hij (Or.comm.mp h))]
+    · rw [ite_eq_right hij, ite_eq_right (fun h => hij (Or.comm.mp h))]
       exact ha
   have hE : ∀ i j : Fin N, |(completedMatrix A L d hk - A) i j| ≤ (2 : ℝ)^(-13 : Int) := by
     intro i j
@@ -128,16 +128,16 @@ theorem prefix_schur_lower_bound {N k : Nat} (A L : Matrix (Fin N) (Fin N) ℝ)
       fromBlocks (P * D * P.transpose) (P * D * C.transpose) (C * D * P.transpose) B := by
     ext (i | i) (j | j)
     · change (if (e (.inl i)).val < k ∨ (e (.inl j)).val < k then _ else _) = _
-      rw [if_pos (Or.inl (hleft_lt i))]
+      rw [ite_eq_left (Or.inl (hleft_lt i))]
       rfl
     · change (if (e (.inl i)).val < k ∨ (e (.inr j)).val < k then _ else _) = _
-      rw [if_pos (Or.inl (hleft_lt i))]
+      rw [ite_eq_left (Or.inl (hleft_lt i))]
       rfl
     · change (if (e (.inr i)).val < k ∨ (e (.inl j)).val < k then _ else _) = _
-      rw [if_pos (Or.inr (hleft_lt j))]
+      rw [ite_eq_left (Or.inr (hleft_lt j))]
       rfl
     · change (if (e (.inr i)).val < k ∨ (e (.inr j)).val < k then _ else _) = _
-      rw [if_neg (not_or_intro (hright_nlt i) (hright_nlt j))]
+      rw [ite_eq_right (not_or_intro (hright_nlt i) (hright_nlt j))]
       rfl
   have hM := (completedMatrix_lower_bound A L d hk hN hA (fun j hj => (hd j hj).le) herr).submatrix
     e

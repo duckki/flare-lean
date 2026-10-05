@@ -78,7 +78,7 @@ theorem offEnergy_split {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (p q : Fin n)
     intro k hk
     have hk' := (mem_outside p q k).mp hk
     simp [hk'.1, hk'.2]
-  simpa only [offEnergy, ite_true, if_neg hpq, zero_add, add_zero, hpair] using h
+  simpa only [offEnergy, ite_true, ite_eq_right hpq, zero_add, add_zero, hpair] using h
 
 theorem energy_nonneg {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) : 0 ≤ energy A := by
   unfold energy; positivity
@@ -98,7 +98,7 @@ theorem pivot_sq_le_offEnergy {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ) (p q : 
   have hrow := Finset.single_le_sum (s := Finset.univ)
     (f := fun j => if p = j then (0 : ℝ) else A p j ^ 2)
     (fun j _ => by split_ifs <;> positivity) (Finset.mem_univ q)
-  simp only [if_neg hpq] at hrow
+  simp only [ite_eq_right hpq] at hrow
   apply hrow.trans
   unfold offEnergy
   exact Finset.single_le_sum (f := fun i => ∑ j, if i = j then (0 : ℝ) else A i j ^ 2)

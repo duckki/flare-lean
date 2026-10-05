@@ -184,7 +184,7 @@ lemma entry_sq_le_diagonal_product {n : Nat} (A : Matrix (Fin n) (Fin n) ℝ)
   have hii := hA.diag_nonneg (i := i)
   by_cases hz : A i i = 0
   · have hzero : A.mulVec (Pi.single i 1) = 0 :=
-      (hA.dotProduct_mulVec_zero_iff _).mp (by
+      hA.dotProduct_mulVec_zero_iff.mp (by
         simp only [star_trivial, mulVec_single_one, single_one_dotProduct, col_apply, hz])
     have hij := congr_fun hzero j
     simp only [mulVec_single_one, col_apply, Pi.zero_apply, hsym] at hij

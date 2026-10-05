@@ -53,10 +53,8 @@ private lemma core_shape (m : Nat) (e : Int) (hm : 0 < m) (hmb : m < 2 ^ 53)
     (Nat.le_log2 (Nat.ne_of_gt hshiftpos)).mp hshiftlog.1
   have hhigh : m <<< (e - 2 * t).toNat < 2^106 :=
     (Nat.log2_lt (Nat.ne_of_gt hshiftpos)).mp (by omega)
-  have hrlo : 2^52 ≤ Nat.sqrt (m <<< (e - 2 * t).toNat) := Nat.le_sqrt.mpr (by
-    convert hlow using 1; norm_num)
-  have hrhi : Nat.sqrt (m <<< (e - 2 * t).toNat) < 2^53 := Nat.sqrt_lt.mpr (by
-    convert hhigh using 1; norm_num)
+  have hrlo : 2^52 ≤ Nat.sqrt (m <<< (e - 2 * t).toNat) := Nat.le_sqrt.mpr hlow
+  have hrhi : Nat.sqrt (m <<< (e - 2 * t).toNat) < 2^53 := Nat.sqrt_lt.mpr hhigh
   refine ⟨ht.1, ht.2.1, ht.2.2, ?_, ?_⟩
   · exact (Nat.log2_eq_iff (Nat.ne_of_gt (Nat.sqrt_pos.mpr hshiftpos))).mpr ⟨hrlo, hrhi⟩
   · unfold sqrtCore
@@ -93,11 +91,11 @@ private lemma integer_root_rounding (z : Nat)
     have hd' : (d : ℝ) = 0 := by exact_mod_cast hd
     constructor <;> nlinarith
   by_cases hdr : d ≤ r
-  · simp only [hd, if_false, hdr, ite_true, Accuracy.roundToNearestEven]
+  · simp only [hd, ite_false, hdr, ite_true, Accuracy.roundToNearestEven]
     have hd' : (d : ℝ) ≤ r := by exact_mod_cast hdr
     rw [abs_le]
     constructor <;> nlinarith
-  · simp only [hd, hdr, if_false, Accuracy.roundToNearestEven, Nat.cast_add, Nat.cast_one]
+  · simp only [hd, hdr, ite_false, Accuracy.roundToNearestEven, Nat.cast_add, Nat.cast_one]
     have hd' : (r : ℝ) + 1 ≤ d := by exact_mod_cast (show r + 1 ≤ d by omega)
     rw [abs_le]
     constructor <;> nlinarith

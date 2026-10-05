@@ -158,11 +158,11 @@ theorem rotation_similarity (n p q : Nat) (a v : Array Float) (result : Array Fl
       exact hb.1
     by_cases hjq : j = Q
     · subst j
-      simp only [hjp, if_false, ite_true]
+      simp only [hjp, ite_false, ite_true]
       change |value (entry n result.2 i.val q) - _| ≤ _
       rw [he.2]
       exact hb.2
-    simp only [hjp, hjq, if_false]
+    simp only [hjp, hjq, ite_false]
     change |value (entry n result.2 i.val j.val) - value (entry n v i.val j.val)| ≤ _
     rw [h.vectors_unchanged i.val j.val i.isLt j.isLt
       (fun he => hjp (Fin.ext he)) (fun he => hjq (Fin.ext he)), sub_self, abs_zero]
@@ -307,13 +307,13 @@ theorem rotation_vectors_norm (n p q : Nat) (a v : Array Float) (result : Array 
     (by
       intro i
       have he := h.vectors_pair i.val i.isLt
-      simp only [Matrix.sub_apply, J, mul_plane _ P Q hPQ, ite_true, hPQ.symm, if_false]
+      simp only [Matrix.sub_apply, J, mul_plane _ P Q hPQ, ite_true, hPQ.symm, ite_false]
       change |value (entry n result.2 i.val p) - _| ≤ _ ∧ |value (entry n result.2 i.val q) - _| ≤ _
       rw [he.1, he.2]
       exact hpair i)
     (by
       intro i j hjp hjq
-      simp only [Matrix.sub_apply, J, mul_plane _ P Q hPQ, hjp, hjq, if_false]
+      simp only [Matrix.sub_apply, J, mul_plane _ P Q hPQ, hjp, hjq, ite_false]
       change value (entry n result.2 i.val j.val) - value (entry n v i.val j.val) = 0
       rw [h.vectors_unchanged i.val j.val i.isLt j.isLt
         (fun he => hjp (Fin.ext he)) (fun he => hjq (Fin.ext he)), sub_self])

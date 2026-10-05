@@ -82,7 +82,7 @@ theorem unpack_pack_normal (s : Sign) (m : Nat) (e : Int)
     Format.binary64, Format.mantissaBits, hm]
   norm_num
   simp only [show e + 1023 + 52 = e + 1075 by omega,
-    show ¬2048 ≤ (e + 1075).toNat + 1 by omega, ↓reduceIte]
+    show ¬2047 ≤ (e + 1075).toNat by omega, ↓reduceIte]
   simp only [UnpackedFloat.unpack, unpackExponent_packComponents,
     unpackMantissa_packComponents, unpackSign_components, hne, hni, ↓reduceIte]
   change UnpackedFloat.finite (Sign.ofBitVec s.toBitVec) (1#1 ++ BitVec.ofNat 52 m).toNat

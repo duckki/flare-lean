@@ -1,5 +1,5 @@
 import Init.Data.Float.Float
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 
 /-!
 # Real interpretation of binary64 values
