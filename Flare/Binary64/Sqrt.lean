@@ -215,4 +215,35 @@ theorem sqrt_error (x : Float) (hx : x.isFinite = true) (hn : 0 ≤ value x)
   have h := sqrt_error_nearest x hx hn
   exact ⟨h.1, h.2.trans (mul_le_mul_of_nonneg_right (by norm_num) (Real.sqrt_nonneg _))⟩
 
+/-- A positive finite native input has a positive finite square root. Its
+squared residual includes the higher-order term and holds over the entire
+positive finite domain, including subnormal inputs. -/
+theorem positive_sqrt_squared_error (pivot : Float) (hf : pivot.isFinite = true)
+    (hp : 0 < value pivot)
+    : pivot.sqrt.isFinite = true
+      ∧ 0 < value pivot.sqrt
+      ∧ |(value pivot.sqrt) ^ 2 - value pivot|
+        ≤ (2 * (2 : ℝ) ^ (-53 : Int) + ((2 : ℝ) ^ (-53 : Int)) ^ 2) * value pivot := by
+  have h := Flare.Binary64.Sqrt.sqrt_error_nearest pivot hf hp.le
+  let u : ℝ := (2 : ℝ) ^ (-53 : Int)
+  let s := Real.sqrt (value pivot)
+  have hs : 0 < s := Real.sqrt_pos.mpr hp
+  have hsq : s ^ 2 = value pivot := Real.sq_sqrt hp.le
+  have hu : 0 ≤ u ∧ u < 1 := by norm_num [u]
+  have he : |value pivot.sqrt - s| ≤ u * s := h.2
+  have hq : 0 < value pivot.sqrt := by
+    have hlo := (abs_le.mp he).1
+    have ht := mul_lt_mul_of_pos_right hu.2 hs
+    nlinarith
+  refine ⟨h.1, hq, ?_⟩
+  have hplus : |value pivot.sqrt + s| ≤ (2 + u) * s := by
+    rw [abs_of_pos (by linarith)]
+    have hhi := (abs_le.mp he).2
+    linarith
+  rw [← hsq, show (value pivot.sqrt) ^ 2 - s ^ 2 =
+    (value pivot.sqrt - s) * (value pivot.sqrt + s) by ring, abs_mul]
+  have hm := mul_le_mul he hplus (abs_nonneg _) (by positivity)
+  change _ ≤ (2 * u + u ^ 2) * s ^ 2
+  nlinarith
+
 end Flare.Binary64.Sqrt

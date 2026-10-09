@@ -1,19 +1,23 @@
 .PHONY: all build check lint fmt fmt-check
 
-all: check
+all: build check
 
 build:
-	lake build
+	time lake build
+
+b: build
 
 lint:
-	lake lint
+	time lake lint
 
 fmt:
-	python3 scripts/fmt.py
+	time python3 scripts/fmt.py
 
 fmt-check:
-	python3 scripts/fmt.py --check
+	time python3 scripts/fmt.py --check
 
 check: lint
-	python3 -m unittest discover -s scripts -p 'test_*.py'
-	python3 scripts/fmt.py --check
+	time python3 -m unittest discover -s scripts -p 'test_*.py'
+	time python3 scripts/fmt.py --check
+
+c: check

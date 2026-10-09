@@ -390,5 +390,81 @@
       "notes": "Extracted the row-major matrix interpretation only.",
       "source_sha256": "a6dad7dd37793cc5e6a13a9d98a441efbd3f30ef5d5f99084fbd1eac8ec9a482"
     }
+  ],
+  "additional_sources": [
+    {
+      "source_repository": "kalman-filter",
+      "source_revision": "b5077c258988627ca81a02b0767b0a814ee1c8e9",
+      "source_toolchain": "leanprover/lean4:v4.34.1",
+      "library_toolchain": "leanprover/lean4:v4.34.1",
+      "modules": [
+        {
+          "target": "Flare/Analysis/EntrywiseError.lean",
+          "source": "Kalman/Proofs/ErrorPropagation.lean",
+          "notes": "Matrix error propagation and positivity-margin statements; recurrence separated.",
+          "source_sha256": "f23b61b6478ef181ee0e8ed394fb5398537c3e45e7c3525cf8b52ec9671b823c"
+        },
+        {
+          "target": "Flare/Analysis/EntrywiseError.lean",
+          "source": "Kalman/Definitions/Theorems/RecursionSensitivity.lean",
+          "notes": "EntrywiseWithin relation only; Kalman model and sensitivity formulas excluded.",
+          "source_sha256": "ad6a7cc35a33220972a4d3e286d89d5e4292bb5c7f9d1a58720d678ea7fa9f67"
+        },
+        {
+          "target": "Flare/Analysis/EntrywiseError.lean",
+          "source": "Kalman/Proofs/RealErrorBounds.lean",
+          "notes": "Right-system residual theorem only; type aliases expanded and gain terminology removed.",
+          "source_sha256": "2b90d74db9c62a7e2bf678718961a2208eb73bb92e9863b8f22695c0ef860cb6"
+        },
+        {
+          "target": "Flare/Analysis/ErrorRecurrence.lean",
+          "source": "Kalman/Proofs/ErrorPropagation.lean",
+          "notes": "Finite-horizon induction and nonexpansive budget with original assumptions.",
+          "source_sha256": "f23b61b6478ef181ee0e8ed394fb5398537c3e45e7c3525cf8b52ec9671b823c"
+        },
+        {
+          "target": "Flare/Analysis/ErrorRecurrence.lean",
+          "source": "Kalman/Proofs/ArithmeticProfiles.lean",
+          "notes": "accumulatedRadius only; native and Kalman operand profiles excluded.",
+          "source_sha256": "844b618e3299e22bcedff478697ac6edb01c1b7b81fbbc8d82bdd597ae80df8d"
+        },
+        {
+          "target": "Flare/Analysis/Householder.lean",
+          "source": "Kalman/Definitions/OrthogonalFactorization.lean",
+          "notes": "Explicit exact reflection equation only.",
+          "source_sha256": "256809f90f8d90a276e97da1fde87645d46d4d69c2913d68c15e3a5df1011a68"
+        },
+        {
+          "target": "Flare/Analysis/Householder.lean",
+          "source": "Kalman/Proofs/OrthogonalStructure.lean",
+          "notes": "Unit-vector coordinate bound and exact column-Gram preservation.",
+          "source_sha256": "6bdb859a8aaa1b18a4442843f538688e78893018df373f50c46ab3433fc8c1af"
+        },
+        {
+          "target": "Flare/Binary64/SignMultiplication.lean",
+          "source": "Kalman/Proofs/FloatQRRetain.lean",
+          "notes": "Exact multiplication by plus/minus one and required model helpers; QR retention excluded.",
+          "source_sha256": "11dccf7017a06aa86a93d4cb04938f6ac4397fb632e7c88d04bdf9668b5e15d4"
+        },
+        {
+          "target": "Flare/Binary64/Arithmetic.lean",
+          "source": "Kalman/Proofs/FloatGramSymmetry.lean",
+          "notes": "Logical native multiplication commutativity, including canonical exceptional results.",
+          "source_sha256": "488db3d96a62eca817efd74790438855a00aa55244732e8120cf3c2d0f85356f"
+        },
+        {
+          "target": "Flare/Matrix/GramSymmetry.lean",
+          "source": "Kalman/Proofs/FloatGramSymmetry.lean",
+          "notes": "Two-state rounded Gram word symmetry and Hermitian decoding; error-adapter hypothesis replaced by identical Dense operation.",
+          "source_sha256": "488db3d96a62eca817efd74790438855a00aa55244732e8120cf3c2d0f85356f"
+        },
+        {
+          "target": "Flare/Binary64/Sqrt.lean",
+          "source": "Kalman/Proofs/FloatResidualError.lean",
+          "notes": "Positive finite sqrt and squared residual; checked application-error wrapper excluded.",
+          "source_sha256": "02be238b73f9b106aa881c6ff271e5289095fff12422d93ca7df098af2e2b645"
+        }
+      ]
+    }
   ]
 }

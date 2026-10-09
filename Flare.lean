@@ -1,7 +1,10 @@
 import Flare.Analysis.Conditioning
 import Flare.Analysis.Dyadic
+import Flare.Analysis.EntrywiseError
+import Flare.Analysis.ErrorRecurrence
 import Flare.Analysis.Factorization
 import Flare.Analysis.GramBounds
+import Flare.Analysis.Householder
 import Flare.Analysis.Jacobi
 import Flare.Analysis.JacobiDiagonal
 import Flare.Analysis.JacobiEnergy
@@ -26,6 +29,7 @@ import Flare.Binary64.Model.Value
 import Flare.Binary64.Nearest
 import Flare.Binary64.Order
 import Flare.Binary64.Rounding
+import Flare.Binary64.SignMultiplication
 import Flare.Binary64.Sqrt
 import Flare.Binary64.Value
 import Flare.Binary64.Zero
@@ -33,6 +37,7 @@ import Flare.Matrix.Dense
 import Flare.Matrix.Error
 import Flare.Matrix.Factorization
 import Flare.Matrix.GramFormation
+import Flare.Matrix.GramSymmetry
 import Flare.Matrix.Jacobi
 import Flare.Matrix.JacobiAccumulation
 import Flare.Matrix.JacobiBounds

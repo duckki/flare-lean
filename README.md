@@ -33,7 +33,7 @@ lake exe cache get
 make check
 ```
 
-Lean and Mathlib are pinned to **v4.33.1**. The Lake manifest pins transitive
+Lean and Mathlib are pinned to **v4.34.1**. The Lake manifest pins transitive
 revisions. The axiom audit checks every FLARE theorem, including private
 supporting lemmas, allowing only `propext`, `Classical.choice`, and `Quot.sound`.
 The layout check enforces dependency boundaries and entry-point coverage.
@@ -41,7 +41,7 @@ The layout check enforces dependency boundaries and entry-point coverage.
 an import-closure check, and the formatter check.
 
 Format Lean sources with `make fmt` using
-[leanfmt v0.4.1](https://github.com/duckki/leanfmt/tree/v0.4.1), pinned in Lake.
+[leanfmt v0.4.5](https://github.com/duckki/leanfmt/tree/v0.4.5), pinned in Lake.
 The line width is **100**, including comments (URLs are exempt from the style
 limit). See [CONTRIBUTING.md](CONTRIBUTING.md) for individual check commands.
 
@@ -49,10 +49,10 @@ limit). See [CONTRIBUTING.md](CONTRIBUTING.md) for individual check commands.
 
 | Area | Representative results |
 | --- | --- |
-| Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, nearest-rounding bounds, comparisons, signed-zero congruence, and square root |
-| Dense matrices | Finite storage, multiplication accuracy, LDLᵀ factorization, successful positive-definite solves, substitution and residual bounds |
+| Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, and positive square-root squared residuals |
+| Dense matrices | Finite storage, multiplication accuracy, LDLᵀ factorization, successful positive-definite solves, substitution and residual bounds, and two-state rounded Gram word symmetry |
 | Spectral algorithms | Jacobi convergence and spectral error, approximate PSD-check acceptance, and truncated pseudoinverse accuracy |
-| Real analysis | Schur complements, conditioning, matrix norms, Gram residual transport, spectral gaps, and pseudoinverse perturbation |
+| Real analysis | Schur complements, conditioning, matrix norms, Gram residual transport, spectral gaps, pseudoinverse perturbation, entrywise propagation and positivity margins, error recurrences, and Householder Gram preservation |
 
 These are theorems about specific operations **under explicit hypotheses**.
 Scalar arithmetic includes overflow-domain bounds. Matrix results retain the
@@ -95,3 +95,7 @@ module namespaces; each proposed contribution needs a concrete upstream use.
 - [Theorem guide and assurance boundaries](docs/reference.md)
 - [Project layout and dependency rules](docs/architecture.md)
 - [Source provenance](docs/provenance.md)
+
+## License
+
+GPL-3.0-only. See [LICENSE](LICENSE). Third-party dependencies retain their own licenses.

@@ -20,3 +20,15 @@ Preserve these origin records when the library evolves, update destination
 paths if modules move, and add source records when importing further results.
 This document records origin; it does not establish mathematical novelty or
 upstream acceptance. See the [theorem guide](reference.md) for current contracts.
+
+## Kalman numerical-analysis extraction
+
+The additional source record identifies `kalman-filter` revision `b5077c258988627ca81a02b0767b0a814ee1c8e9`
+(Lean/Mathlib 4.34.1). It contributes entrywise propagation and positivity
+margins, right-system residual accuracy, scalar error recurrences, explicit
+Householder Gram preservation, exact native sign multiplication, positive
+square-root squared residuals, and two-state rounded Gram symmetry. The
+original assumptions and constants are retained. Application models, filter
+operating profiles, native filter algorithms, and error constructors are excluded.
+Kalman uses these results through definitions and proved adapters in its own
+repository; FLARE has no application dependency.

@@ -35,3 +35,14 @@ No upstream submission is recorded here yet.
 
 There is no `Flare/Mathlib/` holding area: destination status belongs here,
 while library modules remain organized by subject.
+
+## Matrix-coordinate error and reflection interfaces
+
+`Analysis.EntrywiseError` supplies a finite-matrix absolute comparison relation
+and propagation through products, together with residual and spectral-margin
+consequences. `Analysis.Householder` supplies the explicit coordinate action
+and column-Gram identity for a unit-vector reflection. Mathlib already has
+abstract reflection and norm infrastructure. An upstream proposal would need
+to establish a useful connection to that infrastructure and avoid duplicating
+its existing results; these local interfaces do not assert a novel theorem or
+an accepted upstream contribution.

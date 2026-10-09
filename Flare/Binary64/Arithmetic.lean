@@ -118,4 +118,19 @@ theorem sub_error_relative (a b : Float) (ha : a.isFinite = true) (hb : b.isFini
   have h := sub_error a b E ha hb hE (by omega) hv
   exact ⟨h.1, h.2.trans (scaled_error_bound _ E 52 hs)⟩
 
+private theorem sign_mul_comm (a b : Float.Model.UnpackedFloat.Sign) : a * b = b * a := by
+  cases a <;> cases b <;> rfl
+
+/-- Commutativity in Lean 4.34.1's logical native binary64 model, including
+signed zero and the model's canonical exceptional results. -/
+theorem native_mul_comm (a b : Float) : a * b = b * a := by
+  have h : ∀ x y : Float.Model.UnpackedFloat,
+      Float.Model.UnpackedFloat.mul Float.Model.Format.binary64 x y =
+        Float.Model.UnpackedFloat.mul Float.Model.Format.binary64 y x := by
+    intro x y
+    cases x <;> cases y <;>
+      simp [Float.Model.UnpackedFloat.mul, sign_mul_comm, Nat.mul_comm, Int.add_comm]
+  change Float.ofModel (Float.Model.pack _) = Float.ofModel (Float.Model.pack _)
+  rw [h]
+
 end Flare.Binary64.Arithmetic

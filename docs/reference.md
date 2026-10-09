@@ -22,7 +22,7 @@ but semantic equality is not bit equality. The congruence and zero lemmas retain
 this distinction.
 
 The pinned Lean source is the definition of the logical machine operations:
-[Float.Model in Lean 4.33.1](https://github.com/leanprover/lean4/tree/v4.33.1/src/lean/Init/Data/Float/Model).
+[Float.Model in Lean 4.34.1](https://github.com/leanprover/lean4/tree/v4.34.1/src/lean/Init/Data/Float/Model).
 
 ## Useful theorem entry points
 
@@ -40,6 +40,13 @@ The pinned Lean source is the definition of the logical machine operations:
 | `Matrix.Pseudoinverse` | `symmetricPseudoInverse_accuracy` | 1–12 rows, PSD real target, quarter-unit spectral gap, norm limit, and explicit matrix-formation error |
 | `Matrix.PSDCheck` | `checkPSD_accepts_approximation` | Sufficient conditions for diagnostic acceptance, not a converse PSD certificate |
 | `Analysis.PseudoinversePerturbation` | `difference_norm`, `projected_difference_norm` | Singular symmetric pseudoinverse perturbations, including range-projected estimates |
+| `Analysis.EntrywiseError` | `EntrywiseWithin`, `within_mul`, `within_diagonal_mul_right`, `lower_bound_of_error`, `posDef_of_error_margin`, `right_residual_accuracy` | Absolute entrywise matrix comparison; explicit operand caps, Hermitian output for spectral margins, and positive conditioning floor for residual accuracy |
+| `Analysis.ErrorRecurrence` | `accumulatedRadius`, `finite_horizon_bound`, `nonexpansive_budget` | Supplied step-error recurrence; nonnegative sensitivity and the additional nonexpansive hypotheses |
+| `Analysis.Householder` | `reflect`, `unit_component_bound`, `reflect_gram` | Explicit real matrix reflection by any exactly unit vector; arbitrary finite dimensions |
+| `Binary64.Arithmetic` | `native_mul_comm` | Logical native multiplication commutes, including canonical exceptional results |
+| `Binary64.SignMultiplication` | `one_mul_value`, `neg_one_mul_value` | Exact real sign multiplication and finite output for every finite binary64 operand |
+| `Binary64.Sqrt` | `positive_sqrt_squared_error` | Positive finite input gives positive finite sqrt with squared residual `(2u+u²)x`, `u=2⁻⁵³`, including positive subnormal input |
+| `Matrix.GramSymmetry` | `multiply_gram_two_symmetric`, `multiply_gram_two_hermitian` | Successful two-state `Dense.multiply` Gram schedule on finite arrays; exact matching off-diagonal words, no scale or PD premise |
 
 For the nearest scalar operations, the stated error is bounded by
 `2^-53 * (abs(exact result) + 2^-1022)`. Square root has the relative bound

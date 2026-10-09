@@ -65,7 +65,7 @@ behavior in the review.
 
 ### Formatting
 
-[leanfmt](https://github.com/duckki/leanfmt/tree/v0.4.1) is pinned to **v0.4.1**.
+[leanfmt](https://github.com/duckki/leanfmt/tree/v0.4.5) is pinned to **v0.4.5**.
 Use a **100-column** width, matching Mathlib's line-length convention:
 
 ```sh
@@ -79,8 +79,8 @@ existing Git reference, use `python3 scripts/fmt.py --base REF`, with `--check`
 for a check. The default checks the whole repository and needs no base branch.
 
 Keep formatting exceptions narrow and explain them in a source comment.
-Five `mvcgen` blocks currently use `-- leanfmt: off next` because v0.4.1
-misformats their alternatives or fails its token-preservation check. They still
+The existing `mvcgen` exceptions use `-- leanfmt: off next`; these were
+introduced for v0.4.1 alternative formatting and token-preservation failures. They still
 undergo line-length checks and Lean elaboration. The formatting wrapper also
 restores a file and fails if the formatter changes its non-whitespace content;
 this guards against v0.4.1 dropping unparsed text after an indentation error.
