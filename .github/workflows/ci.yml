@@ -10,14 +10,30 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      # Do not let dependency initialization fetch the whole Mathlib cache.
+      MATHLIB_NO_CACHE_ON_UPDATE: "1"
     steps:
       - uses: actions/checkout@v5
-      - uses: leanprover/lean-action@v1
+      - name: Install Lean
+        uses: leanprover/lean-action@v1
         with:
-          build: "true"
-          lint: "true"
+          auto-config: "false"
+          build: "false"
+          lint: "false"
           test: "false"
-      - name: Check formatting
-        run: make fmt-check
-      - name: Check tooling regressions
-        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+          use-mathlib-cache: "false"
+          # Old whole-.lake caches would restore unneeded Mathlib artifacts.
+          use-github-cache: "false"
+      - name: Download required Mathlib cache
+        run: |
+          df -h .
+          # Mathlib's cache reader skips imports between downstream modules;
+          # select every library module, not just the public entry point.
+          lake exe cache get 'Flare.*' Tests/ProofAudit.lean Lint.lean
+          df -h .
+      - name: Check library and tooling
+        run: make check
+      - name: Report disk space
+        if: always()
+        run: df -h .

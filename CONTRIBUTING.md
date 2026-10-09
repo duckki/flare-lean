@@ -51,12 +51,18 @@ proposition and its definitions.
 
 ## Validate a change
 
-Use the pinned toolchain and dependency manifest. On a fresh checkout, first
-run `lake exe cache get`. Then run from this repository:
+Use the pinned toolchain and dependency manifest. On a fresh checkout, download
+the Mathlib cache for all library modules and the proof audit, then run the checks:
 
 ```sh
+MATHLIB_NO_CACHE_ON_UPDATE=1 lake exe cache get 'Flare.*' Tests/ProofAudit.lean Lint.lean
 make check
 ```
+
+CI uses the same scoped cache download instead of fetching all of Mathlib or
+restoring a whole `.lake` cache. Select `Flare.*`, not just `Flare.lean`: Mathlib's
+cache reader does not follow imports between downstream modules. FLARE's own
+sources are built locally; cache misses for these downstream roots are expected.
 
 This builds the library, checks public and private theorem axioms, checks import
 boundaries and coverage, runs the linters and their regression tests, and checks
