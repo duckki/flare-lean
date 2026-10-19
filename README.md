@@ -33,7 +33,7 @@ lake exe cache get
 make check
 ```
 
-Lean and Mathlib are pinned to **v4.34.1**. The Lake manifest pins transitive
+Lean and Mathlib are pinned to **v4.35.0**. The Lake manifest pins transitive
 revisions. The axiom audit checks every FLARE theorem, including private
 supporting lemmas, allowing only `propext`, `Classical.choice`, and `Quot.sound`.
 The layout check enforces dependency boundaries and entry-point coverage.
@@ -41,7 +41,7 @@ The layout check enforces dependency boundaries and entry-point coverage.
 an import-closure check, and the formatter check.
 
 Format Lean sources with `make fmt` using
-[leanfmt v0.4.5](https://github.com/duckki/leanfmt/tree/v0.4.5), pinned in Lake.
+[leanfmt v0.4.6](https://github.com/duckki/leanfmt/tree/v0.4.6), pinned in Lake.
 The line width is **100**, including comments (URLs are exempt from the style
 limit). See [CONTRIBUTING.md](CONTRIBUTING.md) for individual check commands.
 

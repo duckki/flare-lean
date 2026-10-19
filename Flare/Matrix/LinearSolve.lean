@@ -12,6 +12,8 @@ open Flare.Binary64.Division
 open Flare.Matrix.Dense Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- Proof-side extraction of the native forward substitution pass. -/
 def forward (n columns : Nat) (f : Factor) (b : Array Float)

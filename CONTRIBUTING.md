@@ -71,7 +71,7 @@ behavior in the review.
 
 ### Formatting
 
-[leanfmt](https://github.com/duckki/leanfmt/tree/v0.4.5) is pinned to **v0.4.5**.
+[leanfmt](https://github.com/duckki/leanfmt/tree/v0.4.6) is pinned to **v0.4.6**.
 Use a **100-column** width, matching Mathlib's line-length convention:
 
 ```sh

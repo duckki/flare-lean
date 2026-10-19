@@ -9,6 +9,8 @@ open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations
 open Flare.Binary64.Arithmetic Flare.Binary64.Order Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- The scan's native state, used only for proof decomposition. -/
 structure Pivot where

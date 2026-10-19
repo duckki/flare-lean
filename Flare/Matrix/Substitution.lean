@@ -10,6 +10,8 @@ open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Matrix.Dense Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- Proof-side extraction of a native subtract-products loop, with arbitrary
 index order. This is the common arithmetic schedule of both substitution passes. -/

@@ -10,6 +10,8 @@ open Std.Do Flare.Matrix.Dense
 
 -- The tactic produces ordinary kernel-checked proofs; no additional trust axiom.
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 @[simp] theorem zero_finite : (0.0 : Float).isFinite = true := by decide
 

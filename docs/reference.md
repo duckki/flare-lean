@@ -22,7 +22,7 @@ but semantic equality is not bit equality. The congruence and zero lemmas retain
 this distinction.
 
 The pinned Lean source is the definition of the logical machine operations:
-[Float.Model in Lean 4.34.1](https://github.com/leanprover/lean4/tree/v4.34.1/src/lean/Init/Data/Float/Model).
+[Float.Model in Lean 4.35.0](https://github.com/leanprover/lean4/tree/v4.35.0/src/lean/Init/Data/Float/Model).
 
 ## Useful theorem entry points
 

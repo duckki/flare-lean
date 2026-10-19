@@ -13,6 +13,8 @@ open Std.Do Flare.Matrix.Dense
 open scoped Matrix.Norms.L2Operator
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- Lift elementwise successful evaluation to an actual array map. -/
 lemma mapM_eq_ok_map {α β ε : Type} (a : Array α) (f : α → Except ε β)

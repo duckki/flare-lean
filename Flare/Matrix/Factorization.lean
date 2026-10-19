@@ -14,6 +14,8 @@ open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Matrix.Dense Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 private lemma power_sub (E k : Int) : (2 : ℝ) ^ (E - k) = (2 : ℝ) ^ E / (2 : ℝ) ^ k :=
   zpow_sub₀ (by norm_num) _ _

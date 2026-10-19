@@ -9,6 +9,8 @@ namespace Flare.Matrix.OperationStorage
 open Std.Do Flare.Matrix.Value Flare.Matrix.Operations
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 private theorem bind_ok {α β : Type} (x : Except Flare.Matrix.Error α)
     (f : α → Except Flare.Matrix.Error β) (b : β)

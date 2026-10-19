@@ -12,6 +12,8 @@ open Flare.Binary64.Arithmetic
 open Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 private noncomputable def gram (n k : Nat) (f : Factor) : _root_.Matrix (Fin n) (Fin n) ℝ :=
   fun i j =>

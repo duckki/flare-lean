@@ -12,6 +12,8 @@ open Flare.Matrix.JacobiOutput Flare.Analysis.SpectralPerturbation
 open scoped Matrix.Norms.L2Operator
 open Std.Do
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- The actual binary64 cutoff is close to its intended relative scale on
 the bounded, non-negligible spectral magnitudes in the stated numerical profile. -/

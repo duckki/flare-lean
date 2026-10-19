@@ -13,6 +13,8 @@ open Flare.Analysis.JacobiEnergy
 open Std.Do
 
 set_option mvcgen.warning false
+-- Retain the established VC engine while using Lean 4.35.
+set_option linter.deprecated.syntax false
 
 /-- Total proof-side projection of the native scan. -/
 def selectedPivot (n : Nat) (a : Array Float) : Pivot :=
