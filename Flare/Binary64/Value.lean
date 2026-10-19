@@ -1,5 +1,7 @@
-import Init.Data.Float.Float
-import Mathlib.Basic.Real.Basic
+module
+
+public import Init.Data.Float.Float
+public import Mathlib.Basic.Real.Basic
 
 /-!
 # Real interpretation of binary64 values
@@ -17,6 +19,8 @@ These definitions are mathematical interpretations for specifications and
 proofs. They do not implement an executable conversion to exact real numbers,
 and they do not establish correspondence with another language's runtime.
 -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Value
 

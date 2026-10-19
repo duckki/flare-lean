@@ -1,5 +1,7 @@
-import Mathlib.Tactic.Ring
-import Flare.Binary64.Model.Rounding
+module
+
+public import Mathlib.Tactic.Ring
+public import Flare.Binary64.Model.Rounding
 
 /-! Finite addition, subtraction, and multiplication bounds for the pinned binary64
 model. Exact rational interpretations occur only in these proofs. Each operation
@@ -7,6 +9,8 @@ constructs a finite result and bounds its error from exact arithmetic. -/
 
 open Float.Model Float.Model.UnpackedFloat
 open Flare.Binary64.Model.Rounding
+@[expose] public section
+
 namespace Flare.Binary64.Model.Arithmetic
 open Flare.Binary64.Model.Conversion
 

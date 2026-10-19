@@ -1,11 +1,15 @@
-import Flare.Analysis.JacobiRotation
-import Mathlib.Analysis.CStarAlgebra.Matrix
-import Mathlib.Analysis.Matrix.PosDef
+module
+
+public import Flare.Analysis.JacobiRotation
+public import Mathlib.Analysis.CStarAlgebra.Matrix
+public import Mathlib.Analysis.Matrix.PosDef
 
 /-! Accumulation of local spectral errors in the Euclidean operator norm.
 Mathlib's C⋆-algebra norm identities provide exact invariance under orthogonal
 multiplication; error bounds therefore add across rotations without an
 artificial dimension factor at every iteration. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.SpectralPerturbation
 open Matrix

@@ -1,7 +1,11 @@
-import Flare.Matrix.JacobiEnergy
+module
+
+public import Flare.Matrix.JacobiEnergy
 
 /-! Iteration-wide magnitude invariants for native Jacobi. The energy allowances
 are ghost proof quantities; no runtime bound or certificate is added. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiBounds
 

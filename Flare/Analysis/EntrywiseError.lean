@@ -1,10 +1,14 @@
-import Flare.Analysis.NumericalBounds
-import Mathlib.Tactic
+module
+
+public import Flare.Analysis.NumericalBounds
+public import Mathlib.Tactic
 
 /-! Absolute entrywise matrix error, propagation through exact algebra, and
 quantitative spectral margins. These bounds are independent of the algorithm
 producing the error. Extracted from the Kalman case study with its hypotheses
 and constants preserved; see docs/provenance.md. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.EntrywiseError
 

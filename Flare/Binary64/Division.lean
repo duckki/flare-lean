@@ -1,10 +1,14 @@
-import Flare.Binary64.Arithmetic
+module
+
+public import Flare.Binary64.Arithmetic
 
 /-! Native binary64 division, derived from the model's integer quotient and
 rounding operations. The absolute bound includes quotient truncation, signed
 zeros and underflow, without requiring normal operands or a normal result. -/
 
 open Flare.Analysis.Dyadic
+
+@[expose] public section
 
 namespace Flare.Binary64.Division
 open Float.Model Float.Model.UnpackedFloat

@@ -1,10 +1,14 @@
-import Flare.Matrix.MatrixFormation
-import Flare.Matrix.SolveAccuracy
-import Flare.Analysis.GramBounds
+module
+
+public import Flare.Matrix.MatrixFormation
+public import Flare.Matrix.SolveAccuracy
+public import Flare.Analysis.GramBounds
 
 /-! Structured error estimates for the native known-noise Gram matrix. The
 proofs retain Frobenius residuals and exact matrix identities before converting
 to an operator-norm enclosure for pseudoinverse rank separation. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.GramFormation
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

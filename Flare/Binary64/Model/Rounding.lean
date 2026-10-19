@@ -1,6 +1,8 @@
-import Mathlib.Tactic.Ring
-import Flare.Binary64.Model.Conversion
-import Mathlib.Tactic.Linarith
+module
+
+public import Mathlib.Tactic.Ring
+public import Flare.Binary64.Model.Conversion
+public import Mathlib.Tactic.Linarith
 
 /-!
 # Concrete binary64 rounding bounds
@@ -13,6 +15,8 @@ covered. No native-decide axiom or hypothetical rounding law is used.
 -/
 
 open Float.Model Float.Model.UnpackedFloat
+@[expose] public section
+
 namespace Flare.Binary64.Model.Rounding
 open Flare.Binary64.Model.Conversion
 

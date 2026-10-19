@@ -1,17 +1,22 @@
-import Flare.Binary64.Nearest
-import Flare.Matrix.LinearSolve
+module
+
+public import Flare.Binary64.Nearest
+public import Flare.Matrix.LinearSolve
 
 /-! Reusable error analysis for the separately rounded product/subtraction loop
 used by triangular substitution. All real quantities here are proof-only.
 The runtime continues to use native Float arrays and arithmetic. -/
 
+@[expose] public section
+
 namespace Flare.Matrix.Substitution
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Matrix.Dense Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- Proof-side extraction of a native subtract-products loop, with arbitrary
 index order. This is the common arithmetic schedule of both substitution passes. -/
@@ -173,11 +178,6 @@ private lemma productSum_bound (indices : List Nat) (left right : Nat → Float)
         using (abs_add_le (value (left k) * value (right k)) (productSum ks left right)).trans
           (add_le_add le_rfl ih)
 
-@[spec]
-private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
-  unfold finite
-  mvcgen; simp_all
-
 private theorem subtractProducts_triple_of_step (indices : List Nat) (left right : Nat → Float)
     (initial : Float) (target : ℝ) (budget : List Nat → ℝ)
     (hi : initial.isFinite = true) (hzero : |value initial - target| ≤ budget [])
@@ -201,23 +201,23 @@ private theorem subtractProducts_triple_of_step (indices : List Nat) (left right
                 ⌝
         ⦄ := by
   unfold subtractProducts
-  -- leanfmt 0.4.1 mishandles the mvcgen alternatives below.
-  -- leanfmt: off next
-  mvcgen [-Flare.Matrix.Storage.finite_spec, finite_exact] invariants
-  | inv1 => ⇓ ⟨xs, s⟩ => ⌜s.isFinite = true ∧
-      |value s - (target - productSum xs.prefix left right)| ≤ budget xs.prefix⌝
-  with
-  | vc1 | vc2 | vc3 =>
-    subst_vars
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-Flare.Matrix.Storage.finite_wp_spec, Flare.Matrix.Storage.finite_wp_exact] invariants
+  | inv1 => fun xs _ s => s.isFinite = true ∧
+      |value s - (target - productSum xs left right)| ≤ budget xs
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  case vc1 => exact ⟨True.intro, by simpa [productSum] using hzero⟩
+  case vc2 => trivial
+  case vc3 | vc5 | vc7 =>
     rename_i pref k suff s hs
-    have hh := step pref k suff s rfl hs.1 hs.2
+    have hh := step pref k suff s rfl hs
     first
     | exact hh.1
     | exact hh.2.1
     | refine ⟨hh.2.1, ?_⟩
       simpa only [productSum, List.map_append, List.sum_append, List.map_singleton,
         List.sum_singleton, sub_sub] using hh.2.2
-  | vc4 => exact ⟨hi, by simpa [productSum] using hzero⟩
 
 private theorem subtractProducts_triple (indices : List Nat) (left right : Nat → Float)
     (initial : Float) (M : ℝ) (hlen : indices.length ≤ 32)
@@ -386,14 +386,24 @@ lemma subtractProducts_congr (indices : List Nat) (left right left' right' : Nat
   intro k hk s
   simp only [hl k hk, hr k hk]
 
-@[spec]
+@[local spec]
 private lemma subtractProducts_result (indices : List Nat)
     (left right : Nat → Float) (initial : Float)
     : ⦃⌜True⌝
       ⦄ subtractProducts indices left right initial
       ⦃⇓? s => ⌜subtractProducts indices left right initial = .ok s⌝⦄ := by
   generalize he : subtractProducts indices left right initial = result
-  cases result <;> mvcgen
+  cases result with
+  | error e => exact fun _ => True.intro
+  | ok value => exact fun _ => rfl
+
+open scoped Std.WP in
+@[local spec]
+private theorem subtractProducts_wp_result (indices : List Nat)
+    (left right : Nat → Float) (initial : Float)
+    : Std.WP.Triple (subtractProducts indices left right initial) True
+        (fun s => subtractProducts indices left right initial = .ok s) (fun _ => True) :=
+  (Specification.except_iff _ _ _).mp (subtractProducts_result indices left right initial)
 
 /-- The forward pass expressed using the reusable product/subtraction loop. -/
 def forwardByProducts (n columns : Nat) (f : Factor) (b : Array Float)
@@ -462,36 +472,38 @@ private theorem forward_equations_triple (n columns : Nat) (f : Factor) (b : Arr
       ⦄ forwardByProducts n columns f b
       ⦃⇓? r => ⌜ForwardEquations n columns f b n 0 r⌝⦄ := by
   unfold forwardByProducts
-  mvcgen
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen
     invariants
-      | inv1 => ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b xs.prefix.length 0 r⌝
+      | inv1 => fun xs _ r => ForwardEquations n columns f b xs.length 0 r
       | inv2 pref i suff hi initial hs =>
-        ⇓? ⟨xs, r⟩ => ⌜ForwardEquations n columns f b i xs.prefix.length r⌝
-    with
-      | vc1 =>
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj r hr s hs
-        have hj' := Flare.Matrix.Storage.range_current hj
-        have hh := forward_write n columns f b r i j s
-          (Flare.Matrix.Storage.range_current hi).2 hj'.2
-          (by simpa only [hj'.1] using hr) hs
-        simpa only [List.length_append, List.length_singleton, ← hj'.1] using hh
-      | vc3 =>
-        rename_i pref i suff hi r hr
-        simpa only [(Flare.Matrix.Storage.range_current hi).1, List.length_nil] using hr
-      | vc4 =>
-        rename_i pref i suff hi initial hinit r hr
-        have hr' : ForwardEquations n columns f b i columns r := by
-          simpa [Std.Legacy.Range.toList] using hr
-        refine ⟨hr'.1, ?_⟩
-        intro a c ha hc hac
-        apply hr'.2 a c ha hc
-        have hi' := (Flare.Matrix.Storage.range_current hi).1
-        simp only [List.length_append, List.length_singleton] at hac
-        omega
-              | vc6 => simp [ForwardEquations]
-      | vc7 =>
-        rename_i r hr
-        simpa [Std.Legacy.Range.toList] using hr
+        fun xs _ r => ForwardEquations n columns f b i xs.length r
+  all_goals simp_all only [SPred.down_pure_nil]
+  case vc1 => simp [ForwardEquations, r]
+  case vc2 =>
+    rename_i r hr
+    simpa [Std.Legacy.Range.size] using hr
+  case vc3 =>
+    rename_i pref i suff hlist current hcurrent
+    simpa only [(Flare.Matrix.Storage.forIn_range_current hlist).1, List.length_nil] using hcurrent
+  case vc4 =>
+    rename_i pref i suff hlist initial hinit current hcurrent
+    have hr' : ForwardEquations n columns f b i columns current := by
+      simpa [Std.Legacy.Range.size] using hcurrent
+    refine ⟨hr'.1, ?_⟩
+    intro a c ha hc hac
+    apply hr'.2 a c ha hc
+    have hstep := (Flare.Matrix.Storage.forIn_range_current hlist).1
+    simp only [List.length_append, List.length_singleton] at hac
+    omega
+  case vc5 => trivial
+  case vc6 =>
+    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj current hcurrent hs
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
+    have hh := forward_write n columns f b current i j s
+      (Flare.Matrix.Storage.forIn_range_current hi).2 hj'.2
+      (by simpa only [hj'.1] using hcurrent) hs
+    simpa only [List.length_append, List.length_singleton, ← hj'.1] using hh
 
 /-- Each stored forward-substitution entry is exactly the result of its native
 row loop, reading the final array's earlier rows. This proves the data-flow
@@ -755,14 +767,26 @@ lemma divideSubtractProducts_congr (indices : List Nat) (left right left' right'
   unfold divideSubtractProducts
   simp only [subtractProducts_congr indices left right left' right' _ hl hr]
 
-@[spec]
+@[local spec]
 private lemma divideSubtractProducts_result (indices : List Nat)
     (left right : Nat → Float) (numerator denominator : Float)
     : ⦃⌜True⌝
       ⦄ divideSubtractProducts indices left right numerator denominator
       ⦃⇓? s => ⌜divideSubtractProducts indices left right numerator denominator = .ok s⌝⦄ := by
   generalize he : divideSubtractProducts indices left right numerator denominator = result
-  cases result <;> mvcgen
+  cases result with
+  | error e => exact fun _ => True.intro
+  | ok value => exact fun _ => rfl
+
+open scoped Std.WP in
+@[local spec]
+private theorem divideSubtractProducts_wp_result (indices : List Nat)
+    (left right : Nat → Float) (numerator denominator : Float)
+    : Std.WP.Triple (divideSubtractProducts indices left right numerator denominator) True
+        (fun s => divideSubtractProducts indices left right numerator denominator = .ok s)
+        (fun _ => True) :=
+  (Specification.except_iff _ _ _).mp
+    (divideSubtractProducts_result indices left right numerator denominator)
 
 private def BackwardEquations (n columns : Nat) (f : Factor) (y : Array Float)
     (step j : Nat) (r : Array Float)
@@ -820,36 +844,38 @@ private theorem backward_equations_triple (n columns : Nat) (f : Factor) (y : Ar
       ⦄ backwardByProducts n columns f y
       ⦃⇓? r => ⌜BackwardEquations n columns f y n 0 r⌝⦄ := by
   unfold backwardByProducts
-  mvcgen
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen
     invariants
-      | inv1 => ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y xs.prefix.length 0 r⌝
-      | inv2 pref t suff ht initial i hs =>
-        ⇓? ⟨xs, r⟩ => ⌜BackwardEquations n columns f y t xs.prefix.length r⌝
-    with
-      | vc1 =>
-        rename_i prefT t suffT ht initial i hinit prefJ j suffJ hj r hr s hs
-        have hj' := Flare.Matrix.Storage.range_current hj
-        have hh := backward_write n columns f y r t j s
-          (Flare.Matrix.Storage.range_current ht).2 hj'.2
-          (by simpa only [hj'.1] using hr) hs
-        simpa only [List.length_append, List.length_singleton, ← hj'.1] using hh
-      | vc3 =>
-        rename_i pref t suff ht r i hr
-        simpa only [(Flare.Matrix.Storage.range_current ht).1, List.length_nil] using hr
-      | vc4 =>
-        rename_i pref t suff ht initial i hinit r hr
-        have hr' : BackwardEquations n columns f y t columns r := by
-          simpa [Std.Legacy.Range.toList] using hr
-        refine ⟨hr'.1, ?_⟩
-        intro a c ha hc hac
-        apply hr'.2 a c ha hc
-        have ht' := (Flare.Matrix.Storage.range_current ht).1
-        simp only [List.length_append, List.length_singleton] at hac
-        omega
-              | vc6 => simp [BackwardEquations]
-      | vc7 =>
-        rename_i r hr
-        simpa [Std.Legacy.Range.toList] using hr
+      | inv1 => fun xs _ r => BackwardEquations n columns f y xs.length 0 r
+      | inv2 pref t suff ht initial hs =>
+        fun xs _ r => BackwardEquations n columns f y t xs.length r
+  all_goals simp_all only [SPred.down_pure_nil]
+  case vc1 => simp [BackwardEquations, r]
+  case vc2 =>
+    rename_i r hr
+    simpa [Std.Legacy.Range.size] using hr
+  case vc3 =>
+    rename_i pref t suff hlist current hcurrent
+    simpa only [(Flare.Matrix.Storage.forIn_range_current hlist).1, List.length_nil] using hcurrent
+  case vc4 =>
+    rename_i pref t suff hlist initial hinit current hcurrent
+    have hr' : BackwardEquations n columns f y t columns current := by
+      simpa [Std.Legacy.Range.size] using hcurrent
+    refine ⟨hr'.1, ?_⟩
+    intro a c ha hc hac
+    apply hr'.2 a c ha hc
+    have hstep := (Flare.Matrix.Storage.forIn_range_current hlist).1
+    simp only [List.length_append, List.length_singleton] at hac
+    omega
+  case vc5 => trivial
+  case vc6 =>
+    rename_i prefI t suffI hi initial hinit prefJ j suffJ hj current hcurrent hs
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
+    have hh := backward_write n columns f y current t j s
+      (Flare.Matrix.Storage.forIn_range_current hi).2 hj'.2
+      (by simpa only [hj'.1] using hcurrent) hs
+    simpa only [List.length_append, List.length_singleton, ← hj'.1] using hh
 
 /-- Stored backward entries are the actual native row-loop outputs reading
 later rows of the final result. Every array write preserves those dependencies. -/

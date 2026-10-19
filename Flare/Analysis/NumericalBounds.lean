@@ -1,8 +1,12 @@
-import Flare.Analysis.SchurComplement
-import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+module
+
+public import Flare.Analysis.SchurComplement
+public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 
 /-! Real conditioning facts used to connect native linear algebra to its input
 domain. These are numerical-analysis lemmas, not additional optimizer premises. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.NumericalBounds
 open Matrix

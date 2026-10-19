@@ -1,9 +1,13 @@
-import Mathlib.Algebra.Order.Archimedean.Basic
-import Mathlib.Algebra.Order.Archimedean.Real.Basic
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.NormNum
+module
+
+public import Mathlib.Algebra.Order.Archimedean.Basic
+public import Mathlib.Algebra.Order.Archimedean.Real.Basic
+public import Mathlib.Tactic.Linarith
+public import Mathlib.Tactic.NormNum
 
 /-! Dyadic scale selection and conversion of absolute rounding allowances. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.Dyadic
 

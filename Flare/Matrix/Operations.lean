@@ -1,4 +1,6 @@
-import Flare.Matrix.Dense
+module
+
+public import Flare.Matrix.Dense
 
 /-!
 # Binary64 dense and spectral operations
@@ -11,6 +13,8 @@ are visible below; proofs retain their explicit dimension and magnitude bounds.
 Shapes and domains are caller preconditions. Acceptance by checkPSD alone is
 not a certificate of positive semidefiniteness in exact real arithmetic.
 -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Operations
 

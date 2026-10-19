@@ -1,9 +1,13 @@
-import Flare.Binary64.Order
-import Flare.Binary64.Model.Rounding
+module
+
+public import Flare.Binary64.Order
+public import Flare.Binary64.Model.Rounding
 
 /-! Exact real interpretation of native multiplication by ±1 over the entire
 finite binary64 domain, including signed zeros, gradual underflow, and largest
 finite values. These are statements about Lean's logical native model. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.SignMultiplication
 

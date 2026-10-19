@@ -1,9 +1,13 @@
-import Flare.Matrix.JacobiOutput
-import Flare.Analysis.SpectralGap
+module
+
+public import Flare.Matrix.JacobiOutput
+public import Flare.Analysis.SpectralGap
 
 /-! Numerical bounds for the native symmetric pseudoinverse. These connect
 the actual cutoff, reciprocal and reconstruction schedule to the real spectral
 truncation lemmas, keeping each required conditioning premise explicit. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Pseudoinverse
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations
@@ -11,9 +15,10 @@ open Flare.Binary64.Arithmetic Flare.Binary64.Order
 open Flare.Matrix.JacobiOutput Flare.Analysis.SpectralPerturbation
 open scoped Matrix.Norms.L2Operator
 open Std.Do
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- The actual binary64 cutoff is close to its intended relative scale on
 the bounded, non-negligible spectral magnitudes in the stated numerical profile. -/
@@ -244,12 +249,6 @@ private theorem scale_update (n i j : Nat) (vectors reciprocals result : Array F
     simpa only [entry, Flare.Matrix.Dense.entry, Array.set!_eq_setIfInBounds,
       Array.getD_eq_getD_getElem?, Array.getElem?_setIfInBounds_ne hne] using hv
 
-@[spec]
-private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
-  unfold finite
-  mvcgen
-  simp_all
-
 private theorem scaleColumns_triple (n : Nat) (vectors reciprocals : Array Float)
     (hs : vectors.size = n * n) (hf : vectors.all Float.isFinite = true)
     (hproducts
@@ -257,47 +256,44 @@ private theorem scaleColumns_triple (n : Nat) (vectors reciprocals : Array Float
     : ⦃⌜True⌝
       ⦄ scaleColumns n vectors reciprocals
       ⦃⇓ r => ⌜ScaleState n vectors reciprocals n 0 r⌝⦄ := by
-  have range_length (n : Nat) : [:n].toList.length = n := by simp [Std.Legacy.Range.toList]
+  have range_length (n : Nat) : (ForIn.toList [:n]).length = n := by simp
   unfold scaleColumns
-  mvcgen [-Flare.Matrix.OperationStorage.finite_spec, finite_exact]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-OperationStorage.finite_wp_spec, OperationStorage.finite_wp_exact]
     invariants
-      | inv1 => ⇓ ⟨xs, r⟩ => ⌜ScaleState n vectors reciprocals xs.prefix.length 0 r⌝
+      | inv1 => fun xs _ r => ScaleState n vectors reciprocals xs.length 0 r
       | inv2 pref i suff hi result hs =>
-          ⇓ ⟨xs, r⟩ => ⌜ScaleState n vectors reciprocals i xs.prefix.length r⌝
-    with
-      | vc1 =>
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result hresult
-        exact hproducts i j (Flare.Matrix.Storage.range_current hi).2
-          (Flare.Matrix.Storage.range_current hj).2
-      | vc2 =>
-        subst_vars
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result hresult
-        have hi' := Flare.Matrix.Storage.range_current hi
-        have hj' := Flare.Matrix.Storage.range_current hj
-        simpa only [List.length_append, List.length_singleton, ← hj'.1]
-          using scale_update n i j vectors reciprocals result hi'.2 hj'.2
-            (by simpa only [hj'.1] using hresult) (hproducts i j hi'.2 hj'.2)
-      | vc3 =>
-        rename_i pref i suff hi result hresult
-        simpa only [(Flare.Matrix.Storage.range_current hi).1, List.length_nil] using hresult
-      | vc4 =>
-        rename_i pref i suff hi initial hinit result hresult
-        have hstate : ScaleState n vectors reciprocals i n result := by
-          simpa only [range_length] using hresult
-        refine ⟨hstate.1, hstate.2.1, ?_⟩
-        intro r c hr hc hrc
-        apply hstate.2.2 r c hr hc
-        have hi' := (Flare.Matrix.Storage.range_current hi).1
-        simp only [List.length_append, List.length_singleton] at hrc
-        omega
-      | vc6 =>
-        refine ⟨hs, hf, ?_⟩
-        intros
-        simp only [List.length_nil] at *
-        omega
-      | vc7 =>
-        rename_i result hresult
-        simpa only [range_length] using hresult
+          fun xs _ r => ScaleState n vectors reciprocals i xs.length r
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  case vc1 =>
+    refine ⟨hs, by simpa only [hs] using hf, ?_⟩
+    intros
+    simp only [List.length_nil] at *
+    omega
+  case vc3 =>
+    rename_i pref i suff current hlist hcurrent
+    simpa only [(Flare.Matrix.Storage.forIn_range_current hlist).1, List.length_nil] using hcurrent
+  case vc4 =>
+    rename_i pref i suff initial current hlist hinit hcurrent
+    have hstate : ScaleState n vectors reciprocals i n current := by
+      simpa only [← hlist, range_length] using hcurrent
+    refine ⟨hstate.1, hstate.2.1, ?_⟩
+    intro r c hr hc hrc
+    apply hstate.2.2 r c hr hc
+    have hi' := (Flare.Matrix.Storage.forIn_range_current hlist).1
+    simp only [List.length_append, List.length_singleton] at hrc
+    omega
+  case vc5 | vc7 =>
+    rename_i prefI i suffI initial prefJ j suffJ current heq hinit hi hcurrent
+    have hj : ForIn.toList [:n] = prefJ ++ j :: suffJ := hi.trans heq.symm
+    have hi' := Flare.Matrix.Storage.forIn_range_current hi
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
+    first
+    | exact hproducts i j hi'.2 hj'.2
+    | simpa only [List.length_append, List.length_singleton, ← hj'.1]
+        using scale_update n i j vectors reciprocals current hi'.2 hj'.2
+          (by simpa only [hj'.1] using hcurrent) (hproducts i j hi'.2 hj'.2)
 
 /-- The scaling loop succeeds on bounded vectors and reciprocals, with exact
 stored-product equations and one-rounding error bounds for every entry. -/

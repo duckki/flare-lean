@@ -1,10 +1,14 @@
-import Flare.Matrix.JacobiSpectral
-import Flare.Matrix.JacobiInitialization
-import Flare.Matrix.JacobiAccumulation
+module
+
+public import Flare.Matrix.JacobiSpectral
+public import Flare.Matrix.JacobiInitialization
+public import Flare.Matrix.JacobiAccumulation
 
 /-! Spectral enclosures for the native eigensolver's returned storage. These
 compose the stopped trajectory with final eigenvalue rescaling. Separate
 uniform bounds cover the pseudoinverse and covariance-diagnostic dimensions. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiOutput
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

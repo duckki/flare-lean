@@ -1,17 +1,23 @@
-import Flare.Matrix.Dense
-import Std.Tactic.Do
-import Mathlib.Tactic.SplitIfs
+module
+
+public import Flare.Matrix.Dense
+public import Std.Tactic.Do
+public import Mathlib.Tactic.SplitIfs
+public import Flare.Matrix.Specification
 
 /-! Representation invariants of the checked native matrix operations. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Storage
 
 open Std.Do Flare.Matrix.Dense
 
 -- The tactic produces ordinary kernel-checked proofs; no additional trust axiom.
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 @[simp] theorem zero_finite : (0.0 : Float).isFinite = true := by decide
 
@@ -39,36 +45,57 @@ theorem replicate_storage (n : Nat)
 
 @[spec]
 theorem finite_spec (x : Float) : ⦃⌜True⌝⦄ finite x ⦃⇓? y => ⌜y.isFinite = true⌝⦄ := by
-  mvcgen [finite]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [finite] with finish
+
+open scoped Std.WP in
+/-- Native `vcgen` form of the finiteness guarantee, allowing checked rejection. -/
+@[spec]
+theorem finite_wp_spec (x : Float)
+    : Std.WP.Triple (finite x) True (fun y => y.isFinite = true) (fun _ => True) :=
+  (Specification.except_iff _ _ _).mp (finite_spec x)
+
+open scoped Std.WP in
+/-- A finite input passes the check unchanged, with exceptional outcomes excluded. -/
+theorem finite_wp_exact (x : Float)
+    : Std.WP.Triple (finite x) (x.isFinite = true) (fun y => y = x) (fun _ => False) := by
+  vcgen [finite] with finish
 
 @[spec]
 theorem multiply_spec (rows inner columns : Nat) (a b : Array Float)
     : ⦃⌜True⌝
       ⦄ multiply rows inner columns a b
       ⦃⇓? result => ⌜result.size = rows * columns ∧ result.all Float.isFinite = true⌝⦄ := by
-  mvcgen [multiply] invariants
-  · ⇓? ⟨_, result⟩ => ⌜result.size = rows * columns ∧ result.all Float.isFinite = true⌝
-  · ⇓? ⟨_, result⟩ => ⌜result.size = rows * columns ∧ result.all Float.isFinite = true⌝
-  · ⇓? ⟨_, value⟩ => ⌜value.isFinite = true⌝
-  with
-  | vc5 => apply storage_set <;> assumption
-  | vc10 => exact replicate_storage _
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [multiply] invariants
+  · fun _ _ result => result.size = rows * columns ∧ result.all Float.isFinite = true
+  · fun _ _ result => result.size = rows * columns ∧ result.all Float.isFinite = true
+  · fun _ _ value => value.isFinite = true
+  all_goals simp only [SPred.down_pure_nil] at *
+  all_goals first
+  | (solve | exact zero_finite)
+  | (solve | apply storage_set <;> assumption)
+  | (solve | exact replicate_storage _)
+  | (solve | grind)
 
 @[spec]
 theorem solve_spec (n columns : Nat) (f : Factor) (b : Array Float)
     : ⦃⌜True⌝
       ⦄ solve n columns f b
       ⦃⇓? result => ⌜result.size = n * columns ∧ result.all Float.isFinite = true⌝⦄ := by
-  mvcgen [solve] invariants
-  · ⇓? _ => ⌜True⌝
-  · ⇓? _ => ⌜True⌝
-  · ⇓? _ => ⌜True⌝
-  · ⇓? ⟨_, result⟩ => ⌜result.size = n * columns ∧ result.all Float.isFinite = true⌝
-  · ⇓? ⟨_, result⟩ => ⌜result.size = n * columns ∧ result.all Float.isFinite = true⌝
-  · ⇓? ⟨_, value⟩ => ⌜value.isFinite = true⌝
-  with
-  | vc15 => apply storage_set <;> assumption
-  | vc21 => exact replicate_storage _
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [solve] invariants
+  · fun _ _ _ => True
+  · fun _ _ result => result.size = n * columns ∧ result.all Float.isFinite = true
+  · fun _ _ result => result.size = n * columns ∧ result.all Float.isFinite = true
+  · fun _ _ value => value.isFinite = true
+  · fun _ _ _ => True
+  · fun _ _ _ => True
+  all_goals simp only [SPred.down_pure_nil] at *
+  all_goals first
+  | (solve | apply storage_set <;> assumption)
+  | (solve | exact replicate_storage _)
+  | (solve | grind)
 
 @[spec]
 theorem solveSPD_spec (n columns : Nat) (a b : Array Float)
@@ -77,7 +104,9 @@ theorem solveSPD_spec (n columns : Nat) (a b : Array Float)
       ⦃⇓? result => ⌜result.size = n * columns ∧ result.all Float.isFinite = true⌝⦄ := by
   unfold solveSPD
   cases factor n a with
-  | error e => mvcgen
+  | error e =>
+      apply (Specification.except_iff _ _ _).mpr
+      vcgen with finish
   | ok f => exact solve_spec n columns f b
 
 theorem getD_finite (a : Array Float) (i : Nat) (ha : a.all Float.isFinite = true)
@@ -163,6 +192,13 @@ theorem range_current {n i : Nat} {pref suff : List Nat} (h : [:n].toList = pref
   have he' : i = pref.length := by simpa [hi] using he.symm
   exact ⟨he', he' ▸ hi⟩
 
+/-- Cursor facts for the container representation used by `vcgen`. -/
+theorem forIn_range_current {n i : Nat} {pref suff : List Nat}
+    (h : ForIn.toList [:n] = pref ++ i :: suff)
+    : i = pref.length ∧ i < n := by
+  apply range_current (n := n) (i := i) (pref := pref) (suff := suff)
+  simpa [Std.Legacy.Range.toList] using h
+
 theorem mirrorLower_spec (n : Nat) (a : Array Float)
     : Triple (m := Id) (mirrorLower n a) (⌜a.size = n * n ∧ a.all Float.isFinite = true⌝)
         (⇓ result
@@ -175,35 +211,14 @@ theorem mirrorLower_spec (n : Nat) (a : Array Float)
                   → c < n
                   → entry n result r c = if r < c then entry n a c r else entry n a r c
               ⌝) := by
-  -- leanfmt 0.4.1 mishandles the mvcgen alternatives below.
-  -- leanfmt: off next
-  mvcgen [mirrorLower, Id.run] invariants
-  | inv1 => ⇓ ⟨xs, result⟩ => ⌜MirrorState n a xs.prefix.length 0 result⌝
+  apply (Specification.id_iff _ _ _).mpr
+  unfold mirrorLower Id.run
+  vcgen invariants
+  | inv1 => fun pref _ result => MirrorState n a pref.length 0 result
   | inv2 ha pref i suff h result hs =>
-    ⇓ ⟨xs, result⟩ => ⌜MirrorState n a i xs.prefix.length result⌝
-  with
-  | vc1 =>
-    rename_i ha pref i suff hi initial hinit pref' j suff' hj result result' hs
-    have hi' := range_current hi
-    have hj' := range_current hj
-    simpa only [List.length_append, List.length_singleton, ← hj'.1] using
-      mirror_step n a result i j ha.2 hi'.2 hj'.2 (by simpa only [← hj'.1] using hs)
-  | vc2 =>
-    rename_i ha pref i suff hi result hs
-    simpa only [(range_current hi).1, List.length_nil] using hs
-  | vc3 =>
-    rename_i ha pref i suff hi initial hinit result hs
-    have hlen : [:i].toList.length = i := by simp [Std.Legacy.Range.toList]
-    simpa only [List.length_append, List.length_singleton, ← (range_current hi).1] using
-      mirror_row_complete n a result i (by simpa only [hlen] using hs)
-  | vc4 => exact mirror_start n a ‹_›
-  | vc5 =>
-    rename_i ha result hs
-    have hlen : [:n].toList.length = n := by simp [Std.Legacy.Range.toList]
-    rw [hlen] at hs
-    refine ⟨hs.1, hs.2.1, ?_⟩
-    intro r c hr hc
-    simpa only [hc, true_or, and_true] using hs.2.2 r c hr hc
+    fun pref' _ result => MirrorState n a i pref'.length result
+  all_goals first
+  | (solve | grind [MirrorState, mirror_start, mirror_step, mirror_row_complete, range_current])
 
 theorem finite_beq_self (x : Float) (hx : x.isFinite = true) : (x == x) = true := by
   change x.toModel.unpack.isFinite = true at hx
@@ -218,18 +233,16 @@ theorem finite_beq_self (x : Float) (hx : x.isFinite = true) : (x == x) = true :
 theorem symmetric_true (n : Nat) (a : Array Float)
     (h : ∀ i j, i < n → j < i → (entry n a i j == entry n a j i) = true)
     : Flare.Matrix.Dense.symmetric n a = true := by
-  apply Id.of_wp_run_eq (prog := Flare.Matrix.Dense.symmetric n a) rfl (fun b => b = true)
-  mvcgen [Flare.Matrix.Dense.symmetric, Id.run]
-    invariants
-      · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
-      · ⇓ ⟨_, result⟩ => ⌜result.1 = none⌝
-    with
-      | vc1 =>
-        rename_i pref i suff hi initial hinit pref' j suff' hj result hne hs
-        have he := h i j (range_current hi).2 (range_current hj).2
-        simp only [entry] at he
-        simp_all [bne]
-                       | vc4 | vc7 => simp_all
+  let prog : Id Bool := Flare.Matrix.Dense.symmetric n a
+  have htriple : Std.WP.Triple prog True
+      (fun b => b = true) Std.WP.EStackEnd.mk := by
+    simp only [entry] at h
+    unfold prog Flare.Matrix.Dense.symmetric Id.run
+    vcgen invariants
+    · fun _ _ result => result.1 = none
+    · fun _ _ result => result.1 = none
+    all_goals grind [range_current, bne]
+  exact htriple.le_wp True.intro
 
 theorem mirrorLower_properties (n : Nat) (a : Array Float)
     (ha : a.size = n * n ∧ a.all Float.isFinite = true)

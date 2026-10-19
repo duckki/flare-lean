@@ -1,7 +1,11 @@
-import Mathlib.Tactic
+module
+
+public import Mathlib.Tactic
 
 /-! Accumulation of certified local errors under a scalar step sensitivity.
 No implementation or trajectory property is inferred from the recurrence. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.ErrorRecurrence
 

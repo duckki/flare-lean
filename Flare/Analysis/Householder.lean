@@ -1,9 +1,13 @@
-import Mathlib.Tactic
+module
+
+public import Mathlib.Tactic
 
 /-! Exact normalized Householder action in matrix coordinates. Mathlib supplies
 the abstract reflection infrastructure; this explicit finite-sum formulation
 matches the reference used in native QR error analysis. The unit vector may be
 obtained by any construction. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.Householder
 

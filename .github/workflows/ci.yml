@@ -30,7 +30,7 @@ jobs:
           df -h .
           # Mathlib's cache reader skips imports between downstream modules;
           # select every library module, not just the public entry point.
-          lake exe cache get 'Flare.*' Tests/ProofAudit.lean Lint.lean
+          lake exe cache get 'Flare.*' Tests/ProofAudit.lean Tests/PublicAPI.lean Lint.lean
           df -h .
       - name: Check library and tooling
         run: make check

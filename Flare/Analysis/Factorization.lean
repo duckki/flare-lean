@@ -1,9 +1,13 @@
-import Flare.Analysis.NumericalBounds
-import Mathlib.LinearAlgebra.Matrix.Block
+module
+
+public import Flare.Analysis.NumericalBounds
+public import Mathlib.LinearAlgebra.Matrix.Block
 
 /-! Conditioning of a partially computed LDLᵀ factorization. The completed
 columns define a nearby symmetric matrix. Its Schur complement controls the next
 pivot without assuming that the native factorization succeeds. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.Factorization
 open Matrix

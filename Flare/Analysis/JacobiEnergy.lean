@@ -1,7 +1,11 @@
-import Flare.Analysis.Jacobi
+module
+
+public import Flare.Analysis.Jacobi
 
 /-! Matrix energy identities for the project Jacobi iteration. These proof-side
 sums connect entrywise native rotation facts to the convergence criterion. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.JacobiEnergy
 

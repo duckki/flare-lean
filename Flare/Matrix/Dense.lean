@@ -1,4 +1,6 @@
-import Flare.Matrix.Error
+module
+
+public import Flare.Matrix.Error
 
 /-!
 # Dense binary64 operations
@@ -7,6 +9,8 @@ Row-major arrays, separately rounded scalar operations, and LDLᵀ factorization
 and solves. Callers supply valid shapes. Numerical success and error guarantees
 are stated in the corresponding proof modules on their supported domains.
 -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Dense
 

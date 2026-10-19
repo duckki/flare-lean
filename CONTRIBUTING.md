@@ -21,6 +21,9 @@ Use content-specific module names and matching `Flare` namespaces. Shared type
 methods may use their type's namespace. Add each library module to `Flare.lean`;
 use direct module imports within the library. Keep one Lake package and one
 `lean_lib`. See [the architecture](docs/architecture.md) for import boundaries.
+Use `module`, `public import` for re-exports, and `@[expose] public section`
+for the existing public API and unfoldable definitions. Keep private helper
+specification rules local with `@[local spec]`.
 
 Potential [Mathlib contributions](docs/upstream/mathlib.md) are tracked
 separately from the library's source organization. Add another destination
@@ -55,7 +58,7 @@ Use the pinned toolchain and dependency manifest. On a fresh checkout, download
 the Mathlib cache for all library modules and the proof audit, then run the checks:
 
 ```sh
-MATHLIB_NO_CACHE_ON_UPDATE=1 lake exe cache get 'Flare.*' Tests/ProofAudit.lean Lint.lean
+MATHLIB_NO_CACHE_ON_UPDATE=1 lake exe cache get 'Flare.*' Tests/ProofAudit.lean Tests/PublicAPI.lean Lint.lean
 make check
 ```
 
@@ -85,11 +88,17 @@ existing Git reference, use `python3 scripts/fmt.py --base REF`, with `--check`
 for a check. The default checks the whole repository and needs no base branch.
 
 Keep formatting exceptions narrow and explain them in a source comment.
-The existing `mvcgen` exceptions use `-- leanfmt: off next`; these were
-introduced for v0.4.1 alternative formatting and token-preservation failures. They still
-undergo line-length checks and Lean elaboration. The formatting wrapper also
-restores a file and fails if the formatter changes its non-whitespace content;
-this guards against v0.4.1 dropping unparsed text after an indentation error.
+The formatting wrapper restores a file and fails if the formatter changes its
+non-whitespace content.
+
+### Program specifications
+
+Use `vcgen` for new verification-condition proofs. Lean 4.35 still marks this tactic
+experimental, so modules using it explicitly set `experimental.vcgen` to `true`.
+`Flare.Matrix.Specification` proves equivalences between the existing `Std.Do`
+specifications and `Std.WP`, including exceptional outcomes. Apply these bridges when
+updating an existing proof so its exported statement stays unchanged. Keep native
+specification rules for private helpers local with `@[local spec]`.
 
 ### Linters
 
@@ -103,11 +112,11 @@ this guards against v0.4.1 dropping unparsed text after an indentation error.
 - An incremental Lake build of `Flare` and `Lint.lean`, followed by
   `python3 scripts/check_layout.py` for layering.
 - Import coverage using Lean's dependency reader, rooted at `Flare.lean`,
-  `Tests/ProofAudit.lean`, and the lint executable. Nested and untracked Lean
-  files are included; orphan files fail the check.
+  `Tests/ProofAudit.lean`, `Tests/PublicAPI.lean`, and the lint executable. Nested
+  and untracked Lean files are included; orphan files fail the check.
 - Lean's normal and extra linters with warnings as errors, configured in
   `lakefile.toml` so they run during elaboration and reuse Lake's build cache.
-  `Tests/ProofAudit.lean` is elaborated once separately with the same options;
+  The proof audit and public-API client are elaborated separately with the same options;
   library files are not elaborated again after the build. Missing-documentation
   lint is disabled. Experimental Mathlib analyses enabled by `linter.all` are
   outside this check.

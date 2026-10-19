@@ -2,6 +2,7 @@ name = "flare"
 version = "0.1.0"
 defaultTargets = ["Flare"]
 lintDriver = "lint"
+requiresModuleSystem = true
 
 [leanOptions]
 autoImplicit = false

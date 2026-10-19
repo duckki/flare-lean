@@ -1,6 +1,8 @@
-import Flare.Analysis.SpectralGap
-import Flare.Analysis.LinearSolve
-import Flare.Analysis.Conditioning
+module
+
+public import Flare.Analysis.SpectralGap
+public import Flare.Analysis.LinearSolve
+public import Flare.Analysis.Conditioning
 
 /-!
 # Gram-matrix domination and residual transport
@@ -8,6 +10,8 @@ import Flare.Analysis.Conditioning
 Real-arithmetic estimates for PSD sums, inverse-weighted products, and projected
 solve residuals. Fixed numerical profiles remain explicit in the statements.
 -/
+
+@[expose] public section
 
 namespace Flare.Analysis.GramBounds
 open Matrix Flare.Analysis SpectralPerturbation Flare.Analysis.Conditioning

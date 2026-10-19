@@ -1,7 +1,11 @@
-import Flare.Analysis.LinearSolve
-import Flare.Analysis.SpectralPerturbation
+module
+
+public import Flare.Analysis.LinearSolve
+public import Flare.Analysis.SpectralPerturbation
 
 /-! Inverse operator-norm bounds from a positive-definite lower bound. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.Conditioning
 open Matrix Flare.Analysis

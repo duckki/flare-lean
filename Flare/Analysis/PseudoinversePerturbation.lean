@@ -1,9 +1,13 @@
-import Flare.Analysis.MoorePenrose
-import Flare.Analysis.SpectralPerturbation
+module
+
+public import Flare.Analysis.MoorePenrose
+public import Flare.Analysis.SpectralPerturbation
 
 /-! Perturbation identities for symmetric Moore–Penrose inverses. Singular
 matrices are handled through their orthogonal projections, without assuming
 ordinary invertibility. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.PseudoinversePerturbation
 open Matrix Flare.Analysis SpectralPerturbation

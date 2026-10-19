@@ -1,8 +1,12 @@
-import Flare.Matrix.Multiplication
+module
+
+public import Flare.Matrix.Multiplication
 
 /-! Finite execution and roundoff for the native matrix-formation helpers.
 Lower-triangle copying is exact storage manipulation; its error is measured
 against an explicitly symmetric real target. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.MatrixFormation
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

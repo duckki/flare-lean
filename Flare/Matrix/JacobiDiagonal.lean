@@ -1,9 +1,13 @@
-import Flare.Analysis.JacobiDiagonal
-import Flare.Matrix.JacobiIteration
-import Flare.Matrix.JacobiPrecision
+module
+
+public import Flare.Analysis.JacobiDiagonal
+public import Flare.Matrix.JacobiIteration
+public import Flare.Matrix.JacobiPrecision
 
 /-! Diagonal-rounding bounds for the native Jacobi pivot. These supply the
 local energy estimate used to control iteration-wide magnitudes. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiDiagonal
 

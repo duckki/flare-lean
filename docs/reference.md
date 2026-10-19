@@ -82,6 +82,9 @@ or separately described testing evidence.
 checks every public and private FLARE theorem for extra axioms, including any
 admitted proof or compiler-trust axiom. Only Lean's usual `propext`,
 `Classical.choice`, and `Quot.sound` are allowed.
+The audit explicitly loads private proof data, including supporting lemmas
+hidden by the module system. `Tests/PublicAPI.lean` separately checks the
+exported interface as seen by a module-system client.
 
 `scripts/check_layout.py` verifies the source import closure, ensures all library
 modules are exposed by `Flare.lean`, keeps Analysis independent of floating-point

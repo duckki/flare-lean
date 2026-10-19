@@ -16,7 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 LINE_WIDTH = 100
 FILE_LINE_LIMIT = 1500
-ENTRY_POINTS = {"Flare.lean", "Tests/ProofAudit.lean", "Lint.lean"}
+ENTRY_POINTS = {"Flare.lean", "Tests/ProofAudit.lean", "Tests/PublicAPI.lean", "Lint.lean"}
 
 
 def run(args, *, capture=False):
@@ -151,6 +151,8 @@ def check_proof_audit():
     # The audit is outside those targets, so elaborate it once with the same options.
     run(["lake", "env", "lean", "-D", "warningAsError=true", "-D",
          "linter.extra=true", "-D", "linter.missingDocs=false", "Tests/ProofAudit.lean"])
+    run(["lake", "env", "lean", "-D", "warningAsError=true", "-D",
+         "linter.extra=true", "-D", "linter.missingDocs=false", "Tests/PublicAPI.lean"])
 
 
 def main():

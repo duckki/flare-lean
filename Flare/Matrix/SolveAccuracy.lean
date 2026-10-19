@@ -1,12 +1,16 @@
-import Flare.Analysis.MatrixError
-import Flare.Analysis.Conditioning
-import Flare.Matrix.Substitution
-import Flare.Matrix.PositiveDefiniteFactorization
+module
+
+public import Flare.Analysis.MatrixError
+public import Flare.Analysis.Conditioning
+public import Flare.Matrix.Substitution
+public import Flare.Matrix.PositiveDefiniteFactorization
 
 /-! Compose the actual LDLᵀ factorization and substitution errors into a
 linear-system residual and a posteriori solution-error enclosure. All error
 enclosures are ghost real expressions; the numerical implementation carries no
 runtime certificates. A uniform gain-design budget requires further bounds. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.SolveAccuracy
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic

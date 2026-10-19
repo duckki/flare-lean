@@ -1,19 +1,24 @@
-import Flare.Binary64.Division
-import Flare.Matrix.Multiplication
+module
+
+public import Flare.Binary64.Division
+public import Flare.Matrix.Multiplication
 
 /-! Native triangular substitution used by the LDLᵀ solve. Proof-only loop
 extractions compose to the runtime schedule by proved monadic equalities. Bounds on supplied
 factors are local hypotheses, discharged from matrix input bounds in
 `PositiveDefiniteFactorization`. Solution accuracy is a separate obligation. -/
 
+@[expose] public section
+
 namespace Flare.Matrix.LinearSolve
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Binary64.Division
 open Flare.Matrix.Dense Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- Proof-side extraction of the native forward substitution pass. -/
 def forward (n columns : Nat) (f : Factor) (b : Array Float)
@@ -122,13 +127,8 @@ private def ForwardState (n columns : Nat) (B : Int) (i j : Nat) (r : Array Floa
 private def ForwardAccumulator (B : Int) (k : Nat) (s : Float) : Prop :=
   s.isFinite = true ∧ |value s| ≤ (2 : ℝ) ^ (B + 8 * ((k : Int) + 1))
 
-@[spec]
-private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
-  unfold finite
-  mvcgen; simp_all
-
-private lemma range_length (n : Nat) : [:n].toList.length = n := by
-  simp [Std.Legacy.Range.toList]
+private lemma range_length (n : Nat) : (ForIn.toList [:n]).length = n := by
+  simp
 
 private theorem forward_triple (n columns : Nat) (B : Int) (f : Factor) (b : Array Float)
     (hn : n ≤ 12) (hB : 0 ≤ B) (hB' : B ≤ 512)
@@ -150,62 +150,63 @@ private theorem forward_triple (n columns : Nat) (B : Int) (f : Factor) (b : Arr
     push_cast
     ring
   unfold forward
-  mvcgen [-Flare.Matrix.Storage.finite_spec, finite_exact]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-Flare.Matrix.Storage.finite_wp_spec, Flare.Matrix.Storage.finite_wp_exact]
     invariants
-      | inv1 => ⇓ ⟨xs, r⟩ => ⌜ForwardState n columns B xs.prefix.length 0 r⌝
+      | inv1 => fun xs _ r => ForwardState n columns B xs.length 0 r
       | inv2 pref i suff hi result hs =>
-        ⇓ ⟨xs, r⟩ => ⌜ForwardState n columns B i xs.prefix.length r⌝
+        fun xs _ r => ForwardState n columns B i xs.length r
       | inv3 pref i suff hi initial hs pref' j suff' hj result hs' =>
-        ⇓ ⟨xs, s⟩ => ⌜ForwardAccumulator B xs.prefix.length s⌝
-    with
-      | vc1 | vc2 | vc3 =>
-        subst_vars
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result start hresult prefK k suffK
-          hk s hs
-        have hk' := Flare.Matrix.Storage.range_current hk
-        have hh := step i j k result s (Flare.Matrix.Storage.range_current hi).2
-          (Flare.Matrix.Storage.range_current hj).2 hk'.2
-          (by simpa only [(Flare.Matrix.Storage.range_current hj).1] using hresult)
-          (by simpa only [hk'.1] using hs)
-        first
-        | exact hh.1
-        | exact hh.2.1
-        | simpa only [List.length_append, List.length_singleton, ← hk'.1] using hh.2.2
-      | vc4 =>
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result start hresult
-        refine ⟨Flare.Matrix.Storage.getD_finite _ _ hb, ?_⟩
-        have hh := hbb i j (Flare.Matrix.Storage.range_current hi).2
-          (Flare.Matrix.Storage.range_current hj).2
-        change |value (entry columns b i j)| ≤ (2 : ℝ)^(B + 8 * ((0 : Int) + 1))
-        exact hh.trans (zpow_le_zpow_right₀ (by norm_num) (by omega))
-      | vc5 =>
-        rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result start hresult s hs
-        have hj' := Flare.Matrix.Storage.range_current hj
-        have hs' : ForwardAccumulator B i s := by simpa only [range_length] using hs
-        have hh := stored_set n columns result _ (fun a b => a < i ∨ a = i ∧ b < j + 1) _ i j s
-          (Flare.Matrix.Storage.range_current hi).2 hj'.2 hresult hs'.1 hs'.2
-          (fun a b ha hb hnext => by omega)
-        simpa only [ForwardState, List.length_append, List.length_singleton, ← hj'.1] using hh
-      | vc7 =>
-        rename_i pref i suff hi r hr
-        simpa only [(Flare.Matrix.Storage.range_current hi).1, List.length_nil] using hr
-      | vc8 =>
-        rename_i pref i suff hi initial hinit r hr
-        have hr' : ForwardState n columns B i columns r := by simpa only [range_length] using hr
-        refine ⟨hr'.1, hr'.2.1, ?_⟩
-        intro a b ha hb hd
-        apply hr'.2.2 a b ha hb
-        have hi' := (Flare.Matrix.Storage.range_current hi).1
-        simp only [List.length_append, List.length_singleton] at hd
-        omega
-      | vc10 =>
-        refine ⟨(Flare.Matrix.Storage.replicate_storage _).1,
-          (Flare.Matrix.Storage.replicate_storage _).2, ?_⟩
-        intros
-        simp_all
-      | vc11 =>
-        rename_i r hr
-        simpa only [range_length] using hr
+        fun xs _ s => ForwardAccumulator B xs.length s
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  case vc7 | vc9 | vc11 =>
+    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj current hcurrent prefK k suffK
+      hk s hs
+    have hk' := Flare.Matrix.Storage.forIn_range_current hk
+    have hh := step i j k current s (Flare.Matrix.Storage.forIn_range_current hi).2
+      (Flare.Matrix.Storage.forIn_range_current hj).2 hk'.2
+      (by simpa only [(Flare.Matrix.Storage.forIn_range_current hj).1] using hcurrent)
+      (by simpa only [hk'.1] using hs)
+    first
+    | exact hh.1
+    | exact hh.2.1
+    | simpa only [List.length_append, List.length_singleton, ← hk'.1] using hh.2.2
+  case vc5 =>
+    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj current hcurrent
+    refine ⟨Flare.Matrix.Storage.getD_finite _ _ hb, ?_⟩
+    have hh := hbb i j (Flare.Matrix.Storage.forIn_range_current hi).2
+      (Flare.Matrix.Storage.forIn_range_current hj).2
+    change |value (entry columns b i j)| ≤ (2 : ℝ)^(B + 8 * ((0 : Int) + 1))
+    exact hh.trans (zpow_le_zpow_right₀ (by norm_num) (by omega))
+  case vc6 =>
+    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj current hcurrent s hs
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
+    have hs' : ForwardAccumulator B i s := by simpa only [range_length] using hs
+    have hh := stored_set n columns current _ (fun a b => a < i ∨ a = i ∧ b < j + 1) _ i j s
+      (Flare.Matrix.Storage.forIn_range_current hi).2 hj'.2 hcurrent hs'.1 hs'.2
+      (fun a b ha hb hnext => by omega)
+    simpa only [ForwardState, List.length_append, List.length_singleton, ← hj'.1] using hh
+  case vc3 =>
+    rename_i pref i suff hi r hr
+    simpa only [(Flare.Matrix.Storage.forIn_range_current hi).1, List.length_nil] using hr
+  case vc4 =>
+    rename_i pref i suff hi initial hinit r hr
+    have hr' : ForwardState n columns B i columns r := by simpa only [range_length] using hr
+    refine ⟨hr'.1, hr'.2.1, ?_⟩
+    intro a b ha hb hd
+    apply hr'.2.2 a b ha hb
+    have hi' := (Flare.Matrix.Storage.forIn_range_current hi).1
+    simp only [List.length_append, List.length_singleton] at hd
+    omega
+  case vc1 =>
+    refine ⟨(Flare.Matrix.Storage.replicate_storage _).1,
+      (Flare.Matrix.Storage.replicate_storage _).2, ?_⟩
+    intros
+    simp_all
+  case vc2 =>
+    rename_i r hr
+    simpa only [range_length] using hr
 
 /-- Back substitution subtracts at most twelve terms. This bound preserves
 finiteness while allowing the solved rows to be larger than the right-hand side. -/
@@ -269,10 +270,9 @@ private def BackwardAccumulator (B : Int) (step k : Nat) (s : Float) : Prop :=
   s.isFinite = true ∧ |value s| ≤ (1 + 130 * k) * (2 : ℝ) ^ (B + 100 + 11 * (step : Int))
 
 private lemma range_from_current {a n k : Nat} {pref suff : List Nat}
-    (h : [a:n].toList = pref ++ k :: suff)
+    (h : ForIn.toList [a:n] = pref ++ k :: suff)
     : k = a + pref.length ∧ k < n := by
-  have hlist : List.range' a (n - a) = pref ++ k :: suff := by
-    simpa [Std.Legacy.Range.toList] using h
+  have hlist : List.range' a (n - a) = pref ++ k :: suff := by simpa [Std.Legacy.Range.size] using h
   have hlen := congrArg List.length hlist
   simp only [List.length_range', List.length_append, List.length_cons] at hlen
   have he := congrArg (fun xs => xs[pref.length]?) hlist
@@ -319,74 +319,73 @@ private theorem backward_triple (n columns : Nat) (B : Int) (f : Factor) (y : Ar
       hs.2 (hlb _ _ hk hik) hxb
     exact ⟨hh.1, hh.2.1, hh.2.1, hh.2.2⟩
   unfold backward
-  mvcgen [-Flare.Matrix.Storage.finite_spec, finite_exact]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-Flare.Matrix.Storage.finite_wp_spec, Flare.Matrix.Storage.finite_wp_exact]
     invariants
-      | inv1 => ⇓ ⟨xs, r⟩ => ⌜BackwardState n columns B xs.prefix.length 0 r⌝
-      | inv2 pref t suff ht result i hs =>
-        ⇓ ⟨xs, r⟩ => ⌜BackwardState n columns B t xs.prefix.length r⌝
-      | inv3 pref t suff ht initial i hs pref' j suff' hj result hs' s heq =>
-        ⇓ ⟨xs, s⟩ => ⌜BackwardAccumulator B t xs.prefix.length s⌝
-    with
-      | vc1 | vc5 =>
-        subst_vars
-        rename_i prefT t suffT ht initial i hinit prefJ j suffJ hj r hr
-        have hh := start t j (Flare.Matrix.Storage.range_current ht).2
-          (Flare.Matrix.Storage.range_current hj).2
-        first | exact hh.1 | exact hh.2
-      | vc2 | vc3 | vc4 =>
-        subst_vars
-        rename_i prefT t suffT ht initial i hinit prefJ j suffJ hj result hresult prefK k suffK hk s
-          hs
-        have ht' := Flare.Matrix.Storage.range_current ht
-        have hk' := range_from_current hk
-        have hi : i = n - 1 - t := rfl
-        have hh := step t j k prefK.length result s ht'.2
-          (Flare.Matrix.Storage.range_current hj).2 hk'.2 (by omega) (by omega)
-          (by simpa only [(Flare.Matrix.Storage.range_current hj).1] using hresult) hs
-        first
-        | exact hh.1
-        | exact hh.2.1
-        | simpa only [List.length_append, List.length_singleton] using hh.2.2
-      | vc6 =>
-        subst_vars
-        rename_i prefT t suffT ht initial i hinit prefJ j suffJ hj result hresult s hs
-        have ht' := Flare.Matrix.Storage.range_current ht
-        have hj' := Flare.Matrix.Storage.range_current hj
-        have hi : i = n - 1 - t := rfl
-        have hlen : [i + 1:n].toList.length = n - (i + 1) := by simp [Std.Legacy.Range.toList]
-        have hsb : |value s| ≤ (2 : ℝ)^(B + 100 + 11 * ((n : Int) - i)) := by
-          have h := hs.2
-          rw [hlen] at h
-          have he : B + 100 + 11 * ((n : Int) - i) = (B + 100 + 11 * (t : Int)) + 11 := by omega
-          rw [he, zpow_shift]
-          norm_num only [zpow_ofNat, pow_succ, pow_zero]
-          have hk : ((n - (i + 1) : Nat) : ℝ) ≤ 11 := by exact_mod_cast (by omega : n - (i + 1) ≤
-            11)
-          nlinarith [zpow_pos (by norm_num : (0 : ℝ) < 2) (B + 100 + 11 * (t : Int))]
-        have hh := stored_set n columns result _
-          (fun a b => n - 1 - a < t ∨ n - 1 - a = t ∧ b < j + 1) _ i j s
-          (by omega) hj'.2 hresult hs.1 hsb (fun a b ha hb hd => by omega)
-        simpa only [BackwardState, List.length_append, List.length_singleton, ← hj'.1] using hh
-      | vc8 =>
-        rename_i pref t suff ht r i hr
-        simpa only [(Flare.Matrix.Storage.range_current ht).1, List.length_nil] using hr
-      | vc9 =>
-        rename_i pref t suff ht initial i hinit r hr
-        have hr' : BackwardState n columns B t columns r := by simpa only [range_length] using hr
-        refine ⟨hr'.1, hr'.2.1, ?_⟩
-        intro a b ha hb hd
-        apply hr'.2.2 a b ha hb
-        have ht' := (Flare.Matrix.Storage.range_current ht).1
-        simp only [List.length_append, List.length_singleton] at hd
-        omega
-      | vc11 =>
-        refine ⟨(Flare.Matrix.Storage.replicate_storage _).1,
-          (Flare.Matrix.Storage.replicate_storage _).2, ?_⟩
-        intros
-        simp_all
-      | vc12 =>
-        rename_i r hr
-        simpa only [range_length] using hr
+      | inv1 => fun xs _ r => BackwardState n columns B xs.length 0 r
+      | inv2 pref t suff ht result hs =>
+        fun xs _ r => BackwardState n columns B t xs.length r
+      | inv3 pref t suff ht initial hs pref' j suff' hj result hs' heq =>
+        fun xs _ s => BackwardAccumulator B t xs.length s
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  case vc5 | vc7 =>
+    rename_i prefT t suffT ht initial hinit prefJ j suffJ hj r hr
+    have hh := start t j (Flare.Matrix.Storage.forIn_range_current ht).2
+      (Flare.Matrix.Storage.forIn_range_current hj).2
+    first | exact hh.1 | exact hh.2
+  case vc9 | vc11 | vc13 =>
+    rename_i prefT t suffT ht initial hinit prefJ j suffJ hj current hcurrent prefK k suffK hk s
+      hs
+    have ht' := Flare.Matrix.Storage.forIn_range_current ht
+    have hk' := range_from_current hk
+    have hi : i = n - 1 - t := rfl
+    have hh := step t j k prefK.length current s ht'.2
+      (Flare.Matrix.Storage.forIn_range_current hj).2 hk'.2 (by omega) (by omega)
+      (by simpa only [(Flare.Matrix.Storage.forIn_range_current hj).1] using hcurrent) hs
+    first
+    | exact hh.1
+    | exact hh.2.1
+    | simpa only [List.length_append, List.length_singleton] using hh.2.2
+  case vc8 =>
+    rename_i prefT t suffT ht initial hinit prefJ j suffJ hj current hcurrent s hs
+    have ht' := Flare.Matrix.Storage.forIn_range_current ht
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
+    have hi : i = n - 1 - t := rfl
+    have hlen : (ForIn.toList [i + 1:n]).length = n - (i + 1) := by simp [Std.Legacy.Range.size]
+    have hsb : |value s| ≤ (2 : ℝ)^(B + 100 + 11 * ((n : Int) - i)) := by
+      have h := hs.2
+      rw [hlen] at h
+      have he : B + 100 + 11 * ((n : Int) - i) = (B + 100 + 11 * (t : Int)) + 11 := by omega
+      rw [he, zpow_shift]
+      norm_num only [zpow_ofNat, pow_succ, pow_zero]
+      have hk : ((n - (i + 1) : Nat) : ℝ) ≤ 11 := by exact_mod_cast (by omega : n - (i + 1) ≤
+        11)
+      nlinarith [zpow_pos (by norm_num : (0 : ℝ) < 2) (B + 100 + 11 * (t : Int))]
+    have hh := stored_set n columns current _
+      (fun a b => n - 1 - a < t ∨ n - 1 - a = t ∧ b < j + 1) _ i j s
+      (by omega) hj'.2 hcurrent hs.1 hsb (fun a b ha hb hd => by omega)
+    simpa only [BackwardState, List.length_append, List.length_singleton, ← hj'.1] using hh
+  case vc3 =>
+    rename_i pref t suff ht r hr
+    simpa only [(Flare.Matrix.Storage.forIn_range_current ht).1, List.length_nil] using hr
+  case vc4 =>
+    rename_i pref t suff ht initial hinit r hr
+    have hr' : BackwardState n columns B t columns r := by simpa only [range_length] using hr
+    refine ⟨hr'.1, hr'.2.1, ?_⟩
+    intro a b ha hb hd
+    apply hr'.2.2 a b ha hb
+    have ht' := (Flare.Matrix.Storage.forIn_range_current ht).1
+    simp only [List.length_append, List.length_singleton] at hd
+    omega
+  case vc1 =>
+    refine ⟨(Flare.Matrix.Storage.replicate_storage _).1,
+      (Flare.Matrix.Storage.replicate_storage _).2, ?_⟩
+    intros
+    simp_all
+  case vc2 =>
+    rename_i r hr
+    simpa only [range_length] using hr
 
 /-- The complete native forward pass succeeds under the substitution input
 bounds. This exposes its intermediate result for compositional error analysis. -/

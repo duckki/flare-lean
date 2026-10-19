@@ -1,8 +1,12 @@
-import Flare.Matrix.JacobiSpectral
+module
+
+public import Flare.Matrix.JacobiSpectral
 
 /-! Sparse spectral-error accumulation along the actual native trajectory.
 Stopped transitions contribute no pivot error. All state and energy premises
 are derived from the same native scan and rotation used by the runtime. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiAccumulation
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

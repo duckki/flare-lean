@@ -1,9 +1,13 @@
-import Flare.Matrix.Factorization
-import Flare.Analysis.Factorization
-import Flare.Matrix.LinearSolve
+module
+
+public import Flare.Matrix.Factorization
+public import Flare.Analysis.Factorization
+public import Flare.Matrix.LinearSolve
 
 /-! Native LDLᵀ prefix invariants and the connection between its local column
 theorem and the conditioning of the original input matrix. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.PositiveDefiniteFactorization
 open Flare.Matrix.Value Flare.Binary64.Value
@@ -11,9 +15,10 @@ open Flare.Matrix.Dense
 open Flare.Binary64.Arithmetic
 open Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 private noncomputable def gram (n k : Nat) (f : Factor) : _root_.Matrix (Fin n) (Fin n) ℝ :=
   fun i j =>
@@ -279,7 +284,7 @@ private lemma prefix_start (n : Nat) (a : Array Float)
     split <;> rfl
   all_goals intros; simp_all
 
-@[spec]
+@[local spec]
 private theorem column_spec (n k : Nat) (a : Array Float) (f : Factor)
     (hn : n ≤ 12) (haf : a.all Float.isFinite = true)
     (hA : (matrix n n a - (3 / 16 : ℝ) • 1).PosSemidef)
@@ -298,23 +303,25 @@ private theorem factor_triple (n : Nat) (a : Array Float)
     (ha : ∀ i j : Fin n, |value (entry n a i.val j.val)| ≤ 1024)
     : ⦃⌜True⌝⦄ Factorization.factorByResidual n a ⦃⇓ f => ⌜Prefix n n a f⌝⦄ := by
   unfold Factorization.factorByResidual
-  mvcgen [column_spec]
+  apply (Specification.except_iff _ _ _).mpr
+  have columnSpec (k : Nat) (f : Factor) :=
+    (Specification.except_iff _ _ _).mp (column_spec n k a f hn haf hA ha)
+  vcgen [columnSpec]
     invariants
-      | inv1 => ⇓ ⟨xs, lower, diagonal⟩ => ⌜Prefix n xs.prefix.length a ⟨lower, diagonal⟩⌝
-    with
-      | vc5 =>
-        rename_i pref k suff hlist pair hp
-        have hk := Flare.Matrix.Storage.range_current hlist
-        exact ⟨hk.2, by simpa only [hk.1] using hp⟩
-      | vc6 =>
-        rename_i pref k suff hlist pair hp f hf
-        have hk := Flare.Matrix.Storage.range_current hlist
-        simpa only [List.length_append, List.length_singleton, ← hk.1] using hf
-                                                                                | vc7 => exact
-                                                                                  prefix_start n a
-      | vc8 =>
-        rename_i pair h
-        simpa [Std.Legacy.Range.toList] using h
+      | inv1 => fun xs _ ⟨lower, diagonal⟩ => Prefix n xs.length a ⟨lower, diagonal⟩
+  all_goals simp_all only [SPred.down_pure_nil]
+  case vc1 => exact prefix_start n a
+  case vc2 =>
+    rename_i lower' diagonal' h
+    simpa using h
+  case vc3 =>
+    rename_i pref k suff lower' diagonal' hlist hp
+    have hk := Flare.Matrix.Storage.forIn_range_current hlist
+    exact ⟨hk.2, by simpa only [hk.1] using hp⟩
+  case vc5 =>
+    rename_i pref k suff lower' diagonal' hlist hp hf
+    have hk := Flare.Matrix.Storage.forIn_range_current hlist
+    simpa only [List.length_append, List.length_singleton, ← hk.1] using hf
 
 /-- Native LDLᵀ factorization succeeds on a bounded, uniformly positive-definite
 matrix. Every pivot, factor entry, arithmetic result and storage write is

@@ -1,66 +1,69 @@
-import Flare.Analysis.Conditioning
-import Flare.Analysis.Dyadic
-import Flare.Analysis.EntrywiseError
-import Flare.Analysis.ErrorRecurrence
-import Flare.Analysis.Factorization
-import Flare.Analysis.GramBounds
-import Flare.Analysis.Householder
-import Flare.Analysis.Jacobi
-import Flare.Analysis.JacobiDiagonal
-import Flare.Analysis.JacobiEnergy
-import Flare.Analysis.JacobiNorms
-import Flare.Analysis.JacobiRotation
-import Flare.Analysis.LinearSolve
-import Flare.Analysis.MatrixError
-import Flare.Analysis.MoorePenrose
-import Flare.Analysis.NumericalBounds
-import Flare.Analysis.PseudoinversePerturbation
-import Flare.Analysis.SchurComplement
-import Flare.Analysis.SpectralGap
-import Flare.Analysis.SpectralPerturbation
-import Flare.Binary64.Arithmetic
-import Flare.Binary64.Congruence
-import Flare.Binary64.Division
-import Flare.Binary64.Model.Arithmetic
-import Flare.Binary64.Model.Conversion
-import Flare.Binary64.Model.NaturalConversion
-import Flare.Binary64.Model.Rounding
-import Flare.Binary64.Model.Value
-import Flare.Binary64.Nearest
-import Flare.Binary64.Order
-import Flare.Binary64.Rounding
-import Flare.Binary64.SignMultiplication
-import Flare.Binary64.Sqrt
-import Flare.Binary64.Value
-import Flare.Binary64.Zero
-import Flare.Matrix.Dense
-import Flare.Matrix.Error
-import Flare.Matrix.Factorization
-import Flare.Matrix.GramFormation
-import Flare.Matrix.GramSymmetry
-import Flare.Matrix.Jacobi
-import Flare.Matrix.JacobiAccumulation
-import Flare.Matrix.JacobiBounds
-import Flare.Matrix.JacobiConvergence
-import Flare.Matrix.JacobiDiagonal
-import Flare.Matrix.JacobiEnergy
-import Flare.Matrix.JacobiInitialization
-import Flare.Matrix.JacobiIteration
-import Flare.Matrix.JacobiOutput
-import Flare.Matrix.JacobiPrecision
-import Flare.Matrix.JacobiSpectral
-import Flare.Matrix.LinearSolve
-import Flare.Matrix.MatrixFormation
-import Flare.Matrix.Multiplication
-import Flare.Matrix.OperationStorage
-import Flare.Matrix.Operations
-import Flare.Matrix.PSDCheck
-import Flare.Matrix.PositiveDefiniteFactorization
-import Flare.Matrix.Pseudoinverse
-import Flare.Matrix.SolveAccuracy
-import Flare.Matrix.Spectrum
-import Flare.Matrix.Storage
-import Flare.Matrix.Substitution
-import Flare.Matrix.Value
+module
+
+public import Flare.Analysis.Conditioning
+public import Flare.Analysis.Dyadic
+public import Flare.Analysis.EntrywiseError
+public import Flare.Analysis.ErrorRecurrence
+public import Flare.Analysis.Factorization
+public import Flare.Analysis.GramBounds
+public import Flare.Analysis.Householder
+public import Flare.Analysis.Jacobi
+public import Flare.Analysis.JacobiDiagonal
+public import Flare.Analysis.JacobiEnergy
+public import Flare.Analysis.JacobiNorms
+public import Flare.Analysis.JacobiRotation
+public import Flare.Analysis.LinearSolve
+public import Flare.Analysis.MatrixError
+public import Flare.Analysis.MoorePenrose
+public import Flare.Analysis.NumericalBounds
+public import Flare.Analysis.PseudoinversePerturbation
+public import Flare.Analysis.SchurComplement
+public import Flare.Analysis.SpectralGap
+public import Flare.Analysis.SpectralPerturbation
+public import Flare.Binary64.Arithmetic
+public import Flare.Binary64.Congruence
+public import Flare.Binary64.Division
+public import Flare.Binary64.Model.Arithmetic
+public import Flare.Binary64.Model.Conversion
+public import Flare.Binary64.Model.NaturalConversion
+public import Flare.Binary64.Model.Rounding
+public import Flare.Binary64.Model.Value
+public import Flare.Binary64.Nearest
+public import Flare.Binary64.Order
+public import Flare.Binary64.Rounding
+public import Flare.Binary64.SignMultiplication
+public import Flare.Binary64.Sqrt
+public import Flare.Binary64.Value
+public import Flare.Binary64.Zero
+public import Flare.Matrix.Dense
+public import Flare.Matrix.Error
+public import Flare.Matrix.Factorization
+public import Flare.Matrix.GramFormation
+public import Flare.Matrix.GramSymmetry
+public import Flare.Matrix.Jacobi
+public import Flare.Matrix.JacobiAccumulation
+public import Flare.Matrix.JacobiBounds
+public import Flare.Matrix.JacobiConvergence
+public import Flare.Matrix.JacobiDiagonal
+public import Flare.Matrix.JacobiEnergy
+public import Flare.Matrix.JacobiInitialization
+public import Flare.Matrix.JacobiIteration
+public import Flare.Matrix.JacobiOutput
+public import Flare.Matrix.JacobiPrecision
+public import Flare.Matrix.JacobiSpectral
+public import Flare.Matrix.LinearSolve
+public import Flare.Matrix.MatrixFormation
+public import Flare.Matrix.Multiplication
+public import Flare.Matrix.OperationStorage
+public import Flare.Matrix.Operations
+public import Flare.Matrix.PSDCheck
+public import Flare.Matrix.PositiveDefiniteFactorization
+public import Flare.Matrix.Pseudoinverse
+public import Flare.Matrix.SolveAccuracy
+public import Flare.Matrix.Spectrum
+public import Flare.Matrix.Specification
+public import Flare.Matrix.Storage
+public import Flare.Matrix.Substitution
+public import Flare.Matrix.Value
 
 /-! FLARE: floating-point arithmetic, rounding, and error bounds. -/

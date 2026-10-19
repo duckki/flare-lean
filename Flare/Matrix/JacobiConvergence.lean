@@ -1,8 +1,12 @@
-import Flare.Matrix.JacobiBounds
+module
+
+public import Flare.Matrix.JacobiBounds
 
 /-! A proof-side native trajectory for the bounded Jacobi loop. Its transition
 uses the actual pivot scan and rotation; total fallbacks are shown unreachable
 under the energy invariant. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiConvergence
 
@@ -12,9 +16,10 @@ open Flare.Binary64.Arithmetic Flare.Binary64.Order
 open Flare.Analysis.JacobiEnergy
 open Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- Total proof-side projection of the native scan. -/
 def selectedPivot (n : Nat) (a : Array Float) : Pivot :=
@@ -253,7 +258,7 @@ theorem trajectory_stops (n : Nat) (a v : Array Float) (hn : 2 ≤ n) (hn' : n �
   exact hrun k hk
     ((le_iff _ _ hscan.2.1 (by decide)).mpr (hsmall.trans Jacobi.stopping_threshold_bounds.2))
 
-@[spec]
+@[local spec]
 private theorem largestPivot_spec (n : Nat) (a : Array Float)
     : ⦃⌜a.all Float.isFinite = true⌝
       ⦄ largestPivot n a
@@ -263,7 +268,7 @@ private theorem largestPivot_spec (n : Nat) (a : Array Float)
   simp only [he, selectedPivot]
   rfl
 
-@[spec]
+@[local spec]
 private theorem finish_spec (n : Nat) (magnitude : Float) (a v : Array Float)
     : ⦃
         ⌜
@@ -281,7 +286,7 @@ private theorem finish_spec (n : Nat) (magnitude : Float) (a v : Array Float)
   simp only [he]
   exact ⟨hstored, rfl⟩
 
-@[spec]
+@[local spec]
 private theorem rotate_spec (n : Nat) (a v : Array Float) (p q : Nat)
     : ⦃
         ⌜
@@ -328,108 +333,101 @@ private theorem iterations_triple (n : Nat) (magnitude : Float) (a v : Array Flo
               → post result)
     : ⦃⌜True⌝⦄ iterations n magnitude a v ⦃⇓ result => ⌜post result⌝⦄ := by
   have active (pref : List Nat) (cur : Nat) (suff : List Nat)
-      (hcur : [:32 * n * n + 1].toList = pref ++ cur :: suff)
+      (hcur : ForIn.toList [:32 * n * n + 1] = pref ++ cur :: suff)
       (b : Option Spectrum × Array Float × Array Float) (hb : LoopInvariant n a v stop pref.length
         post b) :
       State n pref.length b.2.1 b.2.2 ∧ b.2.1 = (trajectory n a v pref.length).1 ∧
         b.2.2 = (trajectory n a v pref.length).2 ∧ pref.length ≤ stop := by
-    have hc := Flare.Matrix.Storage.range_current hcur
+    have hc := Flare.Matrix.Storage.forIn_range_current hcur
     have hpref : pref.length < 32 * n * n + 1 := by omega
     rw [LoopInvariant, ite_eq_left hpref] at hb
     refine ⟨?_, hb.2⟩
     rw [hb.2.1, hb.2.2.1]
     exact trajectory_state n a v hn hstate pref.length (by omega)
   unfold iterations
-  -- Specialize the unused monad/universe parameters in Lean's Except spec.
-  have throwSpec {α : Type} (e : Flare.Matrix.Error) (Q : PostCond α (.except Flare.Matrix.Error
-    .pure)) :
-      Triple (ps := .except Flare.Matrix.Error .pure) (MonadExceptOf.throw e : Except
-        Flare.Matrix.Error α) (spred(Q.2.1 e)) Q :=
-    Spec.throw_Except.{0, 0, 0} (m := Id) (ps := .pure)
-  mvcgen [-Spec.throw_Except, throwSpec]
+  have pivotSpec (xs : Array Float) :=
+    (Specification.except_iff _ _ _).mp (largestPivot_spec n xs)
+  have finishSpec (xs vs : Array Float) :=
+    (Specification.except_iff _ _ _).mp (finish_spec n magnitude xs vs)
+  have rotateSpec (xs vs : Array Float) (p q : Nat) :=
+    (Specification.except_iff _ _ _).mp (rotate_spec n xs vs p q)
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [pivotSpec, finishSpec, rotateSpec]
     invariants
-      | inv1 => ⇓ ⟨xs, state⟩ => ⌜LoopInvariant n a v stop xs.prefix.length post state⌝
-    with
-      | vc1 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv
-        exact (active pref cur suff hcur b hinv).1.matrix_finite
-      | vc2 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv pivot htest hpivot
-        have hactive := active pref cur suff hcur b hinv
-        have he := state_energy_bound n pref.length currentA currentV hn (by omega) hactive.1
-        exact ⟨
-          hm,
-          hmb,
-          hactive.1.matrix_finite,
-          he.1,
-          hactive.1.vectors_size,
-          hactive.1.vectors_finite
-        ⟩
-      | vc3 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv pivot htest hpivot result hstored
-        have hactive := active pref cur suff hcur b hinv
-        have hAeq : currentA = (trajectory n a v pref.length).1 := hactive.2.1
-        have hVeq : currentV = (trajectory n a v pref.length).2 := hactive.2.2.1
-        have hstopped : (selectedPivot n (trajectory n a v pref.length).1).magnitude ≤ (1.0e-14 :
-          Float) := by
-          rw [hpivot, hAeq] at htest
-          exact htest
-        have hfinished := hstored.2
-        change finish n magnitude currentA currentV = .ok result at hfinished
-        rw [hAeq, hVeq] at hfinished
-        have hresult := hpost pref.length hactive.2.2.2 hstopped result hfinished hstored.1
-        simpa [LoopInvariant, Std.Legacy.Range.toList] using hresult
-      | vc4 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv pivot htest jp hcap hpivot
-        have hactive := active pref cur suff hcur b hinv
-        have hc := Flare.Matrix.Storage.range_current hcur
-        have he : cur = 32 * n * n := by simpa using hcap
-        have hlen := hactive.2.2.2
-        exact False.elim (by omega)
-      | vc5 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv pivot htest jp hcap hpivot
-        have hactive := active pref cur suff hcur b hinv
-        have hlen := hactive.2.2.2
-        refine ⟨hn, pref.length, by omega, hactive.1, ?_, ?_, ?_⟩
-        · exact congrArg Pivot.row hpivot
-        · exact congrArg Pivot.column hpivot
-        · simpa only [hpivot] using htest
-      | vc6 =>
-        rename_i pref cur suff hcur b pair currentA currentV hinv pivot htest jp hcap hpivot result
-          hresult
-        have hactive := active pref cur suff hcur b hinv
-        have hlen := hactive.2.2.2
-        have hlt : pref.length < stop := by
-          by_contra hnot
-          have heq : pref.length = stop := by omega
-          have hpa : currentA = (trajectory n a v stop).1 := by simpa only [heq] using hactive.2.1
-          apply htest
-          rw [hpivot, hpa]
-          exact hstopAt
-        have hnext : (pref ++ [cur]).length < 32 * n * n + 1 := by
-          simp only [List.length_append, List.length_singleton]; omega
-        rw [LoopInvariant, ite_eq_left hnext]
-        refine ⟨rfl, ?_, ?_, by simp only [List.length_append, List.length_singleton]; omega⟩
-        · change result.1 = _
-          rw [hresult]
-          change (advance n b.2.1 b.2.2).1 = _
-          rw [hactive.2.1, hactive.2.2.1]
-          simp only [List.length_append, List.length_singleton, trajectory]
-        · change result.2 = _
-          rw [hresult]
-          change (advance n b.2.1 b.2.2).2 = _
-          rw [hactive.2.1, hactive.2.2.1]
-          simp only [List.length_append, List.length_singleton, trajectory] | vc7
-                                                                              => simp [
-                                                                                    LoopInvariant,
-                                                                                    trajectory
-                                                                                  ]
-      | vc8 =>
-        rename_i result output houtput hinv
-        simpa [LoopInvariant, Std.Legacy.Range.toList, houtput] using hinv
-      | vc9 =>
-        rename_i result houtput hinv
-        simp [LoopInvariant, Std.Legacy.Range.toList, houtput] at hinv
+      | inv1 => fun xs _ state => LoopInvariant n a v stop xs.length post state
+  all_goals simp only [SPred.down_pure_nil] at *
+  case vc1 => simp [LoopInvariant, trajectory]
+  case vc2 =>
+    rename_i htrue output currentA currentV hinv pair result houtput
+    simpa [LoopInvariant, houtput] using hinv
+  case vc3 =>
+    rename_i htrue output currentA currentV hinv pair houtput
+    simp [LoopInvariant, houtput] at hinv
+  case vc4 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair
+    exact (active pref cur suff hcur (output, currentA, currentV) hinv).1.matrix_finite
+  case vc5 | vc7 | vc11 => assumption
+  case vc6 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair hpivot htest
+    have hactive := active pref cur suff hcur (output, currentA, currentV) hinv
+    have he := state_energy_bound n pref.length currentA currentV hn (by omega) hactive.1
+    exact ⟨hm, hmb, hactive.1.matrix_finite, he.1,
+      hactive.1.vectors_size, hactive.1.vectors_finite⟩
+  case vc8 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair hpivot htest result hstored
+    have hactive := active pref cur suff hcur (output, currentA, currentV) hinv
+    have hAeq : currentA = (trajectory n a v pref.length).1 := hactive.2.1
+    have hVeq : currentV = (trajectory n a v pref.length).2 := hactive.2.2.1
+    have hstopped : (selectedPivot n (trajectory n a v pref.length).1).magnitude ≤
+        (1.0e-14 : Float) := by
+      rw [hpivot, hAeq] at htest
+      exact htest
+    have hfinished := hstored.2
+    change finish n magnitude currentA currentV = .ok result at hfinished
+    rw [hAeq, hVeq] at hfinished
+    have hresult := hpost pref.length hactive.2.2.2 hstopped result hfinished hstored.1
+    simpa [LoopInvariant] using hresult
+  case vc9 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair hpivot htest jp hcap
+    have hactive := active pref cur suff hcur (output, currentA, currentV) hinv
+    have hc := Flare.Matrix.Storage.forIn_range_current hcur
+    have he : cur = 32 * n * n := by simpa using hcap
+    have hlen := hactive.2.2.2
+    exact False.elim (by omega)
+  case vc10 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair hpivot htest jp hcap
+    have hactive := active pref cur suff hcur (output, currentA, currentV) hinv
+    have hlen := hactive.2.2.2
+    refine ⟨hn, pref.length, by omega, hactive.1, ?_, ?_, ?_⟩
+    · exact congrArg Pivot.row hpivot
+    · exact congrArg Pivot.column hpivot
+    · simpa only [hpivot] using htest
+  case vc12 =>
+    rename_i htrue pref cur suff hcur output currentA currentV hinv pair hpivot htest jp hcap
+      nextA nextV hresult
+    have hactive := active pref cur suff hcur (output, currentA, currentV) hinv
+    have hlen := hactive.2.2.2
+    have hAeq : currentA = (trajectory n a v pref.length).1 := hactive.2.1
+    have hVeq : currentV = (trajectory n a v pref.length).2 := hactive.2.2.1
+    have hlt : pref.length < stop := by
+      by_contra hnot
+      have heq : pref.length = stop := by omega
+      have hpa : currentA = (trajectory n a v stop).1 := by simpa only [heq] using hactive.2.1
+      apply htest
+      rw [hpivot, hpa]
+      exact hstopAt
+    have hnext : (pref ++ [cur]).length < 32 * n * n + 1 := by
+      simp only [List.length_append, List.length_singleton]; omega
+    rw [LoopInvariant, ite_eq_left hnext]
+    refine ⟨rfl, ?_, ?_, by simp only [List.length_append, List.length_singleton]; omega⟩
+    · change (nextA, nextV).1 = _
+      rw [hresult]
+      rw [hAeq, hVeq]
+      simp only [List.length_append, List.length_singleton, trajectory]
+    · change (nextA, nextV).2 = _
+      rw [hresult]
+      rw [hAeq, hVeq]
+      simp only [List.length_append, List.length_singleton, trajectory]
 
 private theorem stopping_index (n : Nat) (a v : Array Float)
     (hn : 1 ≤ n) (hn' : n ≤ 18)

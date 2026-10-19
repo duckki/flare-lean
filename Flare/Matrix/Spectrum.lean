@@ -1,10 +1,14 @@
-import Flare.Binary64.Division
-import Flare.Binary64.Order
-import Flare.Matrix.Multiplication
+module
+
+public import Flare.Binary64.Division
+public import Flare.Binary64.Order
+public import Flare.Matrix.Multiplication
 
 /-! Native eigensolver normalization. The maximum-magnitude scan is exact, and
 every division in the initial scaling succeeds with an explicit error bound.
 Jacobi iteration and spectral accuracy require additional proofs. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Spectrum
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

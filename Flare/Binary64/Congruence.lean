@@ -1,8 +1,12 @@
-import Flare.Binary64.Order
+module
+
+public import Flare.Binary64.Order
 
 /-! Equal finite real values have the same unpacked binary64 representation,
 apart from signed zero. This proves exact numerical congruences used to preserve
 symmetry during native normalization, without asserting signed-zero bit equality. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Congruence
 

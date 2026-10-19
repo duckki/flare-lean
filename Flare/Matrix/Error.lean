@@ -1,6 +1,10 @@
-import Init.Data.Float.Float
+module
+
+public import Init.Data.Float.Float
 
 /-! Error results for dense and spectral numerical operations. -/
+
+@[expose] public section
 
 namespace Flare.Matrix
 

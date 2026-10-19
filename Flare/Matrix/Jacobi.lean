@@ -1,11 +1,15 @@
-import Flare.Matrix.Spectrum
-import Flare.Binary64.Sqrt
-import Flare.Analysis.Jacobi
+module
+
+public import Flare.Matrix.Spectrum
+public import Flare.Binary64.Sqrt
+public import Flare.Analysis.Jacobi
 
 /-! Error bounds for the actual scalar expressions in the native Jacobi
 iteration. These lemmas cover both the matrix-entry and eigenvector updates.
 JacobiIteration connects them to the native loops; the Jacobi convergence and
 spectral bounds support the pseudoinverse proof. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Jacobi
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic

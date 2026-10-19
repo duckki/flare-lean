@@ -1,20 +1,25 @@
-import Flare.Binary64.Zero
-import Flare.Matrix.OperationStorage
-import Flare.Analysis.JacobiNorms
+module
+
+public import Flare.Binary64.Zero
+public import Flare.Matrix.OperationStorage
+public import Flare.Analysis.JacobiNorms
 
 /-! Native dense multiplication: finite execution and forward error relative to
 the exact real product of the supplied binary64 arrays. These lemmas analyze the
 actual ascending, separately rounded multiply/add loop in Dense.
 -/
 
+@[expose] public section
+
 namespace Flare.Matrix.Multiplication
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Std.Do Flare.Matrix.Dense
 open scoped Matrix.Norms.L2Operator
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- Lift elementwise successful evaluation to an actual array map. -/
 lemma mapM_eq_ok_map {α β ε : Type} (a : Array α) (f : α → Except ε β)
@@ -281,11 +286,6 @@ private lemma product_row (rows inner columns : Nat) (a b result : Array Float)
   intro r c hr hc hrc
   exact hs.2.2 r c hr hc (by omega)
 
-@[spec]
-private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
-  unfold finite
-  mvcgen; simp_all
-
 private theorem multiply_triple_of_step (rows inner columns : Nat) (a b : Array Float)
     (δ : Nat → Nat → ℝ)
     (step
@@ -301,47 +301,44 @@ private theorem multiply_triple_of_step (rows inner columns : Nat) (a b : Array 
     : ⦃⌜True⌝
       ⦄ Flare.Matrix.Dense.multiply rows inner columns a b
       ⦃⇓ r => ⌜ProductState rows inner columns a b δ rows 0 r⌝⦄ := by
-  have range_length (n : Nat) : [:n].toList.length = n := by simp [Std.Legacy.Range.toList]
+  have range_length (n : Nat) : (ForIn.toList [:n]).length = n := by simp
   unfold Flare.Matrix.Dense.multiply
-  -- leanfmt 0.4.1 cannot preserve the grouped mvcgen alternatives below.
-  -- leanfmt: off next
-  mvcgen [-Flare.Matrix.Storage.finite_spec, finite_exact] invariants
-  | inv1 => ⇓ ⟨xs, r⟩ => ⌜ProductState rows inner columns a b δ xs.prefix.length 0 r⌝
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-Flare.Matrix.Storage.finite_wp_spec, Flare.Matrix.Storage.finite_wp_exact] invariants
+  | inv1 => fun pref _ r => ProductState rows inner columns a b δ pref.length 0 r
   | inv2 pref i suff hi result hs =>
-    ⇓ ⟨xs, r⟩ => ⌜ProductState rows inner columns a b δ i xs.prefix.length r⌝
+    fun pref' _ r => ProductState rows inner columns a b δ i pref'.length r
   | inv3 pref i suff hi initial hs pref' j suff' hj result hs' =>
-    ⇓ ⟨xs, s⟩ => ⌜DotState inner columns a b i j (δ i j) xs.prefix.length s⌝
-  with
-  | vc1 | vc2 | vc3 =>
-    subst_vars
+    fun pref'' _ s => DotState inner columns a b i j (δ i j) pref''.length s
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  all_goals first
+  | (solve |
     rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result hresult prefK k suffK hk s hs
-    have hk' := Flare.Matrix.Storage.range_current hk
-    have hh := step i j k s (Flare.Matrix.Storage.range_current hi).2
-      (Flare.Matrix.Storage.range_current hj).2 hk'.2 (by simpa only [hk'.1] using hs)
+    have hk' := Flare.Matrix.Storage.forIn_range_current hk
+    have hh := step i j k s (Flare.Matrix.Storage.forIn_range_current hi).2
+      (Flare.Matrix.Storage.forIn_range_current hj).2 hk'.2 (by simpa only [hk'.1] using hs)
     first
     | exact hh.1
     | exact hh.2.1
-    | simpa only [List.length_append, List.length_singleton, ← hk'.1] using hh.2.2
-  | vc4 => exact dot_start ..
-  | vc5 =>
-    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj result hresult s hs
-    have hj' := Flare.Matrix.Storage.range_current hj
+    | simpa only [List.length_append, List.length_singleton, ← hk'.1] using hh.2.2)
+  | (solve | exact dot_start ..)
+  | (solve |
+    rename_i prefI i suffI hi initial hinit prefJ j suffJ hj current hcurrent s hs
+    have hj' := Flare.Matrix.Storage.forIn_range_current hj
     simpa only [List.length_append, List.length_singleton, ← hj'.1] using
-      product_update rows inner columns a b result δ i j s
-        (Flare.Matrix.Storage.range_current hi).2 hj'.2
-        (by simpa only [hj'.1] using hresult) (by simpa only [range_length] using hs)
-  | vc7 =>
+      product_update rows inner columns a b current δ i j s
+        (Flare.Matrix.Storage.forIn_range_current hi).2 hj'.2
+        (by simpa only [hj'.1] using hcurrent) (by simpa only [range_length] using hs))
+  | (solve |
     rename_i pref i suff hi result hs
-    simpa only [(Flare.Matrix.Storage.range_current hi).1, List.length_nil] using hs
-  | vc8 =>
+    simpa only [(Flare.Matrix.Storage.forIn_range_current hi).1, List.length_nil] using hs)
+  | (solve |
     rename_i pref i suff hi initial hinit result hs
-    simpa only [List.length_append, List.length_singleton, ← (Flare.Matrix.Storage.range_current
-      hi).1] using
-      product_row rows inner columns a b result δ i (by simpa only [range_length] using hs)
-  | vc10 => exact product_start ..
-  | vc11 =>
-    rename_i result hs
-    simpa only [range_length] using hs
+    have hi' := (Flare.Matrix.Storage.forIn_range_current hi).1
+    simpa only [List.length_append, List.length_singleton, ← hi'] using
+      product_row rows inner columns a b result δ i (by simpa only [range_length] using hs))
+  | (solve | exact product_start ..)
 
 private theorem multiply_triple (rows inner columns : Nat) (a b : Array Float) (E : Int)
     (hE : 0 ≤ E) (hE' : E ≤ 1016) (hinner : inner ≤ 32)

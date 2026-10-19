@@ -1,5 +1,7 @@
-import Mathlib.Tactic.Ring
-import Flare.Binary64.Model.Arithmetic
+module
+
+public import Mathlib.Tactic.Ring
+public import Flare.Binary64.Model.Arithmetic
 
 /-! Exact bounded natural-number conversion and division. These bounds follow
 from Float.Model.divCore and its rounding implementation. Model operations
@@ -7,6 +9,8 @@ remain outside the native numerical kernels. -/
 
 open Float.Model Float.Model.UnpackedFloat
 open Flare.Binary64.Model.Rounding
+@[expose] public section
+
 namespace Flare.Binary64.Model.NaturalConversion
 open Flare.Binary64.Model.Arithmetic Flare.Binary64.Model.Conversion
 

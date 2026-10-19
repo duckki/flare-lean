@@ -1,16 +1,21 @@
-import Flare.Matrix.Operations
-import Flare.Matrix.Value
-import Flare.Matrix.Storage
+module
+
+public import Flare.Matrix.Operations
+public import Flare.Matrix.Value
+public import Flare.Matrix.Storage
 
 /-! Shape and finiteness of successful elementwise numerical operations. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.OperationStorage
 
 open Std.Do Flare.Matrix.Value Flare.Matrix.Operations
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 private theorem bind_ok {α β : Type} (x : Except Flare.Matrix.Error α)
     (f : α → Except Flare.Matrix.Error β) (b : β)
@@ -31,7 +36,21 @@ private theorem adapt_ok {α : Type} (p : Except Flare.Matrix.DenseError α) (r 
 
 @[spec]
 theorem finite_spec (x : Float) : ⦃⌜True⌝⦄ finite x ⦃⇓? y => ⌜y.isFinite = true⌝⦄ := by
-  mvcgen [finite]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [finite] with finish
+
+open scoped Std.WP in
+/-- `vcgen` form of the checked scalar operation's success guarantee. -/
+@[spec]
+theorem finite_wp_spec (x : Float)
+    : Std.WP.Triple (finite x) True (fun y => y.isFinite = true) (fun _ => True) :=
+  (Specification.except_iff _ _ _).mp (finite_spec x)
+
+open scoped Std.WP in
+/-- A finite operand passes the check unchanged. -/
+theorem finite_wp_exact (x : Float)
+    : Std.WP.Triple (finite x) (x.isFinite = true) (fun y => y = x) (fun _ => False) := by
+  vcgen [finite] with finish
 
 private theorem push_storage (a : Array Float) (x : Float) (n : Nat)
     (ha : a.size = n ∧ a.all Float.isFinite = true) (hx : x.isFinite = true)
@@ -46,31 +65,37 @@ theorem combine_spec (a b : Array Float) (s : Float)
     : ⦃⌜True⌝
       ⦄ combine a b s
       ⦃⇓? r => ⌜r.size = a.size ∧ r.all Float.isFinite = true⌝⦄ := by
-  -- leanfmt 0.4.1 misindents the mvcgen alternatives below.
-  -- leanfmt: off next
-  mvcgen [combine, Array.mapM_eq_foldlM] invariants
-  · ⇓? ⟨xs, r⟩ => ⌜r.size = xs.prefix.length ∧ r.all Float.isFinite = true⌝
-  with
-  | vc1 =>
-    intros
-    simpa only [List.length_append, List.length_singleton] using push_storage _ _ _ ‹_› ‹_›
-  | vc4 => exact ⟨rfl, by simp⟩
-  | vc5 => simpa only [Array.length_toList, Array.size_range] using And.intro
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [combine, Array.mapM_eq_foldlM] invariants
+  · fun pref _ r => r.size = pref.length ∧ r.all Float.isFinite = true
+  all_goals simp_all only [SPred.down_pure_nil, Array.length_toList, Array.size_range]
+  all_goals first
+  | (solve | trivial)
+  | (solve |
+    simpa only [List.length_append, List.length_singleton] using push_storage _ _ _ ‹_› ‹_›)
+  | (solve |
+    rename_i r hr
+    refine ⟨True.intro, ?_⟩
+    simpa only [← hr.1] using hr.2)
+  | (solve | exact ⟨rfl, by simp⟩)
 
 @[spec]
 theorem scale_spec (a : Array Float) (s : Float)
     : ⦃⌜True⌝
       ⦄ scale a s
       ⦃⇓? r => ⌜r.size = a.size ∧ r.all Float.isFinite = true⌝⦄ := by
-  -- leanfmt 0.4.1 misindents the mvcgen alternatives below.
-  -- leanfmt: off next
-  mvcgen [scale, Array.mapM_eq_foldlM] invariants
-  · ⇓? ⟨xs, r⟩ => ⌜r.size = xs.prefix.length ∧ r.all Float.isFinite = true⌝
-  with
-  | vc1 =>
-    intros
-    simpa only [List.length_append, List.length_singleton] using push_storage _ _ _ ‹_› ‹_›
-  | vc3 => exact ⟨rfl, by simp⟩
-  | vc4 => simpa only [Array.length_toList] using And.intro
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [scale, Array.mapM_eq_foldlM] invariants
+  · fun pref _ r => r.size = pref.length ∧ r.all Float.isFinite = true
+  all_goals simp_all only [SPred.down_pure_nil, Array.length_toList]
+  all_goals first
+  | (solve | trivial)
+  | (solve |
+    simpa only [List.length_append, List.length_singleton] using push_storage _ _ _ ‹_› ‹_›)
+  | (solve |
+    rename_i r hr
+    refine ⟨True.intro, ?_⟩
+    simpa only [← hr.1] using hr.2)
+  | (solve | exact ⟨rfl, by simp⟩)
 
 end Flare.Matrix.OperationStorage

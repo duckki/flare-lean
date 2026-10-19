@@ -1,9 +1,13 @@
-import Flare.Analysis.SpectralPerturbation
-import Flare.Analysis.JacobiEnergy
+module
+
+public import Flare.Analysis.SpectralPerturbation
+public import Flare.Analysis.JacobiEnergy
 
 /-! Euclidean operator-norm bounds for the sparse errors of a Jacobi rotation.
 These proof-side estimates preserve the affected-column structure instead of
 charging a dense entrywise bound for every matrix entry. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.JacobiNorms
 open Matrix JacobiEnergy SpectralPerturbation

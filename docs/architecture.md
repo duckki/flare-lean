@@ -87,6 +87,24 @@ library modules and is used by clients and the proof audit. Internal modules
 must not import this public entry point. There are no per-directory import
 aggregators.
 
+Every library file uses Lean's `module` system. `public import` preserves the
+existing re-exports, and `@[expose] public section` preserves the public names
+and definition bodies that clients can unfold. Private helpers stay private;
+specification rules for private helpers use `@[local spec]` so their attributes
+do not leak into importing modules. A public theorem's statement may only refer
+to public declarations.
+
+`Tests/PublicAPI.lean` checks that a module-system client can import `Flare`,
+access representative results, and unfold exported definitions. The proof audit
+uses `import all` for every library module to load private proof data. The layout
+check enforces complete audit coverage, and the audit rejects an empty private audit.
+
+Matrix loop proofs use Lean 4.35's `vcgen` with explicit invariants. The
+`Specification` module proves exact bridges from existing `Std.Do` contracts to
+`Std.WP`, preserving both successful and exceptional postconditions. This lets
+proof implementations migrate while existing theorem statements remain usable.
+The tactic's experimental flag is enabled only in modules that use it.
+
 Within `Matrix`, the runtime consists of `Error`, `Dense`, and `Operations`.
 These modules may import one another and `Init`/`Std`; they must stay independent
 of Mathlib, ghost values, and reasoning modules. `Value`, `Storage`, and

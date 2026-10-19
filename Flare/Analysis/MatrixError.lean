@@ -1,9 +1,13 @@
-import Flare.Analysis.JacobiNorms
-import Flare.Analysis.LinearSolve
+module
+
+public import Flare.Analysis.JacobiNorms
+public import Flare.Analysis.LinearSolve
 
 /-! Frobenius estimates for rectangular numerical residuals. These proof-side
 norms preserve column information when a residual is projected through a matrix;
 they do not impose a maximum-entry estimate on every column. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.MatrixError
 open Matrix

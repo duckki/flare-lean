@@ -1,21 +1,26 @@
-import Flare.Binary64.Nearest
-import Flare.Binary64.Division
-import Flare.Binary64.Order
-import Flare.Matrix.Multiplication
-import Flare.Analysis.NumericalBounds
+module
+
+public import Flare.Binary64.Nearest
+public import Flare.Binary64.Division
+public import Flare.Binary64.Order
+public import Flare.Matrix.Multiplication
+public import Flare.Analysis.NumericalBounds
 
 /-! Rounded sums used by the native LDLᵀ factorization. Each term executes two
 multiplications followed by subtraction, matching the factorization kernel.
 Residual and column execution have local error/success theorems.
 `PositiveDefiniteFactorization` supplies the outer induction from input bounds. -/
 
+@[expose] public section
+
 namespace Flare.Matrix.Factorization
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic
 open Flare.Matrix.Dense Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 private lemma power_sub (E k : Int) : (2 : ℝ) ^ (E - k) = (2 : ℝ) ^ E / (2 : ℝ) ^ k :=
   zpow_sub₀ (by norm_num) _ _
@@ -432,11 +437,6 @@ private lemma gramPrefix_bound (n k : Nat) (lower diagonal : Array Float)
           (Finset.sum_le_sum fun t ht => hterm t (Finset.mem_range.mp ht)))
     _ = _ := by simp; ring
 
-@[spec]
-private theorem finite_exact (x : Float) : ⦃⌜x.isFinite = true⌝⦄ finite x ⦃⇓ y => ⌜y = x⌝⦄ := by
-  unfold finite
-  mvcgen; simp_all
-
 private theorem gramResidual_triple_of_step (n upto : Nat) (lower diagonal : Array Float)
     (initial : Float) (i j : Nat) (budget : Nat → ℝ)
     (hinit : initial.isFinite = true) (hzero : 0 ≤ budget 0)
@@ -457,33 +457,34 @@ private theorem gramResidual_triple_of_step (n upto : Nat) (lower diagonal : Arr
       ⦄ gramResidual n upto lower diagonal initial i j
       ⦃⇓ s => ⌜ResidualState n lower diagonal initial i j budget upto s⌝⦄ := by
   unfold gramResidual
-  mvcgen [-Flare.Matrix.Storage.finite_spec, finite_exact]
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [-Flare.Matrix.Storage.finite_wp_spec, Flare.Matrix.Storage.finite_wp_exact]
     invariants
-      | inv1 => ⇓ ⟨xs, s⟩ => ⌜ResidualState n lower diagonal initial i j budget xs.prefix.length s⌝
-    with
-      | vc1 | vc2 | vc3 | vc4 =>
-        subst_vars
-        rename_i pref k suff hlist s hs
-        have hk' := Flare.Matrix.Storage.range_current hlist
-        have hh := step k s hk'.2 (by simpa only [hk'.1] using hs)
-        first
-        | exact hh.1
-        | exact hh.2.1
-        | exact hh.2.2.1
-        | refine ⟨hh.2.2.1, ?_⟩
-          have he : gramPrefix n (k + 1) lower diagonal initial i j =
-              gramPrefix n k lower diagonal initial i j -
-                value (entry n lower i k) * value (diagonal.getD k 0.0) * value (entry n lower j k)
-                  := by
-            simp only [gramPrefix, Finset.sum_range_succ]
-            ring
-          simpa only [List.length_append, List.length_singleton, ← hk'.1, he] using hh.2.2.2
-      | vc5 =>
-        exact ⟨hinit, by simpa [gramPrefix] using hzero⟩
-      | vc6 =>
-        rename_i s hs
-        simpa only [Std.Legacy.Range.toList, Nat.sub_zero, Nat.add_zero,
-          Nat.div_one, List.length_range', Nat.add_sub_cancel] using hs
+      | inv1 => fun xs _ s => ResidualState n lower diagonal initial i j budget xs.length s
+  all_goals simp_all only [SPred.down_pure_nil]
+  all_goals subst_vars
+  all_goals first
+  | (solve |
+    rename_i pref k suff hlist s hs
+    have hk' := Flare.Matrix.Storage.forIn_range_current hlist
+    have hh := step k s hk'.2 (by simpa only [hk'.1] using hs)
+    first
+    | exact hh.1
+    | exact hh.2.1
+    | exact hh.2.2.1
+    | refine ⟨hh.2.2.1, ?_⟩
+      have he : gramPrefix n (k + 1) lower diagonal initial i j =
+          gramPrefix n k lower diagonal initial i j -
+            value (entry n lower i k) * value (diagonal.getD k 0.0) * value (entry n lower j k)
+              := by
+        simp only [gramPrefix, Finset.sum_range_succ]
+        ring
+      simpa only [List.length_append, List.length_singleton, ← hk'.1, he] using hh.2.2.2)
+  | (solve |
+    exact ⟨hinit, by simpa [gramPrefix] using hzero⟩)
+  | (solve |
+    rename_i s hs
+    simpa using hs)
 
 private theorem gramResidual_triple (n upto : Nat) (lower diagonal : Array Float)
     (initial : Float) (i j : Nat) (L D : Int)

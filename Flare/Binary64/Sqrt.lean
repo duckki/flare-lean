@@ -1,12 +1,16 @@
-import Flare.Binary64.Arithmetic
-import Flare.Binary64.Rounding
-import Mathlib.Analysis.Real.Sqrt
-import Mathlib.Data.Nat.Sqrt
+module
+
+public import Flare.Binary64.Arithmetic
+public import Flare.Binary64.Rounding
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Data.Nat.Sqrt
 
 /-! Accuracy of the actual binary64 square-root model used by Jacobi.
 The proof follows `sqrtCore`'s integer square root and `roundWithAccuracy`.
 It includes subnormal inputs; a positive binary64 square root is normal.
 -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Sqrt
 open Float.Model Float.Model.UnpackedFloat

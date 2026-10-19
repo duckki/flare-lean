@@ -1,8 +1,12 @@
-import Flare.Binary64.Congruence
-import Flare.Binary64.Nearest
+module
+
+public import Flare.Binary64.Congruence
+public import Flare.Binary64.Nearest
 
 /-! Exact zero behavior of native binary64 operations. These lemmas preserve
 real zero without requiring the two signed-zero encodings to be identical. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Zero
 open Float.Model Float.Model.UnpackedFloat

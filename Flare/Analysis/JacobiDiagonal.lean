@@ -1,7 +1,11 @@
-import Flare.Analysis.Jacobi
+module
+
+public import Flare.Analysis.Jacobi
 
 /-! Perturbation identities used to bound the diagonal part of a native Jacobi
 rotation. All arithmetic here is ghost real arithmetic for numerical analysis. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.JacobiDiagonal
 

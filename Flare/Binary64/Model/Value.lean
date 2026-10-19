@@ -1,5 +1,7 @@
-import Mathlib.Basic.Real.Basic
-import Init.Data.Float.Model.Float
+module
+
+public import Mathlib.Basic.Real.Basic
+public import Init.Data.Float.Model.Float
 
 /-!
 # Exact rational and real meanings of binary64 model values
@@ -8,6 +10,8 @@ Interpret Lean's unpacked constructors at the pinned toolchain version. Rational
 arithmetic is proof support and does not occur in the native numerical kernels.
 Both signed zeros have numeric value zero; NaNs and infinities have no value.
 -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Model.Value
 

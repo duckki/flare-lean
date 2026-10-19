@@ -1,7 +1,11 @@
-import Flare.Binary64.Value
-import Mathlib.Data.Matrix.Basic
+module
+
+public import Flare.Binary64.Value
+public import Mathlib.Data.Matrix.Basic
 
 /-! Mathematical interpretation of row-major binary64 arrays. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.Value
 open Flare.Binary64.Value

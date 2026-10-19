@@ -1,9 +1,13 @@
-import Flare.Analysis.NumericalBounds
-import Mathlib.Analysis.Real.Sqrt
+module
+
+public import Flare.Analysis.NumericalBounds
+public import Mathlib.Analysis.Real.Sqrt
 
 /-! Exact identities for Jacobi plane rotations. These real-arithmetic identities
 provide the reference for separately rounded native rotation operations;
 spectral accuracy requires the corresponding floating-point bounds. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.Jacobi
 

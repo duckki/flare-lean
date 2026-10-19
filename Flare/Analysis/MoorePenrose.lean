@@ -1,8 +1,12 @@
-import Mathlib.Analysis.Matrix.PosDef
-import Mathlib.Algebra.Order.Star.Real
+module
+
+public import Mathlib.Analysis.Matrix.PosDef
+public import Mathlib.Algebra.Order.Star.Real
 
 /-! Exact pseudoinverses for symmetric, possibly singular real matrices.
 The spectral construction supplies mathematical witnesses. -/
+
+@[expose] public section
 
 namespace Flare.Analysis
 

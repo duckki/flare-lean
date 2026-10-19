@@ -1,11 +1,15 @@
-import Flare.Analysis.JacobiNorms
-import Flare.Analysis.NumericalBounds
-import Flare.Analysis.MoorePenrose
-import Flare.Analysis.PseudoinversePerturbation
+module
+
+public import Flare.Analysis.JacobiNorms
+public import Flare.Analysis.NumericalBounds
+public import Flare.Analysis.MoorePenrose
+public import Flare.Analysis.PseudoinversePerturbation
 
 /-! Consequences of a positive spectral gap. A polynomial matrix inequality
 gives rank-separation facts without assuming that a numerical eigensolver
 or cutoff has selected the correct rank. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.SpectralGap
 open Matrix SpectralPerturbation JacobiNorms

@@ -1,9 +1,13 @@
-import Flare.Analysis.Factorization
-import Mathlib.Analysis.InnerProductSpace.PiL2
+module
+
+public import Flare.Analysis.Factorization
+public import Mathlib.Analysis.InnerProductSpace.PiL2
 
 /-! Conditioned linear-solve estimates from componentwise residual bounds.
 These lemmas absorb dependence on the computed solution's magnitude; they do
 not assume an accurate numerical solver. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.LinearSolve
 open Matrix

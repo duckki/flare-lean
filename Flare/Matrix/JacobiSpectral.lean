@@ -1,13 +1,17 @@
-import Flare.Analysis.SpectralPerturbation
-import Flare.Analysis.JacobiNorms
-import Flare.Matrix.JacobiIteration
-import Flare.Matrix.JacobiPrecision
-import Flare.Matrix.JacobiDiagonal
-import Flare.Matrix.JacobiConvergence
+module
+
+public import Flare.Analysis.SpectralPerturbation
+public import Flare.Analysis.JacobiNorms
+public import Flare.Matrix.JacobiIteration
+public import Flare.Matrix.JacobiPrecision
+public import Flare.Matrix.JacobiDiagonal
+public import Flare.Matrix.JacobiConvergence
 
 /-! Spectral error bookkeeping for the actual Jacobi rotation. The exact
 comparison uses the real normalization of the computed tangent, so its plane
 matrix is orthogonal even though the native cosine and sine are rounded. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiSpectral
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

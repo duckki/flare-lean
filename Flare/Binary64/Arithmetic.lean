@@ -1,6 +1,8 @@
-import Flare.Binary64.Value
-import Flare.Binary64.Model.Arithmetic
-import Flare.Analysis.Dyadic
+module
+
+public import Flare.Binary64.Value
+public import Flare.Binary64.Model.Arithmetic
+public import Flare.Analysis.Dyadic
 
 /-!
 # Native binary64 arithmetic bounds
@@ -10,6 +12,8 @@ model semantics. All arithmetic bounds follow from Lean's Float.Model operations
 -/
 
 open Flare.Analysis.Dyadic
+
+@[expose] public section
 
 namespace Flare.Binary64.Arithmetic
 open Flare.Binary64.Value Flare.Analysis.Dyadic

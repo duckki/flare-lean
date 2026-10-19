@@ -1,8 +1,12 @@
-import Flare.Matrix.JacobiConvergence
-import Flare.Binary64.Congruence
+module
+
+public import Flare.Matrix.JacobiConvergence
+public import Flare.Binary64.Congruence
 
 /-! Establish the native Jacobi invariant from the actual normalization and
 identity construction, then compose the bounded-loop success theorem. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiInitialization
 

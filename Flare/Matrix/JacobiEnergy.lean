@@ -1,9 +1,13 @@
-import Flare.Analysis.JacobiEnergy
-import Flare.Matrix.JacobiIteration
-import Flare.Matrix.JacobiDiagonal
+module
+
+public import Flare.Analysis.JacobiEnergy
+public import Flare.Matrix.JacobiIteration
+public import Flare.Matrix.JacobiDiagonal
 
 /-! Native Jacobi energy bounds obtained from the actual scan and rotation
 equations. Local entry bounds remain explicit iteration-invariant obligations. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiEnergy
 

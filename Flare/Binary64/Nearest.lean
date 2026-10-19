@@ -1,9 +1,13 @@
-import Flare.Binary64.Rounding
-import Flare.Binary64.Division
+module
+
+public import Flare.Binary64.Rounding
+public import Flare.Binary64.Division
 
 /-! Unit-roundoff bounds for actual native binary64 arithmetic. The model's
 round/sticky-bit semantics are proved in Flare.Binary64.Rounding; the operation case
 analysis is shared with the existing absolute-error proofs. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Nearest
 open Float.Model Float.Model.UnpackedFloat

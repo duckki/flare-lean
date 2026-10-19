@@ -1,9 +1,13 @@
-import Flare.Analysis.Jacobi
-import Mathlib.Data.Matrix.Basis
+module
+
+public import Flare.Analysis.Jacobi
+public import Mathlib.Data.Matrix.Basis
 
 /-! Matrix identities for the plane rotations used in the Jacobi eigensolver.
 These proof-side matrices connect the scalar update equations to orthogonal
 similarity. Native binary64 coefficients require separate error bounds. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.JacobiRotation
 open Matrix

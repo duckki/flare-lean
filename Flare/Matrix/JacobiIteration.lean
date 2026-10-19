@@ -1,16 +1,21 @@
-import Flare.Matrix.Jacobi
+module
+
+public import Flare.Matrix.Jacobi
 
 /-! Proof-side extractions of the native Jacobi scan, rotation and iteration.
 Execution equalities identify these proof schedules with the native operations.
 Array invariants connect the scalar rounding bounds to the actual loops. -/
 
+@[expose] public section
+
 namespace Flare.Matrix.JacobiIteration
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations
 open Flare.Binary64.Arithmetic Flare.Binary64.Order Std.Do
 
-set_option mvcgen.warning false
--- Retain the established VC engine while using Lean 4.35.
-set_option linter.deprecated.syntax false
+set_option experimental.vcgen true
+
+attribute [local instance] Std.Internal.Order.instPartialOrderProp
+  Std.Internal.Order.instCompleteLatticeProp
 
 /-- The scan's native state, used only for proof decomposition. -/
 structure Pivot where
@@ -157,10 +162,9 @@ private lemma scan_row_end (n : Nat) (a : Array Float) (i : Nat) (pivot : Pivot)
   exact h.2.2.2 r t hrt htn (by omega)
 
 private lemma range_from_current {a n k : Nat} {pref suff : List Nat}
-    (h : [a:n].toList = pref ++ k :: suff)
+    (h : ForIn.toList [a:n] = pref ++ k :: suff)
     : k = a + pref.length ∧ k < n := by
-  have hlist : List.range' a (n - a) = pref ++ k :: suff := by
-    simpa [Std.Legacy.Range.toList] using h
+  have hlist : List.range' a (n - a) = pref ++ k :: suff := by simpa [Std.Legacy.Range.size] using h
   have hlen := congrArg List.length hlist
   simp only [List.length_range', List.length_append, List.length_cons] at hlen
   have he := congrArg (fun xs => xs[pref.length]?) hlist
@@ -170,45 +174,45 @@ private lemma range_from_current {a n k : Nat} {pref suff : List Nat}
 private theorem largestPivot_triple (n : Nat) (a : Array Float) (ha : a.all Float.isFinite = true)
     : ⦃⌜True⌝⦄ largestPivot n a ⦃⇓ pivot => ⌜Scan n a n 0 pivot⌝⦄ := by
   unfold largestPivot
-  mvcgen
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen
     invariants
-      | inv1 => ⇓ ⟨xs, largest, p, q⟩ => ⌜Scan n a xs.prefix.length 0 ⟨largest, p, q⟩⌝
+      | inv1 => fun xs _ ⟨largest, p, q⟩ => Scan n a xs.length 0 ⟨largest, p, q⟩
       | inv2 pref i suff hi state pair p q hstate =>
-        ⇓ ⟨xs, largest, p, q⟩ => ⌜Scan n a i (i + 1 + xs.prefix.length) ⟨largest, p, q⟩⌝
-    with
-      | vc1 | vc2 =>
-        rename_i prefI i suffI hi initial pair0 p0 q0 hinit prefJ j suffJ hj state largest pair p q
-          size hcmp hstate
-        have hj' := range_from_current hj
-        have h := scan_step n a i j ⟨state.1, state.2.1, state.2.2⟩ ha (by omega) hj'.2
-          (by simpa only [← hj'.1] using hstate)
-        dsimp only [largest, size] at hcmp
-        simp only [hcmp, ↓reduceIte] at h
-        have hidx : i + 1 + (prefJ ++ [j]).length = j + 1 := by
-          simp only [List.length_append, List.length_singleton]
-          omega
-        simpa only [hidx] using h
-      | vc3 =>
-        rename_i pref i suff hi state pair p q hstate
-        have hi' := (Flare.Matrix.Storage.range_current hi).1
-        simpa only [List.length_nil, Nat.add_zero, hi'] using scan_row_start n a pref.length
-          ⟨state.1, state.2.1, state.2.2⟩ hstate
-      | vc4 =>
-        rename_i pref i suff hi initial pair0 p0 q0 hinit state pair p q hstate
-        have hi' := Flare.Matrix.Storage.range_current hi
-        have hend : i + 1 + [i + 1:n].toList.length = n := by
-          simp only [Std.Legacy.Range.toList, List.length_range']
-          omega
-        have h := scan_row_end n a i ⟨state.1, state.2.1, state.2.2⟩
-          (by simpa only [hend] using hstate)
-        simpa only [List.length_append, List.length_singleton, ← hi'.1] using h
-      | vc6 =>
-        refine ⟨by decide, by change (0 : ℝ) ≤ 0; rfl, Or.inl rfl, ?_⟩
-        intro r t hrt htn hp
-        simp at hp
-      | vc7 =>
-        rename_i state pair p q hstate
-        simpa [Std.Legacy.Range.toList] using hstate
+        fun xs _ ⟨largest, p, q⟩ => Scan n a i (i + 1 + xs.length) ⟨largest, p, q⟩
+  all_goals simp_all only [SPred.down_pure_nil]
+  case vc1 =>
+    refine ⟨by decide, by simp only [largest, zero_value]; exact le_refl 0, Or.inl rfl, ?_⟩
+    intro r t hrt htn hp
+    simp at hp
+  case vc2 =>
+    rename_i magnitude p q pair hstate
+    simpa using hstate
+  case vc3 =>
+    rename_i pref i suff hi magnitude p q pair hstate
+    have hi' := (Flare.Matrix.Storage.forIn_range_current hi).1
+    simpa only [List.length_nil, Nat.add_zero, hi']
+      using scan_row_start n a pref.length ⟨magnitude, p, q⟩ hstate
+  case vc4 =>
+    rename_i pref i suff hi initial p0 q0 pair0 magnitude p q pair hinit hstate
+    have hi' := Flare.Matrix.Storage.forIn_range_current hi
+    have hend : i + 1 + (ForIn.toList [i + 1:n]).length = n := by
+      simp [Std.Legacy.Range.size]
+      omega
+    have h := scan_row_end n a i ⟨magnitude, p, q⟩
+      (by simpa only [hend] using hstate)
+    simpa only [List.length_append, List.length_singleton, ← hi'.1] using h
+  case vc5 | vc6 =>
+    rename_i xsI i zsI hi initial p0 q0 pair0 prefJ j suffJ magnitude p q pair hinit hj hstate hcmp
+    have hj' := range_from_current hj
+    have h := scan_step n a i j ⟨magnitude, p, q⟩ ha (by omega) hj'.2
+      (by simpa only [← hj'.1] using hstate)
+    dsimp only [size] at hcmp
+    simp only [hcmp, ↓reduceIte] at h
+    have hidx : i + 1 + (prefJ ++ [j]).length = j + 1 := by
+      simp only [List.length_append, List.length_singleton]
+      omega
+    simpa only [hidx] using h
 
 /-- The actual largest-pivot scan always succeeds on finite storage. It
 returns a maximum magnitude, and every nonzero maximum points to an in-range
@@ -248,8 +252,8 @@ def pairP (n p q : Nat) (c s : Float) (a : Array Float) (k : Nat) : Float :=
 def pairQ (n p q : Nat) (c s : Float) (a : Array Float) (k : Nat) : Float :=
   s * entry n a k p + c * entry n a k q
 
-private def matrixPairEntry (n p q : Nat) (c s : Float) (a : Array Float) (step i j : Nat)
-    : Float :=
+/-- Matrix entry after the first `step` row-pair updates, including symmetric writes. -/
+def matrixPairEntry (n p q : Nat) (c s : Float) (a : Array Float) (step i j : Nat) : Float :=
   if i < step ∧ i ≠ p ∧ i ≠ q ∧ j = p then
     pairP n p q c s a i
   else if j < step ∧ j ≠ p ∧ j ≠ q ∧ i = p then
@@ -261,8 +265,8 @@ private def matrixPairEntry (n p q : Nat) (c s : Float) (a : Array Float) (step 
   else
     entry n a i j
 
-private def vectorPairEntry (n p q : Nat) (c s : Float) (v : Array Float) (step i j : Nat)
-    : Float :=
+/-- Eigenvector entry after the first `step` row-pair updates. -/
+def vectorPairEntry (n p q : Nat) (c s : Float) (v : Array Float) (step i j : Nat) : Float :=
   if i < step ∧ j = p then
     pairP n p q c s v i
   else if i < step ∧ j = q then
@@ -464,27 +468,30 @@ private theorem rotatePairs_triple (n p q : Nat) (c s : Float) (a v : Array Floa
     (hvb : ∀ k, k < n → |value (entry n v k p)| ≤ 32 ∧ |value (entry n v k q)| ≤ 32)
     : ⦃⌜True⌝⦄ rotatePairs n p q c s a v ⦃⇓ result => ⌜PairState n p q c s a v n result⌝⦄ := by
   unfold rotatePairs
-  have rowSpec := pair_row_spec n p q c s a v hp hq hpq hc hs hcb hsb ha hv hab hvb
-  mvcgen [rowSpec]
+  have rowSpec (k : Nat) (currentA currentV : Array Float) :=
+    (Specification.except_iff _ _ _).mp
+      (pair_row_spec n p q c s a v hp hq hpq hc hs hcb hsb ha hv hab hvb k currentA currentV)
+  apply (Specification.except_iff _ _ _).mpr
+  vcgen [rowSpec]
     invariants
-      | inv1 => ⇓ ⟨xs, currentA, currentV⟩ => ⌜PairState n p q c s a v xs.prefix.length (currentA,
-        currentV)⌝
-    with
-      | vc1 =>
-        rename_i pref k suff hk result hstate
-        have hk' := Flare.Matrix.Storage.range_current hk
-        exact ⟨hk'.2, by simpa only [hk'.1] using hstate⟩
-      | vc2 =>
-        rename_i pref k suff hk result hstate next hnext
-        have hk' := Flare.Matrix.Storage.range_current hk
-        simpa only [List.length_append, List.length_singleton, ← hk'.1] using hnext
-      | vc3 =>
-        refine ⟨has, ha, hvs, hv, ?_, ?_⟩
-        · intro i j hi hj; simp [matrixPairEntry]
-        · intro i j hi hj; simp [vectorPairEntry]
-      | vc4 =>
-        rename_i result hstate
-        simpa [Std.Legacy.Range.toList] using hstate
+      | inv1 => fun xs _ ⟨currentA, currentV⟩ => PairState n p q c s a v xs.length (currentA,
+        currentV)
+  all_goals simp_all only [SPred.down_pure_nil]
+  case vc1 =>
+    refine ⟨has, by simpa only [has] using ha, hvs, by simpa only [hvs] using hv, ?_, ?_⟩
+    · intro i j hi hj; simp [matrixPairEntry]
+    · intro i j hi hj; simp [vectorPairEntry]
+  case vc2 =>
+    rename_i currentA currentV hstate
+    simpa using hstate
+  case vc3 =>
+    rename_i pref k suff currentA currentV hk hstate
+    have hk' := Flare.Matrix.Storage.forIn_range_current hk
+    exact ⟨hk'.2, by simpa only [hk'.1] using hstate⟩
+  case vc5 =>
+    rename_i pref k suff currentA currentV nextA nextV hk hstate hnext
+    have hk' := Flare.Matrix.Storage.forIn_range_current hk
+    simpa only [List.length_append, List.length_singleton, ← hk'.1] using hnext
 
 /-- The complete native pair-update loop succeeds on bounded finite operands.
 Every returned entry is exactly the specified native expression on the original

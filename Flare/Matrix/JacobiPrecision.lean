@@ -1,8 +1,12 @@
-import Flare.Matrix.Jacobi
+module
+
+public import Flare.Matrix.Jacobi
 
 /-! Tighter error estimates for the native Jacobi parameters. These preserve
 the runtime expressions and use nearest-square-root rounding, with explicit
 relative error and underflow terms, to reduce spectral error allowances. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.JacobiPrecision
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Binary64.Arithmetic

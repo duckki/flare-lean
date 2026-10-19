@@ -1,10 +1,14 @@
-import Flare.Analysis.MatrixError
-import Flare.Analysis.NumericalBounds
-import Flare.Matrix.JacobiOutput
+module
+
+public import Flare.Analysis.MatrixError
+public import Flare.Analysis.NumericalBounds
+public import Flare.Matrix.JacobiOutput
 
 /-! Completeness of the approximate positive-semidefiniteness diagnostic.
 The proved acceptance conditions do not make diagnostic acceptance a
 certificate of exact positive semidefiniteness. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.PSDCheck
 open Flare.Matrix.Value Flare.Binary64.Value Flare.Matrix.Operations

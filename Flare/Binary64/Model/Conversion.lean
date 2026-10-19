@@ -1,6 +1,8 @@
-import Flare.Binary64.Model.Value
-import Mathlib.Tactic.NormNum
-import Std.Tactic.BVDecide
+module
+
+public import Flare.Binary64.Model.Value
+public import Mathlib.Tactic.NormNum
+public import Std.Tactic.BVDecide
 
 open Float.Model
 open Float.Model.UnpackedFloat
@@ -11,6 +13,8 @@ open Float.Model.UnpackedFloat
 Kernel-checked facts about Lean's normalization and packing code, including
 normal finite values and the bounded Int32-to-Float conversion expression.
 -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Model.Conversion
 theorem log2_shift (n k : Nat) (hn : 0 < n) : (n <<< k).log2 = n.log2 + k := by

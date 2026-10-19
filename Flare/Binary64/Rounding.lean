@@ -1,8 +1,12 @@
-import Flare.Binary64.Arithmetic
+module
+
+public import Flare.Binary64.Arithmetic
 
 /-! Exact rounding identities reused in sharper native error estimates. The
 binary64 model's canonical mantissa and accuracy flag determine the rounded
 value, including a carry; no floating-point accuracy premise is introduced. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Rounding
 open Float.Model Float.Model.UnpackedFloat

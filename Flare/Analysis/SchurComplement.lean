@@ -1,8 +1,12 @@
-import Flare.Analysis.MoorePenrose
-import Mathlib.Analysis.Matrix.Order
-import Mathlib.Data.Matrix.ColumnRowPartitioned
+module
+
+public import Flare.Analysis.MoorePenrose
+public import Mathlib.Analysis.Matrix.Order
+public import Mathlib.Data.Matrix.ColumnRowPartitioned
 
 /-! Schur-complement and block-matrix inequalities, including singular blocks. -/
+
+@[expose] public section
 
 namespace Flare.Analysis.SchurComplement
 open Matrix Flare.Analysis

@@ -1,9 +1,13 @@
-import Flare.Binary64.Arithmetic
-import Mathlib.Order.Compare
+module
+
+public import Flare.Binary64.Arithmetic
+public import Mathlib.Order.Compare
 
 /-! Exact order and sign operations for finite native binary64 values.
 These results connect executable guards to the real interpretation, including
 signed zero and the transition between subnormal and normal representations. -/
+
+@[expose] public section
 
 namespace Flare.Binary64.Order
 open Float.Model Float.Model.UnpackedFloat

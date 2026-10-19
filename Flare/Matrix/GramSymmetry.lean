@@ -1,9 +1,13 @@
-import Flare.Matrix.Multiplication
+module
+
+public import Flare.Matrix.Multiplication
 
 /-! Exact word symmetry of the separately rounded two-state dense Gram
 schedule. Ascending accumulation and commutative native products give identical
 off-diagonal words. No magnitude or positivity premise, symmetry repair, or
 averaging is used. Success and finite input are explicit premises. -/
+
+@[expose] public section
 
 namespace Flare.Matrix.GramSymmetry
 
