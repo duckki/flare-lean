@@ -1,0 +1,133 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "imu_loop.py",
+  "function": "run_16",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "position": [
+      "0",
+      "0"
+    ],
+    "velocity": [
+      "1/2",
+      "1/2"
+    ],
+    "dt": [
+      "1/500",
+      "1/200"
+    ],
+    "acceleration_000": [
+      "-4",
+      "4"
+    ],
+    "acceleration_001": [
+      "-4",
+      "4"
+    ],
+    "acceleration_002": [
+      "-4",
+      "4"
+    ],
+    "acceleration_003": [
+      "-4",
+      "4"
+    ],
+    "acceleration_004": [
+      "-4",
+      "4"
+    ],
+    "acceleration_005": [
+      "-4",
+      "4"
+    ],
+    "acceleration_006": [
+      "-4",
+      "4"
+    ],
+    "acceleration_007": [
+      "-4",
+      "4"
+    ],
+    "acceleration_008": [
+      "-4",
+      "4"
+    ],
+    "acceleration_009": [
+      "-4",
+      "4"
+    ],
+    "acceleration_010": [
+      "-4",
+      "4"
+    ],
+    "acceleration_011": [
+      "-4",
+      "4"
+    ],
+    "acceleration_012": [
+      "-4",
+      "4"
+    ],
+    "acceleration_013": [
+      "-4",
+      "4"
+    ],
+    "acceleration_014": [
+      "-4",
+      "4"
+    ],
+    "acceleration_015": [
+      "-4",
+      "4"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "position",
+      "unit": "m",
+      "limit": "1/10000"
+    },
+    {
+      "name": "velocity",
+      "unit": "m/s",
+      "limit": "1/1000000"
+    }
+  ],
+  "specification": {
+    "kind": "fold",
+    "initial": [
+      "position",
+      "velocity"
+    ],
+    "state": [
+      "p",
+      "v"
+    ],
+    "element": "a",
+    "sequence": [
+      "acceleration_000",
+      "acceleration_001",
+      "acceleration_002",
+      "acceleration_003",
+      "acceleration_004",
+      "acceleration_005",
+      "acceleration_006",
+      "acceleration_007",
+      "acceleration_008",
+      "acceleration_009",
+      "acceleration_010",
+      "acceleration_011",
+      "acceleration_012",
+      "acceleration_013",
+      "acceleration_014",
+      "acceleration_015"
+    ],
+    "step": [
+      "(p + dt * v) + ((dt * dt) * a) / 2",
+      "v + dt * a"
+    ]
+  },
+  "timeout_seconds": 120
+}

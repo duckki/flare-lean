@@ -1,0 +1,293 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "imu_loop.py",
+  "function": "run_48",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "position": [
+      "0",
+      "0"
+    ],
+    "velocity": [
+      "1/2",
+      "1/2"
+    ],
+    "dt": [
+      "1/500",
+      "1/200"
+    ],
+    "acceleration_000": [
+      "-4",
+      "4"
+    ],
+    "acceleration_001": [
+      "-4",
+      "4"
+    ],
+    "acceleration_002": [
+      "-4",
+      "4"
+    ],
+    "acceleration_003": [
+      "-4",
+      "4"
+    ],
+    "acceleration_004": [
+      "-4",
+      "4"
+    ],
+    "acceleration_005": [
+      "-4",
+      "4"
+    ],
+    "acceleration_006": [
+      "-4",
+      "4"
+    ],
+    "acceleration_007": [
+      "-4",
+      "4"
+    ],
+    "acceleration_008": [
+      "-4",
+      "4"
+    ],
+    "acceleration_009": [
+      "-4",
+      "4"
+    ],
+    "acceleration_010": [
+      "-4",
+      "4"
+    ],
+    "acceleration_011": [
+      "-4",
+      "4"
+    ],
+    "acceleration_012": [
+      "-4",
+      "4"
+    ],
+    "acceleration_013": [
+      "-4",
+      "4"
+    ],
+    "acceleration_014": [
+      "-4",
+      "4"
+    ],
+    "acceleration_015": [
+      "-4",
+      "4"
+    ],
+    "acceleration_016": [
+      "-4",
+      "4"
+    ],
+    "acceleration_017": [
+      "-4",
+      "4"
+    ],
+    "acceleration_018": [
+      "-4",
+      "4"
+    ],
+    "acceleration_019": [
+      "-4",
+      "4"
+    ],
+    "acceleration_020": [
+      "-4",
+      "4"
+    ],
+    "acceleration_021": [
+      "-4",
+      "4"
+    ],
+    "acceleration_022": [
+      "-4",
+      "4"
+    ],
+    "acceleration_023": [
+      "-4",
+      "4"
+    ],
+    "acceleration_024": [
+      "-4",
+      "4"
+    ],
+    "acceleration_025": [
+      "-4",
+      "4"
+    ],
+    "acceleration_026": [
+      "-4",
+      "4"
+    ],
+    "acceleration_027": [
+      "-4",
+      "4"
+    ],
+    "acceleration_028": [
+      "-4",
+      "4"
+    ],
+    "acceleration_029": [
+      "-4",
+      "4"
+    ],
+    "acceleration_030": [
+      "-4",
+      "4"
+    ],
+    "acceleration_031": [
+      "-4",
+      "4"
+    ],
+    "acceleration_032": [
+      "-4",
+      "4"
+    ],
+    "acceleration_033": [
+      "-4",
+      "4"
+    ],
+    "acceleration_034": [
+      "-4",
+      "4"
+    ],
+    "acceleration_035": [
+      "-4",
+      "4"
+    ],
+    "acceleration_036": [
+      "-4",
+      "4"
+    ],
+    "acceleration_037": [
+      "-4",
+      "4"
+    ],
+    "acceleration_038": [
+      "-4",
+      "4"
+    ],
+    "acceleration_039": [
+      "-4",
+      "4"
+    ],
+    "acceleration_040": [
+      "-4",
+      "4"
+    ],
+    "acceleration_041": [
+      "-4",
+      "4"
+    ],
+    "acceleration_042": [
+      "-4",
+      "4"
+    ],
+    "acceleration_043": [
+      "-4",
+      "4"
+    ],
+    "acceleration_044": [
+      "-4",
+      "4"
+    ],
+    "acceleration_045": [
+      "-4",
+      "4"
+    ],
+    "acceleration_046": [
+      "-4",
+      "4"
+    ],
+    "acceleration_047": [
+      "-4",
+      "4"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "position",
+      "unit": "m",
+      "limit": "1/10000"
+    },
+    {
+      "name": "velocity",
+      "unit": "m/s",
+      "limit": "1/1000000"
+    }
+  ],
+  "specification": {
+    "kind": "fold",
+    "initial": [
+      "position",
+      "velocity"
+    ],
+    "state": [
+      "p",
+      "v"
+    ],
+    "element": "a",
+    "sequence": [
+      "acceleration_000",
+      "acceleration_001",
+      "acceleration_002",
+      "acceleration_003",
+      "acceleration_004",
+      "acceleration_005",
+      "acceleration_006",
+      "acceleration_007",
+      "acceleration_008",
+      "acceleration_009",
+      "acceleration_010",
+      "acceleration_011",
+      "acceleration_012",
+      "acceleration_013",
+      "acceleration_014",
+      "acceleration_015",
+      "acceleration_016",
+      "acceleration_017",
+      "acceleration_018",
+      "acceleration_019",
+      "acceleration_020",
+      "acceleration_021",
+      "acceleration_022",
+      "acceleration_023",
+      "acceleration_024",
+      "acceleration_025",
+      "acceleration_026",
+      "acceleration_027",
+      "acceleration_028",
+      "acceleration_029",
+      "acceleration_030",
+      "acceleration_031",
+      "acceleration_032",
+      "acceleration_033",
+      "acceleration_034",
+      "acceleration_035",
+      "acceleration_036",
+      "acceleration_037",
+      "acceleration_038",
+      "acceleration_039",
+      "acceleration_040",
+      "acceleration_041",
+      "acceleration_042",
+      "acceleration_043",
+      "acceleration_044",
+      "acceleration_045",
+      "acceleration_046",
+      "acceleration_047"
+    ],
+    "step": [
+      "(p + dt * v) + ((dt * dt) * a) / 2",
+      "v + dt * a"
+    ]
+  },
+  "timeout_seconds": 120
+}

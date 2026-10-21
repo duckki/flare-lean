@@ -30,6 +30,7 @@ The pinned Lean source is the definition of the logical machine operations:
 | --- | --- | --- |
 | `Binary64.Nearest` | `add_error_nearest`, `sub_error_nearest`, `mul_error_nearest`, `div_error_nearest` | Finite operands; exact-result magnitude ≤ 2^1000; division also requires a nonzero interpreted divisor |
 | `Binary64.Sqrt` | `sqrt_error_nearest` | Every finite nonnegative operand, including zero and positive subnormals |
+| `Binary64.Pipeline` | `Bounds`, `NativeBounds`, `native_add`, `native_mul`, `native_div`, `native_ideal_refine` | Composable magnitude/error summaries; finite native operations, explicit rounding profiles and positive native/ideal divisor floors; incoming errors are carried forward |
 | `Binary64.Order` | `compare_value`, `lt_iff`, `le_iff`, `beq_iff`, `abs_value`, `neg_value` | Real interpretation of finite native comparisons and unary operations |
 | `Binary64.Model.NaturalConversion` | `ofNat_exact`, `nat_div_error_real` | Exact conversion below 2^53; bounded natural quotient with 0 < denominator and numerator ≤ denominator |
 | `Matrix.Multiplication` | `multiply_accuracy`, `multiply_mass_accuracy`, `multiply_norm_accuracy` | Actual separately rounded multiply/add loops; inner dimension ≤ 32 and explicit magnitude or term-mass bounds |

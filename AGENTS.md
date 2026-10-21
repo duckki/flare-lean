@@ -12,7 +12,7 @@
 - Use content-specific module names and match declaration namespaces to file
   paths. Shared type methods may use their type namespace. Do not add
   per-directory import aggregators; keep Flare.lean as the public entry point.
-- Follow docs/architecture.md and CONTRIBUTING.md. Track potential Mathlib
+- Follow docs/organization.md and CONTRIBUTING.md. Track potential Mathlib
   work in docs/upstream/mathlib.md. Name another contribution destination only
   for a concrete result that fits its definitions and scope. Keep theorem
   sources organized by subject, with one authoritative copy.
@@ -25,6 +25,18 @@
   assumptions, and proof dependencies; Lean checks proof scripts.
 - Do not add application-specific dependencies. Any interoperability claim
   needs a proved bridge, isolated from the core module trees.
+- Maintain one engineer-facing skill in skills/verify-numerics and the provider
+  CLI in scripts/certify_numerics.py. Keep external analyzers and optional Rust
+  translators outside core Lake dependencies. Finish certification at one Lean
+  entry theorem with numerical premises discharged and its axiom closure checked.
+  Distinguish candidate bounds, checked allowances, sampled runtime diagnostics,
+  and physical premises. Preserve frozen-source replay without producers or LLMs.
+- Maintain reusable workflow scenarios in benchmarks/numerics and examples/numerics.
+  Run make numerics-check and relevant smoke/scale benchmarks after changing the pipeline.
+  Tool absence and proof rejection are different outcomes; negative controls
+  must fail for the intended reason. Keep provider regression runs under
+  .cache/numerics-generated/. Application artifacts and tool downloads follow
+  skills/verify-numerics/SKILL.md and its confirmed destinations.
 - Run relevant checks and present a reviewable slice. Commit only when requested.
   After committing, stop unless the user authorized continuing.
 - Keep documentation consistent with actual exported results and proof status.
@@ -37,5 +49,5 @@
   accurate when importing additional source results. Never change a source
   project as a side effect of extracting into FLARE.
 - Keep public docs focused on the current library. Retain durable attribution
-  in docs/provenance.md and the source manifest; omit session logs and inherited
+  in docs/organization.md and the source manifest; omit session logs and inherited
   application roadmaps.

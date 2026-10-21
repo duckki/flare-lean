@@ -1,0 +1,72 @@
+{
+  "schema": "numerics-benchmarks-v1",
+  "description": "Maintained original-input workflow scenarios, derived from kalman-filter-lean and extended in FLARE. Optional runtimes/tools are reported separately.",
+  "cases": [
+    {
+      "name": "scalar_kalman",
+      "request": "../../examples/numerics/scalar_kalman.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "idiomatic_kalman",
+      "request": "../../examples/numerics/idiomatic_kalman.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "joseph_kalman",
+      "request": "../../examples/numerics/joseph_kalman.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "imu_prediction",
+      "request": "../../examples/numerics/imu_prediction.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "mean_update",
+      "request": "../../examples/numerics/mean_update.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "mean_update_tight",
+      "request": "../../examples/numerics/mean_update_tight.json",
+      "expected": "budget_not_met",
+      "optional": false
+    },
+    {
+      "name": "julia_kalman",
+      "request": "../../examples/numerics/julia_kalman.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "matlab_kalman",
+      "request": "../../examples/numerics/matlab_kalman.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "rust_mean_update",
+      "request": "../../examples/numerics/rust_mean_update.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "scalar_kalman_rust",
+      "request": "../../examples/numerics/scalar_kalman_rust.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "rust_mean_update_extracted",
+      "request": "../../examples/numerics/rust_mean_update_extracted.json",
+      "expected": "certified",
+      "optional": true
+    }
+  ]
+}

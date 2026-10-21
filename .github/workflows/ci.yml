@@ -34,6 +34,26 @@ jobs:
           df -h .
       - name: Check library and tooling
         run: make check
+      - name: Check numerical workflow and rejection controls
+        run: make numerics-check
+      - name: Run maintained numerical benchmarks
+        run: make numerics-bench
+      - name: Check representative scale cases
+        run: >-
+          python3 scripts/benchmark_numerics.py --suite scale
+          --case kalman_004 --case imu_016 --case imu48_rust_application
+          --case covariance_relative --case covariance_global
+          --out .cache/numerics-generated/scale-ci
+      - name: Retain numerical benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numerics-benchmarks
+          path: |
+            .cache/numerics-generated/bench-*/
+            .cache/numerics-generated/scale-*/
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Report disk space
         if: always()
         run: df -h .

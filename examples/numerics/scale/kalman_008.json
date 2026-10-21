@@ -1,0 +1,97 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kalman_loop.py",
+  "function": "run_8",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "mean": [
+      "-1",
+      "1"
+    ],
+    "variance": [
+      "1",
+      "1"
+    ],
+    "process_noise": [
+      "1/8",
+      "1/8"
+    ],
+    "measurement_noise": [
+      "1",
+      "1"
+    ],
+    "measurement_000": [
+      "-1",
+      "1"
+    ],
+    "measurement_001": [
+      "-1",
+      "1"
+    ],
+    "measurement_002": [
+      "-1",
+      "1"
+    ],
+    "measurement_003": [
+      "-1",
+      "1"
+    ],
+    "measurement_004": [
+      "-1",
+      "1"
+    ],
+    "measurement_005": [
+      "-1",
+      "1"
+    ],
+    "measurement_006": [
+      "-1",
+      "1"
+    ],
+    "measurement_007": [
+      "-1",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "mean",
+      "unit": "m",
+      "limit": "1/10000"
+    },
+    {
+      "name": "variance",
+      "unit": "m^2",
+      "limit": "1/1000000"
+    }
+  ],
+  "specification": {
+    "kind": "fold",
+    "initial": [
+      "mean",
+      "variance"
+    ],
+    "state": [
+      "m",
+      "p"
+    ],
+    "element": "z",
+    "sequence": [
+      "measurement_000",
+      "measurement_001",
+      "measurement_002",
+      "measurement_003",
+      "measurement_004",
+      "measurement_005",
+      "measurement_006",
+      "measurement_007"
+    ],
+    "step": [
+      "m + ((p + process_noise) / ((p + process_noise) + measurement_noise)) * (z - m)",
+      "(1 - ((p + process_noise) / ((p + process_noise) + measurement_noise))) * (p + process_noise)"
+    ]
+  },
+  "timeout_seconds": 120
+}

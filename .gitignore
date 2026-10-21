@@ -2,3 +2,5 @@
 /docs-generated/
 .DS_Store
 __pycache__/
+
+/.cache/

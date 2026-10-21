@@ -30,6 +30,7 @@ import all Flare.Binary64.Model.Rounding
 import all Flare.Binary64.Model.Value
 import all Flare.Binary64.Nearest
 import all Flare.Binary64.Order
+import all Flare.Binary64.Pipeline
 import all Flare.Binary64.Rounding
 import all Flare.Binary64.SignMultiplication
 import all Flare.Binary64.Sqrt

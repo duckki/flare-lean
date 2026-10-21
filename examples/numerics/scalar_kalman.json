@@ -1,0 +1,46 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "scalar_kalman.py",
+  "function": "step",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "mean": [
+      "-1",
+      "1"
+    ],
+    "variance": [
+      "1",
+      "2"
+    ],
+    "measurement": [
+      "-1",
+      "1"
+    ],
+    "process_noise": [
+      "1/8",
+      "1/4"
+    ],
+    "measurement_noise": [
+      "1",
+      "2"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "posterior_mean",
+      "unit": "m",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "posterior_variance",
+      "unit": "m^2",
+      "limit": "1/10000000000"
+    }
+  ],
+  "specification": [
+    "mean + ((variance + process_noise) / ((variance + process_noise) + measurement_noise)) * (measurement - mean)",
+    "(1 - (variance + process_noise) / ((variance + process_noise) + measurement_noise)) * (variance + process_noise)"
+  ]
+}

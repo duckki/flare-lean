@@ -1,0 +1,136 @@
+{
+  "schema": "numerics-benchmarks-v1",
+  "description": "Increasing bounded Kalman/IMU iterations followed by original full-application admission and four-state DAG analysis probes. A graph probe or source rejection is never a certificate.",
+  "cases": [
+    {
+      "name": "kalman_001",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 1,
+      "request": "../../examples/numerics/scale/kalman_001.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "kalman_004",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 4,
+      "request": "../../examples/numerics/scale/kalman_004.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "kalman_008",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 8,
+      "request": "../../examples/numerics/scale/kalman_008.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "kalman_016",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 16,
+      "request": "../../examples/numerics/scale/kalman_016.json",
+      "expected": "certified",
+      "optional": false,
+      "resource_limits_allowed": true
+    },
+    {
+      "name": "kalman_048",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 48,
+      "request": "../../examples/numerics/scale/kalman_048.json",
+      "expected": "budget_not_met",
+      "optional": false,
+      "resource_limits_allowed": true
+    },
+    {
+      "name": "kalman_128",
+      "kind": "workflow",
+      "family": "kalman",
+      "iterations": 128,
+      "request": "../../examples/numerics/scale/kalman_128.json",
+      "expected": "unresolved",
+      "optional": false,
+      "expected_failure_stage": "analysis",
+      "expected_error_contains": "denominator"
+    },
+    {
+      "name": "imu_001",
+      "kind": "workflow",
+      "family": "imu",
+      "iterations": 1,
+      "request": "../../examples/numerics/scale/imu_001.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "imu_004",
+      "kind": "workflow",
+      "family": "imu",
+      "iterations": 4,
+      "request": "../../examples/numerics/scale/imu_004.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "imu_016",
+      "kind": "workflow",
+      "family": "imu",
+      "iterations": 16,
+      "request": "../../examples/numerics/scale/imu_016.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "imu_048",
+      "kind": "workflow",
+      "family": "imu",
+      "iterations": 48,
+      "request": "../../examples/numerics/scale/imu_048.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "imu48_rust_application",
+      "kind": "workflow",
+      "family": "imu_integer_time_and_decisions",
+      "iterations": 48,
+      "request": "scale/imu48.json",
+      "expected": "unsupported_or_invalid_request",
+      "expected_error_contains": "one pub fn",
+      "optional": false
+    },
+    {
+      "name": "covariance_relative",
+      "kind": "graph_probe",
+      "family": "four_state_covariance_and_correction",
+      "iterations": 22,
+      "graph": "scale/relative-graph.json.gz",
+      "outputs": [
+        "accepted_displacement",
+        "accepted_variance"
+      ],
+      "expected": "candidate_only",
+      "optional": false
+    },
+    {
+      "name": "covariance_global",
+      "kind": "graph_probe",
+      "family": "four_state_covariance_and_correction",
+      "iterations": 22,
+      "graph": "scale/global-graph.json.gz",
+      "outputs": [
+        "accepted_displacement",
+        "accepted_variance"
+      ],
+      "expected": "candidate_only",
+      "optional": false
+    }
+  ]
+}

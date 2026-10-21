@@ -4,6 +4,7 @@
   "source_toolchain": "leanprover/lean4:v4.33.0",
   "library_toolchain": "leanprover/lean4:v4.33.1",
   "mathlib_revision": "0df444a360eaa60ab8c11dca51a86af692955474",
+  "snapshot_note": "The top-level library_toolchain and mathlib_revision record the initial extraction environment. Current build pins live in lean-toolchain, lakefile.toml and lake-manifest.json.",
   "extraction_policy": "Preserve theorem assumptions and native arithmetic schedules. Remove application imports, qualify namespaces, retain only numerical error constructors, and make implicit type parameters explicit where required. No source-project changes.",
   "modules": [
     {
@@ -75,7 +76,7 @@
     {
       "target": "Flare/Analysis/MoorePenrose.lean",
       "source": "OCI/Definitions/Fusion.lean",
-      "notes": "Four square-real-matrix Moore–Penrose equations only.",
+      "notes": "Four square-real-matrix Moore\u2013Penrose equations only.",
       "source_sha256": "f80e6c0ce7e38207ef568524d686dd9bb2f54e5451f1c470bc1da7ab5b55f92f"
     },
     {
@@ -463,6 +464,269 @@
           "source": "Kalman/Proofs/FloatResidualError.lean",
           "notes": "Positive finite sqrt and squared residual; checked application-error wrapper excluded.",
           "source_sha256": "02be238b73f9b106aa881c6ff271e5289095fff12422d93ca7df098af2e2b645"
+        }
+      ]
+    },
+    {
+      "source_repository": "kalman-filter-lean",
+      "source_revision": "4d5330e176a6bf7059013b5689d7de9b07507ae4",
+      "source_toolchain": "leanprover/lean4:v4.35.0",
+      "snapshot_note": "Imported from the supplied working tree; SHA-256 values identify the exact source bytes, including uncommitted workflow/skill updates. Only generic contracts, tooling, examples and benchmark evidence are adopted.",
+      "modules": [
+        {
+          "source": "scripts/numerics/__init__.py",
+          "target": "scripts/numerics/__init__.py",
+          "source_sha256": "5b0ef1868bbd6eed4c39b5621b01acfab4694598ffe5a1069ecbe83e2f72a386"
+        },
+        {
+          "source": "scripts/numerics/analysis.py",
+          "target": "scripts/numerics/analysis.py",
+          "source_sha256": "4652bf43e4db9c5df14151c7aeaae2a50503c9549145e62306321cb1e23d9943"
+        },
+        {
+          "source": "scripts/numerics/diagnostics.py",
+          "target": "scripts/numerics/diagnostics.py",
+          "source_sha256": "4a1bc5e1aa0e84eed358363c4d283220348b6dd478da93244154b2b593cfabe3"
+        },
+        {
+          "source": "scripts/numerics/emit.py",
+          "target": "scripts/numerics/emit.py",
+          "source_sha256": "65dc5ec01c89ce0e38d3868c5eafa123c47c7687a5c5f09f19f04ad3c1f63281"
+        },
+        {
+          "source": "scripts/numerics/frontend.py",
+          "target": "scripts/numerics/frontend.py",
+          "source_sha256": "c9478e7db0bf4231a2de76e513776d929542d430e530f855834b3f769cae65d8"
+        },
+        {
+          "source": "scripts/numerics/graph.py",
+          "target": "scripts/numerics/graph.py",
+          "source_sha256": "9f17fd85260c18b5e9c450f22f8e1e21e38008019ee7d70d32a49b57ccf3ee44"
+        },
+        {
+          "source": "scripts/numerics/runtimes.py",
+          "target": "scripts/numerics/runtimes.py",
+          "source_sha256": "dbf40f5bcd0b0b0e8885a003483c20f09f987f1c2c32ff2bf498a65644733fdc"
+        },
+        {
+          "source": "scripts/numerics/scalar_languages.py",
+          "target": "scripts/numerics/scalar_languages.py",
+          "source_sha256": "2a899a96f6c6bc118440ca7a6385de2a95efd953f895f98fa29bfde476b45832"
+        },
+        {
+          "source": "scripts/numerics/specification.py",
+          "target": "scripts/numerics/specification.py",
+          "source_sha256": "de97c33c7bf3a696156ffe4705a01537aacce73cf2c1e5316c2063440b0b964f"
+        },
+        {
+          "source": "scripts/numerics/workflow.py",
+          "target": "scripts/numerics/workflow.py",
+          "source_sha256": "a1929d2122e7e67fa7e6f12f3b6bb244f44dd0aed3ea7b9735a2a06b0d6ad926"
+        },
+        {
+          "source": "scripts/certify_numerics.py",
+          "target": "scripts/certify_numerics.py",
+          "source_sha256": "d8952fbb2aad0523815d09346abcad9a9ed9cac1e3207ea4bfc9ba3bc6839886"
+        },
+        {
+          "source": "scripts/tool_integration_run.py",
+          "target": "scripts/tool_integration_run.py",
+          "source_sha256": "a8db7806cf856c0885b8e3560aa67b94a4a3a4c81b4096236ab369b5509c2cd4"
+        },
+        {
+          "source": "scripts/test_certify_numerics.py",
+          "target": "scripts/test_certify_numerics.py",
+          "source_sha256": "900412be843b555a05a417b76c5e0cd9ee03ef873285be72767983dd266f5583"
+        },
+        {
+          "source": "scripts/test_numerics_adapters.py",
+          "target": "scripts/test_numerics_adapters.py",
+          "source_sha256": "13a4e4c59e230a9aee044d0e6b0dc5acbe186eab5e75c78aef844050a444ad36"
+        },
+        {
+          "source": "scripts/test_tool_integration_run.py",
+          "target": "scripts/test_tool_integration_run.py",
+          "source_sha256": "c67f945443d1774704d1c59a3310483fab67b28037e946f9b5371f38e673fca9"
+        },
+        {
+          "source": "skills/verify-numerics/SKILL.md",
+          "target": "skills/verify-numerics/SKILL.md",
+          "source_sha256": "25976dc495175532fb943903e604577bea5d1e3da9d14151c062d5bbd00f5b9d"
+        },
+        {
+          "source": "skills/verify-numerics/agents/openai.yaml",
+          "target": "skills/verify-numerics/agents/openai.yaml",
+          "source_sha256": "544441bf9f0cc889fec56ef343590213c646536479d3ef434963619849dcb9b9"
+        },
+        {
+          "source": "skills/verify-numerics/references/composition.md",
+          "target": "skills/verify-numerics/references/composition.md",
+          "source_sha256": "0b95fbf387cfaed6c3a60d69a37def055921647462cd2eae697a37a9f23f3d8d"
+        },
+        {
+          "source": "skills/verify-numerics/references/evidence-records.md",
+          "target": "skills/verify-numerics/references/evidence-records.md",
+          "source_sha256": "cb40ee08ed4e978f3797c46933728423db10f68a229297162c5e73c63e884e62"
+        },
+        {
+          "source": "skills/verify-numerics/references/lean-conversion.md",
+          "target": "skills/verify-numerics/references/lean-conversion.md",
+          "source_sha256": "26990d60f78c6d5e99f5665fd0d06bd2c26ecaa27e2a26dba8b6bc4bd2c1c331"
+        },
+        {
+          "source": "skills/verify-numerics/references/source-to-rust.md",
+          "target": "skills/verify-numerics/references/source-to-rust.md",
+          "source_sha256": "f18668dda484befa0232ccd328382f1dd36a9f1d9e6a3eae5917be2a7bc1d322"
+        },
+        {
+          "source": "skills/verify-numerics/references/tool-routes.md",
+          "target": "skills/verify-numerics/references/tool-routes.md",
+          "source_sha256": "fa4af2502ecc79e5ca1a33e6b4ec9ccd0449b871496e70c95f3ce945cb4382de"
+        },
+        {
+          "source": "skills/verify-numerics/scripts/audit_evidence.py",
+          "target": "skills/verify-numerics/scripts/audit_evidence.py",
+          "source_sha256": "4f3e4f9dfea6078d113f61ed5708937b607a6a458ae35ce7e6ccfc125890d684"
+        },
+        {
+          "source": "examples/numerics/idiomatic_kalman.json",
+          "target": "examples/numerics/idiomatic_kalman.json",
+          "source_sha256": "1b3709ba35b4a115328561262201d5db495803fefed4e08104a8a0114c6dcd9a"
+        },
+        {
+          "source": "examples/numerics/idiomatic_kalman.py",
+          "target": "examples/numerics/idiomatic_kalman.py",
+          "source_sha256": "07941bc847c184b835792b7b83abaa84bcd622a3c2d8b86c6f792e9eeaf474c1"
+        },
+        {
+          "source": "examples/numerics/imu_prediction.json",
+          "target": "examples/numerics/imu_prediction.json",
+          "source_sha256": "952bf2cfc88511ba820aec3c38ac2aad68e6f8150eac77b7ca89c8f6d6c914d6"
+        },
+        {
+          "source": "examples/numerics/imu_prediction.py",
+          "target": "examples/numerics/imu_prediction.py",
+          "source_sha256": "d32f5a626274801fc8a8106ff9c3d0fd17628c561c0739118a59373e12039b8a"
+        },
+        {
+          "source": "examples/numerics/joseph_kalman.json",
+          "target": "examples/numerics/joseph_kalman.json",
+          "source_sha256": "9ed289967881f22d2c44bbf7d98f20244c4a9873bcac166b12ff20b449d850bc"
+        },
+        {
+          "source": "examples/numerics/joseph_kalman.py",
+          "target": "examples/numerics/joseph_kalman.py",
+          "source_sha256": "fa2dbd1664e8653ebaf41ef0d98d2facb1490d75b96a7463efeb649e445f338b"
+        },
+        {
+          "source": "examples/numerics/julia_kalman.json",
+          "target": "examples/numerics/julia_kalman.json",
+          "source_sha256": "778bd0cc8ef3aefb67222d66193bd6d1736c3a028002154268efd9027176c14c"
+        },
+        {
+          "source": "examples/numerics/matlab/step.m",
+          "target": "examples/numerics/matlab/step.m",
+          "source_sha256": "59038bd59235d9254905e90c5aedb46ff9035cc3ee979ce4e8e49c397db33844"
+        },
+        {
+          "source": "examples/numerics/matlab_kalman.json",
+          "target": "examples/numerics/matlab_kalman.json",
+          "source_sha256": "cd13344004577863f7b9598c1c030886855d3a995286530532937aae9bf24642"
+        },
+        {
+          "source": "examples/numerics/scalar_kalman.jl",
+          "target": "examples/numerics/scalar_kalman.jl",
+          "source_sha256": "ff16a2436ac9600768339efcdc378c8d37fb84c5a10688b26ab2973bfd6d7302"
+        },
+        {
+          "source": "examples/numerics/scalar_kalman.json",
+          "target": "examples/numerics/scalar_kalman.json",
+          "source_sha256": "e4ead15ba607ddf188f4ebc7315e8e8e45178ec94bfb9e8d30198a1fba89086f"
+        },
+        {
+          "source": "examples/numerics/scalar_kalman.py",
+          "target": "examples/numerics/scalar_kalman.py",
+          "source_sha256": "91c785e5d4dca348c43121d97ebb1035c7f5d35cf8b6f7644769b994083ace5d"
+        },
+        {
+          "source": "Kalman/Proofs/PipelineContracts.lean",
+          "target": "Flare/Binary64/Pipeline.lean",
+          "source_sha256": "b2104868e75964d0622fc9277947b199bb0b57de393dc5cad5c0bfa586ff38b4"
+        },
+        {
+          "source": "paper/experiments/verification-comparison/mean-update-tight.g",
+          "target": "benchmarks/numerics/gappa/mean-update-tight.g",
+          "source_sha256": "47600bc232a22f197bad6a88fad09735d5a3c440247a40a74057c4f362b4227d"
+        },
+        {
+          "source": "paper/experiments/verification-comparison/MeanUpdateTight.raw.v",
+          "target": "benchmarks/numerics/gappa/MeanUpdateTight.raw.v",
+          "source_sha256": "0dbed735c6c6925d672c458cd10e15fe6b315722e378bbe03771ecfb3f84c0b6"
+        },
+        {
+          "source": "paper/experiments/verification-comparison/MeanUpdateTight.v",
+          "target": "benchmarks/numerics/gappa/MeanUpdateTight.v",
+          "source_sha256": "b27edd08ebf421ab9e937e57cff9f79209618f0a37b6d1fd6b71e9b4ff890d54"
+        },
+        {
+          "source": "rust/aeneas/revisions.json",
+          "target": "tools/numerics/aeneas-revisions.json",
+          "source_sha256": "ef0ea8e6a40e4ade6d7bcd8e7c9e32155b6213109ad0c8147d7994fdd3faa2ee"
+        },
+        {
+          "source": "rust/rust-toolchain.toml",
+          "target": "tools/numerics/rust-toolchain.toml",
+          "source_sha256": "7d21c66a15f41bad66b82ed06a289f5dc8a6e3751951d2696bbf20ce296f2b0f"
+        },
+        {
+          "source": "paper/experiments/tool-integration/audit_records.py",
+          "target": "scripts/audit_tool_records.py",
+          "source_sha256": "1c00f297b101a3efd4494beee180568f5098cdefcd3a56925466a820628fb559",
+          "notes": "Invocation integrity auditing only; experiment-specific CLI location adapted."
+        },
+        {
+          "source": "paper/experiments/workflow-gap-review/probe.py",
+          "target": "scripts/test_numerics_workflow.py",
+          "source_sha256": "40a6389c55f820b1610636c4e4d4ecae7b58bce764de8c58d9d2a1948743e4e3",
+          "notes": "Retains the producer fixed-grid addition inflation and tiny-divisor probes as regression tests; application run/report code excluded."
+        }
+      ]
+    },
+    {
+      "source_repository": "kalman-filter-lean",
+      "source_revision": "4d5330e176a6bf7059013b5689d7de9b07507ae4",
+      "source_toolchain": "leanprover/lean4:v4.35.0",
+      "snapshot_note": "Scale fixtures imported from the supplied paper worktree; original file hashes identify its working-tree assets. Source checkout unchanged.",
+      "modules": [
+        {
+          "source": "examples/numerics/scalar_kalman.py",
+          "target": "examples/numerics/scale/kalman_loop.py",
+          "source_sha256": "91c785e5d4dca348c43121d97ebb1035c7f5d35cf8b6f7644769b994083ace5d",
+          "notes": "Preserves the scalar helper verbatim; adds fixed tuple loops at explicit horizons for scale tests. Numerical domains and independent exact recurrences are in the new request fixtures."
+        },
+        {
+          "source": "examples/numerics/imu_prediction.py",
+          "target": "examples/numerics/scale/imu_loop.py",
+          "source_sha256": "d32f5a626274801fc8a8106ff9c3d0fd17628c561c0739118a59373e12039b8a",
+          "notes": "Preserves the scalar helper verbatim; adds fixed tuple loops at explicit horizons for scale tests. Numerical domains and independent exact recurrences are in the new request fixtures."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/rust/src/imu_epoch.rs",
+          "target": "benchmarks/numerics/scale/imu48.rs",
+          "source_sha256": "85cee37a1803f7434b2e1e3cf7325dc7221ec1b811e87515ba13f8821caba351",
+          "notes": "Original 48-event Rust application retained unchanged as an explicit source-admission challenge, not an automatic certificate."
+        },
+        {
+          "source": "paper/experiments/pipeline-verification/p1/relative-graph.json.gz",
+          "target": "benchmarks/numerics/scale/relative-graph.json.gz",
+          "source_sha256": "706a2770b3e21c84acf0657a46b9899b69513c6aaf37623a94115376678350dd",
+          "notes": "Original exported four-state covariance/correction DAG, unchanged. Scale probes report untrusted analysis candidates and retained model boundaries; no source-program certificate is implied."
+        },
+        {
+          "source": "paper/experiments/pipeline-verification/p1/global-graph.json.gz",
+          "target": "benchmarks/numerics/scale/global-graph.json.gz",
+          "source_sha256": "7c7c7fed13c635ec7eba7f2453d16b8701d31d5b55e2f153eb77ee45bb0da595",
+          "notes": "Original exported four-state covariance/correction DAG, unchanged. Scale probes report untrusted analysis candidates and retained model boundaries; no source-program certificate is implied."
         }
       ]
     }

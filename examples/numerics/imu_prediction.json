@@ -1,0 +1,42 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "imu_prediction.py",
+  "function": "predict",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "position": [
+      "-1",
+      "1"
+    ],
+    "velocity": [
+      "-3",
+      "3"
+    ],
+    "acceleration": [
+      "-4",
+      "4"
+    ],
+    "dt": [
+      "1/500",
+      "1/125"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "next_position",
+      "unit": "m",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "next_velocity",
+      "unit": "m/s",
+      "limit": "1/10000000000"
+    }
+  ],
+  "specification": [
+    "(position + dt * velocity) + ((dt * dt) * acceleration) / 2",
+    "velocity + dt * acceleration"
+  ]
+}

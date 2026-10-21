@@ -1,0 +1,3 @@
+interface:
+  display_name: "Verify numerical software"
+  short_description: "Check numerical code in Lean; optionally port to Rust"

@@ -20,7 +20,7 @@ they are the subject of a correctness or error theorem.
 Use content-specific module names and matching `Flare` namespaces. Shared type
 methods may use their type's namespace. Add each library module to `Flare.lean`;
 use direct module imports within the library. Keep one Lake package and one
-`lean_lib`. See [the architecture](docs/architecture.md) for import boundaries.
+`lean_lib`. See [the organization guide](docs/organization.md) for import boundaries.
 Use `module`, `public import` for re-exports, and `@[expose] public section`
 for the existing public API and unfoldable definitions. Keep private helper
 specification rules local with `@[local spec]`.
@@ -46,91 +46,16 @@ in its subject module.
 4. **Proof dependencies.** No admitted proofs or additional axioms. The audit
    permits only `propext`, `Classical.choice`, and `Quot.sound`.
 5. **Documentation.** Describe exported guarantees and their limits. For imported
-   material, preserve attribution and update the [source record](docs/provenance.md).
+   material, preserve attribution and update the [source manifest](docs/extraction-manifest.json).
 
 AI generation does not establish novelty or upstream suitability. Lean checks
 the proof of the stated proposition; human review must still assess that
 proposition and its definitions.
 
-## Validate a change
+## Validation and tooling
 
-Use the pinned toolchain and dependency manifest. On a fresh checkout, download
-the Mathlib cache for all library modules and the proof audit, then run the checks:
-
-```sh
-MATHLIB_NO_CACHE_ON_UPDATE=1 lake exe cache get 'Flare.*' Tests/ProofAudit.lean Tests/PublicAPI.lean Lint.lean
-make check
-```
-
-CI uses the same scoped cache download instead of fetching all of Mathlib or
-restoring a whole `.lake` cache. Select `Flare.*`, not just `Flare.lean`: Mathlib's
-cache reader does not follow imports between downstream modules. FLARE's own
-sources are built locally; cache misses for these downstream roots are expected.
-
-This builds the library, checks public and private theorem axioms, checks import
-boundaries and coverage, runs the linters and their regression tests, and checks
-formatting. Include the check results and any changed assumptions or runtime
-behavior in the review.
-
-### Formatting
-
-[leanfmt](https://github.com/duckki/leanfmt/tree/v0.4.6) is pinned to **v0.4.6**.
-Use a **100-column** width, matching Mathlib's line-length convention:
-
-```sh
-make fmt                  # Format all Lean sources, including untracked files
-make fmt-check            # Check formatting without rewriting
-```
-
-Build the library before the first formatting run so the formatter can load
-imports for custom syntax. To limit either command to changes against an
-existing Git reference, use `python3 scripts/fmt.py --base REF`, with `--check`
-for a check. The default checks the whole repository and needs no base branch.
-
-Keep formatting exceptions narrow and explain them in a source comment.
-The formatting wrapper restores a file and fails if the formatter changes its
-non-whitespace content.
-
-### Program specifications
-
-Use `vcgen` for new verification-condition proofs. Lean 4.35 still marks this tactic
-experimental, so modules using it explicitly set `experimental.vcgen` to `true`.
-`Flare.Matrix.Specification` proves equivalences between the existing `Std.Do`
-specifications and `Std.WP`, including exceptional outcomes. Apply these bridges when
-updating an existing proof so its exported statement stays unchanged. Keep native
-specification rules for private helpers local with `@[local spec]`.
-
-### Linters
-
-`lake lint` runs:
-
-- Style checks adapted from
-  [graphql-lean](https://github.com/duckki/GraphQL.lean/tree/41f1c4a240c30419c4ba0ffcdfeae612ee4d5810):
-  100-column Lean code and comments (URLs exempt), 1,500-line Lean files, no tabs
-  or trailing whitespace, modern `fun`/`<|` syntax, scoped diagnostic/resource
-  options and `open Classical`, and no double underscores in declaration names.
-- An incremental Lake build of `Flare` and `Lint.lean`, followed by
-  `python3 scripts/check_layout.py` for layering.
-- Import coverage using Lean's dependency reader, rooted at `Flare.lean`,
-  `Tests/ProofAudit.lean`, `Tests/PublicAPI.lean`, and the lint executable. Nested
-  and untracked Lean files are included; orphan files fail the check.
-- Lean's normal and extra linters with warnings as errors, configured in
-  `lakefile.toml` so they run during elaboration and reuse Lake's build cache.
-  The proof audit and public-API client are elaborated separately with the same options;
-  library files are not elaborated again after the build. Missing-documentation
-  lint is disabled. Experimental Mathlib analyses enabled by `linter.all` are
-  outside this check.
-
-`schur_reflexive` retains its extracted `DecidableEq` parameter through a scoped
-`unusedDecidableInType` exception. Review any removal of an existing hypothesis
-as a separate API change.
-
-For a quick text check, run `python3 scripts/lint.py --style-only`. Run the
-tooling regression checks with
-`python3 -m unittest discover -s scripts -p 'test_*.py'`.
-
-The standalone commands `lake build`, `lake env lean Tests/ProofAudit.lean`,
-and `python3 scripts/check_layout.py` remain available for focused validation.
-
-Prepare a bounded, reviewable change. For agent-assisted work, commit only when
-the user asks, then stop for review unless continuing was explicitly authorized.
+Follow the [development guide](docs/development.md) for prerequisites, builds,
+shared caching, formatting, linters, proof audits and numerical workflow tests.
+Include relevant check results and any changed assumptions in the review.
+Prepare a bounded, reviewable change; commit only when requested, then stop for
+review unless continuing was explicitly authorized.

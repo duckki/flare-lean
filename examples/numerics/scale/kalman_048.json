@@ -1,0 +1,297 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kalman_loop.py",
+  "function": "run_48",
+  "backend": "lean-flare",
+  "target": "lean",
+  "domain": {
+    "mean": [
+      "-1",
+      "1"
+    ],
+    "variance": [
+      "1",
+      "1"
+    ],
+    "process_noise": [
+      "1/8",
+      "1/8"
+    ],
+    "measurement_noise": [
+      "1",
+      "1"
+    ],
+    "measurement_000": [
+      "-1",
+      "1"
+    ],
+    "measurement_001": [
+      "-1",
+      "1"
+    ],
+    "measurement_002": [
+      "-1",
+      "1"
+    ],
+    "measurement_003": [
+      "-1",
+      "1"
+    ],
+    "measurement_004": [
+      "-1",
+      "1"
+    ],
+    "measurement_005": [
+      "-1",
+      "1"
+    ],
+    "measurement_006": [
+      "-1",
+      "1"
+    ],
+    "measurement_007": [
+      "-1",
+      "1"
+    ],
+    "measurement_008": [
+      "-1",
+      "1"
+    ],
+    "measurement_009": [
+      "-1",
+      "1"
+    ],
+    "measurement_010": [
+      "-1",
+      "1"
+    ],
+    "measurement_011": [
+      "-1",
+      "1"
+    ],
+    "measurement_012": [
+      "-1",
+      "1"
+    ],
+    "measurement_013": [
+      "-1",
+      "1"
+    ],
+    "measurement_014": [
+      "-1",
+      "1"
+    ],
+    "measurement_015": [
+      "-1",
+      "1"
+    ],
+    "measurement_016": [
+      "-1",
+      "1"
+    ],
+    "measurement_017": [
+      "-1",
+      "1"
+    ],
+    "measurement_018": [
+      "-1",
+      "1"
+    ],
+    "measurement_019": [
+      "-1",
+      "1"
+    ],
+    "measurement_020": [
+      "-1",
+      "1"
+    ],
+    "measurement_021": [
+      "-1",
+      "1"
+    ],
+    "measurement_022": [
+      "-1",
+      "1"
+    ],
+    "measurement_023": [
+      "-1",
+      "1"
+    ],
+    "measurement_024": [
+      "-1",
+      "1"
+    ],
+    "measurement_025": [
+      "-1",
+      "1"
+    ],
+    "measurement_026": [
+      "-1",
+      "1"
+    ],
+    "measurement_027": [
+      "-1",
+      "1"
+    ],
+    "measurement_028": [
+      "-1",
+      "1"
+    ],
+    "measurement_029": [
+      "-1",
+      "1"
+    ],
+    "measurement_030": [
+      "-1",
+      "1"
+    ],
+    "measurement_031": [
+      "-1",
+      "1"
+    ],
+    "measurement_032": [
+      "-1",
+      "1"
+    ],
+    "measurement_033": [
+      "-1",
+      "1"
+    ],
+    "measurement_034": [
+      "-1",
+      "1"
+    ],
+    "measurement_035": [
+      "-1",
+      "1"
+    ],
+    "measurement_036": [
+      "-1",
+      "1"
+    ],
+    "measurement_037": [
+      "-1",
+      "1"
+    ],
+    "measurement_038": [
+      "-1",
+      "1"
+    ],
+    "measurement_039": [
+      "-1",
+      "1"
+    ],
+    "measurement_040": [
+      "-1",
+      "1"
+    ],
+    "measurement_041": [
+      "-1",
+      "1"
+    ],
+    "measurement_042": [
+      "-1",
+      "1"
+    ],
+    "measurement_043": [
+      "-1",
+      "1"
+    ],
+    "measurement_044": [
+      "-1",
+      "1"
+    ],
+    "measurement_045": [
+      "-1",
+      "1"
+    ],
+    "measurement_046": [
+      "-1",
+      "1"
+    ],
+    "measurement_047": [
+      "-1",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "mean",
+      "unit": "m",
+      "limit": "1/10000"
+    },
+    {
+      "name": "variance",
+      "unit": "m^2",
+      "limit": "1/1000000"
+    }
+  ],
+  "specification": {
+    "kind": "fold",
+    "initial": [
+      "mean",
+      "variance"
+    ],
+    "state": [
+      "m",
+      "p"
+    ],
+    "element": "z",
+    "sequence": [
+      "measurement_000",
+      "measurement_001",
+      "measurement_002",
+      "measurement_003",
+      "measurement_004",
+      "measurement_005",
+      "measurement_006",
+      "measurement_007",
+      "measurement_008",
+      "measurement_009",
+      "measurement_010",
+      "measurement_011",
+      "measurement_012",
+      "measurement_013",
+      "measurement_014",
+      "measurement_015",
+      "measurement_016",
+      "measurement_017",
+      "measurement_018",
+      "measurement_019",
+      "measurement_020",
+      "measurement_021",
+      "measurement_022",
+      "measurement_023",
+      "measurement_024",
+      "measurement_025",
+      "measurement_026",
+      "measurement_027",
+      "measurement_028",
+      "measurement_029",
+      "measurement_030",
+      "measurement_031",
+      "measurement_032",
+      "measurement_033",
+      "measurement_034",
+      "measurement_035",
+      "measurement_036",
+      "measurement_037",
+      "measurement_038",
+      "measurement_039",
+      "measurement_040",
+      "measurement_041",
+      "measurement_042",
+      "measurement_043",
+      "measurement_044",
+      "measurement_045",
+      "measurement_046",
+      "measurement_047"
+    ],
+    "step": [
+      "m + ((p + process_noise) / ((p + process_noise) + measurement_noise)) * (z - m)",
+      "(1 - ((p + process_noise) / ((p + process_noise) + measurement_noise))) * (p + process_noise)"
+    ]
+  },
+  "timeout_seconds": 120
+}
