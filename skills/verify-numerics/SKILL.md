@@ -124,12 +124,21 @@ that gap without silently flattening the delivered program.
 
 ## Check and deliver
 
-Require `Workflow.Certificate.certificate` to cover the original finite inputs,
+For successful error-bound certification, require `Workflow.Certificate.certificate`
+to cover the original finite inputs,
 independent exact specification, output finiteness and accepted allowances. A
 successful budget must be proved in Lean. A Rust delivery also needs the actual
 freshly extracted return relation. Audit the root's transitive axioms: only
 `propext`, `Classical.choice` and `Quot.sound` are allowed. Preserve the declared
 frontend, runtime, translation and compiler/hardware trust boundaries.
+
+If the requested property is false, deliver a saved Lean counterexample with a
+named root proving an input satisfies the stated domain, the executable model's
+actual result, and violation of the required property against the independent
+reference. Audit its transitive axioms and replay the saved proof. Use the
+authored-proof guidance in [lean-conversion.md](references/lean-conversion.md);
+the automatic error-bound CLI has no counterexample status. A proof rejection
+or an upper bound above budget does not establish an attained failure.
 
 Replay the saved Lean proof into a new directory without an analyzer, LLM or
 foreign prover. `audit` checks identity/freshness; it does not check mathematics.

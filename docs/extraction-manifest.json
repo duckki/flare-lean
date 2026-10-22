@@ -729,6 +729,26 @@
           "notes": "Original exported four-state covariance/correction DAG, unchanged. Scale probes report untrusted analysis candidates and retained model boundaries; no source-program certificate is implied."
         }
       ]
+    },
+    {
+      "source_repository": "kalman-filter-lean",
+      "source_revision": "4d5330e176a6bf7059013b5689d7de9b07507ae4",
+      "source_toolchain": "leanprover/lean4:v4.35.0",
+      "snapshot_note": "Scalar cancellation example adapted from the supplied paper worktree. Per-file hashes identify working-tree sources; source checkout unchanged.",
+      "modules": [
+        {
+          "source": "Kalman/Tests/FloatImplementations.lean",
+          "target": "examples/numerics/naive_covariance.py",
+          "source_sha256": "cb2ff6e39b8ac9074636ecadd58cba0bdb691606a664afe8bdd469ce335419c6",
+          "notes": "Scalar adaptation of cancellationChecks: H=1, prior P=1, noise R=2^-54. Retains gain division and compact covariance operation order. Does not import or claim a proved bridge to the full source filter."
+        },
+        {
+          "source": "Kalman/Tests/Specification.lean",
+          "target": "scripts/numerics/counterexample.py",
+          "source_sha256": "b8bc5dd5844f4172d355fd22fc376b8343c4578439b4504e7fd6c10550fc86bb",
+          "notes": "Reuses the positive exact scalar reference 1/(2^54+1). Adds a new kernel-checked refutation of the admitted standalone Python kernel, input-domain and axiom checks, saved-source replay and false-output rejection."
+        }
+      ]
     }
   ]
 }

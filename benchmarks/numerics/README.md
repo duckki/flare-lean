@@ -18,6 +18,11 @@ Run the scripts from the provider root. Shared Lake caching is optional; see
 streams, accepted allowances, root theorems, failures and elapsed times are saved.
 Warm checking time does not measure proof authoring or engineer effort.
 
+CI also certifies and replays the exact [README examples](../../docs/numerical-verification.md#replay-the-readme-examples),
+then uploads their sources, proofs and reports as `readme-evidence`.
+`filterpy-gh-request.json` is the pinned eight-update request template; the
+evidence generator binds `source.py` to the selected original FilterPy file.
+
 | Scenario | Expected result | Scope |
 | --- | --- | --- |
 | Scalar and idiomatic Kalman | `certified` | Mean and variance, original inputs, independent exact equations |
@@ -52,6 +57,16 @@ Fresh Lean tests require the baseline to certify first. Controls then check that
 Fast tests cover missing runtimes, unsupported source constructs, operation
 order, literal words and signed zero, Rust mutation/typing, bounded process
 cleanup, artifact retention and non-overwriting skill installation.
+
+## A proved numerical failure
+
+`scripts/test_numerics_counterexamples.py` maintains the README's standalone
+naive scalar covariance update. At `p = 1`, `r = 2^-54`, its binary64 posterior
+is zero while the exact posterior is `1 / (2^54 + 1) > 0`. The fast test compares
+actual Python execution and the admitted model. `make numerics-check` also
+checks and replays a Lean refutation with an axiom audit, then rejects a false
+output claim. This authored counterexample is separate from the error-bound
+scenario runner's statuses. See [the worked example](../../docs/numerical-verification.md#kalman-counterexample).
 
 ## Known analysis gaps and external fixtures
 

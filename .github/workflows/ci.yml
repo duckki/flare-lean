@@ -36,6 +36,29 @@ jobs:
         run: make check
       - name: Check numerical workflow and rejection controls
         run: make numerics-check
+      - name: Check out pinned README demo source
+        uses: actions/checkout@v5
+        with:
+          repository: rlabbe/filterpy
+          ref: 3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33
+          path: .cache/numerics-generated/filterpy
+          persist-credentials: false
+      - name: Generate and replay README evidence
+        run: |
+          python3 scripts/readme_evidence.py generate \
+            --filterpy .cache/numerics-generated/filterpy \
+            --out .cache/numerics-generated/readme-evidence
+          python3 scripts/readme_evidence.py replay \
+            --bundle .cache/numerics-generated/readme-evidence \
+            --out .cache/numerics-generated/readme-replay
+      - name: Retain checked README evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-evidence
+          path: .cache/numerics-generated/readme-evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
       - name: Run maintained numerical benchmarks
         run: make numerics-bench
       - name: Check representative scale cases

@@ -9,11 +9,13 @@ of the core Lean library.
 
 ## Install and use
 
-Start with the [skill user guide](../README.md) for installation and an
-agent-led FilterPy example. Agents can obtain missing tools and build the
-provider; installing the skill alone does not do either. For a manual provider
-build, follow the [development guide](development.md). Shared Lake caching is
-optional; the CLI inherits the caller's settings.
+Start with the [skill user guide](../README.md) for a FilterPy example using
+the skill's full GitHub URL, followed by optional installation. The agent can
+read and follow the skill without registering it in a skill directory. Agents
+obtain missing tools and build the provider as needed; reading or installing
+the skill alone does not do either. For a manual provider build, follow the
+[development guide](development.md). Shared Lake caching is optional; the CLI
+inherits the caller's settings.
 
 Standard GitHub/skills CLI installations can contain only the skill folder.
 The agent locates or obtains a complete FLARE provider checkout separately and
@@ -111,6 +113,119 @@ historical logs still show their original paths. If the compiled Aeneas model
 also moved, pass `replay --aeneas-lean-lib /new/path/to/compiled/model`. Replay
 requires its file hashes to match the recorded model and records the selected
 location without modifying the original evidence.
+
+## FilterPy example
+
+The [README walkthrough](../README.md#example-verify-a-filterpy-function) uses
+FilterPy revision `3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33`. It checks the actual
+scalar `GHFilter.update` body over eight calls, with `dt = 0.125`, `g = 0.5`,
+`h = 0.125` and omitted gain overrides. Initial position and each independent
+measurement lie in `[-10, 10]` meters; initial velocity lies in `[-2, 2]`
+meters/second. The reference is an independent real recurrence on those inputs.
+
+Both Python and the reusable Rust port were certified and replayed with these
+exact absolute allowances:
+
+| Output | Checked allowance | Budget |
+| --- | --- | --- |
+| Position | `857/35184372088832` meters | `1e-6` meters |
+| Velocity | `673/17592186044416` meters/second | `1e-6` meters/second |
+
+The entry theorem is `Workflow.Certificate.certificate`. The README rounds the
+bounds upward for display.
+
+The Python certificate assumes ordinary scalar instances with the configured
+fields; construction, module initialization and dynamic dispatch remain caller
+premises. Source/model admission and runtime/compiler/hardware fidelity remain
+trust boundaries. Rust adds Charon/Aeneas translation and its Float model. The
+Rust bridge covers constructor and full update-state correspondence, including
+optional gain behavior; a separate loop driver supplies the finite horizon.
+Sampled API/state tests supplement that proof. Neither route certifies arrays,
+arbitrary horizons or physical tracking accuracy.
+
+## Kalman counterexample
+
+The README's standalone `posterior_variance` is the scalar compact update
+`(1 - p / (p + r)) * p`, with observation coefficient one. The failure fixture
+comes from `cancellationChecks` in the source Kalman worktree's
+`Kalman/Tests/FloatImplementations.lean`; its exact-positive reference is in
+`Kalman/Tests/Specification.lean`. Source hashes and the scalar adaptation are
+recorded in the [extraction manifest](extraction-manifest.json). This example
+covers the displayed scalar snippet, without importing the full filter.
+
+At original binary64 inputs `p = 1`, `r = 2^-54` (word
+`0x3c90000000000000`), the snippet returns zero. The independent real posterior
+is `p * r / (p + r) = 1 / (2^54 + 1) > 0`. These inputs satisfy the requested
+ranges, so this refutes strict positivity on that domain.
+
+The [maintained regression](../scripts/test_numerics_counterexamples.py) admits
+[the actual Python snippet](../examples/numerics/naive_covariance.py), generates
+its operation-ordered Lean kernel and proves `NaiveCovarianceFailure.failure`.
+The root includes the finite input/domain conditions, zero interpreted native
+output and positive exact reference. `decide +kernel` checks the closed native
+execution; no `native_decide` or additional numerical axiom is used. Its
+transitive axiom audit accepts only `propext`, `Classical.choice` and `Quot.sound`.
+The regression also replays the saved source and rejects a false output claim.
+The shared [authored argument](../scripts/numerics/counterexample.py) also supplies
+the downloadable README evidence.
+
+```sh
+FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover \
+  -s scripts -p test_numerics_counterexamples.py -v
+```
+
+This is an authored Lean counterexample route, with a named refutation theorem
+and an engineering report. The automatic error-bound CLI still reports
+`certified`, `budget_not_met` or `unresolved`; it does not emit a counterexample
+status or infer a bug from a rejected proof. The source/frontend and native
+runtime trust boundaries described above still apply.
+
+## Replay the README examples
+
+Open a successful `main` run of
+[Lean CI](https://github.com/duckki/flare-lean/actions/workflows/ci.yml) and download
+the **readme-evidence** artifact from its Artifacts section. GitHub requires
+[sign-in and repository read access](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
+The artifact is retained for 30 days; it can also be regenerated locally.
+
+Extract it into a directory such as `/absolute/path/to/readme-evidence`. Its
+`manifest.json` records the FLARE `provider_revision`, the pinned FilterPy
+revision, dependency hashes and evidence-file hashes. Use a FLARE checkout at
+that provider revision and [build it](development.md#build-and-check). Then,
+from that checkout, check both saved proofs with one command:
+
+```sh
+python3 scripts/readme_evidence.py replay \
+  --bundle /absolute/path/to/readme-evidence \
+  --out .cache/numerics-generated/readme-replay
+```
+
+The output directory must be new and outside the frozen bundle. Success reports
+`"status": "replayed"`, with `Workflow.Certificate.certificate` for FilterPy and
+`NaiveCovarianceFailure.failure` for the counterexample. Replay verifies file
+identities, checks that the saved source and contract match the examples, and
+recompiles both Lean roots with their transitive axiom audits. It needs Python
+and the built Lean library, without FilterPy dependencies or external numerical
+tools. Original sampled runtime diagnostics stay in `filterpy/`; replay checks
+the saved proofs rather than rerunning those diagnostics.
+
+The bundle includes `filterpy/report.md`, `naive-covariance/report.md`, frozen
+sources, Lean proofs, command logs and FilterPy's MIT license. It covers the
+two Lean examples; optional Rust-port evidence is separate.
+
+To generate fresh evidence from the pinned FilterPy checkout in the README:
+
+```sh
+python3 scripts/readme_evidence.py generate \
+  --filterpy /absolute/path/to/filterpy \
+  --out .cache/numerics-generated/readme-evidence
+```
+
+Generation checks source and license hashes, certifies the original scalar
+method body, runs source/model diagnostics and checks the counterexample. CI
+then runs the replay command above before uploading the bundle. The maintained
+[request template](../benchmarks/numerics/filterpy-gh-request.json) supplies the
+same eight-update contract; the generator binds its source to the selected checkout.
 
 ## Tool-assisted proofs
 

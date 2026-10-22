@@ -108,7 +108,7 @@ the user asks, then stop for review unless continuing was explicitly authorized.
 
 ## Work on the skill locally
 
-For user installation from GitHub, follow the [README](../README.md#install-the-skill).
+For user installation from GitHub, follow the [README](../README.md#optional-installation).
 When editing a FLARE checkout, the repository helper can instead link that
 checkout's authoritative skill into an agent's skill directory:
 
@@ -132,7 +132,9 @@ and [the benchmark guide](../benchmarks/numerics/README.md) for scenarios.
 Run `make numerics-check` for fresh Lean certification/replay and rejection
 controls, and `make numerics-bench` for the default end-to-end scenarios. Use
 `make numerics-scale` for increasing bounded-loop and larger-model workloads. CI
-runs the smoke suite and a representative scale subset. Optional runtimes and Rust
+runs the smoke suite, a representative scale subset and the two README examples.
+It uploads the checked [README evidence](numerical-verification.md#replay-the-readme-examples)
+after a fresh replay. Optional runtimes and Rust
 extraction are selected separately with local tool paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set
 `FLARE_NUMERICS_RUST_TOOLS=/absolute/path/to/local-tools.json` for `make numerics-check`;

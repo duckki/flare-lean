@@ -2,46 +2,27 @@
 
 _**F**loating-point **L**ibrary for **A**rithmetic, **R**ounding, and **E**rror bounds._
 
-**Verify numerical code with an AI agent and Lean. Optionally produce a verified Rust port.**
+**Numerical guarantees for your code, checked in [Lean](https://lean-lang.org/).**
 
-FLARE's `verify-numerics` agent skill checks floating-point error against an
-exact mathematical reference and your engineering budget. Its Lean proof
-library supplies reusable arithmetic and numerical-analysis theorems. A report
-states the checked guarantee, its assumptions and any remaining gaps.
+Give your AI agent a function and an error budget or a property to preserve.
+The skill can use FLARE, [Mathlib](https://leanprover-community.github.io/) and tools such as
+**[Gappa](https://gappa.gitlabpages.inria.fr/), [FPTaylor](https://github.com/soarlab/FPTaylor)
+and [PRECiSA](https://github.com/nasa/PRECiSA)**. **Lean** checks the resulting
+proof or concrete counterexample; saved evidence lets you replay it.
 
-## Install the skill
+Also, the skill can generate a verified Rust port;
+**[Charon](https://aeneasverif.github.io/charon/)/[Aeneas](https://aeneasverif.github.io/)**
+extracts its model for the correspondence proof in Lean.
 
-With Node.js 22.20+ and Git available, install from GitHub using the
-[skills CLI](https://github.com/vercel-labs/skills):
-
-```sh
-npx skills add duckki/flare-lean --skill verify-numerics -g
-```
-
-Select your agent when prompted, or add `--agent codex` (or another supported
-agent). `-g` makes the skill available across projects; omit it to install in
-the current project. No separate registry registration is required. The GitHub
-source must contain the published `skills/verify-numerics/` directory.
-
-In Codex, you can also ask its built-in
-[$skill-installer](https://learn.chatgpt.com/docs/build-skills#install-curated-skills-for-local-use):
-
-```text
-Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
-```
-
-You can start without Lean or Rust installed. The skill directs the agent to
-obtain the FLARE provider checkout and compatible tools, build the provider
-and run preflight checks. Python 3.10+ is required by the provider. Reusable
-tools go in a shared user cache outside your application checkout; setup can
-require downloads and source builds. Actual network and installation permissions
-still apply. See [tool setup](skills/verify-numerics/references/tool-setup.md)
-for the supported route.
+**No skill installation is needed.** Use an agent with GitHub access and local
+command execution. It [obtains FLARE and missing tools](skills/verify-numerics/references/tool-setup.md)
+as needed.
 
 ## Example: verify a FilterPy function
 
-Clone [FilterPy](https://github.com/rlabbe/filterpy) and select the revision used
-for this example:
+### 1. Clone the demo
+
+Clone [FilterPy](https://github.com/rlabbe/filterpy) at the revision used here:
 
 ```sh
 git clone https://github.com/rlabbe/filterpy.git
@@ -49,52 +30,49 @@ cd filterpy
 git checkout 3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33
 ```
 
-Open that local checkout in your AI agent and enter:
+### 2. Ask your agent
+
+Open the local checkout in your agent and paste:
 
 ```text
-Use $verify-numerics to verify GHFilter.update in filterpy/gh/gh_filter.py.
-Use scalar Python floats, dt = 0.125 seconds, g = 0.5, h = 0.125, and no
-per-call gain overrides. Verify eight consecutive updates, with initial
-position in [-10, 10] meters, initial velocity in [-2, 2] meters/second,
-and eight independent measurements each in [-10, 10] meters.
-Compare against an independently stated exact-real recurrence on the original
-inputs. Require final absolute errors at most 1e-6 meters for position and
-1e-6 meters/second for velocity. Put verification artifacts in verification/.
+Read and follow the verification skill at:
+https://github.com/duckki/flare-lean/blob/main/skills/verify-numerics/SKILL.md
+
+Verify GHFilter.update in filterpy/gh/gh_filter.py with this contract:
+- Use scalar Python floats, dt = 0.125 seconds, g = 0.5, h = 0.125.
+- Omit per-call gain overrides.
+- Run eight updates. Initial position is in [-10, 10] meters and initial
+  velocity is in [-2, 2] meters/second. Each of the eight independent
+  measurements is in [-10, 10] meters.
+- Compare against an independent exact-real recurrence on the original inputs.
+- Require final absolute error at most 1e-6 meters for position and
+  1e-6 meters/second for velocity.
+- Put verification artifacts in verification/.
 ```
 
-The agent inspects the actual method, states the reference and domain, checks
-the numerical proof in Lean, and replays the saved proof. The verification path
-is supplied in the query; disposable work belongs in
-`verification/.cache/`. For other tasks, the agent asks for missing ranges,
-units, budgets and artifact locations before proceeding.
+### 3. Read the result
 
-### Expected report
-
-The exercised scalar example produced this excerpt from `report.md`:
+The tested run produced a certificate and passed saved-proof replay:
 
 ```text
 # Numerical verification: certified
 
 Lean entry: `Workflow.Certificate.certificate`.
-
-Selected Python method: `GHFilter.update`.
-
-Allowances:
-- position: checked 857/35184372088832 m; requested 1/1000000; meets budget: True.
-- velocity: checked 673/17592186044416 m/s; requested 1/1000000; meets budget: True.
 ```
 
-These allowances are about `2.44e-11` meters and `3.83e-11` meters/second.
-The guarantee covers arithmetic error over the stated eight calls. The full
-engineering report records source identity, the exact recurrence, assumptions and replay
-commands. It assumes ordinary scalar instances with the configured fields;
-Python construction and dispatch, runtime/hardware fidelity, and physical
-tracking accuracy remain outside the numerical theorem. Arrays and arbitrary
-call horizons are outside this example's scope.
+| Output after eight updates | Checked error bound, rounded up | Requested budget |
+| --- | --- | --- |
+| Position | `2.44e-11` meters | `1e-6` meters |
+| Velocity | `3.83e-11` meters/second | `1e-6` meters/second |
+
+This covers arithmetic error under the stated conditions. It does not establish
+physical tracking accuracy or cover arrays and arbitrary numbers of updates.
+See [the workflow guide](docs/numerical-verification.md#filterpy-example) for
+exact bounds and the source/runtime assumptions.
 
 ### Optional: generate Rust
 
-Continue in the same agent session:
+Continue in the same session:
 
 ```text
 Generate a reusable Rust port of this GHFilter API in rust/ and verify it
@@ -102,71 +80,125 @@ against the same eight-update contract. Keep verification evidence in
 verification/.
 ```
 
-The skill preserves state, initialization, optional gain overrides and mutation
-order. A separate verification driver calls the real API in a loop. The agent
-obtains the pinned Rust extraction tools, proves the freshly extracted return
-relation in Lean, and tests API/state behavior. The exercised Rust case retained
-the same checked allowances and passed saved-proof replay. Charon/Aeneas's
-translation and Float model are additional declared trust boundaries.
+The port includes the constructor, update method and state. A separate loop
+driver covers the eight-update proof. The tested Rust port met the same bounds
+and passed replay; its extracted model is also checked in Lean.
 
-## Negative example: the requested budget is not met
+## Negative example: a Kalman update loses positive variance
 
-Save this as `mean_update.py` in any project:
+Save this as `naive_covariance.py` in any project:
 
 ```python
-def update(x: float, z: float, k: float):
-    r = z - x
-    m = r * k
-    a = m + 0.0
-    return a + x
+def posterior_variance(p: float, r: float):
+    gain = p / (p + r)
+    return (1.0 - gain) * p
 ```
 
-Then ask your agent:
+Here `p` is the prior variance and `r` is the measurement-noise variance.
+Both are positive, so the exact posterior `p * r / (p + r)` must be positive.
+Ask your agent to check that property:
 
 ```text
-Use $verify-numerics to verify update in mean_update.py with the default Lean
-backend. Use finite scalar Python floats: x in [-1, 1] meters, z in
-[-1/2, 1/2] meters, and dimensionless k in [0, 1]. Name the return updated_mean
-and compare it against the exact-real expression x + k * (z - x) on the
-original inputs. Require absolute error at most 2^-51 meters. Preserve the
-source and requested budget. Put artifacts in verification/mean-update-tight
-and report whether the checked allowance meets the requirement.
+Read and follow the verification skill at:
+https://github.com/duckki/flare-lean/blob/main/skills/verify-numerics/SKILL.md
+
+Verify posterior_variance in naive_covariance.py with this contract:
+- Use scalar Python floats: p in [1, 2] and r in [2^-54, 2^-53], both in
+  square meters.
+- Compare against the exact-real posterior p * r / (p + r) on the original inputs.
+- Require a strictly positive result.
+- Put verification artifacts in verification/naive-covariance/.
 ```
 
-For this code, domain and budget, the current automatic backend reports:
+Expected engineering report, backed by a saved Lean proof:
 
 ```text
-# Numerical verification: budget_not_met
-
-Lean entry: `Workflow.Certificate.certificate`.
-
-Allowances:
-- updated_mean: checked 1/8796093022208 m; requested 1/2251799813685248; meets budget: False.
+Outcome: counterexample proved
+Inputs: p = 1, r = 2^-54
+Binary64 posterior: 0
+Exact posterior: 1 / (2^54 + 1) > 0
+Requirement: strictly positive variance — violated
+Lean entry: NaiveCovarianceFailure.failure
 ```
 
-The checked allowance is `2^-43` meters; the requested budget is `2^-51`
-meters. The workflow has not established the requested guarantee. An upper
-bound above budget does not prove that the code attains that error; a tighter
-proof may still succeed. A missing tool, unsupported construct, timeout or
-proof failure instead leaves the run `unresolved`, with its failing stage
-and logs retained.
+`p + r` rounds to `1`, so the gain becomes `1` and the returned variance is
+zero. This is a concrete loss of positivity. The
+[maintained counterexample](docs/numerical-verification.md#kalman-counterexample)
+checks the input, native result and exact reference in Lean, then replays the
+proof.
 
-## Review the delivery
+## Check the evidence
 
-Expect an engineering report, frozen source/request/proof evidence, checked
-allowances versus your budgets, and reproducible run/replay commands under
-the agreed verification directory. Supplemental reports stay outside sealed
-run directories. Sampled runtime checks help diagnose source/model mismatches;
-they do not replace the Lean proof. Freshness auditing checks identities;
-saved-proof replay checks the mathematics again.
+[Download and replay the example proofs](docs/numerical-verification.md#replay-the-readme-examples)
+from a successful [Lean CI run](https://github.com/duckki/flare-lean/actions/workflows/ci.yml).
+The `readme-evidence` artifact contains the FilterPy certificate and the Kalman
+counterexample, with source, assumptions and commands. One replay command checks both.
+
+## Try your own code
+
+Use this prompt in your project, filling in the contract:
+
+```text
+Read and follow the verification skill at:
+https://github.com/duckki/flare-lean/blob/main/skills/verify-numerics/SKILL.md
+
+Verify <function> in <file> with this contract:
+- Inputs: <numeric types, ranges and units>.
+- Reference: <intended mathematical computation>.
+- Requirement: <error budget or property to preserve>.
+Confirm the verification and optional Rust output directories before creating files.
+```
+
+## What you receive
+
+The report distinguishes three outcomes:
+
+| Outcome | Meaning |
+| --- | --- |
+| **Requirement proved** | A Lean proof establishes your contract under the stated assumptions. |
+| **Counterexample proved** | A Lean proof exhibits an allowed input that violates your requirement. |
+| **Unresolved** | No proof or refutation yet; the report explains the remaining obstacle. |
+
+An insufficient error bound leaves the requirement unresolved; it does not prove a bug.
+
+The verification artifact directory contains:
+
+- A report with the outcome, checked results and any remaining obligations.
+- The source, input assumptions, exact reference and Lean proof evidence.
+- Commands to reproduce the run and replay the saved proof.
+
+Scratch work stays under that directory's `.cache/`.
+
+## Optional installation
+
+Install for reuse across tasks, so you can invoke `$verify-numerics` in Codex
+instead of including the full URL.
+
+With Node.js 22.20+ and Git, run:
+
+```sh
+npx skills add duckki/flare-lean --skill verify-numerics -g
+```
+
+Choose your agent when prompted, or add `--agent codex`. `-g` installs across
+projects; omit it to install only in the current project.
+See the [skills CLI](https://github.com/vercel-labs/skills) for other agents.
+
+Alternatively, ask Codex's built-in
+[$skill-installer](https://learn.chatgpt.com/docs/build-skills#install-curated-skills-for-local-use):
+
+```text
+Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
+```
 
 ## Documentation
 
-- [Development: build, format, check and test FLARE](docs/development.md)
+- [Development: build, format and test](docs/development.md)
 - [Use FLARE as a Lean library](docs/using-library.md)
-- [Proved results, repository organization and source attribution](docs/organization.md)
-- [Theorem guide and assurance boundaries](docs/reference.md)
-- [Numerical workflow, CLI and current capability limits](docs/numerical-verification.md)
-- [Maintained workflow benchmarks](benchmarks/numerics/README.md)
-- [Contributing](CONTRIBUTING.md) and [potential Mathlib contributions](docs/upstream/mathlib.md)
-- [License: GPL-3.0-only](LICENSE); third-party dependencies retain their own licenses.
+- [Proved results, organization and attribution](docs/organization.md)
+- [Theorem reference](docs/reference.md)
+- [Verification workflow and limitations](docs/numerical-verification.md)
+- [Benchmarks](benchmarks/numerics/README.md)
+- [Contributing](CONTRIBUTING.md)
+
+[GPL-3.0-only](LICENSE). Third-party dependencies retain their own licenses.

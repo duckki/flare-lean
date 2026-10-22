@@ -71,6 +71,22 @@ Keep mathematical checking, native diagnostics, physical coverage and effort
 measurements distinct. Historical Coq/PVS comparisons remain legitimate survey
 evidence, but are not completion of this workflow's Lean deliverable.
 
+## Counterexamples to false requirements
+
+A concrete failure can close the engineering question with a Lean refutation.
+Prove one original input is finite and inside the requested domain, evaluate the
+actual operation-ordered native model, and prove the requested property fails.
+Connect the independent exact reference to those same decoded inputs. Save a
+named root, audit its transitive axioms and replay it with `lake env lean`
+using the provider's pinned dependencies. Kernel evaluation (`decide +kernel`)
+can establish a closed binary64 execution without a native-evaluation axiom.
+
+This is a standalone authored counterexample, not a successful error-bound
+certificate or a new automatic CLI status. A failed proof, timeout or loose
+upper allowance is insufficient. The
+[scalar Kalman example](https://github.com/duckki/flare-lean/blob/main/docs/numerical-verification.md#kalman-counterexample)
+demonstrates a zero native posterior where the exact posterior is positive.
+
 ## Authored proof interface
 
 An optional request object supplies a saved Lean source module:
