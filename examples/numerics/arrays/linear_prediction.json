@@ -1,0 +1,58 @@
+{
+  "schema": "numerics-request-v1",
+  "source": "linear_prediction.py",
+  "language": "python",
+  "function": "predict",
+  "target": "lean",
+  "python_arrays": {
+    "transition": [
+      2,
+      2
+    ],
+    "state": [
+      2
+    ]
+  },
+  "domain": {
+    "transition_0_0": [
+      "-1",
+      "1"
+    ],
+    "transition_0_1": [
+      "-1",
+      "1"
+    ],
+    "transition_1_0": [
+      "-1",
+      "1"
+    ],
+    "transition_1_1": [
+      "-1",
+      "1"
+    ],
+    "state_0": [
+      "-1",
+      "1"
+    ],
+    "state_1": [
+      "-1",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "entry_0",
+      "unit": "1",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "entry_1",
+      "unit": "1",
+      "limit": "1/10000000000"
+    }
+  ],
+  "specification": {
+    "kind": "matrix",
+    "expression": "transition @ state"
+  }
+}

@@ -23,9 +23,13 @@ class Program:
     inputs: tuple
     nodes: tuple
     outputs: tuple
+    arrays: dict | None = None
 
     def record(self):
-        return {"schema": "ordered-binary64-v1", **asdict(self)}
+        record = {"schema": "ordered-binary64-v1", **asdict(self)}
+        if self.arrays is None:
+            record.pop('arrays')
+        return record
 
 
 def word(value):
@@ -83,8 +87,8 @@ class Graph:
             raise Unsupported('Integer-only arithmetic is unsupported; explicitly use float literals in the source if intended')
         return self.emit(op, (self.floating(left), self.floating(right)))
 
-    def finish(self, outputs):
-        if not 1 <= len(outputs) <= 2:
+    def finish(self, outputs, max_outputs=2):
+        if not 1 <= len(outputs) <= max_outputs:
             raise Unsupported('Expected one or two scalar outputs')
         if any(value.integer is not None for value in outputs):
             raise Unsupported('Integer outputs cannot be silently converted to binary64')

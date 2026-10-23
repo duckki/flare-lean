@@ -253,6 +253,22 @@ milestone.
 
 ## 5. Admit vectors and matrices from actual source
 
+Implemented for fixed-shape built-in Python list products through the
+[`python_arrays` profile](../skills/verify-numerics/references/arrays.md).
+The same adapter and typed-root generator cover a two-state linear prediction,
+calibration matrix composition, a three-term projection, a four-state linear
+prediction and the one-entry boundary. Roots include input shape guards,
+fresh output shape, successful finite dense execution and entrywise error
+against independent real matrix expressions. The reusable ordered-product
+bridge preserves the original ascending, separately rounded schedule.
+
+Source-model regeneration and producer-free replay cover every example.
+Wrong shapes, aliases, indices and order are rejected at admission; false
+exact specifications and weakened roots are rejected in Lean. This scope does
+not establish NumPy/BLAS correspondence, arbitrary mutable collections or an
+automatic array Rust port. The original large covariance/correction graphs
+remain intermediate analysis targets; they have no application certificate.
+
 ### Deliver
 
 - Start with fixed-size vectors and small dense matrices: indexing, updates,

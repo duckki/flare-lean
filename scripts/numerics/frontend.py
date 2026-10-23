@@ -191,7 +191,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops and explicit ordinary scalar instance-method horizons on original built-in float inputs; bounded AST expansion and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons and a separate fixed-shape built-in-list product profile; bounded AST expansion and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -199,7 +199,12 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None):
+def parse(language, source, function, python_method=None, python_arrays=None):
+    if python_arrays is not None:
+        if language != 'python' or python_method is not None:
+            raise Unsupported('python_arrays requires ordinary Python functions')
+        from .python_arrays import parse_arrays
+        return parse_arrays(source,function,python_arrays)
     if python_method is not None:
         if language != "python":
             raise Unsupported("python_method requires the Python frontend")

@@ -80,6 +80,11 @@ mapping from actual source to executable model explicit. If support cannot be
 completed, report the unresolved construct or obligation; do not substitute a
 hand-rewritten surrogate and claim to have verified the original implementation.
 
+For fixed-shape built-in Python list products, read [arrays.md](references/arrays.md).
+Supply explicit input shapes and an independent exact matrix expression. Inspect
+aliasing, every index and the accumulation order; a NumPy/BLAS call or an array
+Rust port requires its own bridge.
+
 For admitted Python helpers and bounded literal-tuple loops, specify an exact
 two-state fold on the original inputs. Review the whole horizon's allowance;
 intermediate state errors must carry forward. The provider can preserve helper

@@ -79,7 +79,18 @@ Physical/model uncertainty, arbitrary libraries, branches and unbounded
 repeated-call invariants are outside the automatic certificate. Python local
 helpers and bounded literal-tuple loops can be lowered and checked against an
 independently specified exact two-state fold. Every intermediate error is carried
-through the whole horizon. Arrays and general dynamic iteration remain unsupported.
+through the whole horizon. General dynamic iteration remains unsupported.
+
+The separate `python_arrays` profile admits fixed-shape built-in list products:
+matrix-vector prediction, dot products and dense matrix multiplication with
+explicit ascending loops. The root quantifies over Lean array inputs, checks
+the input shape guard, proves fresh output shape and finiteness, and connects
+the actual operation order to `Matrix.Dense.multiply` through
+`Matrix.OrderedProduct.multiply_eq`. Entrywise bounds use the same numerical
+validator; an independent exact real matrix expression supplies the reference.
+The [array workflow guide](../skills/verify-numerics/references/arrays.md) gives
+the shape configuration, limits and maintained examples. Input lists are
+read-only; NumPy/BLAS and automatic array Rust delivery need further bridges.
 
 An explicit `python_method` binding also admits a narrow class-method subset:
 two scalar state fields, fixed binary64 attributes, `None`-default gains and a

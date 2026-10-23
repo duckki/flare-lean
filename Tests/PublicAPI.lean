@@ -51,3 +51,8 @@ example (δ : ℝ) (hδ : 0 ≤ δ)
         - (List.replicate 128 (1 : ℝ)).foldl (fun i x => i + x) 0|
       ≤ 128 * δ := by
   simpa using biased_fold_bound (List.replicate 128 1) δ hδ
+
+example (rows inner columns : Nat) (a b result : Array Float)
+    (h : Flare.Matrix.Dense.multiply rows inner columns a b = .ok result)
+    : result = Flare.Matrix.OrderedProduct.product rows inner columns a b :=
+  Flare.Matrix.OrderedProduct.multiply_eq rows inner columns a b result h

@@ -1,8 +1,9 @@
 # Numerical workflow benchmarks
 
 `scenarios.json` is the maintained scenario list; requests and source kernels
-live in `examples/numerics/`. These are reusable fixtures extracted from
-Kalman experiments, not a copy of the paper or its frozen performance reports.
+live in `examples/numerics/`. These include reusable fixtures extracted from
+Kalman experiments and FLARE's fixed-shape array examples, rather than the
+paper or its frozen performance reports.
 The [source attribution](../../docs/organization.md#source-attribution) identifies their source.
 
 ```sh
@@ -31,6 +32,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Four-stage mean update | `certified` | Residual, gain multiplication, add zero, add prior mean |
 | Same mean update, `2^-51` target | `certified` | Reusable scalar inference, three gain intervals and the unchanged target |
 | Tiny positive gain denominator | `certified` | Preserve native and exact positive floors with both variances in `[2^-54,2^-53]` |
+| Array prediction / calibration / projection | `certified` | Built-in Python lists, checked shapes and original ascending product order, independent exact matrix expressions |
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
@@ -48,6 +50,23 @@ A local tools file has `runtimes` keyed by `julia`, `matlab` or `rust`, each wit
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
 `analysis_tools` maps Gappa/FPTaylor to their executable and optional identity/data selections.
 Use absolute paths. This machine configuration is not a version attestation.
+
+### Array source scenarios
+
+The requests under `examples/numerics/arrays/` retain actual list indexing,
+fresh buffer updates, local helpers and `range(size)` loops. The default suite
+covers two-state prediction, a 2×2 calibration product, a three-term dot product
+and the one-entry boundary. The scale suite adds a 4×4 matrix-vector prediction.
+They use one adapter and typed array-root generator; no per-example numerical
+lemma is supplied. See the [array guide](../../skills/verify-numerics/references/arrays.md).
+
+Each root proves its input shape guard, fresh output shape, finite dense
+execution with the same native entries and an error allowance against a real
+matrix expression. Tests reject aliased rows, input mutation, bad shapes,
+indices and native accumulation order. A false real specification fails in
+Lean; the independent root checker rejects a resealed weakened statement.
+All examples replay without a producer. These cases are separate from the
+larger exported covariance/correction graphs, which remain analysis probes.
 
 Fresh Lean tests require the baseline to certify first. Controls then check that:
 

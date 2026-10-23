@@ -24,6 +24,7 @@ def main():
     inspect.add_argument('--source', required=True)
     inspect.add_argument('--function', required=True)
     inspect.add_argument('--language', default='python')
+    inspect.add_argument('--python-arrays', type=json.loads, help='JSON mapping input names to fixed list shapes')
     for name in ['audit', 'replay']:
         p = sub.add_parser(name)
         p.add_argument('--run', required=True)
@@ -46,13 +47,19 @@ def main():
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
+                'source_profiles': {'python_arrays': {'request_field':'python_arrays',
+                    'inputs':'two built-in list operands: rank-two left matrix, rank-one/two right operand',
+                    'dimensions':'1 through 8; at most 32 output entries',
+                    'operations':'fixed indexing, fresh scalar updates, shape assertions, local helpers, range(size), ascending separately rounded products',
+                    'target':'lean; no NumPy/BLAS bridge or automatic array Rust port'}},
                 'source_runtimes': {name: runtime_candidates(name) for name in FRONTENDS}}
         elif args.command == 'inspect':
-            p = parse(args.language, Path(args.source).read_text(), args.function)
+            p = parse(args.language, Path(args.source).read_text(), args.function, python_arrays=args.python_arrays)
             result = {'status': 'needs_input', 'program': p.record(), 'required_inputs': {
                 'domain': {name: '[lower, upper] as exact rational strings' for name in p.inputs},
                 'outputs': [{'name': '', 'unit': '', 'limit': ''} for _ in p.outputs],
-                'specification': ['independent exact expression over input names' for _ in p.outputs]}}
+                'specification': {'kind':'matrix','expression':'independent matrix expression over original array names'} if p.arrays else
+                    ['independent exact expression over input names' for _ in p.outputs]}}
         elif args.command == 'audit':
             result = audit_run(args.run, args.frozen)
         elif args.command == 'replay':

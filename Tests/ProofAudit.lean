@@ -57,6 +57,7 @@ import all Flare.Matrix.MatrixFormation
 import all Flare.Matrix.Multiplication
 import all Flare.Matrix.OperationStorage
 import all Flare.Matrix.Operations
+import all Flare.Matrix.OrderedProduct
 import all Flare.Matrix.PSDCheck
 import all Flare.Matrix.PositiveDefiniteFactorization
 import all Flare.Matrix.Pseudoinverse

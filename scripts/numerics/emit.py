@@ -27,6 +27,14 @@ def returned(outputs):
     return outputs[0] if len(outputs) == 1 else "(" + ", ".join(outputs) + ")"
 
 
+def result_type(typ, count):
+    return ' × '.join([typ]*count)
+
+
+def projection(index, count):
+    return '' if count == 1 else '.2'*index + ('.1' if index < count-1 else '')
+
+
 def rust_source(program):
     params = ", ".join(f"a{i}: f64" for i in range(len(program.inputs)))
     result = "f64" if len(program.outputs) == 1 else "(f64, f64)"
@@ -37,18 +45,22 @@ def rust_source(program):
 
 def kernel_source(program, specification):
     result = []
+    used={arg for node in program.nodes for arg in node.args} | set(program.outputs)
     for name, typ, ideal in [("kernel", "Float", False), ("reference", "ℝ", True)]:
         params = " ".join(f"(a{i} : {typ})" for i in range(len(program.inputs)))
-        out = typ if len(program.outputs) == 1 else f"{typ} × {typ}"
+        out = result_type(typ,len(program.outputs))
         declaration = 'noncomputable def' if ideal else 'def'
         result += [f"{declaration} {name} {params} : {out} :="]
-        result += [f"  let {n.name} := {expression(n, ideal=ideal)}" for n in program.nodes]
+        result += [f"  let {n.name if n.name in used else '_'+n.name} := {expression(n, ideal=ideal)}" for n in program.nodes]
         result += ["  " + returned(program.outputs), ""]
     arguments = ' '.join(f'(a{i} : ℝ)' for i in range(len(program.inputs)))
-    output_type = 'ℝ' if len(program.outputs) == 1 else 'ℝ × ℝ'
+    output_type = result_type('ℝ',len(program.outputs))
     result += [f'noncomputable def specification {arguments} : {output_type} :=',
                *['  '+line for line in lean_specification(specification,program)], '']
-    return "\n".join(["module", "", "public import Flare.Binary64.Value", "", "@[expose] public section", "", "namespace Workflow", "", *result, "end Workflow", ""])
+    imports = ['public import Flare.Binary64.Value']
+    if program.arrays:
+        imports += ['public import Flare.Matrix.OrderedProduct','public import Mathlib.LinearAlgebra.Matrix.Notation']
+    return "\n".join(["module", "", *imports, "", "@[expose] public section", "", "namespace Workflow", "", *result, "end Workflow", ""])
 
 
 def params(program):
@@ -69,7 +81,7 @@ def proposition(program, summaries, output="kernel", exact="reference"):
     refargs = " ".join(f"(value a{i})" for i in range(len(program.inputs)))
     clauses = []
     for i, node in enumerate(program.outputs):
-        suffix = f".{i+1}" if len(program.outputs) > 1 else ""
+        suffix = projection(i,len(program.outputs))
         native = f"output{suffix}" if output == 'output' else f"({output} {args}){suffix}"
         ideal = f"({exact} {refargs}){suffix}"
         clauses += [f"{native}.isFinite = true", f"|value {native} - {ideal}| ≤ {real(summaries[node].e)}"]
@@ -188,11 +200,15 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         f'    : reference {args} = specification {args} := by']
     if authored and authored.get('specification_equiv'):
         lines += ['  exact '+authored['specification_equiv']+' '+args]
-    elif folded:
+    elif folded and not program.arrays:
         lines += ['  rfl']
     else:
-        lines += ['  unfold reference specification',
-                  '  apply Prod.ext <;> ring' if len(program.outputs)>1 else '  ring']
+        lines += ['  unfold reference specification']
+        if program.arrays:
+            lines += ['  simp [Matrix.mul_apply'+(', Fin.sum_univ_succ' if program.arrays['product'][1]>1 else '')+', Matrix.of_apply'+
+                      (', add_assoc' if program.arrays['product'][1]>2 else '')+']']
+        else:
+            lines += ['  apply Prod.ext <;> ring' if len(program.outputs)>1 else '  ring']
     if with_rust:
         lines += ['', f'theorem source_equiv {params(program)}',
             f'    : Generated.kernel {args} = .ok (kernel {args}) := by',
@@ -218,9 +234,8 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         lines += ['  have numerical : '+proposition(program,conclusion,exact='specification')+' := by',
                   '    rw [← specification_equiv]', '    exact '+accuracy,
                   '  have budget : '+budget+' := by norm_num',
-                  '  exact ⟨numerical.1, '+
-                  ('numerical.2, budget' if len(program.outputs)==1 else
-                   'numerical.2.1, numerical.2.2.1, numerical.2.2.2, budget')+'⟩']
+                  '  exact ⟨'+', '.join('numerical'+projection(i,2*len(program.outputs))
+                      for i in range(2*len(program.outputs)))+', budget⟩']
     else:
         lines += ['  rw [← specification_equiv]', '  exact '+accuracy]
     lines += ['', 'end Workflow.Certificate', '', 'open Lean in', 'run_cmd do',
@@ -229,11 +244,20 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         '    unless allowed.contains axiomName do',
         '      throwError "Unexpected axiom {axiomName} in root certificate"',
         '  logInfo "Lean root certificate checked; standard Lean foundations only."', '']
-    return "\n".join(lines)
+    text = "\n".join(lines)
+    if program.arrays:
+        from .array_emit import proof_source as array_proof_source
+        text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
+            '``Workflow.Certificate.certificate','``Workflow.Certificate.scalar_certificate')
+        text += array_proof_source(program,domain,conclusion,targets)
+    return text
 
 
 def check_source(program, domain, summaries, targets, with_rust=False):
     """Ascribe the root's independently reconstructed type and audit its axiom closure."""
+    if program.arrays:
+        from .array_emit import check_source as array_check_source
+        return array_check_source(program,domain,summaries,targets)
     args=applied(program)
     hyps=hypotheses(program,domain)
     clauses=proposition(program,summaries,output='output' if with_rust else 'kernel',exact='specification')

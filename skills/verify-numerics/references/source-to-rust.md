@@ -66,10 +66,12 @@ definitional equality. Other identities can use a saved authored proof.
 
 ## Admitted source subsets
 
-Every adapter selects a numerical function with one or two scalar results,
+The scalar profiles select a numerical function with one or two scalar results,
 finite constants, unary signs and separately rounded `+ - * /`, preserving
 parentheses and operation order. Python also admits local helpers and fixed
-tuple loops as described below. External calls, arrays, dynamic loops, branches,
+tuple loops as described below. A separate [array profile](arrays.md) admits
+fixed-shape built-in Python list products with explicit range loops and fresh
+output storage. In the scalar profiles, external calls, arrays, dynamic loops, branches,
 casts, fast-math and custom numeric objects are excluded. Source-language implementations remain trusted;
 actual-runtime word diagnostics test samples independently of graph execution.
 
@@ -85,7 +87,7 @@ are positional and direct; recursion, external functions, decorators, defaults,
 global mutation and function-valued arguments remain unsupported. The selected
 call graph is expanded into the same immutable arithmetic graph.
 
-Admitted `for` loops iterate a literal tuple of 1–128 scalar values. The tuple
+The scalar Python profile's `for` loops iterate a literal tuple of 1–128 values. The tuple
 is evaluated before iteration, including when a loop body reassigns a name
 used in that tuple. `break`, `continue`, loop `else`, returns inside loops,
 `while`, `range`, arbitrary iterable inputs and container mutation are excluded.
@@ -102,7 +104,7 @@ not reset error at a helper or iteration boundary. The generated proof connects
 the whole lowered computation to the fold. Current automatic fold equivalence
 uses definitional equality; other algebra can use an authored equivalence proof.
 
-Python/Julia integer constants up to 2^53 are admitted only when promoted exactly
+Scalar Python/Julia integer constants up to 2^53 are admitted only when promoted exactly
 by a Float operand; integer-only computations and results are rejected. MATLAB
 numerals have double type. Rust literals must use decimal floating syntax;
 suffixes, hex literals, macros and block comments are outside this subset.

@@ -1,7 +1,16 @@
 {
   "schema": "numerics-benchmarks-v1",
-  "description": "Increasing bounded Kalman/IMU iterations followed by original full-application admission and four-state DAG analysis probes. A graph probe or source rejection is never a certificate.",
+  "description": "Fixed-shape array prediction, increasing bounded Kalman/IMU iterations, original full-application admission and four-state DAG analysis probes. A graph probe or source rejection is never a certificate.",
   "cases": [
+    {
+      "name": "array_prediction4",
+      "kind": "workflow",
+      "family": "array-product",
+      "iterations": 4,
+      "request": "../../examples/numerics/arrays/state_prediction4.json",
+      "expected": "certified",
+      "optional": false
+    },
     {
       "name": "kalman_001",
       "kind": "workflow",

@@ -132,6 +132,9 @@ def source_results(program, source, cases, runtime, output, work, runner, reques
         if request.get("python_method") is not None:
             from .python_method import load_method
             function = load_method(source, program.function, request["python_method"])
+        elif program.arrays:
+            from .python_arrays import load_arrays
+            function = load_arrays(source,program.function,program.arrays)
         else:
             function = adapter.load_for_diagnostics(source, program.function)
         rows = []

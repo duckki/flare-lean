@@ -89,6 +89,7 @@ jobs:
       - name: Check representative scale cases
         run: >-
           python3 scripts/benchmark_numerics.py --suite scale
+          --case array_prediction4
           --case kalman_004 --case kalman_016 --case kalman_048 --case kalman_128
           --case imu_016 --case imu_048 --case imu48_rust_application
           --case covariance_relative --case covariance_global

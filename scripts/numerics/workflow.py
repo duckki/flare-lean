@@ -42,7 +42,9 @@ def prepare(path, *, replay=False):
         if not isinstance(request.get(field, default), str):
             raise ValueError('Expected string selector: '+field)
     source = (path.parent / request['source']).resolve()
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'))
+    if program.arrays and (request.get('target','lean') != 'lean' or request.get('proof') or request.get('producer','lean-flare') != 'lean-flare'):
+        raise Unsupported('The fixed-array profile currently uses Lean certification with the lean-flare producer')
     from .runtimes import validate_selection
     validate_selection(program, request.get('source_runtime'))
     questions = []
@@ -184,6 +186,9 @@ def report(output, result):
                   'Fixed binary64 attributes (exact hexadecimal values):']
         lines += ['- '+name+': '+value.hex() for name,value in binding['constants'].items()]
         lines += ['Ordered measurements: '+', '.join(binding['sequence'])+'.']
+    if request.get('python_arrays'):
+        lines += ['', 'Built-in Python list input shapes: `'+json.dumps(request['python_arrays'])+'`.',
+                  'Inputs are read-only; returned storage is fresh. The Lean root checks the shape guard and the original ascending product schedule.']
     lines += ['', 'Independent exact specification:']
     lines += ['- '+x for x in describe_specification(request['specification'])]
     lines += ['', 'Allowances:']
@@ -275,6 +280,9 @@ def output_bounds(program, request):
 
 
 def kernel_for_run(output, request, program):
+    if program.arrays:
+        from .array_emit import kernel_source as array_kernel_source
+        return array_kernel_source(program,request,(output/request['source']).read_text())
     layout_path = output/'model-layout.json'
     if not layout_path.exists():
         return kernel_source(program,request['specification'])
@@ -300,7 +308,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -336,6 +344,10 @@ def certify(request_path, output):
     if request.get('python_method'):
         result['scope']='A frozen finite horizon of the selected original Python method body on the configured scalar state and fixed binary64 attributes.'
         result['assumptions'].append('The caller invokes the selected original method body on an ordinary instance with the configured scalar fields and omitted optional gains. Module initialization, construction and dynamic dispatch are outside this certificate.')
+    if program.arrays:
+        result['scope']='One fixed-shape built-in Python list matrix/vector product, with checked shape guard, finite execution and entrywise numerical bounds relative to an independent real matrix specification.'
+        result['array_shapes']=program.arrays
+        result['assumptions'].append('Original inputs are built-in lists of built-in binary64 floats. The admitted AST-to-persistent-Lean-array mapping is trusted; inputs are read-only and outputs use fresh independent storage. No NumPy or BLAS correspondence is claimed.')
     if port_sources:
         result['rust_port_sources'] = port_sources
     if with_rust:

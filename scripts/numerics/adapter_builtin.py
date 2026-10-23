@@ -6,7 +6,13 @@ def produce(session):
     from . import scalar
     from . import composition
     from fractions import Fraction as Q
-    if not session.request.get('proof') and isinstance(session.request.get('specification'), dict):
+    if session.program.arrays:
+        from .analysis import analyze, scale_normalized
+        summaries,steps=analyze(session.program,session.request['domain'],scale_normalized)
+        details={'validation':'lean-ordered-array-product-v1',
+                 'qualification':'Fixed shapes and the original ascending product schedule; numerical premises and the array root are checked in Lean.'}
+        return Proposal(summaries,steps,{name:summaries[name] for name in session.program.outputs},details),details
+    if not session.program.arrays and not session.request.get('proof') and isinstance(session.request.get('specification'), dict):
         source = (session.output/session.source_name).read_text()
         calls = composition.groups(session.program, source, session.request)
         if calls:

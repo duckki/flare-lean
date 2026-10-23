@@ -36,6 +36,7 @@ The pinned Lean source is the definition of the logical machine operations:
 | `Analysis.ErrorRecurrence` | `foldl_contract`, `foldl_error_bound`, `finite_horizon_bound`, `nonexpansive_budget` | Compose supplied step invariants and error recurrences over a parameterized bounded horizon; local premises remain to be proved |
 | `Binary64.Model.NaturalConversion` | `ofNat_exact`, `nat_div_error_real` | Exact conversion below 2^53; bounded natural quotient with 0 < denominator and numerator ≤ denominator |
 | `Matrix.Multiplication` | `multiply_accuracy`, `multiply_mass_accuracy`, `multiply_norm_accuracy` | Actual separately rounded multiply/add loops; inner dimension ≤ 32 and explicit magnitude or term-mass bounds |
+| `Matrix.OrderedProduct` | `dot`, `product`, `multiply_eq` | A successful `Dense.multiply` returns the ascending native fold, preserving every separately rounded operation; success is a separate obligation |
 | `Matrix.PositiveDefiniteFactorization` | `factor_accuracy`, `solveSPD_success` | Dimension ≤ 12; explicit SPD floor, entry bounds, and right-hand-side bounds |
 | `Matrix.SolveAccuracy` | `solveSPD_residual`, `solveSPD_accuracy`, `solveSPD_mass_residual` | Residual and forward-error guarantees under the stated conditioning and factorization profiles |
 | `Matrix.JacobiInitialization` | `jacobiEigen_success` | Finite symmetric arrays, 1–18 rows, entries bounded by 2^500; includes the iteration limit and final rescaling |

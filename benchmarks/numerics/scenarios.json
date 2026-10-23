@@ -85,6 +85,30 @@
       "request": "../../examples/numerics/mean_update_fptaylor.json",
       "expected": "certified",
       "optional": true
+    },
+    {
+      "name": "array_linear_prediction",
+      "request": "../../examples/numerics/arrays/linear_prediction.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "array_calibration_product",
+      "request": "../../examples/numerics/arrays/calibration_product.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "array_dot_projection",
+      "request": "../../examples/numerics/arrays/dot_projection.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "array_one_entry",
+      "request": "../../examples/numerics/arrays/one_entry.json",
+      "expected": "certified",
+      "optional": false
     }
   ]
 }

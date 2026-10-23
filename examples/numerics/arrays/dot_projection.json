@@ -1,0 +1,53 @@
+{
+  "schema": "numerics-request-v1",
+  "source": "linear_map.py",
+  "language": "python",
+  "function": "apply_linear",
+  "target": "lean",
+  "python_arrays": {
+    "matrix": [
+      1,
+      3
+    ],
+    "vector": [
+      3
+    ]
+  },
+  "domain": {
+    "matrix_0_0": [
+      "-1",
+      "1"
+    ],
+    "matrix_0_1": [
+      "-1",
+      "1"
+    ],
+    "matrix_0_2": [
+      "-1",
+      "1"
+    ],
+    "vector_0": [
+      "-1",
+      "1"
+    ],
+    "vector_1": [
+      "-1",
+      "1"
+    ],
+    "vector_2": [
+      "-1",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "entry_0",
+      "unit": "1",
+      "limit": "1/10000000000"
+    }
+  ],
+  "specification": {
+    "kind": "matrix",
+    "expression": "matrix @ vector"
+  }
+}

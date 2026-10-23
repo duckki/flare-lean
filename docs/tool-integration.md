@@ -88,6 +88,29 @@ invariants, mutation and collection operations need additional source/proof
 support. Gappa/FPTaylor retain their scalar graph limits. A loose checked bound
 remains `budget_not_met`, including the 128-update Kalman mean allowance.
 
+## Fixed-shape array source
+
+The Python `python_arrays` profile supplies shapes independently of the source
+and uses the existing `lean-flare` route. A restricted AST interpreter lowers
+indexed reads, fresh output updates and fixed loops to a persistent Lean array
+model and ordered scalar graph. Admission checks native dot-product order,
+including its initial positive zero and each separate multiply/add.
+
+The root quantifies over shaped arrays, proves the input shape guard and output
+shape, and relates returned entries to `Matrix.Dense.multiply` through the
+generic `Matrix.OrderedProduct.multiply_eq` theorem. The existing
+`Matrix.Multiplication.multiply_accuracy` discharges successful finite dense
+execution. The shared binary64 checker establishes each component allowance,
+and real matrix expressions supply an independent reference. Thus this path
+reuses matrix semantics and numerical validation without a per-application lemma.
+
+Frozen replay regenerates the entire array model from the retained source,
+then recompiles the proof and reconstructs its expected array root type. Wrong
+shapes, aliasing, indices and accumulation order have admission controls; false
+exact references and weakened roots have Lean rejection controls. This profile
+does not extend the Gappa/FPTaylor source or Rust extraction subsets. See the
+[array guide](../skills/verify-numerics/references/arrays.md) for configuration.
+
 ## Select a producer
 
 The request's `backend` remains `lean-flare`, the independent proof-generation

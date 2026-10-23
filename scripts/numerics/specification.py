@@ -23,6 +23,10 @@ def lean_expression(source, inputs, bindings=None):
 
 
 def validate(specification, program):
+    if program.arrays:
+        from .array_emit import matrix_specification
+        matrix_specification(specification,program)
+        return
     if isinstance(specification,list):
         if len(specification)!=len(program.outputs) or any(not isinstance(x,str) for x in specification):
             raise ValueError('Provide an independent exact expression string per output')
@@ -51,6 +55,9 @@ def validate(specification, program):
 
 
 def lean_specification(specification,program):
+    if program.arrays:
+        from .array_emit import matrix_specification
+        return [matrix_specification(specification,program)]
     if isinstance(specification,list):
         values=[lean_expression(x,program.inputs) for x in specification]
         return [values[0] if len(values)==1 else '('+', '.join(values)+')']
@@ -66,6 +73,8 @@ def lean_specification(specification,program):
 
 def describe(specification):
     if isinstance(specification,list): return specification
+    if specification.get('kind') == 'matrix':
+        return [specification['expression']+' (exact real matrix product)']
     return ['initial = '+', '.join(specification['initial']),
             'fold over '+', '.join(specification['sequence']),
             'state names = '+', '.join(specification['state'])+'; element = '+specification['element'],
