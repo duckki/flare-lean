@@ -1,0 +1,96 @@
+module
+
+public import Workflow.Specification
+
+/-! Reviewed application contract. Two original scalar GH filters form a planar
+tracker. Validation and the decision are application adaptations. The numerical
+claim covers eight measurements, default gains and the stated finite domains. -/
+
+@[expose] public section
+
+namespace Workflow.Contract
+
+open Aeneas.Std (Slice Result)
+open Native Numerics Flare.Binary64.Value
+
+def validInitial (x vx y vy : Float) : Bool :=
+  supportedPosition x && supportedVelocity vx && supportedPosition y && supportedVelocity vy
+
+def validation (x vx y vy : Float) (samples : List Measurement) (threshold : Float)
+    : Option Error :=
+  if samples.length != 8 then
+    some .WrongSize
+  else if !supportedThreshold threshold then
+    some .InvalidThreshold
+  else if !validInitial x vx y vy then
+    some .InvalidInitial
+  else if samples.all (fun z => supportedPosition z.x && supportedPosition z.y) then
+    none
+  else
+    some .InvalidMeasurement
+
+def Admitted (x vx y vy : Float) (samples : List Measurement) (threshold : Float) : Prop :=
+  samples.length = 8
+  ∧ Bounded 10 x
+  ∧ Bounded 2 vx
+  ∧ Bounded 10 y
+  ∧ Bounded 2 vy
+  ∧ Bounded 20 threshold
+  ∧ ∀ z ∈ samples, Bounded 10 z.x ∧ Bounded 10 z.y
+
+noncomputable def uncertainRadius : ℝ := (2 : ℝ) ^ (-28 : Int) + 2 * errorAllowance
+
+def Success (x vx y vy : Float) (samples : List Measurement) (threshold : Float)
+    (output : Native.Assessment)
+    : Prop :=
+  output.state
+    = trajectory
+        ⟨SourceAPI.constructor x vx 0.125 0.5 0.125, SourceAPI.constructor y vy 0.125 0.5 0.125⟩
+        samples
+  ∧ SafeRun (SourceAPI.constructor x vx 0.125 0.5 0.125) (samples.map (·.x))
+  ∧ SafeRun (SourceAPI.constructor y vy 0.125 0.5 0.125) (samples.map (·.y))
+  ∧ AxisAccuracy x vx (samples.map (·.x)) output.state.horizontal
+  ∧ AxisAccuracy y vy (samples.map (·.y)) output.state.vertical
+  ∧ value output.arithmeticAllowance = errorAllowance
+  ∧ (output.decision = .Below
+      → (reference (value x) (value vx) (samples.map (·.x))).1 < value threshold)
+  ∧ (output.decision = .Above
+      → value threshold < (reference (value x) (value vx) (samples.map (·.x))).1)
+  ∧ (output.decision = .Uncertain
+      → |(reference (value x) (value vx) (samples.map (·.x))).1 - value threshold|
+        ≤ uncertainRadius)
+
+/-- The added reusable API includes construction, options, mutation/error state
+and the real list loop, separately from its bounded numerical use. -/
+def AdaptationAPI : Prop :=
+  (∀ x vx y vy,
+    Generated.tracker.PlanarTracker.new x vx y vy
+    = .ok (encodeWith encodeTracker (initial x vx y vy)))
+  ∧ (∀ state sample g h,
+      Generated.tracker.PlanarTracker.update (encodeTracker state) sample g h
+      = .ok (encodeUpdate state (advance state sample g h)))
+  ∧ (∀ state samples,
+      Generated.tracker.run_from (encodeTracker state) samples
+      = .ok (encodeWith encodeTracker (runFrom state samples.val)))
+
+/-- Total source correspondence, exact validation/error exits, all four finite
+outputs and their arithmetic errors, including all decision regions. -/
+def Statement
+    (implementation
+      : Float → Float → Float → Float → Slice Measurement → Float
+        → Result (Aeneas.Std.core.result.Result Generated.tracker.Assessment Error))
+    : Prop :=
+  AdaptationAPI
+  ∧ ∀ x vx y vy samples threshold,
+      implementation x vx y vy samples threshold
+        = .ok (encodeWith encodeAssessment (assess x vx y vy samples.val threshold))
+      ∧ (validation x vx y vy samples.val threshold = none
+          ↔ Admitted x vx y vy samples.val threshold)
+      ∧ match validation x vx y vy samples.val threshold with
+        | some error => implementation x vx y vy samples threshold = .ok (.Err error)
+        | none =>
+            ∃ output,
+              implementation x vx y vy samples threshold = .ok (.Ok (encodeAssessment output))
+              ∧ Success x vx y vy samples.val threshold output
+
+end Workflow.Contract

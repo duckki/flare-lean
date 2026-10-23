@@ -1,0 +1,77 @@
+module
+
+public import Workflow.Contract
+
+@[expose] public section
+
+namespace Workflow.Decisions
+
+open Native Numerics Contract Flare.Binary64.Value
+
+set_option maxHeartbeats 2000000
+
+theorem padding_value : value padding = (2 : ℝ) ^ (-28 : Int) := by
+  change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-80 : Int) = _
+  norm_num
+
+theorem allowance_value : value allowance = errorAllowance := by
+  change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-82 : Int) = _
+  norm_num [errorAllowance]
+
+theorem sound (position threshold : Float) (ideal : ℝ)
+    (hp : position.isFinite = true) (he : |value position - ideal| ≤ errorAllowance)
+    (hi : |ideal| ≤ (2 : ℝ) ^ 20) (ht : Bounded 20 threshold)
+    : (classify position threshold = .Below → ideal < value threshold)
+      ∧ (classify position threshold = .Above → value threshold < ideal)
+      ∧ (classify position threshold = .Uncertain
+          → |ideal - value threshold| ≤ uncertainRadius) := by
+  have posBound : |value position| ≤ (2 : ℝ) ^ 21 := by
+    have triangle := abs_add_le (value position - ideal) ideal
+    rw [sub_add_cancel] at triangle
+    norm_num [errorAllowance] at he ⊢
+    norm_num at hi
+    linarith
+  have thresholdBound : |value threshold| ≤ 20 := abs_le.mpr ⟨ht.2.1, ht.2.2⟩
+  have size :=
+    (abs_sub (value position) (value threshold)).trans (add_le_add posBound thresholdBound)
+  obtain ⟨finite, rounding⟩ := Flare.Binary64.Arithmetic.sub_error position threshold 22 hp ht.1
+    (by norm_num) (by norm_num) (by norm_num at size ⊢; linarith)
+  have pf : padding.isFinite = true := by decide +kernel
+  have nf := Flare.Binary64.Order.neg_value padding pf
+  have lower := Flare.Binary64.Order.lt_iff (position - threshold) (-padding) finite nf.1
+  have upper := Flare.Binary64.Order.lt_iff padding (position - threshold) pf finite
+  rw [nf.2, padding_value] at lower
+  rw [padding_value] at upper
+  have incoming := abs_le.mp he
+  have round := abs_le.mp rounding
+  constructor
+  · intro decision
+    have branch : position - threshold < -padding := by
+      by_contra hb
+      simp [classify, hb] at decision
+      split at decision <;> contradiction
+    have strict := lower.mp branch
+    norm_num [errorAllowance] at incoming round strict
+    linarith
+  constructor
+  · intro decision
+    have branch : padding < position - threshold := by
+      by_contra ha
+      simp [classify, ha] at decision
+      split at decision <;> contradiction
+    have strict := upper.mp branch
+    norm_num [errorAllowance] at incoming round strict
+    linarith
+  · intro decision
+    have lo : ¬position - threshold < -padding := by
+      intro hb
+      simp [classify, hb] at decision
+    have hi : ¬padding < position - threshold := by
+      intro ha
+      simp [classify, lo, ha] at decision
+    rw [lower] at lo
+    rw [upper] at hi
+    apply abs_le.mpr
+    constructor <;> norm_num [uncertainRadius, errorAllowance] at * <;> linarith
+
+end Workflow.Decisions

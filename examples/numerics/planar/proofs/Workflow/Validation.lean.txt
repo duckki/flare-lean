@@ -1,0 +1,112 @@
+module
+
+public import Workflow.Contract
+
+@[expose] public section
+
+namespace Workflow.Validation
+
+open Native Numerics Contract Flare.Binary64.Value
+
+set_option maxHeartbeats 2000000
+
+private theorem guard (w x : Float) (r : ℝ) (hf : w.isFinite = true) (hv : value w = r)
+    : (x.isFinite && decide (-w ≤ x) && decide (x ≤ w)) = true ↔ Bounded r x := by
+  cases hx : x.isFinite with
+  | false => simp [hx, Bounded]
+  | true =>
+      have neg := Flare.Binary64.Order.neg_value w hf
+      simp [hx, Bounded, Flare.Binary64.Order.le_iff _ _ neg.1 hx,
+        Flare.Binary64.Order.le_iff _ _ hx hf, neg.2, hv]
+
+theorem position (x : Float) : supportedPosition x = true ↔ Bounded 10 x := by
+  have h : value (10.0 : Float) = 10 := by
+    change (5629499534213120 : ℝ) * (2 : ℝ) ^ (-49 : Int) = _
+    norm_num
+  exact guard 10 x 10 (by decide +kernel) h
+
+theorem velocity (x : Float) : supportedVelocity x = true ↔ Bounded 2 x := by
+  have h : value (2.0 : Float) = 2 := by
+    change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-51 : Int) = _
+    norm_num
+  exact guard 2 x 2 (by decide +kernel) h
+
+theorem threshold (x : Float) : supportedThreshold x = true ↔ Bounded 20 x := by
+  have h : value (20.0 : Float) = 20 := by
+    change (5629499534213120 : ℝ) * (2 : ℝ) ^ (-48 : Int) = _
+    norm_num
+  exact guard 20 x 20 (by decide +kernel) h
+
+def errorOf {α : Type} : Except Error α → Option Error
+  | .ok _ => none
+  | .error e => some e
+
+theorem run_validation (state : Tracker) (samples : List Measurement)
+    : errorOf (runFrom state samples)
+      = if samples.all (fun z => supportedPosition z.x && supportedPosition z.y) then
+          none
+        else
+          some .InvalidMeasurement := by
+  induction samples generalizing state with
+  | nil => rfl
+  | cons z rest ih =>
+      cases hx : supportedPosition z.x with
+      | false => simp [runFrom, advance, hx, errorOf]
+      | true =>
+          cases hy : supportedPosition z.y with
+          | false => simp [runFrom, advance, hy, errorOf]
+          | true =>
+              simpa [runFrom, advance, hx, hy]
+                using ih
+                  ⟨
+                    (SourceAPI.update state.horizontal z.x none none).2,
+                    (SourceAPI.update state.vertical z.y none none).2
+                  ⟩
+
+theorem assess_validation (x vx y vy : Float) (samples : List Measurement) (t : Float)
+    : errorOf (assess x vx y vy samples t) = validation x vx y vy samples t := by
+  have init : initial x vx y vy =
+      if validInitial x vx y vy then .ok ⟨SourceAPI.constructor x vx 0.125 0.5 0.125,
+        SourceAPI.constructor y vy 0.125 0.5 0.125⟩ else .error .InvalidInitial := rfl
+  by_cases len : samples.length = 8
+  · cases ht : supportedThreshold t <;> cases hx : validInitial x vx y vy
+    · simp [assess, validation, len, ht, errorOf]
+    · simp [assess, validation, len, ht, errorOf]
+    · simp [assess, validation, len, ht, init, hx, errorOf]
+    · have run := run_validation
+        ⟨SourceAPI.constructor x vx 0.125 0.5 0.125,
+          SourceAPI.constructor y vy 0.125 0.5 0.125⟩ samples
+      cases hr : runFrom
+          ⟨SourceAPI.constructor x vx 0.125 0.5 0.125,
+            SourceAPI.constructor y vy 0.125 0.5 0.125⟩ samples <;>
+        simpa [assess, validation, len, ht, init, hx, hr, errorOf] using run
+  · simp [assess, validation, len, errorOf]
+
+theorem admitted (x vx y vy : Float) (samples : List Measurement) (t : Float)
+    : validation x vx y vy samples t = none ↔ Admitted x vx y vy samples t := by
+  by_cases len : samples.length = 8
+  · cases ht : supportedThreshold t <;>
+      cases hx : supportedPosition x <;> cases hvx : supportedVelocity vx <;>
+      cases hy : supportedPosition y <;> cases hvy : supportedVelocity vy <;>
+      simp [validation, Admitted, len, validInitial, ht, hx, hvx, hy, hvy,
+        ← position, ← velocity, ← threshold, List.all_eq_true]
+  · simp [validation, Admitted, len]
+
+theorem run_trajectory (state : Tracker) (samples : List Measurement)
+    (domain : ∀ z ∈ samples, Bounded 10 z.x ∧ Bounded 10 z.y)
+    : runFrom state samples = .ok (trajectory state samples) := by
+  induction samples generalizing state with
+  | nil => rfl
+  | cons z rest ih =>
+      have hz := domain z (by simp)
+      have hx := (position z.x).mpr hz.1
+      have hy := (position z.y).mpr hz.2
+      simpa [runFrom, advance, hx, hy, trajectory, axisRun]
+        using ih
+          ⟨
+            (SourceAPI.update state.horizontal z.x none none).2,
+            (SourceAPI.update state.vertical z.y none none).2
+          ⟩
+          (fun a ha => domain a (by simp [ha]))
+
+end Workflow.Validation

@@ -135,6 +135,15 @@
       ],
       "expected": "candidate_only",
       "optional": false
+    },
+    {
+      "name": "planar_tracker",
+      "kind": "workflow",
+      "family": "combined-python-rust-application",
+      "iterations": 8,
+      "request": "../../examples/numerics/planar/request.json",
+      "expected": "certified",
+      "optional": true
     }
   ]
 }

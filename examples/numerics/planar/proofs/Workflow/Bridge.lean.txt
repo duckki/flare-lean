@@ -1,0 +1,178 @@
+module
+
+public import Workflow.Native
+
+/-! Fresh extraction correspondence for the complete API and its slice loop. -/
+
+@[expose] public section
+
+namespace Workflow.Bridge
+
+open Aeneas Aeneas.Std
+open Native
+
+set_option maxHeartbeats 2000000
+
+theorem constructor (x dx dt g h : Float)
+    : Generated.gh.GhFilter.new x dx dt g h
+      = .ok (SourceAPI.encode (SourceAPI.constructor x dx dt g h)) := by rfl
+
+theorem update (s : SourceAPI.State) (z : Float) (g h : Option Float)
+    : Generated.gh.GhFilter.update (SourceAPI.encode s) z g h
+      = .ok ((SourceAPI.update s z g h).1, SourceAPI.encode (SourceAPI.update s z g h).2) := by
+  cases g <;> cases h <;>
+    simp [Generated.gh.GhFilter.update, SourceAPI.update, SourceAPI.encode]
+
+theorem api : SourceAPI.Contract := ⟨constructor, fun s z g h _ => update s z g h⟩
+
+theorem position_guard (x : Float)
+    : Generated.tracker.supported_position x = .ok (supportedPosition x) := by
+  have lo : Float.ofBits 13845191154443747328 = (-10.0 : Float) := rfl
+  have hi : Float.ofBits 4621819117588971520 = (10.0 : Float) := rfl
+  cases hf : x.isFinite <;> by_cases hl : (-10.0 : Float) ≤ x <;>
+    by_cases hu : x ≤ (10.0 : Float) <;>
+    simp [Generated.tracker.supported_position, supportedPosition, lift,
+      core.f64.is_finite, lo, hi, hf, hl, hu]
+
+theorem velocity_guard (x : Float)
+    : Generated.tracker.supported_velocity x = .ok (supportedVelocity x) := by
+  have lo : Float.ofBits 13835058055282163712 = (-2.0 : Float) := rfl
+  have hi : Float.ofBits 4611686018427387904 = (2.0 : Float) := rfl
+  cases hf : x.isFinite <;> by_cases hl : (-2.0 : Float) ≤ x <;>
+    by_cases hu : x ≤ (2.0 : Float) <;>
+    simp [Generated.tracker.supported_velocity, supportedVelocity, lift,
+      core.f64.is_finite, lo, hi, hf, hl, hu]
+
+theorem threshold_guard (x : Float)
+    : Generated.tracker.supported_threshold x = .ok (supportedThreshold x) := by
+  have lo : Float.ofBits 13849694754071117824 = (-20.0 : Float) := rfl
+  have hi : Float.ofBits 4626322717216342016 = (20.0 : Float) := rfl
+  cases hf : x.isFinite <;> by_cases hl : (-20.0 : Float) ≤ x <;>
+    by_cases hu : x ≤ (20.0 : Float) <;>
+    simp [Generated.tracker.supported_threshold, supportedThreshold, lift,
+      core.f64.is_finite, lo, hi, hf, hl, hu]
+
+theorem initial_equiv (x vx y vy : Float)
+    : Generated.tracker.PlanarTracker.new x vx y vy
+      = .ok (encodeWith encodeTracker (initial x vx y vy)) := by
+  have eighth : Float.ofBits 4593671619917905920 = (0.125 : Float) := rfl
+  have half : Float.ofBits 4602678819172646912 = (0.5 : Float) := rfl
+  unfold Generated.tracker.PlanarTracker.new
+  simp only [eighth, half]
+  simp only [position_guard, velocity_guard, bind_ok]
+  cases hx : supportedPosition x <;> cases hvx : supportedVelocity vx <;>
+    cases hy : supportedPosition y <;> cases hvy : supportedVelocity vy <;>
+    simp [hx, hvx, hy, hvy, initial, constructor, encodeWith, encodeTracker]
+
+theorem advance_equiv (state : Tracker) (sample : Measurement) (g h : Option Float)
+    : Generated.tracker.PlanarTracker.update (encodeTracker state) sample g h
+      = .ok (encodeUpdate state (advance state sample g h)) := by
+  unfold Generated.tracker.PlanarTracker.update
+  simp only [position_guard, bind_ok]
+  cases hx : supportedPosition sample.x <;> cases hy : supportedPosition sample.y <;>
+    simp [hx, hy, encodeTracker, update, advance, encodeUpdate]
+
+private theorem next_some (samples : Slice Measurement) (i : Nat) (hi : i < samples.val.length)
+    : core.slice.iter.IteratorSliceIter.next ⟨samples, i⟩
+      = .ok (some samples.val[i], ⟨samples, i + 1⟩) := by
+  unfold core.slice.iter.IteratorSliceIter.next
+  simp only [Slice.len_val]
+  rw [dite_eq_left hi]
+  rfl
+
+private theorem next_none (samples : Slice Measurement) (i : Nat) (hi : ¬i < samples.val.length)
+    : core.slice.iter.IteratorSliceIter.next ⟨samples, i⟩ = .ok (none, ⟨samples, i⟩) := by
+  unfold core.slice.iter.IteratorSliceIter.next
+  simp only [Slice.len_val]
+  rw [dite_eq_right hi]
+
+theorem loop_equiv (samples : Slice Measurement) (i : Nat) (state : Tracker)
+    : Generated.tracker.run_from_loop ⟨samples, i⟩ (encodeTracker state)
+      = .ok (encodeWith encodeTracker (runFrom state (samples.val.drop i))) := by
+  induction hfuel : samples.val.length - i using Nat.strong_induction_on generalizing i state with
+  | h fuel ih =>
+      rw [Generated.tracker.run_from_loop, loop]
+      dsimp only
+      rw [Generated.tracker.run_from_loop.body]
+      by_cases hi : i < samples.val.length
+      · rw [next_some samples i hi]
+        simp only [bind_ok, uncurry_apply_pair]
+        rw [advance_equiv]
+        simp only [bind_ok]
+        rw [List.drop_eq_getElem_cons hi]
+        cases equation : advance state samples.val[i] none none with
+        | error error =>
+            simp [encodeUpdate, runFrom, equation, encodeWith,
+              core.result.Result.Insts.CoreOpsTry.branch,
+              core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual]
+        | ok next =>
+            simp only [encodeUpdate, core.result.Result.Insts.CoreOpsTry.branch, bind_ok,
+              uncurry_apply_pair]
+            have recursive := ih (samples.val.length - (i + 1)) (by omega) (i + 1) next rfl
+            simp only [runFrom, equation]
+            change _ =
+              Result.ok (encodeWith encodeTracker (runFrom next (samples.val.drop (i + 1))))
+            simpa only [Generated.tracker.run_from_loop] using recursive
+      · rw [next_none samples i hi]
+        simp [List.drop_eq_nil_of_le (by omega : samples.val.length ≤ i), runFrom, encodeWith]
+
+theorem run_equiv (state : Tracker) (samples : Slice Measurement)
+    : Generated.tracker.run_from (encodeTracker state) samples
+      = .ok (encodeWith encodeTracker (runFrom state samples.val)) := by
+  simp [Generated.tracker.run_from,
+    SharedSlice.Insts.CoreIterTraitsCollectIntoIteratorSharedIter.into_iter, loop_equiv]
+
+theorem classify_equiv (position threshold : Float)
+    : Generated.tracker.classify position threshold = .ok (classify position threshold) := by
+  unfold Generated.tracker.classify
+  simp only [Generated.tracker.DECISION_PADDING]
+  change (if position - threshold < -padding then Result.ok Generated.tracker.Decision.Below
+    else if padding < position - threshold then Result.ok Generated.tracker.Decision.Above
+    else Result.ok Generated.tracker.Decision.Uncertain) = _
+  by_cases hb : position - threshold < -padding <;>
+    by_cases ha : padding < position - threshold <;> simp [classify, hb, ha]
+
+theorem assess_equiv (x vx y vy : Float) (samples : Slice Measurement) (threshold : Float)
+    : Generated.tracker.assess x vx y vy samples threshold
+      = .ok (encodeWith encodeAssessment (assess x vx y vy samples.val threshold)) := by
+  unfold Generated.tracker.assess
+  have length : Slice.len samples = 8#usize ↔ samples.val.length = 8 := by
+    constructor
+    · intro h
+      have values := congrArg UScalar.val h
+      simp only [Slice.len_val] at values
+      scalar_tac
+    · intro h
+      apply UScalar.eq_of_val_eq
+      scalar_tac
+  by_cases len : samples.val.length = 8
+  · have wordlen := length.mpr len
+    simp only [wordlen, bne_self_eq_false, Bool.false_eq_true, ite_false]
+    rw [threshold_guard]
+    simp only [bind_ok]
+    cases ht : supportedThreshold threshold with
+    | false => simp [assess, len, ht, encodeWith]
+    | true =>
+        rw [initial_equiv]
+        simp only [bind_ok]
+        cases hn : initial x vx y vy with
+        | error error =>
+            simp [assess, len, ht, hn, encodeWith,
+              core.result.Result.Insts.CoreOpsTry.branch,
+              core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual]
+        | ok state =>
+            simp only [encodeWith, core.result.Result.Insts.CoreOpsTry.branch, bind_ok]
+            rw [run_equiv]
+            simp only [bind_ok]
+            cases hr : runFrom state samples.val with
+            | error error =>
+                simp [assess, len, ht, hn, hr, encodeWith,
+                  core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual]
+            | ok output =>
+                simp [assess, len, ht, hn, hr, encodeWith, encodeAssessment, classify_equiv,
+                  Generated.tracker.ARITHMETIC_ALLOWANCE, allowance, encodeTracker,
+                  SourceAPI.encode]
+  · have wordlen : Slice.len samples ≠ 8#usize := fun h => len (length.mp h)
+    simp [wordlen, len, assess, encodeWith]
+
+end Workflow.Bridge

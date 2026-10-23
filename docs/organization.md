@@ -234,6 +234,7 @@ independent Lake package; no source-project checkout is needed to build or use i
 
 | Source | Recorded revision | Reused material |
 | --- | --- | --- |
+| FilterPy | `3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33` | Unchanged scalar GH source and MIT notice; ordinary-scalar full-state model and reusable Rust port in the planar example |
 | `formal-demo` | `af1dd951770ee7d5b222331c31e0f3e885005681` | Initial scalar, matrix and analysis theorem collection |
 | `kalman-filter` | `b5077c258988627ca81a02b0767b0a814ee1c8e9` | Entrywise propagation, positivity margins, residuals, error recurrences, Householder preservation, sign/sqrt bounds and two-state Gram symmetry |
 | `kalman-filter-lean`, branch `paper` | `4d5330e176a6bf7059013b5689d7de9b07507ae4`, plus the file hashes recorded in the manifest | Numerical skill, adapters, graph/producer/emitters, pipeline contracts, tests, requests and frozen Gappa reconstruction inputs |
@@ -257,7 +258,9 @@ the current result. The large graphs remain analysis probes. Gappa's Coq proof i
 reconstruction material, not an
 accepted Lean theorem.
 
-The Kalman workflow source and FLARE use GPL-3.0. Core library modules remain
+The Kalman workflow source and FLARE use GPL-3.0. The FilterPy snapshot retains
+its upstream MIT notice; the standalone planar Rust delivery includes both
+license files. Core library modules remain
 independent of application implementations. Paper reports and historical success
 claims do not establish the current proof results. Source projects are neither
 modified nor required by this
@@ -266,3 +269,12 @@ example bundles, outside the core library module trees. Preserve
 attribution, update destinations when modules move, and add source records when
 importing more results. Origin records establish neither mathematical novelty
 nor upstream acceptance.
+
+The combined planar example in `examples/numerics/planar` keeps the unchanged
+FilterPy scalar source and license, the reusable multi-module Rust port and
+authored application proof templates together. Its two axis certificates are
+provider-generated numerical components, imported under distinct namespaces.
+The scalar API model comes from the original AST and covers all stored fields,
+constructor defaults and explicit update options; the new planar validation and
+decision layer is identified as an application adaptation. None of these
+optional extraction dependencies enters the core Lake library.

@@ -19,6 +19,9 @@ constructs, arithmetic semantics, requested property and delivery target.
 - The automatic path covers restricted scalar source, selected Python methods,
   local helpers and bounded loops. Authored Lean proofs can supply arguments
   beyond the automatic bound producer.
+- A four-state planar GH tracker now composes the original scalar API with
+  checked numerical components, complete validation/decisions and a reusable
+  multi-module Rust crate; see the [combined example](../examples/numerics/planar/README.md).
 - Larger loops and the original Rust IMU API have checked scale fixtures.
   Four-state covariance/correction graphs remain analysis targets without a
   source-program certificate; see the [scale guide](../benchmarks/numerics/README.md#increasing-scale).
@@ -339,6 +342,35 @@ sizes. A deliberately inadequate decision padding must fail verification or
 produce a checked counterexample when the property is false.
 
 ## 7. Complete a combined application and reusable Rust delivery
+
+The engineering implementation and automated reproduction are complete. The
+[planar tracker](../examples/numerics/planar/README.md) uses two scalar FilterPy
+GH filters for `(x, vx, y, vy)`, with a separate application validation and
+decision layer. It is not the dense covariance graph or a full Kalman filter.
+The root combines both uses of one checked axis certificate, original
+constructor/all-field/option correspondence, the reusable application's API,
+its real loop, every validation exit and rounded decision regions. All four
+outputs are finite with absolute arithmetic errors at most `2^-30` in their
+engineering units on the documented eight-measurement domain. Every Python
+nonzero-divisor premise is discharged along the application trajectory.
+
+The provider imports sealed numerical components, regenerates the scalar API
+from original source and keys optional helper reuse by transitive imports.
+Maintenance tests change the actual Rust padding and reviewed model/contract,
+recheck the application and retain the unchanged axis proof modules. A Rust
+1.95.0-to-1.96.0 runtime upgrade retains the checked model and reruns diagnostics.
+Constructor mismatches and changed imported/source API models are rejected.
+All nine field words also match the selected original Python bodies across
+128 constructors and 1,024 updates in debug and release; these are diagnostics.
+
+Frozen roots replay on macOS and in an isolated Ubuntu ARM64 VM, with a fresh
+copied provider build and proof directory using existing pinned dependencies.
+Replay invokes no translators, numerical producers, Python runtime or LLM.
+The standalone crate passes its debug/release tests on both platforms. Reports
+include domain, properties, adaptations, trust boundaries, artifact paths and
+run/replay commands. Independent human reproduction from the report remains a
+sharing follow-up; automated reproduction supplies the current acceptance
+coverage without waiting for external feedback.
 
 ### Deliver
 

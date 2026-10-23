@@ -1,0 +1,112 @@
+module
+
+public import Workflow.SourceAPI
+public import Flare.Binary64.Order
+
+/-! Application of two original scalar Python API models. The Rust application
+adds input gates and a decision around that composition. -/
+
+@[expose] public section
+
+namespace Workflow.Native
+
+abbrev Measurement := Generated.tracker.Measurement
+abbrev Error := Generated.tracker.Error
+abbrev Decision := Generated.tracker.Decision
+
+structure Tracker where
+  horizontal : SourceAPI.State
+  vertical : SourceAPI.State
+
+structure Assessment where
+  state : Tracker
+  arithmeticAllowance : Float
+  decision : Decision
+
+def supportedPosition (x : Float) : Bool :=
+  x.isFinite && decide ((-10.0 : Float) ≤ x) && decide (x ≤ (10.0 : Float))
+
+def supportedVelocity (x : Float) : Bool :=
+  x.isFinite && decide ((-2.0 : Float) ≤ x) && decide (x ≤ (2.0 : Float))
+
+def supportedThreshold (x : Float) : Bool :=
+  x.isFinite && decide ((-20.0 : Float) ≤ x) && decide (x ≤ (20.0 : Float))
+
+def initial (x vx y vy : Float) : Except Error Tracker :=
+  if supportedPosition x && supportedVelocity vx && supportedPosition y && supportedVelocity vy then
+    .ok ⟨SourceAPI.constructor x vx 0.125 0.5 0.125, SourceAPI.constructor y vy 0.125 0.5 0.125⟩
+  else
+    .error .InvalidInitial
+
+def advance (state : Tracker) (sample : Measurement) (g h : Option Float) : Except Error Tracker :=
+  if supportedPosition sample.x && supportedPosition sample.y then
+    .ok
+      ⟨
+        (SourceAPI.update state.horizontal sample.x g h).2,
+        (SourceAPI.update state.vertical sample.y g h).2
+      ⟩
+  else
+    .error .InvalidMeasurement
+
+def runFrom (state : Tracker) (samples : List Measurement) : Except Error Tracker :=
+  match samples with
+  | [] => .ok state
+  | sample :: rest =>
+      match advance state sample none none with
+      | .error error => .error error
+      | .ok next => runFrom next rest
+
+def padding : Float := Float.ofBits 0x3e30000000000000
+
+def classify (position threshold : Float) : Decision :=
+  if position - threshold < -padding then
+    .Below
+  else if padding < position - threshold then
+    .Above
+  else
+    .Uncertain
+
+def allowance : Float := Float.ofBits 0x3e10000000000000
+
+def assess (x vx y vy : Float) (samples : List Measurement) (threshold : Float)
+    : Except Error Assessment :=
+  if samples.length != 8 then
+    .error .WrongSize
+  else if !supportedThreshold threshold then
+    .error .InvalidThreshold
+  else
+    match initial x vx y vy with
+    | .error error => .error error
+    | .ok state =>
+        match runFrom state samples with
+        | .error error => .error error
+        | .ok output => .ok ⟨output, allowance, classify output.horizontal.x threshold⟩
+
+def encodeTracker (s : Tracker) : Generated.tracker.PlanarTracker :=
+  ⟨SourceAPI.encode s.horizontal, SourceAPI.encode s.vertical⟩
+
+def encodeAssessment (s : Assessment) : Generated.tracker.Assessment :=
+  ⟨encodeTracker s.state, s.arithmeticAllowance, s.decision⟩
+
+def encodeWith {α β : Type} (f : α → β) : Except Error α → Aeneas.Std.core.result.Result β Error
+  | .ok output => .Ok (f output)
+  | .error error => .Err error
+
+def encodeUpdate (original : Tracker)
+    : Except Error Tracker
+      → Aeneas.Std.core.result.Result Unit Error × Generated.tracker.PlanarTracker
+  | .ok output => (.Ok (), encodeTracker output)
+  | .error error => (.Err error, encodeTracker original)
+
+def axisRun (state : SourceAPI.State) (measurements : List Float) : SourceAPI.State :=
+  measurements.foldl (fun state z => (SourceAPI.update state z none none).2) state
+
+def trajectory (state : Tracker) (samples : List Measurement) : Tracker :=
+  ⟨axisRun state.horizontal (samples.map (·.x)), axisRun state.vertical (samples.map (·.y))⟩
+
+def SafeRun (state : SourceAPI.State) : List Float → Prop
+  | [] => True
+  | z :: rest =>
+      SourceAPI.Safe state z none none ∧ SafeRun (SourceAPI.update state z none none).2 rest
+
+end Workflow.Native

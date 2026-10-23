@@ -1,0 +1,109 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "source/gh_filter.py",
+  "function": "GHFilter.update",
+  "target": "lean",
+  "timeout_seconds": 300,
+  "python_method": {
+    "state": {
+      "x": "x0",
+      "dx": "v0"
+    },
+    "constants": {
+      "dt": 0.125,
+      "g": 0.5,
+      "h": 0.125
+    },
+    "sequence": [
+      "z0",
+      "z1",
+      "z2",
+      "z3",
+      "z4",
+      "z5",
+      "z6",
+      "z7"
+    ]
+  },
+  "domain": {
+    "x0": [
+      "-10",
+      "10"
+    ],
+    "v0": [
+      "-2",
+      "2"
+    ],
+    "z0": [
+      "-10",
+      "10"
+    ],
+    "z1": [
+      "-10",
+      "10"
+    ],
+    "z2": [
+      "-10",
+      "10"
+    ],
+    "z3": [
+      "-10",
+      "10"
+    ],
+    "z4": [
+      "-10",
+      "10"
+    ],
+    "z5": [
+      "-10",
+      "10"
+    ],
+    "z6": [
+      "-10",
+      "10"
+    ],
+    "z7": [
+      "-10",
+      "10"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "position",
+      "unit": "m",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "velocity",
+      "unit": "m/s",
+      "limit": "1/1000000"
+    }
+  ],
+  "specification": {
+    "kind": "fold",
+    "initial": [
+      "x0",
+      "v0"
+    ],
+    "state": [
+      "position",
+      "velocity"
+    ],
+    "element": "observation",
+    "sequence": [
+      "z0",
+      "z1",
+      "z2",
+      "z3",
+      "z4",
+      "z5",
+      "z6",
+      "z7"
+    ],
+    "step": [
+      "position + velocity * 0.125 + 0.5 * (observation - (position + velocity * 0.125))",
+      "velocity + 0.125 * (observation - (position + velocity * 0.125)) / 0.125"
+    ]
+  }
+}

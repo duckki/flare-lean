@@ -1,0 +1,124 @@
+module
+
+public import Workflow.Specification
+public import Workflow.Components.Axis.Proof
+
+/-! Compose the unchanged numerical component twice; no new primitive
+roundoff estimate is supplied for this application. -/
+
+@[expose] public section
+
+namespace Workflow.Numerics
+
+open Native Flare.Binary64.Value
+
+set_option maxHeartbeats 2000000
+set_option maxRecDepth 4096
+
+theorem axis_safe (s : SourceAPI.State) (zs : List Float) (dt : s.dt = 0.125) : SafeRun s zs := by
+  induction zs generalizing s with
+  | nil => trivial
+  | cons z rest ih =>
+      constructor
+      · simp only [SourceAPI.Safe, dt]
+        exact ⟨by decide +kernel, by decide +kernel⟩
+      · apply ih
+        exact dt
+
+theorem axis_eight (x v z0 z1 z2 z3 z4 z5 z6 z7 : Float)
+    : let state :=
+        axisRun (SourceAPI.constructor x v 0.125 0.5 0.125) [z0, z1, z2, z3, z4, z5, z6, z7]
+      (state.x, state.dx) = Components.Axis.kernel x v z0 z1 z2 z3 z4 z5 z6 z7 := by rfl
+
+theorem reference_eight (x v z0 z1 z2 z3 z4 z5 z6 z7 : ℝ)
+    : Components.Axis.specification x v z0 z1 z2 z3 z4 z5 z6 z7
+      = [z0, z1, z2, z3, z4, z5, z6, z7].foldl exactStep (x, v) := by rfl
+
+theorem axis_accuracy (x v : Float) (zs : List Float) (length : zs.length = 8)
+    (hx : Bounded 10 x) (hv : Bounded 2 v) (hz : ∀ z ∈ zs, Bounded 10 z)
+    : AxisAccuracy x v zs (axisRun (SourceAPI.constructor x v 0.125 0.5 0.125) zs) := by
+  rcases zs with _ | ⟨z0, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z1, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z2, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z3, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z4, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z5, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z6, zs⟩
+  · simp at length
+  rcases zs with _ | ⟨z7, zs⟩
+  · simp at length
+  have tail : zs = [] :=
+    List.eq_nil_of_length_eq_zero (by simp only [List.length_cons] at length; omega)
+  subst zs
+  have checked := Components.Axis.Certificate.certificate x v z0 z1 z2 z3 z4 z5 z6 z7 hx hv
+    (hz z0 (by simp))
+    (hz z1 (by simp))
+    (hz z2 (by simp))
+    (hz z3 (by simp))
+    (hz z4 (by simp))
+    (hz z5 (by simp))
+    (hz z6 (by simp))
+    (hz z7 (by simp))
+  have model := axis_eight x v z0 z1 z2 z3 z4 z5 z6 z7
+  dsimp only at model
+  rw [← model, reference_eight] at checked
+  change AxisAccuracy x v _ _
+  refine ⟨checked.1, checked.2.2.1, ?_, ?_⟩
+  · exact checked.2.1.trans (by norm_num [errorAllowance])
+  · exact checked.2.2.2.1.trans (by norm_num [errorAllowance])
+
+noncomputable def radius : Nat → ℝ
+  | 0 => 16
+  | n + 1 => 4 * radius n
+
+theorem radius_lower (n : Nat) : 16 ≤ radius n := by
+  induction n with
+  | zero => norm_num [radius]
+  | succ n ih => simp only [radius]; linarith
+
+theorem exact_step_bound (s : ℝ × ℝ) (z : ℝ) (n : Nat)
+    (hp : |s.1| ≤ radius n) (hv : |s.2| ≤ radius n) (hz : |z| ≤ 10)
+    : |(exactStep s z).1| ≤ radius (n + 1) ∧ |(exactStep s z).2| ≤ radius (n + 1) := by
+  have p : (exactStep s z).1 = (1 / 2) * s.1 + (1 / 16) * s.2 + (1 / 2) * z := by
+    simp only [exactStep]; ring
+  have v : (exactStep s z).2 = (7 / 8) * s.2 - s.1 + z := by
+    simp only [exactStep]; ring
+  have low := radius_lower n
+  rcases abs_le.mp hp with ⟨pl, pu⟩
+  rcases abs_le.mp hv with ⟨vl, vu⟩
+  rcases abs_le.mp hz with ⟨zl, zu⟩
+  constructor <;> apply abs_le.mpr <;> rw [radius]
+  · rw [p]; constructor <;> linarith
+  · rw [v]; constructor <;> linarith
+
+theorem fold_bound (zs : List Float) (state : ℝ × ℝ) (n : Nat)
+    (hp : |state.1| ≤ radius n) (hv : |state.2| ≤ radius n)
+    (hz : ∀ z ∈ zs, |value z| ≤ 10)
+    : |((zs.map value).foldl exactStep state).1| ≤ radius (n + zs.length)
+      ∧ |((zs.map value).foldl exactStep state).2| ≤ radius (n + zs.length) := by
+  induction zs generalizing state n with
+  | nil => simpa using And.intro hp hv
+  | cons z rest ih =>
+      have next := exact_step_bound state (value z) n hp hv (hz z (by simp))
+      have tail := ih (exactStep state (value z)) (n + 1) next.1 next.2
+        (fun x hx => hz x (by simp [hx]))
+      simpa [Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using tail
+
+theorem reference_bound (x v : Float) (zs : List Float) (length : zs.length = 8)
+    (hx : Bounded 10 x) (hv : Bounded 2 v) (hz : ∀ z ∈ zs, Bounded 10 z)
+    : |(reference (value x) (value v) zs).1| ≤ (2 : ℝ) ^ 20 := by
+  have hp : |value x| ≤ radius 0 := (abs_le.mpr ⟨hx.2.1, hx.2.2⟩).trans (by norm_num [radius])
+  have hv' : |value v| ≤ radius 0 := (abs_le.mpr ⟨hv.2.1, hv.2.2⟩).trans (by norm_num [radius])
+  have bound := (fold_bound zs (value x, value v) 0 hp hv'
+    (fun z h => abs_le.mpr ⟨(hz z h).2.1, (hz z h).2.2⟩)).1
+  norm_num [length, radius] at bound
+  norm_num [reference]
+  exact bound
+
+end Workflow.Numerics

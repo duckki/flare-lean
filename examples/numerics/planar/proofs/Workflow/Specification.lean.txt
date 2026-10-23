@@ -1,0 +1,30 @@
+module
+
+public import Workflow.Native
+
+@[expose] public section
+
+namespace Workflow.Numerics
+
+open Native Flare.Binary64.Value
+
+def Bounded (width : ℝ) (x : Float) : Prop :=
+  x.isFinite = true ∧ -width ≤ value x ∧ value x ≤ width
+
+noncomputable def errorAllowance : ℝ := (2 : ℝ) ^ (-30 : Int)
+
+noncomputable def exactStep (state : ℝ × ℝ) (z : ℝ) : ℝ × ℝ :=
+  let prediction := state.1 + state.2 * (1 / 8)
+  let residual := z - prediction
+  (prediction + (1 / 2) * residual, state.2 + ((1 / 8) * residual) / (1 / 8))
+
+noncomputable def reference (x v : ℝ) (zs : List Float) : ℝ × ℝ :=
+  (zs.map value).foldl exactStep (x, v)
+
+def AxisAccuracy (x v : Float) (zs : List Float) (output : SourceAPI.State) : Prop :=
+  output.x.isFinite = true
+  ∧ output.dx.isFinite = true
+  ∧ |value output.x - (reference (value x) (value v) zs).1| ≤ errorAllowance
+  ∧ |value output.dx - (reference (value x) (value v) zs).2| ≤ errorAllowance
+
+end Workflow.Numerics

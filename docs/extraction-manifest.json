@@ -877,6 +877,31 @@
           "notes": "Lean-only Aeneas UInt64-to-f64 extraction patch over the pinned f64 fork; source-model trust boundary, not a compiler proof."
         }
       ]
+    },
+    {
+      "source_repository": "https://github.com/rlabbe/filterpy",
+      "source_revision": "3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33",
+      "license": "MIT; retained in examples/numerics/planar/LICENSE-FilterPy",
+      "files": [
+        {
+          "source": "filterpy/gh/gh_filter.py",
+          "target": "examples/numerics/planar/source/gh_filter.py",
+          "source_sha256": "4d06fb43585a20bc1155b49c0c11aac36c898102f902377f372a12aa2818cad5",
+          "notes": "Unchanged original source. The closed scalar frontend selects GHFilter.__init__/update, all nine fields and None gain defaults. NumPy ndim scalar branch, built-in floats and finite nonzero divisors are declared source-model assumptions; arrays/custom dispatch/module initialization are excluded."
+        },
+        {
+          "source": "filterpy/gh/gh_filter.py",
+          "target": "examples/numerics/planar/rust/gh.rs",
+          "source_sha256": "4d06fb43585a20bc1155b49c0c11aac36c898102f902377f372a12aa2818cad5",
+          "notes": "Scalar Rust translation of the selected constructor/update, preserving all nine fields, gain defaults/overrides and operation order. Full-state correspondence is checked against the AST-derived scalar model. The reusable port excludes verification drivers; planar composition and input/decision guards are separate application additions."
+        },
+        {
+          "source": "LICENSE",
+          "target": "examples/numerics/planar/LICENSE-FilterPy",
+          "source_sha256": "8ffce1097f1b1c0fba42e4449ef49aa05cb7b45566dd0989407839dba07af99c",
+          "notes": "Unchanged upstream MIT license."
+        }
+      ]
     }
   ]
 }

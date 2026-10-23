@@ -1,0 +1,54 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "rust",
+  "source": "rust/tracker.rs",
+  "function": "assess",
+  "target": "rust-aeneas",
+  "timeout_seconds": 240,
+  "rust_application": {
+    "entry": "tracker::assess",
+    "files": {
+      "src/gh.rs": "rust/gh.rs",
+      "src/lib.rs": "rust/lib.rs",
+      "src/tests.rs": "rust/tests.rs",
+      "src/tracker.rs": "rust/tracker.rs"
+    },
+    "lean_modules": {
+      "Workflow.Bridge": "proofs/Workflow/Bridge.lean.txt",
+      "Workflow.Contract": "proofs/Workflow/Contract.lean.txt",
+      "Workflow.Decisions": "proofs/Workflow/Decisions.lean.txt",
+      "Workflow.Native": "proofs/Workflow/Native.lean.txt",
+      "Workflow.Numerics": "proofs/Workflow/Numerics.lean.txt",
+      "Workflow.Proof": "proofs/Workflow/Proof.lean.txt",
+      "Workflow.Validation": "proofs/Workflow/Validation.lean.txt",
+      "Workflow.Specification": "proofs/Workflow/Specification.lean.txt"
+    },
+    "components": {
+      "Axis": "axis.json"
+    },
+    "source_api": {
+      "component": "Axis",
+      "rust_type": "Workflow.Generated.gh.GhFilter"
+    },
+    "licenses": {
+      "LICENSE-FilterPy": "LICENSE-FilterPy",
+      "LICENSE": "../../../LICENSE"
+    }
+  },
+  "contract_summary": {
+    "properties": [
+      "The original scalar constructor and update correspond to all nine Rust fields and both optional gains, on the declared Python scalar domain.",
+      "The checked eight-update axis certificate is reused twice for a four-state planar tracker; all four outputs are finite and each absolute arithmetic error is at most 2^-30 (m or m/s).",
+      "Validation specifies every error exit. Below/Above decisions agree strictly with the exact horizontal reference; Uncertain implies distance from threshold at most 2^-28 + 2^-29."
+    ],
+    "domain": [
+      "Eight ordered (x,y) measurements; each coordinate and initial position is finite in [-10,10] metres.",
+      "Initial velocities are finite in [-2,2] m/s; threshold finite in [-20,20] metres.",
+      "Numerical application uses dt=1/8 second, g=1/2, h=1/8, default per-update gains."
+    ],
+    "adaptations": [
+      "PlanarTracker, validation and threshold classification are application additions around two original scalar FilterPy GHFilter instances; this is not a full covariance Kalman filter.",
+      "The reusable raw Rust GHFilter preserves constructors, fields, options and update order. Its full-state correspondence is distinct from the bounded numerical application claim."
+    ]
+  }
+}

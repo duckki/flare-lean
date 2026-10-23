@@ -1,0 +1,70 @@
+module
+
+public import Workflow.Numerics
+public import Workflow.Bridge
+public import Workflow.Validation
+public import Workflow.Decisions
+
+/-! One closed root combines original scalar API correspondence, both numerical
+components, the application loop, input rejection and rounded decision regions. -/
+
+@[expose] public section
+
+namespace Workflow.Certificate
+
+open Native Numerics Contract
+
+set_option maxHeartbeats 2000000
+
+private theorem complete (x vx y vy : Float) (samples : List Measurement) (t : Float)
+    (domain : Admitted x vx y vy samples t)
+    : ∃ output, assess x vx y vy samples t = .ok output ∧ Success x vx y vy samples t output := by
+  rcases domain with ⟨length, hx, hvx, hy, hvy, ht, hz⟩
+  let state : Tracker := ⟨SourceAPI.constructor x vx 0.125 0.5 0.125,
+    SourceAPI.constructor y vy 0.125 0.5 0.125⟩
+  have px := (Validation.position x).mpr hx
+  have pvx := (Validation.velocity vx).mpr hvx
+  have py := (Validation.position y).mpr hy
+  have pvy := (Validation.velocity vy).mpr hvy
+  have pt := (Validation.threshold t).mpr ht
+  have initRun : initial x vx y vy = .ok state := by
+    simp [initial, px, pvx, py, pvy, state]
+  have run := Validation.run_trajectory state samples hz
+  have horizontal := axis_accuracy x vx (samples.map (·.x)) (by simpa) hx hvx
+    (by simpa using fun z h => (hz z h).1)
+  have vertical := axis_accuracy y vy (samples.map (·.y)) (by simpa) hy hvy
+    (by simpa using fun z h => (hz z h).2)
+  have bound := reference_bound x vx (samples.map (·.x)) (by simpa) hx hvx
+    (by simpa using fun z h => (hz z h).1)
+  let output : Native.Assessment := ⟨trajectory state samples, allowance,
+    classify (trajectory state samples).horizontal.x t⟩
+  refine ⟨output, ?_, rfl, axis_safe _ _ rfl, axis_safe _ _ rfl,
+    horizontal, vertical, Decisions.allowance_value, ?_⟩
+  · simp [assess, length, pt, initRun, run, output]
+  · exact Decisions.sound _ _ _ horizontal.1 horizontal.2.2.1 bound ht
+
+theorem certificate : Statement Generated.tracker.assess ∧ SourceAPI.Contract := by
+  refine ⟨?_, Bridge.api⟩
+  refine ⟨⟨Bridge.initial_equiv, Bridge.advance_equiv, Bridge.run_equiv⟩, ?_⟩
+  intro x vx y vy samples t
+  refine ⟨Bridge.assess_equiv x vx y vy samples t,
+    Validation.admitted x vx y vy samples.val t, ?_⟩
+  cases gate : validation x vx y vy samples.val t with
+  | none =>
+      obtain ⟨output, run, success⟩ := complete x vx y vy samples.val t
+        ((Validation.admitted _ _ _ _ _ _).mp gate)
+      refine ⟨output, ?_, success⟩
+      rw [Bridge.assess_equiv, run]
+      rfl
+  | some error =>
+      rw [Bridge.assess_equiv]
+      have identity := Validation.assess_validation x vx y vy samples.val t
+      rw [gate] at identity
+      cases run : assess x vx y vy samples.val t with
+      | ok output => simp [run, Validation.errorOf] at identity
+      | error e =>
+          have equal : e = error := by simpa [run, Validation.errorOf] using identity
+          subst e
+          rfl
+
+end Workflow.Certificate

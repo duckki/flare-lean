@@ -52,6 +52,8 @@ def main():
                     'inputs': 'dependency-free multi-module Rust crate; original public API',
                     'contract': 'reviewed Workflow.Contract.Statement applied to the fresh extracted entry',
                     'proof': 'authored Lean modules; root type and transitive axioms checked independently',
+                    'components': 'independent closed numerical requests imported into namespaced application proofs',
+                    'source_api': 'ordinary Python scalar constructor/full-state update, options and nonzero-divisor scope',
                     'target': 'rust-aeneas; translator support and explicit semantic bridges required'},
                     'python_arrays': {'request_field':'python_arrays',
                     'inputs':'two built-in list operands: rank-two left matrix, rank-one/two right operand',

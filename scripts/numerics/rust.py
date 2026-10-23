@@ -63,3 +63,30 @@ def extract(program, source, request, output, work, runner):
     lean=output/'lean';lean.mkdir(exist_ok=True)
     runner.run('translate',[selected['aeneas'],'-backend','lean','-abort-on-error','-warnings-as-errors',
         llbc,'-dest',lean,'-subdir','/Workflow/Generated','-split-files','-namespace','Workflow.Generated'])
+
+
+def imported_model(path, modules):
+    """Identity of exactly the compiled model modules loaded by a checked root."""
+    from .workflow import sha
+    selected, files = [], {}
+    for module in sorted(set(modules)):
+        relative = Path(*module.split('.')).with_suffix('.olean')
+        source = path/relative
+        if not source.is_file():
+            continue
+        selected.append(module)
+        for suffix in ('', '.private', '.server'):
+            artifact = Path(str(source)+suffix)
+            if not artifact.is_file():
+                raise ValueError('Incomplete imported Aeneas module: '+module)
+            files[str(artifact.relative_to(path))] = sha(artifact)
+    if 'Aeneas' not in selected:
+        raise ValueError('Checked root did not load the Aeneas model')
+    return {'schema': 'numerics-imported-model-v1', 'modules': selected, 'files': files}
+
+
+def matching_model(path, recorded):
+    """Allow unrelated model build products; preserve legacy complete manifests."""
+    if recorded.get('schema') == 'numerics-imported-model-v1':
+        return imported_model(path, recorded['modules']) == recorded
+    return model_files(path) == recorded

@@ -60,3 +60,41 @@ class ProofCache:
             shutil.copyfile(Path(str(target)+suffix), entry/('module.olean'+suffix))
             artifacts[suffix] = sha(entry/('module.olean'+suffix))
         save(entry/'manifest.json', {'identity':key, 'artifacts':artifacts})
+
+
+def local_imports(text):
+    """Read local imports for scheduling/cache identity; Lean remains authoritative."""
+    from lint import mask_lean_literals
+    lines = re.findall(r'^[ \t]*(?:(?:public|private|meta)[ \t]+)*import[ \t]+(?:all[ \t]+)?([^\n]+)',
+                       mask_lean_literals(text), re.M)
+    return [name for line in lines for name in line.split() if name.startswith('Workflow.')]
+
+
+class ApplicationCache(ProofCache):
+    """A module key includes its entire local import closure and model identity."""
+    def entry(self, source):
+        from .workflow import sha
+        imports = {}
+        active = set()
+        def visit(path):
+            if path in active:
+                raise ValueError('Cyclic application proof-cache imports')
+            active.add(path)
+            for module in local_imports(path.read_text()):
+                relative = module.replace('.', '/')+'.lean'
+                dependency = self.source_root/relative
+                if not dependency.is_file():
+                    raise ValueError('Missing local proof-cache dependency: '+module)
+                if dependency in active:
+                    raise ValueError('Cyclic application proof-cache imports')
+                if relative not in imports:
+                    imports[relative] = sha(dependency)
+                    visit(dependency)
+            active.remove(path)
+        visit(source)
+        identity = {'schema': 'numerics-application-cache-v1',
+                    'module': str(source.relative_to(self.source_root)), 'source': source.read_text(),
+                    'imports': imports, 'dependencies': self.dependencies,
+                    'profile': 'lean-checked-autoImplicit-false-warningAsError-extra-linters'}
+        key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+        return key, self.root/key if self.root else None

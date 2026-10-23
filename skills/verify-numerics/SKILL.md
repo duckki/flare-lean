@@ -84,7 +84,10 @@ For a multi-module Rust API with validation, slices, enums/results, integer time
 or mutation, read [rust-applications.md](references/rust-applications.md). Use a
 reviewed application contract and fresh extraction; cover error returns and
 rounded decisions in the same Lean root. This route needs authored bridges and
-proofs, not just a scalar bound.
+proofs, not just a scalar bound. For non-Rust component composition, the same
+guide covers full constructor/field/option correspondence and the four-state
+planar tracker. Keep added validation/decisions distinct from the original API;
+deliver a standalone reusable crate with real loops and separate drivers.
 
 For fixed-shape built-in Python list products, read [arrays.md](references/arrays.md).
 Supply explicit input shapes and an independent exact matrix expression. Inspect

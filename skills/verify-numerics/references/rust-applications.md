@@ -17,6 +17,7 @@ Start from the complete example at
 | --- | --- |
 | `entry` | Crate-local path, such as `imu_epoch::assess`; ends with `function` |
 | `files` | Map each destination `src/*.rs` to its original source file; include `src/lib.rs` and every companion module |
+| `licenses` | Optional map from `LICENSE*` filenames to attribution files, retained with the standalone crate |
 | `lean_modules` | Map each `Workflow.*` module name to a saved Lean source/template; include `Workflow.Contract` and `Workflow.Proof` |
 
 File selections resolve relative to the request. The provider generates a
@@ -99,3 +100,56 @@ padding in both the actual Rust source and its native Lean model. The padding
 control must reach numerical proof rejection after fresh extraction and the
 source bridge have passed. A runtime diagnostic also shows why zero padding
 can cross a strict threshold; runtime sampling alone is not a Lean counterexample.
+
+## Compose non-Rust components and deliver the reusable port
+
+Use `$FLARE_ROOT/examples/numerics/planar/request.json` for the combined
+four-state example. Optional `rust_application.components` maps capitalized
+namespace names to independent `target: lean` request files. Each component
+must finish its own accepted numerical root. The provider imports its frozen
+proof sources under `Workflow.Components.NAME` and checks them in the parent
+application. Prove the bridge from the actual application loop to those
+components; merely including a component does not establish its applicability.
+
+Optional `rust_application.source_api` selects a component and extracted Rust
+type, for example:
+
+```json
+{"component": "Axis", "rust_type": "Workflow.Generated.gh.GhFilter"}
+```
+
+This closed frontend lowers an ordinary Python scalar constructor and full
+update state from the original AST, including `None` defaults and every stored
+field. It admits a declared NumPy `ndim` scalar constructor branch, not arrays
+or general NumPy execution. Python operations require built-in floats and
+finite nonzero divisors. Inspect `source-api.json` and the generated `Safe`
+predicate. Discharge those premises for the composed application, rather than
+quietly replacing Python's exceptional semantics with total Float division.
+The provider independently requires the stronger root:
+
+```lean
+example : (Workflow.Contract.Statement Workflow.Generated.tracker.assess)
+    ∧ Workflow.SourceAPI.Contract := Workflow.Certificate.certificate
+```
+
+`Workflow.SourceAPI` and `Workflow.Components.*` are reserved generated modules.
+Replay regenerates them from frozen original source and sealed child evidence.
+Changing a constructor/auxiliary field must fail the full-state bridge even if
+position/velocity arithmetic happens to remain unchanged.
+
+Optional `source_api.runtime` names a Python executable with NumPy for sampled
+word-level constructor/update diagnostics against Rust debug and release. It
+runs only the selected original bodies with real NumPy, not the full module.
+Drivers live under the verification run's `drivers/`, separately from `rust/`.
+Use all-field/API tests as additional evidence; the Lean bridge is still needed.
+
+`contract_cache` enables explicit local reuse of compiled helpers, including
+transitive local imports and model identities. Roots/checks always compile
+freshly; frozen replay never uses that cache. `rust_runtime` selects a compatible
+explicit Rust release for runtime checks; translator/model versions remain
+separate. Optional `contract_summary` lists reviewed `properties`, `domain` and
+`adaptations` for the report; it does not replace the authoritative Lean type.
+The report records paths and run/replay commands. Keep the entire frozen run
+portable and retain the recorded provider/library pins. New model manifests
+hash the actually imported Aeneas modules, so unrelated unused build artifacts
+can differ without invalidating replay.

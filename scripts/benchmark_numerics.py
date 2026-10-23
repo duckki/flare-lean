@@ -55,7 +55,8 @@ def main():
         request=json.loads(source_request.read_text())
         request['source']=str((source_request.parent/request['source']).resolve())
         if 'rust_application' in request:
-            for field in ('files', 'lean_modules'):
+            for field in ('files', 'lean_modules', 'components', 'licenses'):
+                if field not in request['rust_application']: continue
                 request['rust_application'][field] = {
                     key: str((source_request.parent/value).resolve())
                     for key, value in request['rust_application'][field].items()}
@@ -65,7 +66,7 @@ def main():
             request['rust_tools']=tools['rust_tools']
         if tools.get('analysis_tools') and 'rust_application' not in request:
             request['analysis_tools'] = tools['analysis_tools']
-        if args.contract_cache and 'rust_application' not in request:
+        if args.contract_cache:
             request['contract_cache'] = str(args.contract_cache.resolve())
         selected=out/(case['name']+'.json');save(selected,request)
         start=time.monotonic();run=out/case['name']

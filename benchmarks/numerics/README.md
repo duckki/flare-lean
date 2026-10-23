@@ -135,6 +135,7 @@ Python loops, and retains original larger assets as capability probes.
 | Scalar Kalman loop | 1, 4, 8, 16, 48, 128 updates; 8 operations/update | Both mean and variance, helper calls, incoming state error, independent exact recurrence, Lean proof and budget stages |
 | IMU motion loop | 1, 4, 16, 48 updates; 8 operations/update | Position and velocity with independent accelerations and shared original Float `dt`, complete-horizon Lean error proof |
 | Original Rust IMU application (optional tools) | 48 events, integer time and decisions | Fresh multi-module extraction, complete admission/error behavior, arithmetic and exact-reference decision root; authored proof bundle and Lean-only replay |
+| Planar GH tracker (optional tools) | Four states, two eight-update axes | Original scalar API/full-state correspondence, composed numerical allowances, validation and exact-reference decisions; reusable Rust crate |
 | Original four-state graphs | 7,758 relative / 7,761 global operations, 46 stages | Frozen initialization, dense covariance propagation and correction-model analysis; candidates only |
 
 Kalman profiles start at variance 1 m², process noise 1/8 m² and measurement
@@ -204,3 +205,21 @@ model. Default CI validates its request; configured Rust-tool runs also certify,
 replay and run the negative controls. Missing tools cannot satisfy a proof
 rejection test. The provider retains those integration runs under
 `.cache/numerics-generated/application-tests-*/`.
+
+### Combined application and reusable Rust port
+
+```sh
+python3 scripts/benchmark_numerics.py --suite scale --case planar_tracker \
+  --tools /path/to/local-tools.json --contract-cache .cache/numerics-generated/contracts \
+  --out .cache/numerics-generated/planar-checked
+FLARE_NUMERICS_RUST_TOOLS=/path/to/local-tools.json \
+  FLARE_NUMERICS_RUST_UPGRADE=1.96.0 make numerics-check
+```
+
+See the [planar guide](../../examples/numerics/planar/README.md) for the finite
+domains, all four error bounds, scalar API scope and report/replay commands.
+The upgrade variable is optional and names an installed compatible Rust release.
+The maintenance scenario changes padding in the actual Rust module and reviewed
+model/contract, freshly extracts it and reuses unchanged imported axis proofs.
+Constructor mismatches and altered imported source models must be rejected.
+The tests retain runs under `.cache/numerics-generated/planar-tests-*/`.

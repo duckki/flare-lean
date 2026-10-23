@@ -44,7 +44,7 @@ def prepare(path, *, replay=False):
     source = (path.parent / request['source']).resolve()
     if 'rust_application' in request:
         from .application import prepare as prepare_application
-        return prepare_application(path, request)
+        return prepare_application(path, request, replay=replay)
     program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'))
     if program.arrays and (request.get('target','lean') != 'lean' or request.get('proof') or request.get('producer','lean-flare') != 'lean-flare'):
         raise Unsupported('The fixed-array profile currently uses Lean certification with the lean-flare producer')
@@ -171,7 +171,7 @@ def dependencies():
 def seal(output, result):
     result['dependencies'] = dependencies()
     result['artifacts'] = {str(p.relative_to(output)): sha(p) for p in sorted(output.rglob('*'))
-        if p.is_file() and '.work' not in p.parts and p.name != 'result.json'}
+        if p.is_file() and '.work' not in p.parts and p != output/'result.json'}
     save(output/'result.json', result)
 
 
@@ -475,13 +475,19 @@ def audit_run(path, frozen=False):
                 for data in tool.get('data_files', []):
                     if sha(data['path']) != data['sha256']:
                         raise ValueError('Analysis tool data changed: '+data['path'])
+        for name in result.get('components', {}):
+            audit_run(path/'components'/name, frozen=False)
+        if 'api-diagnostics.json' in result['artifacts']:
+            runtime = json.loads((path/'api-diagnostics.json').read_text())
+            if sha(runtime['runtime']) != runtime['runtime_sha256']:
+                raise ValueError('Scalar API runtime changed; regenerate diagnostics')
         if 'rust-tools.json' in result['artifacts']:
-            from .rust import model_files
+            from .rust import matching_model
             selected=json.loads((path/'rust-tools.json').read_text())
             for name in ['charon','aeneas']:
                 if sha(selected[name]['path'])!=selected[name]['sha256']:
                     raise ValueError('Rust translation tool changed: '+name)
-            if model_files(Path(selected['lean_lib']['path']))!=json.loads((path/'aeneas-model.json').read_text()):
+            if not matching_model(Path(selected['lean_lib']['path']), json.loads((path/'aeneas-model.json').read_text())):
                 raise ValueError('Aeneas Lean model changed')
     return {'status':'fresh','certificate_status':result['status'],
             'qualification':'Identity/freshness audit only. Replay checks the Lean root independently.'}
