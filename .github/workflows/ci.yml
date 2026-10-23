@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       # Do not let dependency initialization fetch the whole Mathlib cache.
       MATHLIB_NO_CACHE_ON_UPDATE: "1"
@@ -34,8 +34,33 @@ jobs:
           df -h .
       - name: Check library and tooling
         run: make check
+      - name: Install numerical producer build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y flex bison libgmp-dev libmpfr-dev libboost-dev ocaml-nox ocaml-findlib libnum-ocaml-dev
+      - name: Build pinned numerical producers
+        run: |
+          python3 scripts/certify_numerics.py setup --tool gappa --out .cache/numerics-generated/ci-tools/gappa
+          python3 scripts/certify_numerics.py setup --tool fptaylor --out .cache/numerics-generated/ci-tools/fptaylor \
+            --make-arg "ML=ocamlc -custom -I $(ocamlfind query num)" \
+            --make-arg "OPT_ML=ocamlopt -I $(ocamlfind query num)"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          base = Path('.cache/numerics-generated/ci-tools').resolve()
+          tools = {'gappa': {'executable': str(base/'gappa/install/bin/gappa')},
+                   'fptaylor': {'executable': str(base/'fptaylor/source/fptaylor')}}
+          (base/'tools.json').write_text(json.dumps({'analysis_tools': tools}) + '\n')
+          PY
+          echo "FLARE_NUMERICS_ANALYSIS_TOOLS=$PWD/.cache/numerics-generated/ci-tools/tools.json" >> "$GITHUB_ENV"
       - name: Check numerical workflow and rejection controls
         run: make numerics-check
+      - name: Retain external producer workflow evidence
+        run: >-
+          python3 scripts/benchmark_numerics.py
+          --case mean_update_gappa --case mean_update_fptaylor
+          --tools .cache/numerics-generated/ci-tools/tools.json
+          --out .cache/numerics-generated/bench-external-ci
       - name: Check out pinned README demo source
         uses: actions/checkout@v5
         with:
@@ -75,6 +100,8 @@ jobs:
           path: |
             .cache/numerics-generated/bench-*/
             .cache/numerics-generated/scale-*/
+            .cache/numerics-generated/ci-tools/*/installation.json
+            .cache/numerics-generated/ci-tools/*/runs/
           include-hidden-files: true
           if-no-files-found: ignore
       - name: Report disk space

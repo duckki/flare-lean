@@ -128,14 +128,21 @@ Maintain one skill at `skills/verify-numerics`, the provider CLI/adapters under
 external tools outside core Lake dependencies. Read
 [the workflow guide](numerical-verification.md) for certification boundaries
 and [the benchmark guide](../benchmarks/numerics/README.md) for scenarios.
+The [tool integration guide](tool-integration.md) describes adapter extension,
+shared setup, versioned obligations/evidence and independent validation.
 
 Run `make numerics-check` for fresh Lean certification/replay and rejection
 controls, and `make numerics-bench` for the default end-to-end scenarios. Use
 `make numerics-scale` for increasing bounded-loop and larger-model workloads. CI
 runs the smoke suite, a representative scale subset and the two README examples.
 It uploads the checked [README evidence](numerical-verification.md#replay-the-readme-examples)
-after a fresh replay. Optional runtimes and Rust
-extraction are selected separately with local tool paths. To run the fresh
+after a fresh replay.
+CI also builds the pinned Gappa/FPTaylor producers, checks external families and
+retains their maintained benchmark evidence. For local real-producer tests, set
+`FLARE_NUMERICS_ANALYSIS_TOOLS=/absolute/path/to/local-tools.json`; the file has
+`analysis_tools` entries for both producers, as described in the integration guide.
+Optional runtimes and Rust extraction are selected separately with local tool
+paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set
 `FLARE_NUMERICS_RUST_TOOLS=/absolute/path/to/local-tools.json` for `make numerics-check`;
 the file must contain the `rust_tools` selection described in the skill reference.

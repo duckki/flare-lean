@@ -67,6 +67,18 @@
       "request": "../../examples/numerics/rust_mean_update_extracted.json",
       "expected": "certified",
       "optional": true
+    },
+    {
+      "name": "mean_update_gappa",
+      "request": "../../examples/numerics/mean_update_gappa.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "mean_update_fptaylor",
+      "request": "../../examples/numerics/mean_update_fptaylor.json",
+      "expected": "certified",
+      "optional": true
     }
   ]
 }

@@ -30,16 +30,22 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | IMU prediction | `certified` | Scalar motion kernel, original Float time input |
 | Four-stage mean update | `certified` | Residual, gain multiplication, add zero, add prior mean |
 | Same mean update, `2^-51` target | `budget_not_met` | Current producer proves `2^-43`, retaining the original target |
+| Mean update through Gappa / FPTaylor | `certified` with optional producers | Retain different foreign evidence forms; independently prove the original requested budget in Lean |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
 | Python Kalman → Rust IR probe | `certified` with optional extraction tools | Internal straight-line kernel: fresh Charon/Aeneas return plus debug/release diagnostics; not a reusable production port |
 | Original Rust → extracted Rust model | `certified` with optional extraction tools | Original source retained, no port substitution |
 
 Optional cases are excluded by default and marked separately in summaries.
+CI additionally builds the pinned Gappa/FPTaylor versions and selects
+`mean_update_gappa` / `mean_update_fptaylor`. See
+[tool integration](../../docs/tool-integration.md) for source setup, configuration,
+adapter extension and the distinction between raw output and checked bounds.
 Explicitly selecting one requires its tools: absence is a failed prerequisite,
 not a successful proof rejection. `--case NAME` can select individual scenarios.
 A local tools file has `runtimes` keyed by `julia`, `matlab` or `rust`, each with
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
+`analysis_tools` maps Gappa/FPTaylor to their executable and optional identity/data selections.
 Use absolute paths. This machine configuration is not a version attestation.
 
 Fresh Lean tests require the baseline to certify first. Controls then check that:
@@ -80,8 +86,10 @@ These describe producer limitations, not false mathematical conclusions.
 
 `gappa/mean-update-tight.g`, its raw Coq trace and wrapper are preserved inputs
 for Lean reconstruction. They do not establish the `2^-51` theorem in Lean.
-Foreign checker tools are not required for default tests. No automatic Gappa,
-FPTaylor or PRECiSA import is advertised. Full matrix/filter applications,
+Foreign checker tools are not required for default local tests. Gappa/FPTaylor
+producer adapters retain output and independently derive requested budgets;
+their foreign proof traces are not imported. PRECiSA has no registered adapter.
+Full matrix/filter applications,
 NumPy/BLAS mappings, unstable branches and physical coverage need further work.
 
 ## Increasing scale

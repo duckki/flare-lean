@@ -165,6 +165,11 @@ or installation procedure has passed.
 
 ## Other runtimes and proof tools
 
+For Gappa and FPTaylor, the provider has pinned source-setup recipes and a shared
+bounded build/logging service. Read [tool-integration.md](tool-integration.md)
+for `setup --tool ... --out ...`, prerequisites and selection fields. It preserves
+existing destinations and does not replace Lean or Rust-toolchain setup.
+
 Use official downloads or user-scoped package installations for the selected
 Julia, Octave, analyzer or prover version, then run a version/arithmetic preflight
 and configure its existing interface. Respect user-selected runtime semantics;

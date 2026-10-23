@@ -46,7 +46,10 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `domain` | Original input names mapped to inclusive rational-string `[lo, hi]` ranges; finite binary64 inputs are additional premises |
 | `outputs` | One or two outputs in return order, each with `name`, `unit`, positive rational-string `limit` |
 | `specification` | Independently reviewed exact expressions on original input names using rational/decimal constants and `+ - * /` |
-| `backend` | `lean-flare` (default); no external analyzer adapter is implemented yet |
+| `backend` | `lean-flare` (default); independent numerical proof/checking path |
+| `producer` | `lean-flare` (default), `gappa` or `fptaylor`; see `tool-integration.md` for evidence and validation roles |
+| `analysis_tools` | Tool-name map with `executable`, optional expected `sha256` and optional tool-data `base` |
+| `arithmetic` | Optional full model from `capabilities`; mismatched precision/rounding/FMA/subnormal semantics are rejected |
 | `target` | `lean` (default) or `rust-aeneas` |
 | `timeout_seconds` | Finite positive per-command limit, default 120 |
 | `proof` | Optional saved Lean proof and bounds; see `lean-conversion.md` |
@@ -229,9 +232,11 @@ Source/IR and Rust debug/release diagnostics remain required for certification.
 ## Results, replay and freshness
 
 `run` freezes source, request and graph; admits the actual source runtime;
-proposes rational summaries (or loads an authored proof); checks Lean proofs and
+selects a producer and freezes its obligation/evidence (or loads an authored proof); checks Lean proofs and
 an independently generated root-type/axiom checker; then runs word diagnostics.
 Only checked bounds are recorded as `accepted_bounds`.
+The external routes independently prove the requested budgets; printed tighter
+allowances are candidates. See [tool integration](tool-integration.md).
 
 | Status | Interpretation |
 | --- | --- |

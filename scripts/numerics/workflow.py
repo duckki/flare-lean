@@ -30,7 +30,7 @@ def save(path, data):
     Path(path).write_text(json.dumps(data, indent=2) + '\n')
 
 
-def prepare(path):
+def prepare(path, *, replay=False):
     path = Path(path).resolve()
     request = json.loads(path.read_text())
     if not isinstance(request, dict) or request.get('schema') != 'numerics-request-v1':
@@ -120,6 +120,8 @@ def prepare(path):
             raise ValueError('proof.bounds must list an exact nonnegative rational per output')
         if any(not isinstance(x,str) or Q(x)<0 for x in authored['bounds']):
             raise ValueError('proof bounds must be nonnegative exact-rational strings')
+    from .integration import validate
+    validate(request, program, require_adapters=not replay)
     return request, source, program, questions
 
 
@@ -133,7 +135,7 @@ class Runner:
         command = list(map(str, command))
         overrides = dict(env or {})
         if sys.platform == 'darwin':
-            overrides['DEVELOPER_DIR'] = '/Library/Developer/CommandLineTools'
+            overrides.setdefault('DEVELOPER_DIR', os.environ.get('DEVELOPER_DIR', '/Library/Developer/CommandLineTools'))
         invocation = [sys.executable, str(ROOT/'scripts/tool_integration_run.py'),
             '--output', str(self.output/'runs'/label), '--phase', phase,
             '--timeout', str(self.timeout), '--cwd', str(cwd)]
@@ -184,6 +186,12 @@ def report(output, result):
         lines += [f"- {target['name']}: {target['evidence']} {target['bound']} {target['unit']}; "
                   f"requested {target['limit']}; meets budget: {target['meets_budget']}."]
     lines += ['', 'Trust boundaries:'] + ['- '+x for x in result['assumptions']]
+    if 'producer' in result:
+        lines += ['', 'Producer: `'+result['producer']+'`.']
+    if result.get('claim_policy') == 'requested-budgets':
+        lines += ['Foreign proof output and sharper printed bounds remain untrusted evidence.',
+                  'The selected allowance is the requested budget; acceptance requires an independent Lean proof.',
+                  'See evidence.json for raw candidates, tool identities and validation roles.']
     if 'error' in result:
         lines += ['', 'Unresolved: '+result['error']]
     lines += ['', 'Artifact/freshness auditing is not proof checking. Replay recompiles the saved',
@@ -216,7 +224,12 @@ def check_lean(output, request, program, bounds, runner, work):
     modules += [('kernel','Workflow/Kernel.lean')]
     if request.get('rust_port'):
         modules += [('rust-equivalence','Workflow/RustEquiv.lean')]
-    if request.get('proof'):
+    adapter_module = output/'validation.json'
+    if adapter_module.exists():
+        validation = json.loads(adapter_module.read_text())
+        if validation.get('schema') != 'numerics-validation-v1' or validation.get('kind') != 'adapter-lean-module':
+            raise ValueError('Unsupported adapter Lean validation record')
+    if request.get('proof') or adapter_module.exists():
         modules += [('authored','Workflow/Authored.lean')]
     modules += [('proof','Workflow/Proof.lean')]
     (output/'lean/Workflow/Check.lean').write_text(check_source(program,request['domain'],bounds,
@@ -300,25 +313,35 @@ def certify(request_path, output):
         runtime=admit_runtime(program,request,output,work,runner)
         result['source_runtime']=runtime['kind']; result['completed_stages'].append('source_runtime_admitted')
         runner.last_stage='analysis'
-        bounds,steps=output_bounds(program,request)
-        save(output/'analysis.json',{'producer':'authored Lean proof' if request.get('proof') else 'untrusted rational proposals',
-                                    'steps':steps,'candidate_bounds':{n:str(bounds[n].e) for n in program.outputs}})
+        from .integration import Session
+        session = Session(program, request, output, work, runner, output_bounds, source_name)
+        producer = request.get('producer', 'lean-flare')
+        result['producer'] = producer
+        proposal = session.execute(producer, 'producer')
+        summaries, steps, bounds = proposal.summaries, proposal.steps, proposal.claims
+        authored = session.proof_module(proposal)
+        result['producer_validation'] = proposal.details.get('validation', 'lean-root')
+        result['claim_policy'] = proposal.details.get('claim_policy', 'producer-output-claims')
+        save(output/'analysis.json',{'producer':producer, 'steps':steps,
+            'candidate_bounds':{n:str(bounds[n].e) for n in program.outputs},
+            'derivation_bounds':{n:str(summaries[n].e) for n in program.outputs},
+            'producer_details':proposal.details})
         result['completed_stages'].append('bounds_proposed')
         result['outputs']=[{'name':t['name'],'unit':t['unit'],'limit':str(Q(t['limit'])),
             'bound':str(bounds[n].e),'meets_budget':bounds[n].e<=Q(t['limit']),'evidence':'proposed'}
             for n,t in zip(program.outputs,request['outputs'],strict=True)]
         if with_rust:
-            from .rust import extract
             runner.last_stage='rust-tool-admission'
-            extract(program,frozen_source,request,output,work,runner)
+            session.execute('rust-aeneas', 'extractor', source=frozen_source)
             result['completed_stages'].append('rust_source_extracted')
         lean=output/'lean/Workflow'; lean.mkdir(parents=True,exist_ok=True)
         (lean/'Kernel.lean').write_text(kernel_source(program,request['specification']))
-        (lean/'Proof.lean').write_text(proof_source(program,request['domain'],bounds,steps,
-                                                  request['outputs'],with_rust,request.get('proof'),
+        (lean/'Proof.lean').write_text(proof_source(program,request['domain'],summaries,steps,
+                                                  request['outputs'],with_rust,authored,
                                                   isinstance(request['specification'],dict),
-                                                  request.get('rust_port',{}).get('equivalence')))
-        check_lean(output,request,program,bounds,runner,work)
+                                                  request.get('rust_port',{}).get('equivalence'),
+                                                  bounds if producer != 'lean-flare' else None))
+        session.execute('lean-root', 'validator', bounds=bounds)
         record=json.loads((output/'analysis.json').read_text())
         record['accepted_bounds']={n:str(bounds[n].e) for n in program.outputs}
         save(output/'analysis.json',record)
@@ -334,8 +357,10 @@ def certify(request_path, output):
     except (RuntimeError,ValueError,OSError) as error:
         result['error']=str(error)
         result['failure_stage']=getattr(runner,'last_stage','admission_or_analysis')
+        if hasattr(error, 'kind'):
+            result['failure_kind'] = error.kind
         record_path=output/'runs'/result['failure_stage']/'run.json'
-        if record_path.is_file():
+        if record_path.is_file() and 'failure_kind' not in result:
             stage=json.loads(record_path.read_text())
             diagnostic=(record_path.parent/'stdout.txt').read_text()
             if stage['status']=='timeout': result['failure_kind']='timeout'
@@ -373,6 +398,14 @@ def audit_run(path, frozen=False):
             runtime=json.loads((path/'source-runtime.json').read_text())
             if sha(runtime['executable'])!=runtime['executable_sha256']:
                 raise ValueError('Source runtime executable changed; regenerate diagnostics and certificate')
+        if 'evidence.json' in result['artifacts']:
+            evidence = json.loads((path/'evidence.json').read_text())
+            for tool in evidence.get('tools', []):
+                if sha(tool['path']) != tool['sha256']:
+                    raise ValueError('Analysis tool changed: '+tool['name'])
+                for data in tool.get('data_files', []):
+                    if sha(data['path']) != data['sha256']:
+                        raise ValueError('Analysis tool data changed: '+data['path'])
         if 'rust-tools.json' in result['artifacts']:
             from .rust import model_files
             selected=json.loads((path/'rust-tools.json').read_text())
@@ -388,8 +421,10 @@ def audit_run(path, frozen=False):
 def replay_run(path, output, aeneas_lean_lib=None):
     """Replay saved Lean sources without a producer, source runtime, Rust extraction or LLM."""
     path=Path(path).resolve(); audit_run(path,frozen=True)
-    request,source,program,questions=prepare(path/'request.json')
+    request,source,program,questions=prepare(path/'request.json', replay=True)
     if questions: raise ValueError('Frozen request is incomplete')
+    from .integration import replay_evidence
+    replay_evidence(path, request, program)
     expected=kernel_source(program,request['specification'])
     if expected!=(path/'lean/Workflow/Kernel.lean').read_text():
         raise ValueError('Saved kernel/specification does not match the frozen original source/request')
@@ -410,6 +445,8 @@ def replay_run(path, output, aeneas_lean_lib=None):
     output=Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     shutil.copytree(path/'lean',output/'lean')
     shutil.copyfile(path/'request.json',output/'request.json'); shutil.copyfile(source,output/request['source'])
+    if (path/'validation.json').exists():
+        shutil.copyfile(path/'validation.json', output/'validation.json')
     if request.get('rust_port'):
         shutil.copyfile(path/request['rust_port']['source'], output/request['rust_port']['source'])
     runner=Runner(output,request.get('timeout_seconds',120)); work=output/'.work';work.mkdir()

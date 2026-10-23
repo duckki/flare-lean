@@ -14,6 +14,10 @@ supply candidate bounds and error expressions; PRECiSA can supply branch and
 modular summaries. Foreign proof traces can guide reconstruction. Installed
 version, supported semantics and available libraries determine useful choices.
 No external producer or converter is implied available just by this guidance.
+The [registered adapters](tool-integration.md) describe the implemented Gappa and
+FPTaylor routes and their independent-budget validation. The generated-Lean-module
+interface also supports reusable converters as they are implemented; the manual
+route below remains available for application-specific arguments.
 
 Freeze source, original inputs, operating domain, independent exact reference,
 precision/rounding, constants, FMA, subnormals, exceptions, operation order and

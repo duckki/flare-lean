@@ -15,6 +15,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('capabilities')
+    setup = sub.add_parser('setup')
+    setup.add_argument('--tool', required=True)
+    setup.add_argument('--out', required=True, type=Path)
+    setup.add_argument('--timeout', type=float, default=600)
+    setup.add_argument('--make-arg', action='append', default=[])
     inspect = sub.add_parser('inspect')
     inspect.add_argument('--source', required=True)
     inspect.add_argument('--function', required=True)
@@ -34,8 +39,13 @@ def main():
             p.add_argument('--out', required=True)
     args = parser.parse_args()
     try:
-        if args.command == 'capabilities':
+        if args.command == 'setup':
+            from numerics.installation import setup
+            result = setup(args.tool, args.out, args.timeout, args.make_arg)
+        elif args.command == 'capabilities':
+            from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
+                'adapters': {name: adapter.record() for name, adapter in adapters().items()},
                 'source_runtimes': {name: runtime_candidates(name) for name in FRONTENDS}}
         elif args.command == 'inspect':
             p = parse(args.language, Path(args.source).read_text(), args.function)
@@ -54,7 +64,7 @@ def main():
         else:
             result = certify(args.request, args.out)
         print(json.dumps({k:v for k,v in result.items() if k not in ('dependencies','artifacts')}, indent=2))
-        return 0 if result.get('status') in (None, 'ready', 'certified', 'fresh', 'replayed') else 2
+        return 0 if result.get('status') in (None, 'ready', 'certified', 'fresh', 'replayed', 'installed') else 2
     except RuntimeError as error:
         print(json.dumps({'status':'unresolved','error':str(error)},indent=2))
         return 2

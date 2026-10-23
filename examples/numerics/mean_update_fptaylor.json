@@ -1,0 +1,32 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "mean_update.py",
+  "function": "update",
+  "target": "lean",
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ],
+    "z": [
+      "-1/2",
+      "1/2"
+    ],
+    "k": [
+      "0",
+      "1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "updated_mean",
+      "unit": "m",
+      "limit": "1/10000000000"
+    }
+  ],
+  "specification": [
+    "x + k * (z - x)"
+  ],
+  "producer": "fptaylor"
+}

@@ -76,9 +76,10 @@ def proposition(program, summaries, output="kernel", exact="reference"):
     return "\n      ∧ ".join(clauses)
 
 
-def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None):
+def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None, claims=None):
     args = applied(program)
     hyps = hypotheses(program, domain)
+    conclusion = {**summaries, **(claims or {})}
     imports = ['module', '', 'public import Workflow.Kernel',
         'public import Flare.Binary64.Pipeline']
     if with_rust:
@@ -92,7 +93,7 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         'open Flare.Binary64.Pipeline Flare.Binary64.Value', '',
         'set_option maxHeartbeats 2000000', 'set_option maxRecDepth 4096', '',
         f'theorem accuracy {params(program)}', *['    '+h for h in hyps],
-        '    : '+proposition(program, summaries)+' := by']
+        '    : '+proposition(program, conclusion)+' := by']
     if authored:
         lines += ['  exact '+authored['accuracy']+' '+args+' '+
                   ' '.join(f'h{i}' for i in range(len(program.inputs)))]
@@ -171,7 +172,10 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
     if not authored:
         terms = []
         for node in program.outputs:
-            terms += [f"b_{node}.finite", f"b_{node}.bounds.error"]
+            error = f"b_{node}.bounds.error"
+            if claims is not None:
+                error = '('+error+').trans (by norm_num : '+real(summaries[node].e)+' ≤ '+real(conclusion[node].e)+')'
+            terms += [f"b_{node}.finite", error]
         lines += ["  exact ⟨" + ", ".join(terms) + "⟩"]
     lines += ['', 'theorem specification_equiv '+
         ' '.join(f'(a{i} : ℝ)' for i in range(len(program.inputs))),
@@ -187,11 +191,11 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         lines += ['', f'theorem source_equiv {params(program)}',
             f'    : Generated.kernel {args} = .ok (kernel {args}) := by',
             '  exact '+rust_equivalence+' '+args if rust_equivalence else '  rfl']
-    meets = all(summaries[n].e <= Q(t['limit'])
+    meets = all(conclusion[n].e <= Q(t['limit'])
                 for n,t in zip(program.outputs,targets,strict=True))
-    budget = ' ∧ '.join(f'{real(summaries[n].e)} ≤ {real(t["limit"])}'
+    budget = ' ∧ '.join(f'{real(conclusion[n].e)} ≤ {real(t["limit"])}'
                         for n,t in zip(program.outputs,targets,strict=True))
-    clauses = proposition(program,summaries,output='output' if with_rust else 'kernel',exact='specification')
+    clauses = proposition(program,conclusion,output='output' if with_rust else 'kernel',exact='specification')
     if meets:
         clauses += '\n      ∧ ('+budget+')'
     lines += ['', f'theorem certificate {params(program)}', *['    '+h for h in hyps]]
@@ -205,7 +209,7 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
     if meets:
         # The finite/error clauses are right-associated; keep their proof intact
         # by using a separately typed conjunction before reassociation.
-        lines += ['  have numerical : '+proposition(program,summaries,exact='specification')+' := by',
+        lines += ['  have numerical : '+proposition(program,conclusion,exact='specification')+' := by',
                   '    rw [← specification_equiv]', '    exact '+accuracy,
                   '  have budget : '+budget+' := by norm_num',
                   '  exact ⟨numerical.1, '+

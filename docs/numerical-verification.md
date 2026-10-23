@@ -235,16 +235,22 @@ optional specification identity. This provides a path for reconstructing useful
 external arguments without trusting a printed bound or foreign theorem. See
 [Lean conversion](../skills/verify-numerics/references/lean-conversion.md).
 
-Gappa, FPTaylor, PRECiSA and language-specific tools can help different local
-obligations. Choose from the installed version's supported arithmetic model,
-source constructs and output detail. No automatic external-output importer is
-implemented. Coq/PVS/HOL success alone never closes a numerical Lean premise.
+Gappa and FPTaylor have [registered producer adapters](tool-integration.md) with
+shared source setup, capability records, bounded execution and evidence tied to
+the frozen source/contract. They currently retain foreign output and independently
+derive the requested budgets through the existing Lean backend. Sharper printed
+bounds remain candidates; Gappa's Coq trace is not imported or checked as a Coq proof.
+An adapter may also generate a Lean accuracy module for the same typed root check.
 
-The [integration plan](roadmap.md#integration-strategy) prioritizes shared tool
-adapters, reusable evidence import/checking and verified Lean inference. It
-accommodates different tool outputs and arithmetic models while keeping one
-Lean completion boundary. New numerical lemmas support those mechanisms and
-their semantic bridges.
+PRECiSA and other tools can supply further adapters. Choose from the installed
+version's supported arithmetic model, source constructs and output detail.
+Coq/PVS/HOL success alone never closes a numerical Lean premise.
+
+The [integration strategy](roadmap.md#integration-strategy) prioritizes shared tool
+adapters, reusable evidence import/checking and verified Lean inference. The first
+shared layer is implemented; sharper inference and additional evidence checkers
+remain capability work. Keep one Lean completion boundary and add mathematical
+support for those mechanisms and their semantic bridges.
 
 ## Maintained validation and next work
 

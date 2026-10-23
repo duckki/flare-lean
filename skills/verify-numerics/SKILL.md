@@ -88,9 +88,13 @@ candidate or a successful rejection test is not a completed certificate.
 
 Read [tool-routes.md](references/tool-routes.md) to select producers per obligation.
 Try a small version-specific preflight, retain failures, check option units and
-set external process limits. The implemented automatic checker is `lean-flare`;
-Gappa, FPTaylor and PRECiSA importers are future work. Their Coq/PVS or numeric
-outputs are useful inputs to reconstruction, not final Lean certificates.
+set external process limits. Read [tool-integration.md](references/tool-integration.md)
+for registered producer selection and shared source setup. The current Gappa and
+FPTaylor routes retain external evidence and independently prove the requested
+budgets through `lean-flare`. Sharper printed bounds and foreign proof traces
+remain untrusted evidence; a general foreign-proof importer is not implemented.
+Use reusable adapters, evidence checking or verified inference when extending
+support to a new class of obligations.
 
 Read [lean-conversion.md](references/lean-conversion.md) for saved authored proofs.
 Both an implemented converter and an LLM-authored Lean proof are acceptable when

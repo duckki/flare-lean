@@ -53,6 +53,7 @@ flare-lean/
 │   ├── using-library.md         # Importing FLARE from another Lean project
 │   ├── organization.md          # Results, layout and source attribution
 │   ├── numerical-verification.md # Workflow contracts and CLI
+│   ├── tool-integration.md      # Adapter interfaces, evidence and validation
 │   ├── roadmap.md               # Planned capabilities and completion criteria
 │   ├── reference.md             # Theorem entry points and assumptions
 │   ├── upstream/
@@ -134,6 +135,9 @@ tool downloads use a versioned user cache outside the checkout.
 `tools/numerics/` contains only maintained revision records. External tool
 results are untrusted candidates until reconstructed in Lean. Their installation
 does not add a core Lake dependency.
+Provider adapter modules expose shared [tool integration](tool-integration.md):
+setup recipes, capabilities, execution, evidence and Lean validation. External
+producer output remains untrusted until the numerical conclusion is checked.
 `skills/verify-numerics` is the sole skill source. Standard GitHub/skills CLI
 installers distribute that folder; the agent obtains the full provider
 separately. The development installer links the local skill into an agent

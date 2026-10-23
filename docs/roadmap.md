@@ -61,10 +61,27 @@ checkers should compose across tools that share an obligation kind. A new tool
 using an existing proof vocabulary should need an adapter and capability record;
 new semantics or inference rules also need their own soundness argument.
 
-Gappa, FPTaylor, PRECiSA and Charon/Aeneas are concrete integration cases. The
-architecture must support adding other tools without redesigning orchestration,
-reporting or replay. Application-specific authored proofs remain available, while
-the planned capability work prioritizes reusable automation.
+The planned integrations below are explicit work items. A documented route is
+not an implemented adapter, and invoking a tool does not import its reasoning.
+
+| Tools | Current integration | Planned reusable capability | Milestones |
+| --- | --- | --- | --- |
+| Gappa | Query generation and retained Coq trace; FLARE independently derives requested budgets | Check useful trace rules or reconstruct their claims in Lean, including algebraic rewrites | 2–3 |
+| FPTaylor | Query generation and parsed candidate bounds; candidates do not drive the Lean argument | Feed exact candidates and useful hints into reusable Lean validation; reject unproved claims | 2–3 |
+| Charon/Aeneas | Existing Rust-to-Lean extraction and checked return relation, with declared translator/model trust | Extend source coverage and compose extracted APIs, loops and state with numerical contracts | 4–7 |
+| PRECiSA/PVS | Documented route only | Admit branch/domain summaries and reconstruct or check them in Lean; preserve unstable-branch semantics | 2, 6 |
+| Why3, Frama-C/WP, VST | Documented routes only | Adapt supported source models and verification obligations; discharge their numerical and memory premises in Lean with explicit frontend boundaries | 2, 5–7 |
+| Coq/Flocq, VCFloat2, LAProof | Reference workflows only | Import a useful shared evidence vocabulary or reimplement its needed inference with Lean soundness proofs; do not treat a foreign theorem name as a Lean proof | 2–5 |
+| Python, Julia, MATLAB/Octave, rustc | Restricted source admission and sampled runtime diagnostics | Extend source correspondence separately from proof evidence; retain interpreter/compiler assumptions and runtime distinctions | 4–7 |
+
+For each family, first select a retained application obligation and inspect the
+actual version's evidence and semantics. Then implement and test the adapter and
+its Lean validation path, or record the concrete blocking gap. This is a coverage
+plan, not a promise that every tool needs a distinct importer. Tools that share
+an evidence vocabulary should reuse its checker. The architecture must support
+adding tools without redesigning orchestration, reporting or replay.
+Application-specific authored proofs remain available, while the planned
+capability work prioritizes reusable automation.
 
 ## Sequence
 
@@ -111,6 +128,17 @@ measurements to prioritize usability work without changing proof requirements.
 
 ## 2. Streamline integration across verification tools
 
+The first shared layer is implemented in the
+[tool integration guide](tool-integration.md): registered producer/extractor/
+validator roles, source setup, versioned obligations/evidence and producer-free
+replay. Gappa and FPTaylor exercise different output forms; the current validation
+route independently derives requested budgets in Lean. Foreign traces and sharper
+printed bounds remain untrusted evidence. Adapters can also emit a Lean argument
+module for the same typed root check. This completes orchestration infrastructure,
+not the intended integration of external reasoning: foreign results do not yet
+supply facts to Lean. The evidence-validation work below remains open and
+continues alongside milestone 3's scalar acceptance cases.
+
 ### Deliver
 
 - Define versioned obligation, capability and evidence interfaces, reusing the
@@ -129,9 +157,12 @@ measurements to prioritize usability work without changing proof requirements.
 ### Completion criteria
 
 At least two external producers with different evidence forms use the same
-workflow to obtain Lean-checked application results. Candidate output is accepted
-only after an independent Lean argument closes its claim. A supported family of
-new inputs needs no handwritten numerical proof per instance.
+workflow to obtain Lean-checked application results, with their useful output
+actually consumed by validation. Merely retaining a trace while independently
+proving an unrelated requested allowance does not meet this criterion. Candidate
+output is accepted only after an independent Lean argument closes that candidate
+claim. A supported family of new inputs needs no handwritten numerical proof per
+instance.
 
 A further adapter using an existing obligation/evidence kind can be added without
 changing core orchestration, reporting or replay. Unsupported rules and model

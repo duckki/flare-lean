@@ -57,6 +57,8 @@ def main():
         if runtime: request['source_runtime']=runtime
         if request.get('target')=='rust-aeneas' and tools.get('rust_tools'):
             request['rust_tools']=tools['rust_tools']
+        if tools.get('analysis_tools'):
+            request['analysis_tools'] = tools['analysis_tools']
         selected=out/(case['name']+'.json');save(selected,request)
         start=time.monotonic();run=out/case['name']
         command=[sys.executable,str(ROOT/'scripts/certify_numerics.py'),'run','--request',str(selected),'--out',str(run)]
