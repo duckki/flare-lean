@@ -65,3 +65,24 @@ can affect usefulness without changing Lean's proof boundary.
 Use normal certification and saved-proof replay. Replay requires no PRECiSA,
 Kodiak, Haskell compiler, original source runtime or LLM. It regenerates the
 source model and checks the frozen Lean proof, root type and transitive axioms.
+
+## Guard-local arithmetic
+
+Select `"python_branches": {"domains": "guard"}` when a direct original float
+input/literal comparison guards arithmetic that is unsafe elsewhere. For example,
+`if x >= 0.5: return 1.0/x; else: return 0.0` is safe on `[0,2]`, although an
+unconditional `1/x` proof cannot establish a positive denominator there.
+Use `inspect --guard-local` to inspect this profile.
+
+Lean proves native/exact agreement of that direct finite-input guard, partitions
+the original domain and checks each arm on its enclosing branch domain. Inactive
+arithmetic is not evaluated. A wholly unreachable arm needs no numerical contract;
+its unreachability must be proved from the original domain. Closed interval
+enclosures can still lose strict endpoint information and leave a request unresolved.
+
+This mode currently requires the conditional at function entry, an original input
+and a direct floating literal in the guard (no unary minus), scalar return
+expressions, the `lean` target and `lean-flare`. It does not silently assume stability for a computed
+floating-point guard: those continue to use the separate four-flow profile.
+The independent exact conditional reference, root audit and producer-free replay
+requirements are the same. See the [scaling examples](https://github.com/duckki/flare-lean/blob/main/docs/scaling.md).

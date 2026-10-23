@@ -133,6 +133,18 @@
       "request": "../../examples/numerics/branches/innovation_magnitude_precisa.json",
       "expected": "budget_not_met",
       "optional": true
+    },
+    {
+      "name": "counted_smoothing",
+      "request": "../../examples/numerics/counted/smoothing_0016.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "guarded_reciprocal",
+      "request": "../../examples/numerics/branches/guarded_reciprocal.json",
+      "expected": "certified",
+      "optional": false
     }
   ]
 }

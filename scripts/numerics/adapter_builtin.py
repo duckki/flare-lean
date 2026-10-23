@@ -6,8 +6,15 @@ def produce(session):
     from . import scalar
     from . import composition
     from fractions import Fraction as Q
+    if session.program.counted:
+        from .counted import proposal
+        value=proposal(session.program,session.request)
+        return value,value.details
     if session.program.branches:
-        from .branches import proposal
+        if session.program.branches['schema']=='python-guard-local-v1':
+            from .branch_local import proposal
+        else:
+            from .branches import proposal
         value = proposal(session.program, session.request)
         return value, value.details
     if session.program.arrays:

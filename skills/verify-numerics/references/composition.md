@@ -18,9 +18,12 @@ have a checked allowance above the mean budget. Do not call that a numerical bug
 Review `model-layout.json`, per-helper identities in `analysis.json` and the
 function/contract modules under `lean/Workflow/`. Frozen-source replay regenerates
 the helper model and recompiles all saved proofs without inference or producers.
-Arbitrary invariants and unbounded source loops are not automatically admitted;
-the library's parameterized `foldl_contract` / `foldl_error_bound` rules can compose
-supplied local arguments for such proof models.
+For a two-state source loop with fixed scalar configuration, the explicit
+[counted-loop profile](counted-loops.md) proposes and checks a uniform invariant.
+Its `foldl_contract` proof covers every natural horizon; the application root
+instantiates the selected source count. Arbitrary invariants, input streams and
+general loops need additional source/proof support. The library's parameterized
+`foldl_contract` / `foldl_error_bound` rules can compose supplied local arguments.
 
 For repeated work, an optional `contract_cache` request field can use the agreed
 verification directory's `.cache/contracts/`. Announce the path; no shared cache

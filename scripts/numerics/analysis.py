@@ -50,11 +50,12 @@ def magnitude_exponent(x):
     return n
 
 
-def analyze(program, domain, normalizer=normalized):
+def analyze(program, domain, normalizer=normalized, input_bounds=None):
     summaries = {}
     for i, name in enumerate(program.inputs):
         lo, hi = map(Q, domain[name])
-        summaries[f"a{i}"] = Bound((lo+hi)/2, (hi-lo)/2, max(abs(lo), abs(hi)), Q(0))
+        summaries[f"a{i}"] = (input_bounds or {}).get(f"a{i}",
+            Bound((lo+hi)/2, (hi-lo)/2, max(abs(lo), abs(hi)), Q(0)))
     steps = []
     for node in program.nodes:
         raw_ideal = None

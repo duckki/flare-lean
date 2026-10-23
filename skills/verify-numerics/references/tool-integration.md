@@ -29,8 +29,13 @@ that all cases cover the original domain.
 For terminal scalar Python conditionals, read [conditionals.md](conditionals.md).
 PRECiSA's candidate is checked across all four native/exact flows, even if the
 analyzer claims stability. PVS files are retained rather than imported. This
-profile currently uses Lean delivery; both arms must satisfy arithmetic premises
-on the full domain. The default branch producer attempts the requested allowance.
+`python_branches: true` profile uses Lean delivery; both arms must satisfy
+arithmetic premises on the full domain. The default branch producer attempts
+the requested allowance.
+The default producer also has an explicit guard-local profile for a direct
+input/literal comparison; Lean proves guard agreement and local arithmetic
+premises. External producers do not yet support that profile or compact counted
+loops; use [counted-loops.md](counted-loops.md) for the latter's invariant route.
 
 Reuse compatible tools. Otherwise obtain missing prerequisites and use the
 shared source-setup service in the agreed versioned user cache:

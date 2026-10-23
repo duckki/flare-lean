@@ -1,0 +1,25 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "guarded_reciprocal.py",
+  "function": "guarded_reciprocal",
+  "python_branches": {
+    "domains": "guard"
+  },
+  "domain": {
+    "x": [
+      "0",
+      "2"
+    ]
+  },
+  "specification": [
+    "1/x if x >= 1/2 else 0"
+  ],
+  "outputs": [
+    {
+      "name": "inverse",
+      "unit": "1/m",
+      "limit": "1/1000000"
+    }
+  ]
+}

@@ -16,7 +16,9 @@ delay implementing capabilities with clear acceptance cases.
 - Restricted scalar Python, Julia, MATLAB-compatible and Rust source has automatic
   admission and numerical validation. Python additionally has selected scalar
   methods, helpers, bounded loops and separate fixed-list array and terminal
-  conditional profiles. These profiles do not yet compose arbitrarily.
+  conditional profiles. A compact two-state counted-loop profile retains a
+  uniform invariant across all natural counts, with selected roots through 1,024.
+  These profiles do not yet compose arbitrarily.
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
   [tool integration](tool-integration.md).
@@ -31,8 +33,13 @@ delay implementing capabilities with clear acceptance cases.
 - Fixed-shape Python list products have checked shapes, execution order and
   entrywise error bounds. NumPy/BLAS calls have no source bridge yet.
 - The [conditional examples](../examples/numerics/branches/README.md) cover all four
-  native/exact branch choices. The profile currently validates both arms on the
-  whole domain and supports Lean delivery only.
+  native/exact branch choices. The computed-guard profile validates both arms on
+  the whole domain. A separate direct-input guard profile proves branch-local
+  domains and denominator premises. Both support Lean delivery only.
+- Source-backed shared pipelines reach 1,024 arithmetic operation instances with
+  local contract reuse after a caller changes. Counted-loop proofs stay compact;
+  frozen-source replay recompiles saved modules without producers or the helper
+  cache. See the [scaling guide](scaling.md) for measurements and limits.
 - The 16/48-update Kalman cases certify; 128 updates reach a checked
   `budget_not_met` result with unchanged budgets. Large covariance/correction
   graphs remain analysis probes without source-program certificates. See the
@@ -46,14 +53,11 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Scale existing reasoning and compose source profiles.** Preserve sharing,
-   local contracts and real loops; support branch-local premises and counted
-   loops without expanding every iteration into a flat arithmetic graph.
-2. **Add C and richer scientific code.** Start with a closed C profile and a
+1. **Add C and richer scientific code.** Start with a closed C profile and a
    verification-condition route, then bridge actual array/library operations in
    Python, Julia and MATLAB-compatible code. Broaden Rust API automation alongside
    these capabilities.
-3. **Reduce repeated proof work and engineering effort.** Add reusable certificate
+2. **Reduce repeated proof work and engineering effort.** Add reusable certificate
    checking where it helps, cover additional arithmetic models, and make genuine
    counterexamples, setup, maintenance and reporting part of ordinary delivery.
 
@@ -65,22 +69,21 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 9.
+The next implementation milestone is 10.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 9. Scale proofs and compose control flow | Larger existing programs need less expansion and manual proof work | A source-backed counted loop with a parameterized contract, a larger shared graph, and branch-local proofs all certify or reach checked numerical outcomes |
 | 10. C source and verification conditions | Verify common embedded and numerical C code | Two actual C functions, including a loop/buffer case, obtain Lean application roots through a reusable source/VC route |
 | 11. Scientific arrays and richer language APIs | Verify ordinary scientific code without hand-rewriting it | A fixed-shape NumPy application plus an idiomatic Julia or MATLAB-compatible application obtain source bridges and numerical roots |
 | 12. Shared proof evidence and inference | More tool reasoning survives into Lean at lower checking cost | A reusable rule checker or verified inference engine consumes useful evidence across two tools and a family of applications |
 | 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 9 comes first. Milestone 10 can reuse existing scalar arithmetic while
-9 develops compact loop proofs. Milestone 11 builds on 9's collection/loop
-contracts; its library calls may also need 10 or 13 for C, FMA or precision bridges.
-Milestone 12 starts with
-a measured reconstruction bottleneck from any of these routes. Milestone 13 can
+Milestone 10 starts with C source and verification conditions, reusing the existing
+scalar arithmetic and compact loop contracts. Milestone 11 extends collection
+and loop contracts; its library calls may also need 10 or 13 for C, FMA or
+precision bridges. Milestone 12 starts with a measured reconstruction bottleneck
+from any of these routes. Milestone 13 can
 progress per arithmetic feature once its semantic bridge is ready. Setup,
 counterexamples and maintenance work from 14 accompanies every milestone; a
 separate final integration test closes 14.
@@ -98,9 +101,9 @@ output. An external success verdict never discharges a Lean premise by itself.
 
 | Tool family | Current status | Next reusable capability | Milestones |
 | --- | --- | --- | --- |
-| Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 9, 12 |
-| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | Branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 9, 12 |
-| Charon/Aeneas | Implemented Rust extraction with authored application bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 9, 11, 14 |
+| Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 12 |
+| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 12 |
+| Charon/Aeneas | Implemented Rust extraction with authored application bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 11, 14 |
 | Frama-C/WP / Why3 | Planned | C source contracts and exported verification tasks, connected to the original computation and reconstructed/checked in Lean | 10, 12 |
 | CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 10, 14 |
 | VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 10, 12, 13 |
@@ -135,7 +138,7 @@ platform and Lean/Rust delivery separately in `capabilities` and regression case
 
 | Source | Current supported profile | Next scope | Later scope / separate obligation |
 | --- | --- | --- | --- |
-| Python | Restricted scalar functions/helpers/loops, selected methods, fixed-list products, one terminal conditional | Compose these profiles; counted loops, branch-local arithmetic, state/configuration and fixed-shape NumPy calls | Dynamic dispatch, arbitrary mutation and general Python execution |
+| Python | Restricted scalar functions/helpers/loops, selected methods, fixed-list products, one terminal conditional | Compose these profiles; input streams, state/configuration and fixed-shape NumPy calls | Dynamic dispatch, arbitrary mutation and general Python execution |
 | Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
 | Julia | Restricted Float64 scalar functions and tuple results | Typed scalar helpers, counted loops and explicit array/reduction schedules | Multiple dispatch, broadcasting and BLAS/LAPACK calls each need selected semantics and bridges |
 | MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
@@ -148,58 +151,6 @@ proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
 promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
-
-## 9. Scale proofs and compose control flow
-
-### Deliver
-
-- Preserve shared expressions and helper boundaries through source models,
-  inference and Lean checking. Generate local contracts and compact proof
-  modules instead of repeatedly expanding transitive expressions.
-- Compose the current scalar, method, array and conditional profiles through
-  explicit typed contracts. Add source locations for unsupported constructs and
-  failed obligations; a broader intermediate representation alone is not a proof.
-- Prove branch-local domains and numerical premises. A safe division in one arm
-  must not require a nonzero denominator in an unreachable arm. Use checked guard
-  implications and local contracts to avoid enumerating every global path.
-- Admit actual counted source loops with supplied or inferred invariants and
-  incoming-error recurrences. Treat inferred invariants as candidates checked in
-  Lean. Preserve the production loop and generate a separate verification driver.
-- Improve correlations and allowance quality independently of proof speed. Keep
-  the 128-update Kalman budgets unchanged while trying tighter reusable inference.
-  An above-budget theorem is a numerical result, not evidence of an attained bug.
-
-### Scaling scorecard
-
-Measure source admission, inference, Lean checking, cold replay and warm reuse
-separately. Record peak memory, proof/source bytes, unique operations, call edges,
-path splits, authored proof work and final outcome on a pinned runner. Freeze
-resource limits before comparing implementations; report all exhausted runs.
-
-| Axis | Planned progression | What must be demonstrated |
-| --- | --- | --- |
-| Repeated calls | 1, 16, 128, 1,024 iterations | A parameterized loop proof whose body does not grow with the horizon; no reset of incoming error |
-| Shared arithmetic graph | About 100, 1,000, 10,000 unique operations | Source-backed results, sharing retained, measured proof/checking growth |
-| Array dimension | 2, 4, 8, 16, then 32 where contracts permit | Fixed accumulation order, valid shapes and honest dimension/algorithm limits |
-| Module composition | 1, 4, 16 components | Local contract reuse; a caller edit invalidates affected dependents and preserves unrelated proofs |
-
-These are proposed targets, including sizes beyond current frontend/theorem
-limits; the progression continues across milestones 9–13. Raising an admission
-limit alone does not meet them. Keep large exported
-graphs marked as probes until the actual source bridge and application root exist.
-
-### Completion criteria
-
-A counted loop from actual source has a parameterized contract instantiated at
-1, 16, 128 and 1,024 calls, with checked numerical outcomes under unchanged
-requirements. A source-backed application with at least 1,000 unique arithmetic
-operations completes within the recorded resource limits. A second family uses
-the same mechanisms, including a branch-local denominator obligation.
-
-Cold replay uses no producers or compiled helper cache. Maintenance tests change
-one caller or component, preserve unaffected contracts and reject a false
-recurrence, missing path or stale dependency. Publish the scorecard; do not infer
-scaling from a larger timeout or a successful graph export.
 
 ## 10. Add C source and verification conditions
 
@@ -352,6 +303,14 @@ Keep these recommendations for future iterations. They complement the planned
 capabilities and do not require every new integration to wait for a separate
 evaluation project.
 
+- **Further scaling and profile composition.** Extend the current
+  [source-backed workloads](scaling.md) toward 10,000 arithmetic operations,
+  array dimensions 2/4/8/16/32 and 1/4/16 composed components, where contracts
+  permit. Add input streams, time-varying invariants, typed profile composition
+  and source-local failure diagnostics. Measure source admission, inference,
+  checking, cold replay, warm reuse, peak memory and proof bytes separately.
+  Keep the 128-update Kalman budgets unchanged while improving correlation-aware
+  inference. Larger exports alone do not establish source-program certification.
 - **First-class counterexample delivery.** Extend the authored counterexample
   route into ordinary request/report/replay support, as proposed in milestone 14.
   Require an admissible witness and a Lean-checked violation of the original

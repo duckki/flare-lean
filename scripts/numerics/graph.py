@@ -25,6 +25,7 @@ class Program:
     outputs: tuple
     arrays: dict | None = None
     branches: dict | None = None
+    counted: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -32,6 +33,8 @@ class Program:
             record.pop('arrays')
         if self.branches is None:
             record.pop('branches')
+        if self.counted is None:
+            record.pop('counted')
         return record
 
 

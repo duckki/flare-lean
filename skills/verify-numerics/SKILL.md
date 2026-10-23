@@ -96,17 +96,25 @@ Rust port requires its own bridge.
 
 For one terminal scalar Python `if`/`else`, read
 [conditionals.md](references/conditionals.md). Cover divergent native/exact choices
-as well as stable flows. PRECiSA's registered producer supplies stable/unstable
-candidates; a stability claim never removes cases from the independent Lean check.
+unless Lean proves guard agreement. A direct input/literal guard can supply local
+arithmetic domains, including denominator premises. PRECiSA's registered producer
+supplies stable/unstable candidates for the separate four-flow profile; a printed
+stability claim never removes cases from the independent Lean check.
 
 For admitted Python helpers and bounded literal-tuple loops, specify an exact
 two-state fold on the original inputs. Review the whole horizon's allowance;
 intermediate state errors must carry forward. The provider can preserve helper
 boundaries and compose their checked contracts; see [composition.md](references/composition.md)
 for its scope and optional proof reuse. The provider's scale suite includes
-Kalman/IMU horizons, a checked Rust application bundle and larger unproved model
-probes. An analysis
-candidate or a successful rejection test is not a completed certificate.
+Kalman/IMU horizons, a checked Rust application bundle, source-backed shared
+pipelines and separate larger unproved model probes. An analysis candidate or a
+successful rejection test is not a completed certificate.
+
+For a two-state Python `range(count)` loop calling one scalar helper with fixed
+configuration, read [counted-loops.md](references/counted-loops.md). Use a preserved
+native/exact invariant and compact source model; prove initialization and the
+step once, then instantiate the selected horizon. This profile currently delivers
+Lean certificates; a Rust port still needs its own source bridge.
 
 Read [tool-routes.md](references/tool-routes.md) to select producers per obligation.
 Try a small version-specific preflight, retain failures, check option units and

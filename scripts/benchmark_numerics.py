@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--include-optional',action='store_true')
     parser.add_argument('--tools',type=Path,help='Local rust_tools and language runtimes overrides')
     parser.add_argument('--contract-cache',type=Path,help='Explicit shared cache for compiled helper contracts')
+    parser.add_argument('--replay',action='store_true',help='Cold replay every checked root with producer and helper-cache reuse disabled')
     args=parser.parse_args(); out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
     manifest=ROOT/'benchmarks/numerics'/('scenarios.json' if args.suite=='smoke' else 'scale.json')
     suite=json.loads(manifest.read_text());tools=json.loads(args.tools.read_text()) if args.tools else {}
@@ -88,6 +89,9 @@ def main():
             record['metrics']={'graph_nodes':len(program.get('nodes', [])),
                 'arithmetic_operations':sum(n['op']!='constant' for n in program.get('nodes', [])),
                 'original_scalar_inputs':len(program.get('inputs', []))}
+            if program.get('counted'):
+                record['metrics'].update(source_iterations=program['counted']['iterations'],
+                    expanded_operation_instances=program['counted']['iterations']*record['metrics']['arithmetic_operations'])
             if program.get('profile') == 'rust-application-proof-v1':
                 record['metrics'] = {'crate_files': len(program['crate_files']),
                                      'authored_modules': len(program['lean_modules'])}
@@ -102,6 +106,18 @@ def main():
         if (run/'proof-reuse.json').exists():
             reuse = json.loads((run/'proof-reuse.json').read_text())['modules']
             record['metrics']['reused_proof_modules'] = sum(item['reused'] for item in reuse)
+        if args.replay and 'lean_root_checked' in result.get('completed_stages',[]):
+            destination=out/(case['name']+'-replay')
+            replay_command=[sys.executable,str(ROOT/'scripts/certify_numerics.py'),
+                            'replay','--run',str(run),'--out',str(destination)]
+            replay_started=time.monotonic()
+            replayed=subprocess.run(replay_command,cwd=ROOT,capture_output=True,text=True,timeout=1200)
+            (out/(case['name']+'.replay.stdout.txt')).write_text(replayed.stdout)
+            (out/(case['name']+'.replay.stderr.txt')).write_text(replayed.stderr)
+            outcome=json.loads(replayed.stdout)
+            record['replay']={'status':outcome.get('status'),'seconds':time.monotonic()-replay_started,
+                              'command':replay_command,'returncode':replayed.returncode}
+            record['matched']=record['matched'] and replayed.returncode==0 and outcome.get('status')=='replayed'
         records.append(record)
         note=' ('+result['failure_kind']+')' if record['resource_limited'] else ''
         print(case['name']+': '+result['status']+note,flush=True)
@@ -112,9 +128,10 @@ def main():
              'passed':all(r['matched'] for r in records),'qualification':'Fresh workflow evidence; expected budget_not_met is not an observed numerical failure.'}
     save(out/'summary.json',summary)
     rows=['# Numerical '+args.suite+' suite','','Expected outcomes include explicit gaps; a matching gap is not a certificate.','',
-          '| Case | Iterations | Arithmetic operations | Outcome | Seconds |',
-          '| --- | ---: | ---: | --- | ---: |']
-    rows += [f"| {r['case']} | {r.get('iterations') or '—'} | {(r.get('metrics') or {}).get('arithmetic_operations','—')} | {r['status']} | {r['seconds']:.2f} |" for r in records]
+          '| Case | Iterations | Arithmetic operations | Outcome | Run seconds | Cold replay seconds |',
+          '| --- | ---: | ---: | --- | ---: | ---: |']
+    rows += [f"| {r['case']} | {r.get('iterations') or '—'} | {(r.get('metrics') or {}).get('arithmetic_operations','—')} | {r['status']} | {r['seconds']:.2f} | "+
+             (f"{r['replay']['seconds']:.2f}" if 'replay' in r else '—')+' |' for r in records]
     (out/'summary.md').write_text('\n'.join(rows)+'\n')
     return 0 if summary['passed'] else 1
 

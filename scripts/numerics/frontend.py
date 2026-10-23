@@ -191,7 +191,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products and an explicit terminal-conditional profile; bounded AST expansion and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -199,12 +199,18 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None):
+    if python_counted is not None:
+        if language != 'python' or any(x is not None for x in [python_method,python_arrays,python_branches]):
+            raise Unsupported('python_counted requires an ordinary Python function and its own source profile')
+        from .python_counted import parse_counted
+        return parse_counted(source,function,python_counted)
     if python_branches is not None:
-        if python_branches is not True or language != "python" or python_method is not None or python_arrays is not None:
-            raise Unsupported("python_branches: true requires an ordinary Python scalar function")
+        local=type(python_branches) is dict and python_branches=={'domains':'guard'}
+        if (python_branches is not True and not local) or language != "python" or python_method is not None or python_arrays is not None:
+            raise Unsupported("python_branches requires true or {domains: guard} on an ordinary Python scalar function")
         from .python_branches import parse_branches
-        return parse_branches(source, function)
+        return parse_branches(source, function,local)
     if python_arrays is not None:
         if language != 'python' or python_method is not None:
             raise Unsupported('python_arrays requires ordinary Python functions')
@@ -222,6 +228,18 @@ def parse(language, source, function, python_method=None, python_arrays=None, py
 
 def execute(program, arguments):
     """Independent diagnostic interpreter; it does not establish the certificate."""
+    if program.counted:
+        from .counted import local_program
+        local=local_program(program); values=list(arguments)
+        slots=program.counted['state_slots']
+        for _ in range(program.counted['iterations']):
+            result=execute(local,values)
+            for slot,value in zip(slots,result,strict=True):
+                values[slot]=value
+        return tuple(values[slot] for slot in slots)
+    if program.branches and program.branches['schema']=='python-guard-local-v1':
+        from .branch_local import execute_local
+        return execute_local(program,arguments)
     env = {f'a{i}': x for i, x in enumerate(arguments)}
     for n in program.nodes:
         xs = [env[x] for x in n.args]

@@ -283,9 +283,7 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 lines += [f'  have b_{name} : {target} := by', '    refine ⟨by decide +kernel, ?_, ?_, ?_⟩',
                           f'    all_goals norm_num [{ideal_name}, p_{name}]']
             elif node.op == 'neg':
-                proof = f'native_neg b_{node.args[0]}'
-                if b.c == 0:
-                    proof = f'by simpa only [neg_zero] using ({proof})'
+                proof = f'by convert (native_neg b_{node.args[0]}) using 1; norm_num'
                 lines += [f'  have b_{name} : {target} := {proof}']
                 if step['native'] is not None:
                     lines += [f'  have p_{name} : value {name} = {render(horner(step["native"]))} := by',

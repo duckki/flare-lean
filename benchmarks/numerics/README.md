@@ -35,6 +35,8 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Array prediction / calibration / projection | `certified` | Built-in Python lists, checked shapes and original ascending product order, independent exact matrix expressions |
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
 | Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
+| Guarded reciprocal | `certified` | Direct input guard, local denominator premise, domain includes zero |
+| Counted smoothing loop | `certified` | Original `range(count)` loop; one preserved invariant and independent exact recurrence |
 | Threshold gate / innovation through PRECiSA | `certified` / `budget_not_met` with optional producer | Actual maximum stable/unstable candidate proved in Lean |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
@@ -135,6 +137,8 @@ Python loops, and retains original larger assets as capability probes.
 | Family | Sizes | What is measured |
 | --- | --- | --- |
 | Scalar Kalman loop | 1, 4, 8, 16, 48, 128 updates; 8 operations/update | Both mean and variance, helper calls, incoming state error, independent exact recurrence, Lean proof and budget stages |
+| Counted smoothing / decay | 1, 16, 128, 1,024 calls; decay at 1,024 | Constant-size helper/invariant proof, nonzero incoming error, arbitrary-horizon theorem instantiated at the selected count |
+| Shared smoothing pipeline | 4, 32, 64 blocks; 64, 512, 1,024 arithmetic operations | Shared function definition, distinct local contracts, caller-change reuse and cold replay |
 | IMU motion loop | 1, 4, 16, 48 updates; 8 operations/update | Position and velocity with independent accelerations and shared original Float `dt`, complete-horizon Lean error proof |
 | Original Rust IMU application (optional tools) | 48 events, integer time and decisions | Fresh multi-module extraction, complete admission/error behavior, arithmetic and exact-reference decision root; authored proof bundle and Lean-only replay |
 | Planar GH tracker (optional tools) | Four states, two eight-update axes | Original scalar API/full-state correspondence, composed numerical allowances, validation and exact-reference decisions; reusable Rust crate |
@@ -159,6 +163,10 @@ checked stays proposed. `candidate_only` has no Lean theorem and is never a
 certification result. Expected admission/analysis gaps must match their stated
 reason, rather than passing because of an unrelated parser/setup/proof error.
 Warm local times are workload diagnostics, not a solver or agent ranking.
+Use `--replay` to record cold saved-proof replay separately from fresh
+certification and warm contract reuse. See the [scaling guide](../../docs/scaling.md)
+for focused commands, measured workloads and the distinction between lowered
+graph size and repeated counted-loop work.
 
 The 16/48-update Kalman cases now certify through helper-contract composition;
 their resource-failure allowances have been removed. The 128-update case also

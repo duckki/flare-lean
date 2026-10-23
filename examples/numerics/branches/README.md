@@ -3,7 +3,9 @@
 These ordinary Python functions use the reusable
 [`python_branches` profile](../../../skills/verify-numerics/references/conditionals.md).
 The exact reference can select a different branch from native binary64 execution.
-All four native/exact flows remain in the Lean proof.
+The `python_branches: true` cases retain all four native/exact flows in Lean.
+The explicit guard-local case proves native/exact agreement for its direct input
+comparison and checks arithmetic only on reachable branch domains.
 
 | Request | Domain and reference | Expected result |
 | --- | --- | --- |
@@ -11,6 +13,7 @@ All four native/exact flows remain in the Lean proof.
 | `gate.json` | Finite signal in `[-2^-52,2^-52]`; exact indicator of `signal+1 >= 1` | `certified`: one-unit allowance |
 | `gate_precisa.json` | Same source, domain, reference and budget | `certified`: actual PRECiSA maximum candidate `1` |
 | `innovation_magnitude_precisa.json` | Same source, domain, reference and budget | `budget_not_met`: actual PRECiSA maximum candidate about `40` m |
+| `guarded_reciprocal.json` | Finite input in `[0,2]`; exact `1/x` when `x >= 1/2`, otherwise zero | `certified`: local denominator premise and `10^-6` reciprocal-unit allowance |
 
 The gate is intentionally discontinuous. At `signal = -2^-54`, the native sum
 rounds to `1.0`, while the exact sum is below one. The gate results differ by
@@ -32,7 +35,7 @@ From the provider root, after `lake build Flare`:
 
 ```sh
 python3 scripts/benchmark_numerics.py \
-  --case branch_innovation --case branch_gate \
+  --case branch_innovation --case branch_gate --case guarded_reciprocal --replay \
   --out .cache/numerics-generated/branches
 
 # Optional Linux PRECiSA installation; see the setup guide for prerequisites.
@@ -51,6 +54,9 @@ directory.
 The pinned build and real producer/Lean runs were exercised on Ubuntu ARM64,
 with frozen proof replay on macOS ARM64. This is candidate reconstruction,
 not a PVS proof import. Source mapping and compiler/runtime correspondence remain
-declared trust boundaries. Both arms must have safe finite scalar arithmetic
-over the full domain; arbitrary control flow, dispatch and an automatic Rust
-port remain outside this profile.
+declared trust boundaries. The `true` profile requires safe finite scalar
+arithmetic in both arms over the full domain. The default producer's explicit
+`{"domains":"guard"}` profile proves local domains for a direct input/literal
+guard. The reciprocal example therefore admits zero in the original domain
+without executing or assuming safe division on the inactive arm. Arbitrary
+control flow, dispatch and automatic Rust delivery remain outside these profiles.

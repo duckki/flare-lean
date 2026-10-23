@@ -32,6 +32,10 @@ def lean_expression(source, inputs, bindings=None, allow_conditionals=False):
 
 
 def validate(specification, program):
+    if program.counted:
+        from .counted import specification as counted_specification
+        counted_specification(specification,program)
+        return
     if program.arrays:
         from .array_emit import matrix_specification
         matrix_specification(specification,program)
@@ -84,6 +88,10 @@ def describe(specification):
     if isinstance(specification,list): return specification
     if specification.get('kind') == 'matrix':
         return [specification['expression']+' (exact real matrix product)']
+    if specification.get('kind') == 'iterate':
+        return ['initial = '+', '.join(specification['initial']),
+                'iterate at the selected original source count; state = '+', '.join(specification['state']),
+                *specification['step']]
     return ['initial = '+', '.join(specification['initial']),
             'fold over '+', '.join(specification['sequence']),
             'state names = '+', '.join(specification['state'])+'; element = '+specification['element'],

@@ -135,7 +135,8 @@ Run `make numerics-check` for fresh Lean certification/replay and rejection
 controls, and `make numerics-bench` for the default end-to-end scenarios. Use
 `make numerics-scale` for increasing bounded-loop and larger-model workloads. CI
 runs the smoke suite, a representative scale subset and the two README examples.
-The scale subset includes 16/48/128-update Kalman and 16/48-update IMU checks;
+The scale subset includes 16/48/128-update Kalman and 16/48-update IMU checks,
+plus compact loops and shared caller proofs with retained cold replay evidence;
 resource failures are not accepted for the completed helper-composition cases.
 It uploads the checked [README evidence](numerical-verification.md#replay-the-readme-examples)
 after a fresh replay.
@@ -168,6 +169,12 @@ and library/compiler identities still match. It preserves Lean's `.olean`,
 actual reuse; changed/corrupt entries are rebuilt. Replay always compiles saved
 sources afresh and uses no compiled contract cache. Application runs select an
 explicit `contract_cache` under their agreed verification directory instead.
+
+Pass `--replay` to the benchmark runner to check each saved root again without
+producers or compiled helper reuse and record its elapsed cost. The
+[scaling guide](scaling.md) gives focused counted-loop, shared-graph and
+guard-local commands. Ordinary `make check` runs their fast admission/word tests;
+`make numerics-check` additionally runs fresh proofs, replay and rejection controls.
 
 Benchmark summaries record proposal/check times, Lean source bytes/module count,
 reused modules and maximum reported check-process resident memory. Warm reuse

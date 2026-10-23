@@ -132,6 +132,9 @@ def source_results(program, source, cases, runtime, output, work, runner, reques
         if request.get("python_method") is not None:
             from .python_method import load_method
             function = load_method(source, program.function, request["python_method"])
+        elif program.counted:
+            from .python_counted import load_counted
+            function=load_counted(source,program)
         elif program.arrays:
             from .python_arrays import load_arrays
             function = load_arrays(source,program.function,program.arrays)

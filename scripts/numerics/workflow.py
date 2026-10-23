@@ -45,10 +45,15 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'))
+    if program.counted and (request.get('target','lean')!='lean' or request.get('proof') or
+            request.get('producer','lean-flare')!='lean-flare'):
+        raise Unsupported('Counted source currently uses Lean and the lean-flare producer')
     if program.branches and (request.get('target', 'lean') != 'lean' or request.get('proof') or
             request.get('producer', 'lean-flare') not in ('lean-flare', 'precisa')):
         raise Unsupported('Conditional profile currently uses Lean and the lean-flare or precisa producer')
+    if program.branches and program.branches['schema']=='python-guard-local-v1' and request.get('producer','lean-flare')!='lean-flare':
+        raise Unsupported('Guard-local branches currently use the lean-flare producer')
     if program.arrays and (request.get('target','lean') != 'lean' or request.get('proof') or request.get('producer','lean-flare') != 'lean-flare'):
         raise Unsupported('The fixed-array profile currently uses Lean certification with the lean-flare producer')
     from .runtimes import validate_selection
@@ -214,6 +219,13 @@ def report(output, result):
             lines += ['The actual maximum stable/unstable candidate is the Lean proof target; foreign proof files remain untrusted evidence.']
         else:
             lines += ['The proposed allowance is the requested budget, independently proved in Lean.']
+    if result.get('producer_validation') == 'lean-guard-local-v1':
+        lines += ['Validation: native/exact agreement of the direct finite-input guard is proved in Lean.',
+                  'Only the selected arm is evaluated; arithmetic and denominator premises are checked on its guard domain.']
+    if result.get('producer_validation') == 'lean-counted-invariant-v1':
+        lines += ['Validation: one initialized and preserved native/exact invariant is proved for every natural iteration count.',
+                  'The root instantiates '+str(request['python_counted']['iterations'])+' iterations of the actual source loop; incoming error is retained.',
+                  'The allowance is a checked uniform invariant bound, not an estimate of the attained error.']
     if result.get('claim_policy') == 'requested-budgets':
         lines += ['Foreign proof output and sharper printed bounds remain untrusted evidence.',
                   'The selected allowance is the requested budget; acceptance requires an independent Lean proof.',
@@ -293,6 +305,18 @@ def output_bounds(program, request):
 
 
 def kernel_for_run(output, request, program):
+    if program.branches and program.branches['schema']=='python-guard-local-v1':
+        from .branch_local import model_source
+        return model_source(program,request,output)
+    if program.counted:
+        from .counted import model_source
+        from .composition import identity, function_module
+        from .counted import local_program
+        local=local_program(program); key=identity(local.record())
+        saved=output/'lean/Workflow/Functions'/('F'+key+'.lean')
+        if saved.read_text()!=function_module(local,key):
+            raise ValueError('Saved counted helper does not match frozen source')
+        return model_source(program,request)
     if program.arrays:
         from .array_emit import kernel_source as array_kernel_source
         return array_kernel_source(program,request,(output/request['source']).read_text())
@@ -325,7 +349,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -363,7 +387,14 @@ def certify(request_path, output):
         result['assumptions'].append('The caller invokes the selected original method body on an ordinary instance with the configured scalar fields and omitted optional gains. Module initialization, construction and dynamic dispatch are outside this certificate.')
     if program.branches:
         result['scope'] = 'One terminal Python scalar conditional, including divergent native/exact branch choices on original finite binary64 inputs.'
-        result['assumptions'].append('Both arms use admitted total finite scalar arithmetic on this domain; custom dispatch and general control flow are excluded. No branch-stability assumption is introduced.')
+        if program.branches['schema']=='python-guard-local-v1':
+            result['scope']='One input-guarded scalar conditional with proved native/exact guard agreement and branch-local arithmetic premises.'
+            result['assumptions'].append('The admitted direct input comparison selects the only evaluated scalar arm; general control flow and computed floating-point guards are outside this local-domain profile.')
+        else:
+            result['assumptions'].append('Both arms use admitted total finite scalar arithmetic on this domain; custom dispatch and general control flow are excluded. No branch-stability assumption is introduced.')
+    if program.counted:
+        result['scope']='A counted Python two-state helper loop, with a preserved native/exact invariant proved for all natural horizons and instantiated at the selected count.'
+        result['assumptions'].append('The selected nonnegative integer count and ordinary scalar helper API are mapped to the compact fold by the admitted frontend; compiler/runtime correspondence remains trusted.')
     if program.arrays:
         result['scope']='One fixed-shape built-in Python list matrix/vector product, with checked shape guard, finite execution and entrywise numerical bounds relative to an independent real matrix specification.'
         result['array_shapes']=program.arrays

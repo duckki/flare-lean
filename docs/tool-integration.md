@@ -67,6 +67,12 @@ inequalities. It never assumes branch stability. Both arms must satisfy arithmet
 premises on the whole domain. See the [profile guide](../skills/verify-numerics/references/conditionals.md)
 for restrictions, including the current Lean-only delivery target.
 
+The separate `python_branches: {"domains": "guard"}` mode proves agreement for
+a direct original-input/literal comparison and derives branch-local domains.
+Only reachable arms need arithmetic contracts. This closes the guarded reciprocal
+on `[0,2]` without assuming an unconditional nonzero denominator. It currently
+uses `lean-flare`, with no computed prefix or external-producer integration.
+
 The PRECiSA adapter emits the admitted ordered PVS model with the pinned
 `float_bounded_axiomatic@ieee754_double` import and runs absolute-error JSON
 analysis without `--assume-stability`. Decimal input endpoints enclose the exact
@@ -112,9 +118,16 @@ and library identities; changed/corrupt entries are rebuilt. Like other Lean
 build caches, it reuses previously compiled modules. Saved-proof replay always
 recompiles the sources and requires neither this cache nor any numerical producer.
 
-The automatic route currently covers bounded helper chains; arbitrary loop
-invariants, mutation and collection operations need additional source/proof
-support. Gappa/FPTaylor retain their scalar graph limits. A loose checked bound
+The explicit `python_counted` route additionally admits a two-state
+`range(count)` loop calling a scalar helper with fixed configuration. It proposes
+a uniform native/exact invariant, checks initialization and step preservation,
+and uses `foldl_contract` for all natural counts. The selected count is instantiated
+at the root; helper definitions, contracts and the invariant proof body stay
+constant across horizons. See the [scaling guide](scaling.md) for source-backed
+1,024-call and 1,024-operation workloads, measurements and cold replay.
+Arbitrary invariants, input streams, mutation and combinations with collection
+profiles need additional source/proof support. Gappa/FPTaylor retain their scalar
+graph limits. A loose checked bound
 remains `budget_not_met`, including the 128-update Kalman mean allowance.
 
 ## Fixed-shape array source

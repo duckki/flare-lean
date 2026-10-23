@@ -127,7 +127,7 @@ def bound_derivation(program, summaries, steps, ideal_inputs=None):
                 "    refine ⟨by decide +kernel, ?_, ?_, ?_⟩",
                 f"    all_goals norm_num [{ideal_name}, v_{node.name}]"]
         elif node.op == "neg":
-            lines += [f"  have b_{node.name} : {target} := native_neg b_{node.args[0]}"]
+            lines += [f"  have b_{node.name} : {target} := by convert (native_neg b_{node.args[0]}) using 1; norm_num"]
         else:
             a, other = node.args
             op = node.op

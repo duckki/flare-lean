@@ -6,7 +6,7 @@ from dataclasses import replace
 from .graph import Node, Unsupported
 
 
-def parse_branches(source, function):
+def parse_branches(source, function, local=False):
     from .frontend import python_frontend
     tree = ast.parse(source)
     functions = [n for n in tree.body if not (isinstance(n, ast.Expr) and
@@ -51,6 +51,16 @@ def parse_branches(source, function):
     if len(program.nodes) > 32:
         raise Unsupported('Conditional profile admits at most 32 arithmetic nodes')
     name = 'n'+str(len(program.nodes))
+    metadata={'schema': 'python-terminal-conditional-v1'}
+    if local:
+        if i != 0:
+            raise Unsupported('Guard-local branches currently start with the input guard')
+        refs=program.outputs[:2]; nodes={n.name:n for n in program.nodes}
+        variable=next((r for r in refs if r.startswith('a')),None)
+        constant=next((r for r in refs if r in nodes and nodes[r].op=='constant'),None)
+        if variable is None or constant is None:
+            raise Unsupported('Guard-local branches require one original float input and a float literal')
+        metadata={'schema':'python-guard-local-v1','variable':variable,'constant':constant}
     compile(tree, '<admitted-conditional-source>', 'exec')
     return replace(program, nodes=(*program.nodes, Node(name, kind, program.outputs)),
-                   outputs=(name,), branches={'schema': 'python-terminal-conditional-v1'})
+                   outputs=(name,), branches=metadata)

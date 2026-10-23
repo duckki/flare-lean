@@ -95,6 +95,13 @@ jobs:
           --case covariance_relative --case covariance_global
           --contract-cache .cache/numerics-generated/ci-contract-cache
           --out .cache/numerics-generated/scale-ci
+      - name: Retain compact loop and shared caller replay evidence
+        run: >-
+          python3 scripts/benchmark_numerics.py --suite scale
+          --case counted_smoothing_0001 --case counted_smoothing_1024
+          --case shared_smoothing_0032 --case shared_smoothing_0064
+          --contract-cache .cache/numerics-generated/ci-contract-cache --replay
+          --out .cache/numerics-generated/scale-compact-ci
       - name: Check Rust application proof-bundle configuration
         run: python3 scripts/certify_numerics.py plan --request examples/numerics/imu48/request.json
       - name: Retain numerical benchmark evidence

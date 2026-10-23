@@ -35,7 +35,7 @@ def prepare(path, request, *, replay=False):
     if request.get('language') != 'rust' or request.get('target') != 'rust-aeneas':
         raise ValueError('rust_application requires Rust and target rust-aeneas')
     incompatible = {'domain', 'outputs', 'specification', 'proof', 'rust_port',
-                    'python_method', 'python_arrays', 'python_branches', 'analysis_tools',
+                    'python_method', 'python_arrays', 'python_branches', 'python_counted', 'analysis_tools',
                     'source_runtime'}
     if incompatible.intersection(request):
         raise ValueError('rust_application uses a reviewed Lean contract, not scalar/array fields')

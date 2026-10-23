@@ -67,12 +67,13 @@ def function_module(local, key):
     namespace = 'Workflow.Functions.F'+key
     lines = ['module', '', 'public import Flare.Binary64.Value', '', '@[expose] public section',
              '', 'namespace '+namespace, '']
+    used={x for node in local.nodes for x in node.args}|set(local.outputs)
     for name, typ, ideal in [('native','Float',False),('ideal','ℝ',True)]:
         prefix = 'noncomputable def' if ideal else 'def'
         out = typ if len(local.outputs) == 1 else typ+' × '+typ
-        args = ' '.join(f'(a{i} : {typ})' for i in range(len(local.inputs)))
+        args = ' '.join('('+('a' if 'a'+str(i) in used else '_a')+str(i)+f' : {typ})' for i in range(len(local.inputs)))
         lines += [f'{prefix} {name} {args} : {out} :=',
-                  *[f'  let {node.name} := {expression(node, ideal=ideal)}' for node in local.nodes],
+                  *[f'  let {node.name if node.name in used else "_"+node.name} := {expression(node, ideal=ideal)}' for node in local.nodes],
                   '  '+returned(local.outputs), '']
     return '\n'.join([*lines, 'end '+namespace, ''])
 

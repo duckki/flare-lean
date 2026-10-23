@@ -1,0 +1,51 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "smoothing.py",
+  "function": "smooth",
+  "python_counted": {
+    "parameter": "steps",
+    "iterations": 1
+  },
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ],
+    "y": [
+      "-1",
+      "1"
+    ],
+    "observation": [
+      "-1/4",
+      "1/4"
+    ]
+  },
+  "specification": {
+    "kind": "iterate",
+    "initial": [
+      "x",
+      "y"
+    ],
+    "state": [
+      "m",
+      "p"
+    ],
+    "step": [
+      "(m+observation)/2",
+      "(p+observation)/2"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "x",
+      "unit": "m",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "y",
+      "unit": "m",
+      "limit": "1/1000000"
+    }
+  ]
+}

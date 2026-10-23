@@ -75,11 +75,15 @@ remain declared trust boundaries. Rust extraction adds Charon/Aeneas and its
 Float model. Bit-pattern diagnostics compare actual source execution with the
 model, and Rust debug/release when requested; samples do not prove interpreter
 or compiler correctness. Input ranges and units require engineering review.
-Physical/model uncertainty, arbitrary libraries, general control flow and unbounded
+Physical/model uncertainty, arbitrary libraries, general control flow and arbitrary
 repeated-call invariants are outside the automatic certificate. Python local
 helpers and bounded literal-tuple loops can be lowered and checked against an
 independently specified exact two-state fold. Every intermediate error is carried
-through the whole horizon. General dynamic iteration remains unsupported.
+through the whole horizon. The explicit
+[counted-loop profile](../skills/verify-numerics/references/counted-loops.md)
+also admits two-state `range(count)` loops with fixed scalar configuration.
+It checks a uniform invariant for all natural counts and instantiates the selected
+count at the root. General dynamic iteration remains unsupported.
 
 The separate `python_arrays` profile admits fixed-shape built-in list products:
 matrix-vector prediction, dot products and dense matrix multiplication with
@@ -271,7 +275,8 @@ validation. Coq/PVS/HOL success alone never closes a numerical Lean premise.
 The [integration strategy](roadmap.md#integration-strategy) prioritizes shared tool
 adapters, reusable evidence import/checking and verified Lean inference. Shared
 orchestration and scalar reconstruction are implemented for the core set;
-PRECiSA adds conditional coverage after the loop, matrix and application milestones. Keep one
+PRECiSA supplies scalar/conditional candidates; the default producer additionally
+supports direct-guard local domains and compact counted-loop invariants. Keep one
 Lean completion boundary and add mathematical
 support for those mechanisms and their semantic bridges.
 
@@ -284,9 +289,9 @@ These tests exercise the skill's executable path and packaging. They are not
 an independent evaluation of agent behavior on new engineering tasks.
 
 The [milestone plan](roadmap.md) defines the next capabilities and their
-completion criteria: reproducible feedback cases, shared tool integration,
-reusable scalar inference, composable loops, vectors/matrices, complete
-application behavior and reusable Rust delivery. Keep the current scenarios as
+completion criteria: C source/verification conditions, richer scientific APIs,
+shared evidence checking, more arithmetic models and automated delivery.
+Keep the current scenarios as
 baselines and use feedback to prioritize additional applications.
 
 ## Scaling beyond a single kernel
@@ -295,6 +300,10 @@ baselines and use feedback to prioritize additional applications.
 `benchmarks/numerics/scale.json`: 1/4/8/16/48/128 Kalman updates, 1/4/16/48 IMU
 motion updates, the original 48-event Rust application proof bundle, and the original
 relative/global four-state covariance/correction graphs (7,758/7,761 operations).
+It also includes compact counted loops at 1/16/128/1,024 calls and shared
+source graphs with up to 1,024 arithmetic operations. The [scaling guide](scaling.md)
+describes their invariant proofs, branch-local premises, maintenance reuse and
+cold replay measurements.
 The [benchmark guide](../benchmarks/numerics/README.md) defines the domains,
 capability boundaries and recorded proof-stage timings. CI runs a smaller subset.
 

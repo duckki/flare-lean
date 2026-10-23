@@ -144,6 +144,78 @@
       "request": "../../examples/numerics/planar/request.json",
       "expected": "certified",
       "optional": true
+    },
+    {
+      "name": "counted_smoothing_0001",
+      "kind": "workflow",
+      "family": "compact-counted-loop",
+      "iterations": 1,
+      "request": "../../examples/numerics/counted/smoothing_0001.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "counted_smoothing_0016",
+      "kind": "workflow",
+      "family": "compact-counted-loop",
+      "iterations": 16,
+      "request": "../../examples/numerics/counted/smoothing_0016.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "counted_smoothing_0128",
+      "kind": "workflow",
+      "family": "compact-counted-loop",
+      "iterations": 128,
+      "request": "../../examples/numerics/counted/smoothing_0128.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "counted_smoothing_1024",
+      "kind": "workflow",
+      "family": "compact-counted-loop",
+      "iterations": 1024,
+      "request": "../../examples/numerics/counted/smoothing_1024.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "counted_decay_1024",
+      "kind": "workflow",
+      "family": "compact-counted-loop-second-family",
+      "iterations": 1024,
+      "request": "../../examples/numerics/counted/decay_1024.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "shared_smoothing_0004",
+      "kind": "workflow",
+      "family": "shared-source-graph",
+      "iterations": 4,
+      "request": "../../examples/numerics/scale/shared_0004.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "shared_smoothing_0032",
+      "kind": "workflow",
+      "family": "shared-source-graph",
+      "iterations": 32,
+      "request": "../../examples/numerics/scale/shared_0032.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "shared_smoothing_0064",
+      "kind": "workflow",
+      "family": "shared-source-graph",
+      "iterations": 64,
+      "request": "../../examples/numerics/scale/shared_0064.json",
+      "expected": "certified",
+      "optional": false
     }
   ]
 }

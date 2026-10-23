@@ -56,6 +56,7 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `proof` | Optional saved Lean proof and bounds; see `lean-conversion.md` |
 | `python_method` | Optional explicit state, fixed attributes and measurement horizon for a selected `Class.method`; see below |
 | `python_branches` | Explicit terminal scalar Python conditional profile; see [conditionals.md](conditionals.md) |
+| `python_counted` | Explicit count parameter and fixed integer horizon for a compact two-state loop proof; see [counted-loops.md](counted-loops.md) |
 | `rust_port` | Optional retained Rust implementation and checked equivalence module for `rust-aeneas`; see below |
 
 Exact specification decimals are rationals; source literals mean their stored
@@ -74,7 +75,11 @@ tuple loops as described below. A separate [array profile](arrays.md) admits
 fixed-shape built-in Python list products with explicit range loops and fresh
 output storage. The separate [conditional profile](conditionals.md) admits one
 terminal scalar Python branch and an exact conditional specification. In the
-ordinary scalar profiles, external calls, arrays, dynamic loops, branches,
+guard-local variant, a direct input/literal guard supplies branch-local arithmetic
+premises. A separate [counted-loop profile](counted-loops.md) preserves a
+`range(count)` loop with fixed scalar configuration and a checked invariant.
+These profiles currently support Lean delivery with the default producer.
+In the ordinary scalar profiles, external calls, arrays, dynamic loops, branches,
 casts, fast-math and custom numeric objects are excluded. Source-language implementations remain trusted;
 actual-runtime word diagnostics test samples independently of graph execution.
 
@@ -93,7 +98,9 @@ call graph is expanded into the same immutable arithmetic graph.
 The scalar Python profile's `for` loops iterate a literal tuple of 1–128 values. The tuple
 is evaluated before iteration, including when a loop body reassigns a name
 used in that tuple. `break`, `continue`, loop `else`, returns inside loops,
-`while`, `range`, arbitrary iterable inputs and container mutation are excluded.
+`while`, `range`, arbitrary iterable inputs and container mutation are excluded
+from this ordinary scalar profile; the explicit counted/array profiles have
+their own admitted `range` forms.
 Expansion is capped at 20,000 visited statements, 10,000 arithmetic/constant
 nodes and helper depth 32. These are finite-horizon certificates; no theorem
 for arbitrary horizons or generic Python interpreter is claimed.
