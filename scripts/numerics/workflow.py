@@ -45,7 +45,10 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'))
+    if program.branches and (request.get('target', 'lean') != 'lean' or request.get('proof') or
+            request.get('producer', 'lean-flare') not in ('lean-flare', 'precisa')):
+        raise Unsupported('Conditional profile currently uses Lean and the lean-flare or precisa producer')
     if program.arrays and (request.get('target','lean') != 'lean' or request.get('proof') or request.get('producer','lean-flare') != 'lean-flare'):
         raise Unsupported('The fixed-array profile currently uses Lean certification with the lean-flare producer')
     from .runtimes import validate_selection
@@ -204,6 +207,13 @@ def report(output, result):
     if result.get('producer_validation') == 'lean-scalar-interval-v1':
         lines += ['Validation: reusable scalar inference with native nearest rounding, polynomial rewrites and interval subdivision.',
                   'Acceptance requires Lean to prove the proposed allowance itself. See analysis.json for each input box and rounding allowance.']
+    if result.get('producer_validation') == 'lean-conditional-four-flows-v1':
+        lines += ['Validation: Lean checks all four native/exact branch choices, including divergent flows; no stability assumption is used.',
+                  'Both arms have checked finite arithmetic and denominator premises on the full input domain.']
+        if result.get('claim_policy') == 'producer-output-claims':
+            lines += ['The actual maximum stable/unstable candidate is the Lean proof target; foreign proof files remain untrusted evidence.']
+        else:
+            lines += ['The proposed allowance is the requested budget, independently proved in Lean.']
     if result.get('claim_policy') == 'requested-budgets':
         lines += ['Foreign proof output and sharper printed bounds remain untrusted evidence.',
                   'The selected allowance is the requested budget; acceptance requires an independent Lean proof.',
@@ -315,7 +325,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -351,6 +361,9 @@ def certify(request_path, output):
     if request.get('python_method'):
         result['scope']='A frozen finite horizon of the selected original Python method body on the configured scalar state and fixed binary64 attributes.'
         result['assumptions'].append('The caller invokes the selected original method body on an ordinary instance with the configured scalar fields and omitted optional gains. Module initialization, construction and dynamic dispatch are outside this certificate.')
+    if program.branches:
+        result['scope'] = 'One terminal Python scalar conditional, including divergent native/exact branch choices on original finite binary64 inputs.'
+        result['assumptions'].append('Both arms use admitted total finite scalar arithmetic on this domain; custom dispatch and general control flow are excluded. No branch-stability assumption is introduced.')
     if program.arrays:
         result['scope']='One fixed-shape built-in Python list matrix/vector product, with checked shape guard, finite execution and entrywise numerical bounds relative to an independent real matrix specification.'
         result['array_shapes']=program.arrays

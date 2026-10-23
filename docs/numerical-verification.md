@@ -75,7 +75,7 @@ remain declared trust boundaries. Rust extraction adds Charon/Aeneas and its
 Float model. Bit-pattern diagnostics compare actual source execution with the
 model, and Rust debug/release when requested; samples do not prove interpreter
 or compiler correctness. Input ranges and units require engineering review.
-Physical/model uncertainty, arbitrary libraries, branches and unbounded
+Physical/model uncertainty, arbitrary libraries, general control flow and unbounded
 repeated-call invariants are outside the automatic certificate. Python local
 helpers and bounded literal-tuple loops can be lowered and checked against an
 independently specified exact two-state fold. Every intermediate error is carried
@@ -261,14 +261,17 @@ are checked using native nearest-rounding theorems and Mathlib's interval tactic
 This closes the unchanged `2^-51` mean-update target and tiny-gain family. See the
 [validator limits](tool-integration.md#reusable-scalar-validation).
 
-PRECiSA and other tools can supply further adapters. Choose from the installed
-version's supported arithmetic model, source constructs and output detail.
-Coq/PVS/HOL success alone never closes a numerical Lean premise.
+PRECiSA now has a registered candidate adapter for small scalar graphs and the
+explicit [terminal-conditional profile](../skills/verify-numerics/references/conditionals.md).
+Its maximum stable/unstable candidate becomes the Lean proof target; all four
+native/exact flows remain in scope. PVS files are retained, not imported as proofs.
+Further tools need their own supported arithmetic model, source bridge and Lean
+validation. Coq/PVS/HOL success alone never closes a numerical Lean premise.
 
 The [integration strategy](roadmap.md#integration-strategy) prioritizes shared tool
 adapters, reusable evidence import/checking and verified Lean inference. Shared
 orchestration and scalar reconstruction are implemented for the core set;
-additional tools follow the loop, matrix and application milestones. Keep one
+PRECiSA adds conditional coverage after the loop, matrix and application milestones. Keep one
 Lean completion boundary and add mathematical
 support for those mechanisms and their semantic bridges.
 

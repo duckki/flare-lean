@@ -21,7 +21,7 @@ def return_annotation(annotation):
                 and all(float_annotation(x) for x in annotation.slice.elts)))
 
 
-def python_frontend(source, function, trace=None):
+def python_frontend(source, function, trace=None, max_outputs=2):
     tree = ast.parse(source)
     statements = [x for x in tree.body if not (
         isinstance(x, ast.Expr) and isinstance(x.value, ast.Constant)
@@ -154,7 +154,7 @@ def python_frontend(source, function, trace=None):
     if len(graph.nodes) > 10000:
         raise Unsupported('Bounded source expansion exceeds the admitted work limit')
     compile(tree,'<admitted-numerical-source>','exec')
-    return graph.finish(outputs)
+    return graph.finish(outputs, max_outputs=max_outputs)
 
 
 @dataclass(frozen=True)
@@ -191,7 +191,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons and a separate fixed-shape built-in-list product profile; bounded AST expansion and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products and an explicit terminal-conditional profile; bounded AST expansion and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -199,7 +199,12 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None):
+    if python_branches is not None:
+        if python_branches is not True or language != "python" or python_method is not None or python_arrays is not None:
+            raise Unsupported("python_branches: true requires an ordinary Python scalar function")
+        from .python_branches import parse_branches
+        return parse_branches(source, function)
     if python_arrays is not None:
         if language != 'python' or python_method is not None:
             raise Unsupported('python_arrays requires ordinary Python functions')
@@ -224,6 +229,8 @@ def execute(program, arguments):
             value = number(n.bits)
         elif n.op == 'neg':
             value = -xs[0]
+        elif n.op in ('select_lt', 'select_le'):
+            value = xs[2] if (xs[0] < xs[1] if n.op == 'select_lt' else xs[0] <= xs[1]) else xs[3]
         elif n.op == 'add':
             value = xs[0] + xs[1]
         elif n.op == 'sub':

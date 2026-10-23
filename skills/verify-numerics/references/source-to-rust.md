@@ -47,7 +47,7 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `outputs` | One or two outputs in return order, each with `name`, `unit`, positive rational-string `limit` |
 | `specification` | Independently reviewed exact expressions on original input names using rational/decimal constants and `+ - * /` |
 | `backend` | `lean-flare` (default); independent numerical proof/checking path |
-| `producer` | `lean-flare` (default), `gappa` or `fptaylor`; see `tool-integration.md` for evidence and validation roles |
+| `producer` | `lean-flare` (default), `gappa`, `fptaylor` or `precisa`; see `tool-integration.md` for evidence and validation roles |
 | `analysis_tools` | Tool-name map with `executable`, optional expected `sha256` and optional tool-data `base` |
 | `arithmetic` | Optional full model from `capabilities`; mismatched precision/rounding/FMA/subnormal semantics are rejected |
 | `target` | `lean` (default) or `rust-aeneas` |
@@ -55,6 +55,7 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `contract_cache` | Optional explicit directory for compiled helper-contract reuse; prefer the agreed verification directory's `.cache/contracts/`; replay always recompiles saved sources |
 | `proof` | Optional saved Lean proof and bounds; see `lean-conversion.md` |
 | `python_method` | Optional explicit state, fixed attributes and measurement horizon for a selected `Class.method`; see below |
+| `python_branches` | Explicit terminal scalar Python conditional profile; see [conditionals.md](conditionals.md) |
 | `rust_port` | Optional retained Rust implementation and checked equivalence module for `rust-aeneas`; see below |
 
 Exact specification decimals are rationals; source literals mean their stored
@@ -71,7 +72,9 @@ finite constants, unary signs and separately rounded `+ - * /`, preserving
 parentheses and operation order. Python also admits local helpers and fixed
 tuple loops as described below. A separate [array profile](arrays.md) admits
 fixed-shape built-in Python list products with explicit range loops and fresh
-output storage. In the scalar profiles, external calls, arrays, dynamic loops, branches,
+output storage. The separate [conditional profile](conditionals.md) admits one
+terminal scalar Python branch and an exact conditional specification. In the
+ordinary scalar profiles, external calls, arrays, dynamic loops, branches,
 casts, fast-math and custom numeric objects are excluded. Source-language implementations remain trusted;
 actual-runtime word diagnostics test samples independently of graph execution.
 

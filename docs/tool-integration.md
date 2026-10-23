@@ -16,6 +16,7 @@ Producer versions and setup sources are maintained in
 | `lean-flare` | Producer | Compositional proposals, automatic scalar refinement or authored proofs; numerical claims checked in Lean |
 | `gappa` | Producer | Reconstructs a successful Gappa 1.8.3 query's exact dyadic error conclusion in Lean; retains its Coq trace |
 | `fptaylor` | Producer | Parses the pinned `0.9.4+dev` hexadecimal candidate and proves that exact bound in Lean |
+| `precisa` | Producer | Reconstructs the maximum stable/unstable candidate from pinned PRECiSA `4.0.4`; checks divergent flows in Lean and retains PVS files |
 | `rust-aeneas` | Extractor | Fresh Rust extraction and its actual return relation under the existing source-model trust boundaries |
 | `lean-root` | Validator | Compiles proof modules, independently ascribes the expected root type and audits its transitive axioms |
 
@@ -29,7 +30,7 @@ Adapters can also emit a Lean proof module through the common validation
 interface. This supports reusable translators and Lean inference procedures
 without changing orchestration. The emitted accuracy declaration must have the
 expected original-input type and its full dependencies pass the same axiom audit.
-The current scalar validator is described below. Additional tools are a later
+The scalar and conditional validators are described below. Further tools remain a
 [roadmap milestone](roadmap.md#8-add-further-verification-tools).
 
 ## Reusable scalar validation
@@ -55,6 +56,34 @@ intervals. `tiny_gain.json` certifies `p/(p+r)` for both inputs in
 `[2^-54,2^-53]`; no fixed absolute grid erases the divisor floor. Related input
 scales, false zero bounds, incorrect rewrites and producer-free replay are tested.
 No application-specific proof is supplied for these families.
+
+## Conditional validation and PRECiSA
+
+The explicit `python_branches: true` profile admits one terminal scalar Python
+conditional with an ordered guard, up to 32 arithmetic nodes and an independent
+exact conditional reference. It uses the scalar arithmetic checker, then checks
+all four native/exact branch combinations with finite-order bridges and real
+inequalities. It never assumes branch stability. Both arms must satisfy arithmetic
+premises on the whole domain. See the [profile guide](../skills/verify-numerics/references/conditionals.md)
+for restrictions, including the current Lean-only delivery target.
+
+The PRECiSA adapter emits the admitted ordered PVS model with the pinned
+`float_bounded_axiomatic@ieee754_double` import and runs absolute-error JSON
+analysis without `--assume-stability`. Decimal input endpoints enclose the exact
+request domain after PRECiSA's binary64 parsing. Constants retain their binary64
+values. PRECiSA's input uncertainty model is a candidate-search boundary; the
+final Lean theorem checks exact decoded original inputs and the independent
+specification directly.
+
+The exact binary64 values in `stableError` and `unstableError` determine the
+maximum candidate. This becomes the proof target, even when it misses the
+engineering budget. A null unstable field does not remove divergent cases.
+PVS files are retained as foreign evidence, not checked/imported proof terms.
+The threshold gate uses PRECiSA's one-unit unstable-flow candidate; ignoring it
+or asserting stability fails Lean reconstruction. The continuous innovation
+example retains PRECiSA's conservative roughly 40 m bound as `budget_not_met`,
+while the default branch route proves the unchanged `10^-6` m allowance.
+See the [examples and commands](../examples/numerics/branches/README.md).
 
 ## Helper and loop composition
 
@@ -130,7 +159,7 @@ and checking path. Add a `producer` to select an external tool:
 These fields extend the existing request; the source, domain, specification and
 outputs are still required. `analysis_tools` selections optionally include an
 executable `sha256` and a `base` directory for tool data/configuration. Otherwise
-use `FLARE_GAPPA`, `FLARE_FPTAYLOR` or `PATH`. A missing executable, unsupported
+use `FLARE_GAPPA`, `FLARE_FPTAYLOR`, `FLARE_PRECISA` or `PATH`. A missing executable, unsupported
 version or changed selected hash has a distinct `failure_kind`.
 For FPTaylor data, an explicit `base` takes precedence over `FPTAYLOR_BASE`,
 followed by the executable's parent directory.
@@ -165,6 +194,8 @@ python3 scripts/certify_numerics.py setup --tool gappa \
   --out /shared/tool-pool/gappa-1.8.3
 python3 scripts/certify_numerics.py setup --tool fptaylor \
   --out /shared/tool-pool/fptaylor-b5a77cae
+python3 scripts/certify_numerics.py setup --tool precisa \
+  --out /shared/tool-pool/precisa-2626ba1 --timeout 3600
 ```
 
 Setup fetches the adapter's pinned source, checks its revision or archive hash,
@@ -177,8 +208,14 @@ documented installation route; preserve existing toolchains.
 
 Use `--make-arg 'NAME=value'` for an explicit Make override, such as an isolated
 compiler or Num include directory. Builds inherit the caller's environment;
-on macOS an explicit `DEVELOPER_DIR` is preserved. Setup covers the two producer
-recipes, while the existing [tool setup instructions](../skills/verify-numerics/references/tool-setup.md)
+on macOS an explicit `DEVELOPER_DIR` is preserved. The PRECiSA recipe requires
+Linux, GHC 9.6.7, Cabal >=3.6.2.1 and C/C++ prerequisites; its
+[setup guide](../skills/verify-numerics/references/tool-setup.md#precisa) describes
+Ubuntu ARM64 setup. It builds the pinned Kodiak submodule and a hash-pinned
+filib++ archive. The upstream executable has no version command; the installed
+launcher reports recorded package/source identity. Admission checks the receipt,
+native binary and backend library hashes. Setup covers these producer recipes,
+while the [tool setup instructions](../skills/verify-numerics/references/tool-setup.md)
 cover Lean and Charon/Aeneas. No setup action itself establishes a numerical proof.
 
 ## Evidence and replay
@@ -195,6 +232,10 @@ cover Lean and Charon/Aeneas. No setup action itself establishes a numerical pro
   derivation and records `accepted_bounds` only after Lean checking succeeds.
 - `validation.json`, when present, identifies an adapter-generated Lean module.
   Final proofs remain under `lean/` with the expected root check.
+
+PRECiSA's build receipt is frozen under `tool-data/`. Native binary/backend
+hashes participate in live freshness checking without copying the installation
+into each certificate. Frozen replay needs no original binaries or libraries.
 
 Normal `audit` checks source/dependency/runtime and selected tool freshness.
 `replay` binds the frozen obligation and recompiles the saved proof plus the root
@@ -231,3 +272,9 @@ invalid selected claims, setup recipes and frozen-obligation mismatches. Set
 run both real producers over addition, polynomial and division families and
 replay their proofs with producer entry points disabled. CI builds the pinned
 producers and runs these controls and the maintained external benchmarks.
+
+Set `FLARE_PRECISA=/absolute/path/to/precisa/install/bin/precisa` to additionally
+run real conditional producer tests and producer-free replay. The maintained
+recipe and actual analyzer/Lean path were tested in an isolated Ubuntu ARM64 VM.
+Default CI runs conditional source/proof/rejection controls; it currently builds
+only Gappa/FPTaylor as real external producers.

@@ -143,6 +143,12 @@ CI also builds the pinned Gappa/FPTaylor producers, checks external families and
 retains their maintained benchmark evidence. For local real-producer tests, set
 `FLARE_NUMERICS_ANALYSIS_TOOLS=/absolute/path/to/local-tools.json`; the file has
 `analysis_tools` entries for both producers, as described in the integration guide.
+The optional PRECiSA recipe and real producer tests use Linux; see the skill's
+[setup guide](../skills/verify-numerics/references/tool-setup.md#precisa).
+Set `FLARE_PRECISA` to its installed launcher for `make numerics-check`, or select
+`branch_gate_precisa` / `branch_innovation_precisa` in the benchmark runner.
+Default checks include conditional source/proof/rejection controls; real PRECiSA
+setup and analyzer checks were exercised separately in an Ubuntu ARM64 VM.
 Optional runtimes and Rust extraction are selected separately with local tool
 paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set

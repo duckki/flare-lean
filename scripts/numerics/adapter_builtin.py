@@ -6,6 +6,10 @@ def produce(session):
     from . import scalar
     from . import composition
     from fractions import Fraction as Q
+    if session.program.branches:
+        from .branches import proposal
+        value = proposal(session.program, session.request)
+        return value, value.details
     if session.program.arrays:
         from .analysis import analyze, scale_normalized
         summaries,steps=analyze(session.program,session.request['domain'],scale_normalized)

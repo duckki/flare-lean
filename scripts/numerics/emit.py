@@ -13,6 +13,13 @@ def real(x):
 
 
 def expression(node, ideal=False, rust=False):
+    if node.op in ("select_lt", "select_le"):
+        left, right, yes, no = node.args
+        op = "<" if node.op == "select_lt" else "≤"
+        if rust:
+            op = "<" if node.op == "select_lt" else "<="
+            return f"if {left} {op} {right} {{ {yes} }} else {{ {no} }}"
+        return f"(if {left} {op} {right} then {yes} else {no})"
     if node.op == "constant":
         if ideal:
             return real(Q.from_float(number(node.bits)))

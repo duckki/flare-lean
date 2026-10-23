@@ -54,7 +54,7 @@ def setup(name, directory, timeout=600, make_args=()):
             runner.run('unpack', [sys.executable, '-m', 'numerics.installation', archive, directory],
                        env={'PYTHONPATH': str(ROOT/'scripts')}, phase='setup')
             root = directory/source['directory']
-        values = {'source': str(root), 'install': str(directory/'install')}
+        values = {'source': str(root), 'install': str(directory/'install'), 'provider': str(ROOT)}
         for i, command in enumerate(recipe['commands']):
             expanded = [word.format(**values) for word in command]
             if expanded[0] == 'make':

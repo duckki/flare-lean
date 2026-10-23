@@ -24,11 +24,14 @@ class Program:
     nodes: tuple
     outputs: tuple
     arrays: dict | None = None
+    branches: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
         if self.arrays is None:
             record.pop('arrays')
+        if self.branches is None:
+            record.pop('branches')
         return record
 
 

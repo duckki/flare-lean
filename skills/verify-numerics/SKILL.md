@@ -94,6 +94,11 @@ Supply explicit input shapes and an independent exact matrix expression. Inspect
 aliasing, every index and the accumulation order; a NumPy/BLAS call or an array
 Rust port requires its own bridge.
 
+For one terminal scalar Python `if`/`else`, read
+[conditionals.md](references/conditionals.md). Cover divergent native/exact choices
+as well as stable flows. PRECiSA's registered producer supplies stable/unstable
+candidates; a stability claim never removes cases from the independent Lean check.
+
 For admitted Python helpers and bounded literal-tuple loops, specify an exact
 two-state fold on the original inputs. Review the whole horizon's allowance;
 intermediate state errors must carry forward. The provider can preserve helper
@@ -106,9 +111,9 @@ candidate or a successful rejection test is not a completed certificate.
 Read [tool-routes.md](references/tool-routes.md) to select producers per obligation.
 Try a small version-specific preflight, retain failures, check option units and
 set external process limits. Read [tool-integration.md](references/tool-integration.md)
-for registered producer selection and shared source setup. The current Gappa and
-FPTaylor routes retain external evidence and validate their candidate conclusions
-through reusable Lean scalar inference. Accept a candidate only after its actual
+for registered producer selection and shared source setup. The Gappa, FPTaylor
+and PRECiSA routes retain external evidence and validate their candidate conclusions
+through reusable Lean arguments. Accept a candidate only after its actual
 bound is proved; do not substitute the user's looser budget. Foreign proof traces
 remain untrusted evidence; a general foreign-proof importer is not implemented.
 Use reusable adapters, evidence checking or verified inference when extending

@@ -45,6 +45,28 @@
         ],
         "executable": "source/fptaylor"
       }
+    },
+    "precisa": {
+      "versions": [
+        "4.0.4"
+      ],
+      "setup": {
+        "source": {
+          "repository": "https://github.com/nasa/PRECiSA.git",
+          "revision": "2626ba151a2915d7b148ff90ccfff5e1f764d948"
+        },
+        "commands": [
+          [
+            "python3",
+            "{provider}/scripts/numerics/setup_precisa.py",
+            "--source",
+            "{source}",
+            "--prefix",
+            "{install}"
+          ]
+        ],
+        "executable": "install/bin/precisa"
+      }
     }
   }
 }

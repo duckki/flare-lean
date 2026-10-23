@@ -25,6 +25,8 @@ def main():
     inspect.add_argument('--function', required=True)
     inspect.add_argument('--language', default='python')
     inspect.add_argument('--python-arrays', type=json.loads, help='JSON mapping input names to fixed list shapes')
+    inspect.add_argument('--python-branches', action='store_const', const=True, default=None,
+                         help='Admit one terminal scalar Python if/else')
     for name in ['audit', 'replay']:
         p = sub.add_parser(name)
         p.add_argument('--run', required=True)
@@ -55,6 +57,11 @@ def main():
                     'components': 'independent closed numerical requests imported into namespaced application proofs',
                     'source_api': 'ordinary Python scalar constructor/full-state update, options and nonzero-divisor scope',
                     'target': 'rust-aeneas; translator support and explicit semantic bridges required'},
+                    'python_branches': {'request_field':'python_branches: true',
+                    'inputs':'one ordinary scalar Python function; at most 32 arithmetic nodes',
+                    'operations':'scalar assignments, one terminal if/else, one ordered comparison, scalar returns',
+                    'proof':'all four native/exact branch choices; no stable-test assumption',
+                    'target':'lean with lean-flare or precisa; both arms must satisfy numerical premises'},
                     'python_arrays': {'request_field':'python_arrays',
                     'inputs':'two built-in list operands: rank-two left matrix, rank-one/two right operand',
                     'dimensions':'1 through 8; at most 32 output entries',
@@ -62,7 +69,8 @@ def main():
                     'target':'lean; no NumPy/BLAS bridge or automatic array Rust port'}},
                 'source_runtimes': {name: runtime_candidates(name) for name in FRONTENDS}}
         elif args.command == 'inspect':
-            p = parse(args.language, Path(args.source).read_text(), args.function, python_arrays=args.python_arrays)
+            p = parse(args.language, Path(args.source).read_text(), args.function,
+                      python_arrays=args.python_arrays, python_branches=args.python_branches)
             result = {'status': 'needs_input', 'program': p.record(), 'required_inputs': {
                 'domain': {name: '[lower, upper] as exact rational strings' for name in p.inputs},
                 'outputs': [{'name': '', 'unit': '', 'limit': ''} for _ in p.outputs],

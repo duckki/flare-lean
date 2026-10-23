@@ -1,0 +1,25 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "gate.py",
+  "function": "gate",
+  "python_branches": true,
+  "target": "lean",
+  "domain": {
+    "signal": [
+      "-1/4503599627370496",
+      "1/4503599627370496"
+    ]
+  },
+  "specification": [
+    "1 if signal+1 >= 1 else 0"
+  ],
+  "outputs": [
+    {
+      "name": "gate",
+      "unit": "control",
+      "limit": "1"
+    }
+  ],
+  "producer": "precisa"
+}

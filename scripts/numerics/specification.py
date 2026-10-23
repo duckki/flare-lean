@@ -3,10 +3,19 @@ import ast
 from fractions import Fraction
 
 
-def lean_expression(source, inputs, bindings=None):
+def lean_expression(source, inputs, bindings=None, allow_conditionals=False):
     names = bindings if bindings is not None else {name: f'a{i}' for i, name in enumerate(inputs)}
 
     def visit(node):
+        if allow_conditionals and isinstance(node, ast.IfExp):
+            t = node.test
+            if not (isinstance(t, ast.Compare) and len(t.ops) == 1 and type(t.ops[0]) in (ast.Lt, ast.LtE, ast.Gt, ast.GtE)):
+                raise ValueError('Exact conditional reference requires one ordered comparison')
+            a, b = visit(t.left), visit(t.comparators[0])
+            if isinstance(t.ops[0], (ast.Gt, ast.GtE)):
+                a, b = b, a
+            op = '<' if isinstance(t.ops[0], (ast.Lt, ast.Gt)) else '≤'
+            return '(if '+a+' '+op+' '+b+' then '+visit(node.body)+' else '+visit(node.orelse)+')'
         if isinstance(node, ast.Name) and node.id in names:
             return names[node.id]
         if isinstance(node, ast.Constant) and type(node.value) in (int, float):
@@ -30,7 +39,7 @@ def validate(specification, program):
     if isinstance(specification,list):
         if len(specification)!=len(program.outputs) or any(not isinstance(x,str) for x in specification):
             raise ValueError('Provide an independent exact expression string per output')
-        for expression in specification: lean_expression(expression,program.inputs)
+        for expression in specification: lean_expression(expression,program.inputs,allow_conditionals=bool(program.branches))
         return
     fields={'kind','initial','sequence','state','element','step'}
     if not isinstance(specification,dict) or set(specification)!=fields or specification['kind']!='fold':
@@ -59,10 +68,10 @@ def lean_specification(specification,program):
         from .array_emit import matrix_specification
         return [matrix_specification(specification,program)]
     if isinstance(specification,list):
-        values=[lean_expression(x,program.inputs) for x in specification]
+        values=[lean_expression(x,program.inputs,allow_conditionals=bool(program.branches)) for x in specification]
         return [values[0] if len(values)==1 else '('+', '.join(values)+')']
     names={name:f'a{i}' for i,name in enumerate(program.inputs)}
-    initial='('+', '.join(lean_expression(x,program.inputs) for x in specification['initial'])+')'
+    initial='('+', '.join(lean_expression(x,program.inputs,allow_conditionals=bool(program.branches)) for x in specification['initial'])+')'
     bindings={**names,specification['state'][0]:'state.1',specification['state'][1]:'state.2',
               specification['element']:'observation'}
     step='('+', '.join(lean_expression(x,(),bindings) for x in specification['step'])+')'

@@ -246,7 +246,7 @@ def constant_proof(node):
                 f'  have p_{node.name} : value {node.name} = (0 : ℝ) := by dsimp only [{node.name}]; rfl']
 
 
-def proof_module(program, root, leaves, claims):
+def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
     args = applied(program)
     lines = ['module', '', 'public import Workflow.Kernel', 'public import Flare.Binary64.Pipeline',
              'public import Flare.Binary64.Nearest', 'public import Flare.Binary64.Zero',
@@ -260,7 +260,7 @@ def proof_module(program, root, leaves, claims):
         summaries = box['summaries']
         lines += [f'theorem box_{index} {params(program)}',
                   *['    '+h for h in hypotheses(program, box['domain'])],
-                  '    : '+proposition(program, claims)+' := by']
+                  '    : '+(goal or proposition(program, claims))+' := by']
         for i, _ in enumerate(program.inputs):
             b = summaries['a'+str(i)]
             lo, hi = input_range(*map(Q, box['domain'][program.inputs[i]]))
@@ -283,7 +283,10 @@ def proof_module(program, root, leaves, claims):
                 lines += [f'  have b_{name} : {target} := by', '    refine ⟨by decide +kernel, ?_, ?_, ?_⟩',
                           f'    all_goals norm_num [{ideal_name}, p_{name}]']
             elif node.op == 'neg':
-                lines += [f'  have b_{name} : {target} := native_neg b_{node.args[0]}']
+                proof = f'native_neg b_{node.args[0]}'
+                if b.c == 0:
+                    proof = f'by simpa only [neg_zero] using ({proof})'
+                lines += [f'  have b_{name} : {target} := {proof}']
                 if step['native'] is not None:
                     lines += [f'  have p_{name} : value {name} = {render(horner(step["native"]))} := by',
                               f'    rw [(Flare.Binary64.Order.neg_value _ b_{node.args[0]}.finite).2]',
@@ -358,9 +361,9 @@ def proof_module(program, root, leaves, claims):
         terms = []
         for name in program.outputs:
             terms += [f'b_{name}.finite', f'b_{name}.bounds.error.trans (by norm_num : {real(summaries[name].e)} ≤ {rational_real(claims[name].e)})']
-        lines += ['  exact ⟨'+', '.join(terms)+'⟩', '']
+        lines += (finish(box) if finish is not None else ['  exact ⟨'+', '.join(terms)+'⟩'])+['']
     lines += [f'theorem accuracy {params(program)}', *['    '+h for h in hypotheses(program, root['domain'])],
-              '    : '+proposition(program, claims)+' := by']
+              '    : '+(goal or proposition(program, claims))+' := by']
     def branch(box, depth=0, tests=()):
         nonlocal lines
         prefix = '  '+'  '*depth

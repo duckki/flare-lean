@@ -34,6 +34,8 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Tiny positive gain denominator | `certified` | Preserve native and exact positive floors with both variances in `[2^-54,2^-53]` |
 | Array prediction / calibration / projection | `certified` | Built-in Python lists, checked shapes and original ascending product order, independent exact matrix expressions |
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
+| Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
+| Threshold gate / innovation through PRECiSA | `certified` / `budget_not_met` with optional producer | Actual maximum stable/unstable candidate proved in Lean |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
 | Python Kalman → Rust IR probe | `certified` with optional extraction tools | Internal straight-line kernel: fresh Charon/Aeneas return plus debug/release diagnostics; not a reusable production port |
@@ -48,7 +50,7 @@ Explicitly selecting one requires its tools: absence is a failed prerequisite,
 not a successful proof rejection. `--case NAME` can select individual scenarios.
 A local tools file has `runtimes` keyed by `julia`, `matlab` or `rust`, each with
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
-`analysis_tools` maps Gappa/FPTaylor to their executable and optional identity/data selections.
+`analysis_tools` maps Gappa/FPTaylor/PRECiSA to their executable and optional identity/data selections.
 Use absolute paths. This machine configuration is not a version attestation.
 
 ### Array source scenarios
@@ -113,10 +115,10 @@ for comparison with Lean reconstruction. The reusable Lean route now establishes
 the unchanged `2^-51` theorem without trusting that foreign trace.
 Foreign checker tools are not required for default local tests. Gappa/FPTaylor
 producer adapters retain output and validate the actual candidate conclusion;
-their foreign proof traces are not imported. PRECiSA is planned for milestone 8
-and has no registered adapter.
-Full matrix/filter applications,
-NumPy/BLAS mappings, unstable branches and physical coverage need further work.
+their foreign proof traces are not imported. PRECiSA has a scalar/terminal-conditional
+adapter; see the [conditional examples](../../examples/numerics/branches/README.md).
+Further tools, full matrix/filter applications,
+NumPy/BLAS mappings, general control flow and physical coverage need further work.
 
 ## Increasing scale
 

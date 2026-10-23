@@ -109,6 +109,30 @@
       "request": "../../examples/numerics/arrays/one_entry.json",
       "expected": "certified",
       "optional": false
+    },
+    {
+      "name": "branch_innovation",
+      "request": "../../examples/numerics/branches/innovation_magnitude.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "branch_gate",
+      "request": "../../examples/numerics/branches/gate.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "branch_gate_precisa",
+      "request": "../../examples/numerics/branches/gate_precisa.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "branch_innovation_precisa",
+      "request": "../../examples/numerics/branches/innovation_magnitude_precisa.json",
+      "expected": "budget_not_met",
+      "optional": true
     }
   ]
 }

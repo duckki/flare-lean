@@ -76,7 +76,7 @@ not an implemented adapter, and invoking a tool does not import its reasoning.
 | Gappa | Query conclusion reconstructed by reusable scalar validation; Coq trace retained | Broaden supported reasoning and retain checked algebraic rewrites | 2–3 |
 | FPTaylor | Parsed exact candidate is the Lean proof target | Extend coverage and useful hints through the same validator; reject unproved candidates | 2–3 |
 | Charon/Aeneas | Existing Rust-to-Lean extraction and checked return relation, with declared translator/model trust | Extend source coverage and compose extracted APIs, loops and state with numerical contracts | 4–7 |
-| PRECiSA/PVS | Documented route only | Admit branch/domain summaries and reconstruct or check them in Lean; preserve unstable-branch semantics | 8 |
+| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction; PVS traces retained | Broaden conditional/domain summaries while preserving divergent-flow semantics | 8 |
 | Why3, Frama-C/WP, VST | Documented routes only | Adapt supported source models and verification obligations; discharge their numerical and memory premises in Lean with explicit frontend boundaries | 8 |
 | Coq/Flocq, VCFloat2, LAProof | Reference workflows only | Import a useful shared evidence vocabulary or reimplement its needed inference with Lean soundness proofs; do not treat a foreign theorem name as a Lean proof | 8 |
 | Python, Julia, MATLAB/Octave, rustc | Restricted source admission and sampled runtime diagnostics | Extend source correspondence separately from proof evidence; retain interpreter/compiler assumptions and runtime distinctions | 4–7 |
@@ -397,8 +397,27 @@ results. Another engineer reproduces the delivery from its report.
 
 ## 8. Add further verification tools
 
-After milestones 3–7 with the core set, prioritize PRECiSA/PVS, Why3,
-Frama-C/WP, VST, Coq/Flocq, VCFloat2 and LAProof using actual application gaps.
+Implemented for the selected PRECiSA integration through reusable
+[conditional validation](tool-integration.md#conditional-validation-and-precisa).
+The pinned Linux source recipe builds PRECiSA/Kodiak and records executable and
+backend identities. The adapter preserves its ordered PVS query, original domain
+and stable/unstable JSON results. Their maximum becomes the actual Lean claim.
+The new terminal scalar Python profile checks all four native/exact branch
+combinations with existing binary64 laws and real inequalities; no stable-test
+assumption or per-application numeric lemma is added.
+
+The threshold gate certifies PRECiSA's one-unit unstable-flow allowance. A false
+zero candidate or missing unstable claim fails in Lean. The continuous innovation
+example retains the actual conservative PRECiSA allowance as `budget_not_met`,
+while the default procedure certifies the original engineering limit. Tests cover
+source/guard semantics, malformed evidence, version/backend identities, wrong
+references and producer-free replay. Real source setup and producer/Lean runs
+passed in an isolated Ubuntu ARM64 VM, with frozen replay on macOS ARM64.
+This reconstructs candidates; it does not import PVS proofs or support arbitrary
+PRECiSA source programs. See the [examples](../examples/numerics/branches/README.md).
+
+Further integrations remain application-driven: Why3,
+Frama-C/WP, VST, Coq/Flocq, VCFloat2 and LAProof.
 Inspect each selected version's source model and output before choosing an
 importer, candidate checker or verified Lean implementation. Reuse existing
 evidence vocabularies where possible.

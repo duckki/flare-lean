@@ -170,9 +170,48 @@ instructions. Reusing an existing installation is not a clean-machine bootstrap
 test. State which route was exercised rather than claiming an untested platform
 or installation procedure has passed.
 
+## PRECiSA
+
+The maintained `precisa` recipe targets Linux and pins PRECiSA package `4.0.4`
+at `2626ba151a2915d7b148ff90ccfff5e1f764d948`, with its matching Kodiak submodule.
+It was built and exercised on Ubuntu ARM64. Use Linux on other hosts; native
+macOS setup is not covered by this recipe. Original-source documentation is in
+the [pinned repository](https://github.com/nasa/PRECiSA/tree/2626ba151a2915d7b148ff90ccfff5e1f764d948).
+
+Obtain missing prerequisites yourself: Git, curl, Make, G++, CMake, GMP, Boost
+headers, GHC **9.6.7** and Cabal >=3.6.2.1. Linux Haskell bindists also need their
+platform's runtime libraries, including libnuma and libtinfo. Keep compiler
+installations in the shared versioned user cache and add their `bin` directories
+to the setup command's `PATH`. Official downloads used on Ubuntu ARM64 were
+[GHC 9.6.7](https://downloads.haskell.org/~ghc/9.6.7/ghc-9.6.7-aarch64-deb10-linux.tar.xz)
+and [Cabal 3.12.1.0](https://downloads.haskell.org/~cabal/cabal-install-3.12.1.0/cabal-install-3.12.1.0-aarch64-linux-deb11.tar.xz).
+Follow the selected bindist's installation instructions and published integrity
+information; choose the matching architecture rather than copying these ARM URLs
+to an x86 machine.
+
+```sh
+python3 "$FLARE_ROOT/scripts/certify_numerics.py" setup --tool precisa \
+  --out /shared/tool-pool/precisa-2626ba1 --timeout 3600
+export FLARE_PRECISA=/shared/tool-pool/precisa-2626ba1/install/bin/precisa
+```
+
+Setup builds the pinned Kodiak source and a hash-checked filib++ 3.0.2.2 archive
+from IBEX's maintained source mirror. This avoids the unavailable historical
+university download. It retains every command and a build receipt binding source
+pins, compiler identity, native executable and backend library hashes. The
+upstream executable has no `--version`; the provider's relocatable launcher
+reports the recorded package/source identity. Use that launcher, not a bare
+copied executable, for admission.
+
+Run a small [conditional preflight](conditionals.md), inspect the actual stable
+and unstable JSON results, then certify and replay. PVS files remain untrusted
+evidence: a successful build or analyzer run is not a Lean proof. No PVS
+installation is needed for this candidate-reconstruction route. Saved-proof
+replay needs neither PRECiSA, Kodiak nor the Haskell build tools.
+
 ## Other runtimes and proof tools
 
-For Gappa and FPTaylor, the provider has pinned source-setup recipes and a shared
+For Gappa, FPTaylor and PRECiSA, the provider has pinned source-setup recipes and a shared
 bounded build/logging service. Read [tool-integration.md](tool-integration.md)
 for `setup --tool ... --out ...`, prerequisites and selection fields. It preserves
 existing destinations and does not replace Lean or Rust-toolchain setup.

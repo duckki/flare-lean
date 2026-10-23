@@ -2,19 +2,19 @@
 
 Read the provider's `capabilities` output for adapter roles, supported versions,
 arithmetic constraints and setup recipes. The current external producers are
-`gappa` and `fptaylor`; `lean-flare` remains the default producer and independent
-checking path. `rust-aeneas` supplies extraction when requested.
+`gappa`, `fptaylor` and `precisa`; `lean-flare` remains the default producer and
+independent checking path. `rust-aeneas` supplies extraction when requested.
 
-Add `"producer": "gappa"` or `"producer": "fptaylor"` to an otherwise complete
-request. Configure `analysis_tools` as a map from tool name to `executable`,
+Add `"producer": "gappa"`, `"producer": "fptaylor"` or `"producer": "precisa"`
+to an otherwise complete request. Configure `analysis_tools` as a map from tool name to `executable`,
 optional expected `sha256`, and optional tool-data `base` directory. Environment
-variables `FLARE_GAPPA` / `FLARE_FPTAYLOR` and `PATH` are fallbacks. Preserve the
-source, domain, independent specification, units and engineering requirements.
+variables `FLARE_GAPPA` / `FLARE_FPTAYLOR` / `FLARE_PRECISA` and `PATH` are
+fallbacks. Preserve source, domain, independent specification, units and requirements.
 
 The external routes save proof-bearing or candidate output, then reconstruct the
 **candidate conclusion** in Lean: the Gappa query's exact dyadic radius or the
-actual FPTaylor hexadecimal bound. They cannot substitute a looser requested
-budget. Candidates that fail the Lean argument remain unresolved. Gappa's Coq
+actual FPTaylor hexadecimal bound, or PRECiSA's maximum stable/unstable bound.
+They cannot substitute a looser budget. Failed Lean arguments remain unresolved. Gappa's Coq
 trace is retained rather than imported; this is not a general foreign-proof importer.
 
 The scalar validator uses nearest-rounding theorems, checked polynomial rewrites,
@@ -25,6 +25,12 @@ it when compositional analysis loses a floor or misses a budget. Preserve the
 original contract when search or proof checking fails. Review per-box domains,
 rounding allowances and conclusions in `analysis.json`; saved proofs establish
 that all cases cover the original domain.
+
+For terminal scalar Python conditionals, read [conditionals.md](conditionals.md).
+PRECiSA's candidate is checked across all four native/exact flows, even if the
+analyzer claims stability. PVS files are retained rather than imported. This
+profile currently uses Lean delivery; both arms must satisfy arithmetic premises
+on the full domain. The default branch producer attempts the requested allowance.
 
 Reuse compatible tools. Otherwise obtain missing prerequisites and use the
 shared source-setup service in the agreed versioned user cache:
@@ -41,7 +47,8 @@ release uses bundled `remake`. The portable FPTaylor build
 needs OCaml 4, Num, Make and C; use an isolated compiler/switch as necessary.
 `--make-arg 'NAME=value'` passes a build override. Keep setup logs, source identities
 and failures. Existing destinations are preserved. Tool setup is separate from
-Lean/Rust setup in [tool-setup.md](tool-setup.md).
+Lean/Rust setup in [tool-setup.md](tool-setup.md). The same guide covers the
+Linux PRECiSA recipe, GHC/Cabal prerequisites and versioned launcher.
 
 Run normal `plan`, `run`, `audit` and `replay` commands. Review `obligation.json`,
 `evidence.json`, raw queries/output and `analysis.json` alongside the root proof.

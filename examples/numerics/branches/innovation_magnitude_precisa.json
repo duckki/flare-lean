@@ -1,0 +1,29 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "innovation_magnitude.py",
+  "function": "innovation_magnitude",
+  "python_branches": true,
+  "target": "lean",
+  "domain": {
+    "observation": [
+      "-10",
+      "10"
+    ],
+    "prediction": [
+      "-10",
+      "10"
+    ]
+  },
+  "specification": [
+    "observation-prediction if observation >= prediction else prediction-observation"
+  ],
+  "outputs": [
+    {
+      "name": "innovation_magnitude",
+      "unit": "m",
+      "limit": "1/1000000"
+    }
+  ],
+  "producer": "precisa"
+}

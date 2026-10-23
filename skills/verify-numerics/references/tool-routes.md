@@ -6,8 +6,8 @@ one Lean certificate. Other proof assistants remain useful comparison or
 intermediate routes; use [lean-conversion.md](lean-conversion.md) to reconstruct
 required numerical results in Lean before claiming workflow completion.
 
-Use [registered tool integration](tool-integration.md) for the current Gappa and
-FPTaylor adapters and `capabilities` for their version/model limits. These routes
+Use [registered tool integration](tool-integration.md) for the current Gappa,
+FPTaylor and PRECiSA adapters and `capabilities` for their version/model limits. These routes
 retain external output and independently prove its candidate conclusion in Lean;
 their presence does not imply a foreign-proof-trace importer.
 
@@ -17,6 +17,12 @@ their presence does not imply a foreign-proof-trace importer.
 | Program verification conditions | Why3, Frama-C/WP, VST or a language-specific verified frontend | Which original language is translated; the IEEE versus real model; VC-generator/library trust; validity and memory obligations. |
 | Composition, invariants, domain mathematics | Lean/Mathlib/FLARE, Coq/Flocq/VCFloat2/LAProof, PVS, or another suitable prover | Reusable lemmas, model match, caller-premise discharge, library axioms, source correspondence and ongoing maintenance cost. |
 | Modular calls and unstable floating-point branches | PRECiSA/PVS or another demonstrated branch analyzer | Version-specific frontend, accumulated input errors, supported recursion/collections and certificate replay. General provers can express these goals too. |
+
+The implemented PRECiSA route currently covers small scalar graphs and one
+terminal Python conditional; see [conditionals.md](conditionals.md). Modular
+summaries, arbitrary PVS programs and a foreign-PVS proof importer are outside
+that adapter's scope. Other tools in the table remain proposed routes unless
+`capabilities` declares an implemented adapter.
 
 Gappa is primarily an arithmetic prover. A frontend such as Why3 can generate
 its verification conditions. User algebraic rewrite hypotheses in a generated

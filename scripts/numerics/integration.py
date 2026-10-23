@@ -143,7 +143,7 @@ class Session:
         self.record(adapter, details)
         return value
 
-    def tool(self, name, version_args, version_pattern, versions, environment=None, data_files=None):
+    def tool(self, name, version_args, version_pattern, versions, environment=None, data_files=None, identity_files=None):
         """Resolve existing/user-installed tools with common identity and version checks."""
         from .workflow import sha
         self.runner.last_stage = name+'-admission'
@@ -172,6 +172,11 @@ class Session:
             shutil.copyfile(data, snapshot)
             record.setdefault('data_files', []).append({'path': str(data), 'sha256': sha(snapshot),
                                                        'snapshot': str(snapshot.relative_to(self.output))})
+        for data in identity_files(path, chosen) if identity_files else []:
+            data = Path(data).resolve()
+            if not data.is_file():
+                raise ToolError('missing_tool_data', 'Missing '+name+' identity file: '+str(data))
+            record.setdefault('data_files', []).append({'path': str(data), 'sha256': sha(data)})
         self.evidence.setdefault('tools', []).append(record)
         self.save()
         return path, environment
