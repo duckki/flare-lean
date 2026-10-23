@@ -240,6 +240,12 @@ obligations. Choose from the installed version's supported arithmetic model,
 source constructs and output detail. No automatic external-output importer is
 implemented. Coq/PVS/HOL success alone never closes a numerical Lean premise.
 
+The [integration plan](roadmap.md#integration-strategy) prioritizes shared tool
+adapters, reusable evidence import/checking and verified Lean inference. It
+accommodates different tool outputs and arithmetic models while keeping one
+Lean completion boundary. New numerical lemmas support those mechanisms and
+their semantic bridges.
+
 ## Maintained validation and next work
 
 The [benchmark guide](../benchmarks/numerics/README.md) describes supported
@@ -248,24 +254,11 @@ and fresh Lean controls; optional Julia/Octave/Rust tools are tested separately.
 These tests exercise the skill's executable path and packaging. They are not
 an independent evaluation of agent behavior on new engineering tasks.
 
-Future work is organized around concrete checked results:
-
-1. Reconstruct the frozen four-stage Gappa mean-update argument at `2^-51`
-   through the authored-proof interface. Its current automatic allowance is
-   `2^-43`; the foreign proof is not an existing FLARE result.
-2. Extract recurring rules into a small versioned argument importer, or implement
-   the same useful reasoning directly in Lean when that is simpler to maintain.
-   Unsupported evidence must leave a goal unresolved. Prove native Float bridges.
-3. Replace fixed absolute proposal grids with scale-aware proposals, preserving
-   the original domains and checking outward rounding in Lean. Add FPTaylor
-   candidate and PRECiSA branch cases only with completed Lean reconstruction.
-4. Extend reusable error lemmas and admitted source semantics beyond fixed
-   tuple loops to actual vector/matrix and dynamic repeated-call applications. Reuse the
-   existing matrix/recurrence theorems, prove caller applicability, carry incoming
-   errors and include requested decision margins.
-
-Prefer the smallest useful checker/rule set over a general foreign-proof
-translator. Keep one final Lean application theorem as the completion boundary.
+The [milestone plan](roadmap.md) defines the next capabilities and their
+completion criteria: reproducible feedback cases, shared tool integration,
+reusable scalar inference, composable loops, vectors/matrices, complete
+application behavior and reusable Rust delivery. Keep the current scenarios as
+baselines and use feedback to prioritize additional applications.
 
 ## Scaling beyond a single kernel
 

@@ -53,6 +53,7 @@ flare-lean/
 │   ├── using-library.md         # Importing FLARE from another Lean project
 │   ├── organization.md          # Results, layout and source attribution
 │   ├── numerical-verification.md # Workflow contracts and CLI
+│   ├── roadmap.md               # Planned capabilities and completion criteria
 │   ├── reference.md             # Theorem entry points and assumptions
 │   ├── upstream/
 │   │   └── mathlib.md           # Pure-mathematics contribution preparation
