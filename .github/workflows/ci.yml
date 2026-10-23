@@ -91,10 +91,12 @@ jobs:
           python3 scripts/benchmark_numerics.py --suite scale
           --case array_prediction4
           --case kalman_004 --case kalman_016 --case kalman_048 --case kalman_128
-          --case imu_016 --case imu_048 --case imu48_rust_application
+          --case imu_016 --case imu_048
           --case covariance_relative --case covariance_global
           --contract-cache .cache/numerics-generated/ci-contract-cache
           --out .cache/numerics-generated/scale-ci
+      - name: Check Rust application proof-bundle configuration
+        run: python3 scripts/certify_numerics.py plan --request examples/numerics/imu48/request.json
       - name: Retain numerical benchmark evidence
         if: always()
         uses: actions/upload-artifact@v4

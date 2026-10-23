@@ -166,3 +166,23 @@ explicit `contract_cache` under their agreed verification directory instead.
 Benchmark summaries record proposal/check times, Lean source bytes/module count,
 reused modules and maximum reported check-process resident memory. Warm reuse
 and fresh replay have different costs; retain both when comparing scalability.
+
+## Rust application regression checks
+
+With the tools from the skill's [setup guide](../skills/verify-numerics/references/tool-setup.md)
+and a local `rust_tools` configuration, run:
+
+```sh
+FLARE_NUMERICS_RUST_TOOLS=/absolute/path/to/local-tools.json make numerics-check
+python3 scripts/benchmark_numerics.py --suite scale --case imu48_rust_application \
+  --tools /absolute/path/to/local-tools.json --out .cache/numerics-generated/new-imu48-run
+```
+
+These optional checks exercise fresh application extraction, the authored Lean
+contract, all saved proof modules, replay, debug/release diagnostics and rejection
+controls. The original crate files and proof templates live under
+`examples/numerics/imu48` and `benchmarks/numerics/scale`. Templates use `.lean.txt`
+to keep Aeneas outside the core Lake dependency graph; the provider materializes
+and compiles them as `.lean` files. Format materialized templates with the pinned
+`fmt --line-width 100` and their compiled imports on `LEAN_PATH`, preserve tokens,
+then copy formatting back to the templates. `make fmt` handles core Lean files.

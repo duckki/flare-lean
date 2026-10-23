@@ -19,9 +19,9 @@ constructs, arithmetic semantics, requested property and delivery target.
 - The automatic path covers restricted scalar source, selected Python methods,
   local helpers and bounded loops. Authored Lean proofs can supply arguments
   beyond the automatic bound producer.
-- Larger loops, the original Rust IMU source and four-state arithmetic graphs
-  are maintained [scale fixtures](../benchmarks/numerics/README.md#increasing-scale).
-  Their recorded gaps provide concrete targets below.
+- Larger loops and the original Rust IMU API have checked scale fixtures.
+  Four-state covariance/correction graphs remain analysis targets without a
+  source-program certificate; see the [scale guide](../benchmarks/numerics/README.md#increasing-scale).
 
 Each milestone must retain the original source, domain, reference and requirement.
 Changing any of these creates a separately reviewed case. A completed capability
@@ -294,6 +294,24 @@ that bridge. Add such calls to supported capabilities only when that obligation
 has been discharged.
 
 ## 6. Cover validation, branches and decisions
+
+Implemented through the reusable [Rust application proof-bundle interface](../skills/verify-numerics/references/rust-applications.md).
+The original 48-event public API is freshly extracted with its companion timing
+module. Authored source bridges and numerical proofs close one Lean root for all
+input words: exact admission conditions, ordered rejection exits, finite success,
+original-integer timing, the returned position allowance and strict decisions.
+The uncertain branch has an explicit exact-reference neighborhood, including
+rounding in the final subtraction. This is an authored-contract route; it does
+not add arbitrary Rust APIs to the automatic scalar parser.
+
+The provider freezes every selected crate/proof file, checks Charon's local
+source identities, records tool/model hashes, independently applies the reviewed
+contract to the extracted entry and audits the root's transitive axioms. Replay
+compiles saved Lean sources without translators or Rust runtimes. Negative
+controls reject weakened/axiom roots, changed timestamp arithmetic and inadequate
+padding after source correspondence passes. Runtime cases cover branch endpoints,
+all decisions, NaN/infinities, wrong sizes, late errors and full-width epochs.
+The smaller scalar-loop fixture remains a separate regression.
 
 ### Deliver
 

@@ -1,0 +1,27 @@
+module
+
+public import Workflow.Subject.Implementation.TimestampAlignment
+public import Flare.Binary64.Value
+
+/-! Original-input timing domain and accuracy statement. Proof witnesses are in
+`Workflow.Subject.Proofs.FloatTimestampAlignment`. These definitions are specifications. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.Correctness.TimestampAlignment
+
+open Flare.Binary64.Value
+
+/-- Supported original integer timestamps, before any rounding. -/
+def Domain (previous current : UInt64) : Prop :=
+  previous ≤ current
+  ∧ 2000000 ≤ current.toNat - previous.toNat
+  ∧ current.toNat - previous.toNat ≤ 5000000
+
+/-- Finite returned seconds with a normalized roundoff allowance. This covers
+numerical conversion, not physical timestamp accuracy. -/
+def Accuracy (previous current : UInt64) (seconds : Float) : Prop :=
+  seconds.isFinite = true
+  ∧ |value seconds - ((current.toNat : ℝ) - previous.toNat) / 1000000000| ≤ (2 : ℝ) ^ (-55 : Int)
+
+end Workflow.Subject.Implementation.Correctness.TimestampAlignment

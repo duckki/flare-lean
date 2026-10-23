@@ -134,7 +134,7 @@ Python loops, and retains original larger assets as capability probes.
 | --- | --- | --- |
 | Scalar Kalman loop | 1, 4, 8, 16, 48, 128 updates; 8 operations/update | Both mean and variance, helper calls, incoming state error, independent exact recurrence, Lean proof and budget stages |
 | IMU motion loop | 1, 4, 16, 48 updates; 8 operations/update | Position and velocity with independent accelerations and shared original Float `dt`, complete-horizon Lean error proof |
-| Original Rust IMU application | 48 events, integer time and decisions | Explicit source-admission gap; it is not reduced to the supported motion loop |
+| Original Rust IMU application (optional tools) | 48 events, integer time and decisions | Fresh multi-module extraction, complete admission/error behavior, arithmetic and exact-reference decision root; authored proof bundle and Lean-only replay |
 | Original four-state graphs | 7,758 relative / 7,761 global operations, 46 stages | Frozen initialization, dense covariance propagation and correction-model analysis; candidates only |
 
 Kalman profiles start at variance 1 m², process noise 1/8 m² and measurement
@@ -143,8 +143,8 @@ The requested budgets stay 1e-4 m and 1e-6 m² across the whole family. These ar
 conditional scale fixtures, not measured sensor guarantees. IMU profiles start
 at (0 m, 0.5 m/s), with independent accelerations in [-4,4] m/s² and a shared
 original Float `dt` in [1/500,1/200] s. Their budgets are 1e-4 m and 1e-6 m/s.
-The unchanged original integer-time Rust application's broader obligations are
-kept separate. The two graph fixtures are manual exports, not verified compilers.
+The unchanged integer-time Rust application is checked through a separate
+authored proof bundle, preserving its original slice loop and public API. The two graph fixtures are manual exports, not verified compilers.
 
 Each run retains actual expanded arithmetic/node/input counts, per-stage times,
 accepted versus proposed bounds, proposal time, Lean source size/module counts,
@@ -183,3 +183,24 @@ Proof generation restricts arithmetic facts and discards consumed bound facts;
 these change proof construction, not the source algorithm, domain or requirement.
 CI checks a smaller representative subset; the full scale target remains
 available for performance and capability regression work.
+
+### Complete Rust application
+
+```sh
+python3 scripts/benchmark_numerics.py --suite scale --case imu48_rust_application \
+  --tools /path/to/local-tools.json --out .cache/numerics-generated/imu48-checked
+FLARE_NUMERICS_RUST_TOOLS=/path/to/local-tools.json make numerics-check
+```
+
+The [bundle guide](../../skills/verify-numerics/references/rust-applications.md)
+describes the reviewed contract, exact-reference bounds, rejection controls and
+required cast patch. The root checks the actual `assess` API and its companion
+integer timestamp module. Eight debug/release test cases are runtime diagnostics;
+the universal Lean theorem supplies the proof. Frozen replay needs only the
+matching Lean/Aeneas model imports, without extraction tools or a Rust compiler.
+
+This scale case is optional because it needs Charon/Aeneas and its compiled Lean
+model. Default CI validates its request; configured Rust-tool runs also certify,
+replay and run the negative controls. Missing tools cannot satisfy a proof
+rejection test. The provider retains those integration runs under
+`.cache/numerics-generated/application-tests-*/`.

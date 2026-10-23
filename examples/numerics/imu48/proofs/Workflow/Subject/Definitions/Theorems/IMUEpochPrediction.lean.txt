@@ -1,0 +1,26 @@
+module
+
+public import Mathlib.Basic.Real.Basic
+
+/-! Exact one-dimensional constant-acceleration kinematics. These classical
+motion equations are a project specification, not a new filtering algorithm.
+The elapsed times and accelerations stay independent exact inputs. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Definitions.Theorems.IMUEpochPrediction
+
+noncomputable def reference (acceleration elapsed : Nat → ℝ) : Nat → ℝ × ℝ
+  | 0 => (0, 1 / 2)
+  | n + 1 =>
+      let previous := reference acceleration elapsed n
+      (
+        previous.1 + elapsed n * previous.2 + elapsed n * elapsed n * acceleration n / 2,
+        previous.2 + elapsed n * acceleration n
+      )
+
+/-- Original integer nanoseconds, interpreted before binary64 conversion. -/
+noncomputable def elapsed (previous current : UInt64) : ℝ :=
+  ((current.toNat : ℝ) - previous.toNat) / 1000000000
+
+end Workflow.Subject.Definitions.Theorems.IMUEpochPrediction

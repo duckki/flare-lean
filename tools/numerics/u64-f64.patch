@@ -1,0 +1,27 @@
+diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
+index 7d6e5d8227d1613e01d4e0ef74af74bea3d4d7a9..dd56a15237cb63f03773fa4ec39a088ba8484a74 100644
+--- a/src/extract/Extract.ml
++++ b/src/extract/Extract.ml
+@@ -441,6 +441,10 @@ let extract_cast_kind_gen (span : Meta.span)
+       (* Different cases depending on the conversion *)
+       (let cast_str, src, tgt =
+          match (src, tgt) with
++         | TUInt U64, TFloat F64 when backend () = Lean ->
++             (* Decode the complete unsigned word before the existing native
++                binary64 conversion. This cast is total and cannot panic. *)
++             ("(fun (x : U64) => (UInt64.ofNat x.val).toFloat)", None, None)
+          | _, _ when literal_type_is_integer src && literal_type_is_integer tgt
+            ->
+              let src, tgt = (literal_as_integer src, literal_as_integer tgt) in
+diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
+index eca8c1e1cbc262ebf0c3aeb3de0cfcae508525cd..e4f3d1bf320005b84432285f8bbef4f04e639f62 100644
+--- a/src/symbolic/SymbolicToPureExpressions.ml
++++ b/src/symbolic/SymbolicToPureExpressions.ml
+@@ -597,6 +597,7 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
+               let src_ty = translate_literal_type src_ty in
+               let tgt_ty = translate_literal_type tgt_ty in
+               (match (src_ty, tgt_ty) with
++              | TUInt U64, TFloat F64 when Config.backend () = Lean -> ()
+               | TFloat _, _ | _, TFloat _ ->
+                   [%craise] ctx.span "Floating-point casts are not supported"
+               | _ -> ());

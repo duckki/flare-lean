@@ -1,0 +1,30 @@
+module
+
+public import Workflow.Generated.Types
+public import Workflow.Subject.Implementation.TimestampAlignment
+
+/-! Original unsigned words and exact error encodings for the Rust timing API. -/
+
+@[expose] public section
+
+namespace Workflow.Bridge.TimestampAlignment
+
+open Aeneas.Std
+
+/-- Decode the entire original unsigned word before any float conversion. -/
+def decode (x : U64) : UInt64 := UInt64.ofNat x.val
+
+@[simp]
+theorem decode_toNat (x : U64) : (decode x).toNat = x.val := by
+  simp only [decode, UInt64.toNat_ofNat']
+  exact Nat.mod_eq_of_lt x.hmax
+
+/-- Encode the successful value or original timing error without changing it. -/
+def encode (result : Except Workflow.Subject.Implementation.TimestampAlignment.Error Float)
+    : core.result.Result Float Generated.timestamp_alignment.TimingError :=
+  match result with
+  | .ok value => .Ok value
+  | .error .reversed => .Err .Reversed
+  | .error .outsidePeriod => .Err .OutsidePeriod
+
+end Workflow.Bridge.TimestampAlignment

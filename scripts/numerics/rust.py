@@ -4,6 +4,7 @@ from pathlib import Path
 import shutil
 
 from .emit import rust_source
+from .integration import ToolError
 
 
 def model_files(path):
@@ -21,12 +22,12 @@ def tools(request, proof_only=False):
         value=selection.get(name) or os.environ.get('FLARE_'+('AENEAS_LEAN_LIB' if name=='lean_lib' else name.upper()))
         if not value and name!='lean_lib': value=shutil.which(name)
         if not value:
-            raise RuntimeError('Missing optional Rust tool '+name+'; configure rust_tools or FLARE_'+name.upper())
+            raise ToolError('missing_tool', 'Missing optional Rust tool '+name+'; configure rust_tools or FLARE_'+name.upper())
         path=Path(value).expanduser().resolve()
         if name=='lean_lib':
-            if not (path/'Aeneas.olean').is_file(): raise RuntimeError('Missing compiled Aeneas.olean in '+str(path))
+            if not (path/'Aeneas.olean').is_file(): raise ToolError('missing_tool', 'Missing compiled Aeneas.olean in '+str(path))
         elif not path.is_file() or not os.access(path,os.X_OK):
-            raise RuntimeError('Rust tool is not executable: '+str(path))
+            raise ToolError('missing_tool', 'Rust tool is not executable: '+str(path))
         result[name]=path
     return result
 

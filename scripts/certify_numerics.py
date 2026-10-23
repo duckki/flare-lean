@@ -47,7 +47,13 @@ def main():
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
-                'source_profiles': {'python_arrays': {'request_field':'python_arrays',
+                'source_profiles': {'rust_application': {
+                    'request_field': 'rust_application',
+                    'inputs': 'dependency-free multi-module Rust crate; original public API',
+                    'contract': 'reviewed Workflow.Contract.Statement applied to the fresh extracted entry',
+                    'proof': 'authored Lean modules; root type and transitive axioms checked independently',
+                    'target': 'rust-aeneas; translator support and explicit semantic bridges required'},
+                    'python_arrays': {'request_field':'python_arrays',
                     'inputs':'two built-in list operands: rank-two left matrix, rank-one/two right operand',
                     'dimensions':'1 through 8; at most 32 output entries',
                     'operations':'fixed indexing, fresh scalar updates, shape assertions, local helpers, range(size), ascending separately rounded products',

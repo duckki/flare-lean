@@ -1,0 +1,88 @@
+module
+
+public import Workflow.Bridge.IMUEpochApplication
+public import Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+
+/-! Reviewed original-input contract. This module does not import the certificate
+or the extracted function bodies. The provider applies Statement to the freshly
+extracted public API. Sensor/model uncertainty is outside this arithmetic claim. -/
+
+@[expose] public section
+
+namespace Workflow.Contract
+
+open Aeneas.Std (U64 Slice)
+open Flare.Binary64.Value
+open Workflow.Subject.Definitions.Input.IMUEpoch
+open Workflow.Subject.Implementation.IMUEpochApplication
+open Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+open Workflow.Bridge.IMUEpochApplication
+
+/-- First failing input check, in source order; no state arithmetic is run. -/
+def sequenceValidation (previous : UInt64) (samples : List Sample) : Option Error :=
+  match samples with
+  | [] => none
+  | sample :: rest =>
+      if supportedAcceleration sample.acceleration then
+        match Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds previous
+                sample.timestamp with
+        | .error error => some (.timing error)
+        | .ok _ => sequenceValidation sample.timestamp rest
+      else
+        some .unsupportedAcceleration
+
+/-- Size precedes threshold, which precedes the ordered sample checks. -/
+def validation (previous : UInt64) (samples : List Sample) (threshold : Float) : Option Error :=
+  if samples.length != 48 then
+    some .wrongSize
+  else if !supportedThreshold threshold then
+    some .unsupportedThreshold
+  else
+    sequenceValidation previous samples
+
+/-- Admission is stated over the original integer epochs and binary64 words. -/
+def Admitted (previous : UInt64) (samples : List Sample) (threshold : Float) : Prop :=
+  samples.length = 48
+  ∧ SequenceDomain previous samples
+  ∧ threshold.isFinite = true
+  ∧ |value threshold| ≤ 1
+
+/-- Uncertain decisions are confined to this exact-reference neighborhood.
+It includes position error and the separately rounded margin subtraction. -/
+noncomputable def uncertainRadius : ℝ :=
+  (2 : ℝ) ^ (-28 : Int) + (2 : ℝ) ^ (-51 : Int) + 48 * (2 : ℝ) ^ (-35 : Int)
+
+def Success (previous : UInt64) (samples : List Sample) (threshold : Float) (output : Assessment)
+    : Prop :=
+  Guarantees previous samples threshold output
+  ∧ (output.decision = .uncertain
+      → |(Workflow.Subject.Definitions.Theorems.IMUEpochApplication.referenceFrom
+            previous samples (0, 1 / 2)).1
+          - value threshold|
+        ≤ uncertainRadius)
+
+/-- Total source correspondence, complete validation, all error exits, finite
+successful execution, 48-event arithmetic allowance and all decision regions. -/
+def Statement
+    (assess
+      : U64 → Slice Generated.imu_epoch.Sample → Float
+        → Aeneas.Std.Result
+            (Aeneas.Std.core.result.Result Generated.imu_epoch.Assessment
+              Generated.imu_epoch.Error))
+    : Prop :=
+  ∀ previous samples threshold,
+    let p := Workflow.Bridge.TimestampAlignment.decode previous
+    let xs := samples.val.map decodeSample
+    assess previous samples threshold
+      = .ok
+          (encodeWith encodeAssessment
+            (Workflow.Subject.Implementation.IMUEpochApplication.assess p xs threshold))
+    ∧ (validation p xs threshold = none ↔ Admitted p xs threshold)
+    ∧ match validation p xs threshold with
+      | some error => assess previous samples threshold = .ok (.Err (encodeError error))
+      | none =>
+          ∃ output,
+            assess previous samples threshold = .ok (.Ok (encodeAssessment output))
+            ∧ Success p xs threshold output
+
+end Workflow.Contract

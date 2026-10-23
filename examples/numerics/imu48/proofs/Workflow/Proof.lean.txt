@@ -1,0 +1,44 @@
+module
+
+public import Workflow.Equivalence.IMUEpochApplication
+public import Workflow.Regions
+
+/-! One entry theorem closes every outcome of the original Rust API. -/
+
+@[expose] public section
+
+namespace Workflow.Certificate
+
+open Workflow.Contract Workflow.Bridge.IMUEpochApplication
+
+theorem certificate : Statement Workflow.Generated.imu_epoch.assess := by
+  intro previous samples threshold
+  dsimp only
+  refine ⟨Workflow.Equivalence.IMUEpochApplication.assess_equiv previous samples threshold,
+    Workflow.Regions.validation_iff _ _ _, ?_⟩
+  cases gate
+        : validation (Workflow.Bridge.TimestampAlignment.decode previous)
+            (samples.val.map decodeSample) threshold with
+  | none =>
+      obtain ⟨output, run, success⟩ := Workflow.Regions.complete _ _ _
+        ((Workflow.Regions.validation_iff _ _ _).mp gate)
+      refine ⟨output, ?_, success⟩
+      rw [Workflow.Equivalence.IMUEpochApplication.assess_equiv, run]
+      rfl
+  | some error =>
+      rw [Workflow.Equivalence.IMUEpochApplication.assess_equiv]
+      have gateIdentity :=
+        Workflow.Regions.assess_validation (Workflow.Bridge.TimestampAlignment.decode previous)
+          (samples.val.map decodeSample) threshold
+      rw [gate] at gateIdentity
+      cases run
+            : Workflow.Subject.Implementation.IMUEpochApplication.assess
+                (Workflow.Bridge.TimestampAlignment.decode previous) (samples.val.map decodeSample)
+                threshold with
+      | ok output => simp [run, Workflow.Regions.errorOf] at gateIdentity
+      | error e =>
+          have equal : e = error := by simpa [run, Workflow.Regions.errorOf] using gateIdentity
+          subst e
+          rfl
+
+end Workflow.Certificate

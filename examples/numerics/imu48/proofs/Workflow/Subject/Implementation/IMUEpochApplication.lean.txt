@@ -1,0 +1,85 @@
+module
+
+public import Workflow.Subject.Definitions.Input.IMUEpoch
+public import Workflow.Subject.Implementation.IMUEpochPrediction
+public import Workflow.Subject.Implementation.TimestampAlignment
+
+/-! Checked mean-only 48-event prediction and rounded threshold decision. Unsupported inputs are
+rejected; uncertainty is preserved near the threshold. Arithmetic allowances do not bound physical
+sensor or model error. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.IMUEpochApplication
+
+open Workflow.Subject.Definitions.Input.IMUEpoch Workflow.Subject.Implementation.IMUEpochPrediction
+
+def supportedAcceleration (a : Float) : Bool :=
+  a.isFinite && decide ((-4.0 : Float) ≤ a) && decide (a ≤ (4.0 : Float))
+
+def supportedThreshold (x : Float) : Bool :=
+  x.isFinite && decide ((-1.0 : Float) ≤ x) && decide (x ≤ (1.0 : Float))
+
+inductive Error where
+  | wrongSize
+  | unsupportedAcceleration
+  | unsupportedThreshold
+  | timing (error : Workflow.Subject.Implementation.TimestampAlignment.Error)
+deriving Repr, DecidableEq
+
+inductive Decision where
+  | below
+  | above
+  | uncertain
+deriving Repr, DecidableEq, BEq
+
+def padding : Float := Float.ofBits 0x3e30000000000000
+
+def classify (position threshold : Float) : Decision :=
+  let margin := position - threshold
+  if margin < -padding then
+    .below
+  else if padding < margin then
+    .above
+  else
+    .uncertain
+
+def advance (previous : UInt64) (sample : Sample) (state : Float × Float)
+    : Except Error (Float × Float) :=
+  if supportedAcceleration sample.acceleration then
+    match Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds previous
+            sample.timestamp with
+    | .error error => .error (.timing error)
+    | .ok seconds => .ok (step state.1 state.2 sample.acceleration seconds)
+  else
+    .error .unsupportedAcceleration
+
+def runFrom (previous : UInt64) (samples : List Sample) (state : Float × Float)
+    : Except Error (Float × Float) :=
+  match samples with
+  | [] => .ok state
+  | sample :: rest =>
+      match advance previous sample state with
+      | .error error => .error error
+      | .ok next => runFrom sample.timestamp rest next
+
+def errorAllowance : Float := Float.ofBits 0x3e18000000000000
+
+structure Assessment where
+  position : Float
+  velocity : Float
+  errorAllowance : Float
+  decision : Decision
+
+def assess (previous : UInt64) (samples : List Sample) (threshold : Float)
+    : Except Error Assessment :=
+  if samples.length != 48 then
+    .error .wrongSize
+  else if !supportedThreshold threshold then
+    .error .unsupportedThreshold
+  else
+    match runFrom previous samples (0.0, 0.5) with
+    | .error error => .error error
+    | .ok state => .ok ⟨state.1, state.2, errorAllowance, classify state.1 threshold⟩
+
+end Workflow.Subject.Implementation.IMUEpochApplication

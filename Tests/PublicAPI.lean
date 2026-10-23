@@ -12,6 +12,7 @@ example (columns : Nat) (a : Array Float) (row column : Nat)
   rfl
 
 #check Flare.Analysis.PseudoinversePerturbation.difference_norm
+#check Flare.Binary64.NaturalConversion.uint64_exact
 #check Flare.Binary64.Nearest.add_error_nearest
 #check Flare.Matrix.Pseudoinverse.symmetricPseudoInverse_accuracy
 

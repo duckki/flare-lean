@@ -714,7 +714,7 @@
           "source": "paper/experiments/imu48-matched-maintenance/inputs/rust/src/imu_epoch.rs",
           "target": "benchmarks/numerics/scale/imu48.rs",
           "source_sha256": "85cee37a1803f7434b2e1e3cf7325dc7221ec1b811e87515ba13f8821caba351",
-          "notes": "Original 48-event Rust application retained unchanged as an explicit source-admission challenge, not an automatic certificate."
+          "notes": "Original 48-event Rust application retained unchanged. Checked through the separate application proof-bundle route, including original integer timing and public API; not admitted by the automatic scalar parser."
         },
         {
           "source": "paper/experiments/pipeline-verification/p1/relative-graph.json.gz",
@@ -747,6 +747,134 @@
           "target": "scripts/numerics/counterexample.py",
           "source_sha256": "b8bc5dd5844f4172d355fd22fc376b8343c4578439b4504e7fd6c10550fc86bb",
           "notes": "Reuses the positive exact scalar reference 1/(2^54+1). Adds a new kernel-checked refutation of the admitted standalone Python kernel, input-domain and axiom checks, saved-source replay and false-output rejection."
+        }
+      ]
+    },
+    {
+      "source_repository": "kalman-filter-lean",
+      "source_revision": "4d5330e176a6bf7059013b5689d7de9b07507ae4",
+      "source_toolchain": "leanprover/lean4:v4.35.0",
+      "snapshot_note": "Original 48-event proof closure uses matched-maintenance frozen Lean inputs where present; other support modules and the translator patch use the supplied working snapshot. Per-file hashes identify the imported bytes. New validation/uncertain-region/root proofs are authored in FLARE. Source checkout unchanged.",
+      "modules": [
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/RustKalman/Proofs/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Proofs/IMUEpochApplication.lean.txt",
+          "source_sha256": "b9d530fe19e45a5a4242514b3e900bacbb871cfcbceecb3c34cc35d8f30942a4",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/Kalman/Proofs/FloatIMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Proofs/FloatIMUEpochApplication.lean.txt",
+          "source_sha256": "34ede8067a7eb09a53acfcec5bd8646b4dcdba3f90f41e39ac8a2ad1827a50c4",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/Kalman/Implementation/Correctness/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/Correctness/IMUEpochApplication.lean.txt",
+          "source_sha256": "2c0d134bccc527f4c5405b4c1833c479beda9bb5d5a63c4112401875cb25df9b",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Definitions/Theorems/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Definitions/Theorems/IMUEpochApplication.lean.txt",
+          "source_sha256": "37d84d95172a9a694585cee375024bb2d3e75b3f8c117ae92ea6b93568dc9b81",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Definitions/Theorems/IMUEpochPrediction.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Definitions/Theorems/IMUEpochPrediction.lean.txt",
+          "source_sha256": "e5718ad9c204847369d9980568d8e2c0852a7e100e40bc70dac0871c0573456f",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Definitions/Input/IMUEpoch.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Definitions/Input/IMUEpoch.lean.txt",
+          "source_sha256": "882e1fba75876422c40c9b5de4d24aeab7380fdb880f928ca2f421fb1f9a1af1",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/Kalman/Implementation/Correctness/IMUEpochPrediction.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/Correctness/IMUEpochPrediction.lean.txt",
+          "source_sha256": "3a88b27d253c4104df37e817bba685d69d68a662f15d48baf187acaa0c269b58",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Implementation/Correctness/TimestampAlignment.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/Correctness/TimestampAlignment.lean.txt",
+          "source_sha256": "c23dab3f44f206b855235c92a9d2cedb6971b801b99eda9f41eec78e03b96c55",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Implementation/TimestampAlignment.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/TimestampAlignment.lean.txt",
+          "source_sha256": "11f68b3947f767ac738cc9bf9f46e257225d3be88577abf71d21e314774c6443",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Implementation/IMUEpochPrediction.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/IMUEpochPrediction.lean.txt",
+          "source_sha256": "aad55776459489e717cdb93ed47961938eb6e89d12bf157708f31be97d4c5521",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/Kalman/Implementation/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Implementation/IMUEpochApplication.lean.txt",
+          "source_sha256": "8e17338289ced71ae5359601cf997662efe47aa6e7f25993ce2f3756e9f7f514",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/Kalman/Proofs/FloatIMUEpochPrediction.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Proofs/FloatIMUEpochPrediction.lean.txt",
+          "source_sha256": "e913cd1fd3ae389ddfc7ae1f536824f496612ae5b10ed9ed53c7727fe2fa9cc6",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Proofs/FloatTimestampAlignment.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Subject/Proofs/FloatTimestampAlignment.lean.txt",
+          "source_sha256": "ecc6dba0c4954858379e782886cec6ded546d399a7777f80c6a35f8dbb33641e",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "Kalman/Proofs/FloatNaturalConversion.lean",
+          "target": "Flare/Binary64/NaturalConversion.lean",
+          "source_sha256": "c882d1693e55421abcbdb90557099027c0a7e55db203b86ac14df21492fa27ba",
+          "notes": "Extracts native UInt64 exact-conversion wrappers over the existing FLARE natural-conversion model, retaining the strict 2^53 bound and ordered integer subtraction."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/RustKalman/Equivalence/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Equivalence/IMUEpochApplication.lean.txt",
+          "source_sha256": "693951dfe5b38b0d5487bf67496b87c9c63c3b63bcf01fd25ddcbaf4dc87ea65",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/RustKalman/Bridge/IMUEpochApplication.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Bridge/IMUEpochApplication.lean.txt",
+          "source_sha256": "8acc0de82a957b843f7ec5138238698a46cfdc125d09c805850c2d6b26295e18",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/RustKalman/Bridge/TimestampAlignment.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Bridge/TimestampAlignment.lean.txt",
+          "source_sha256": "4e3d08bb8690cf395921caff486a2b67f58c364a9b62e07f2d383d2097c5e2ce",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model."
+        },
+        {
+          "source": "paper/experiments/imu48-matched-maintenance/inputs/lean/RustKalman/Equivalence/TimestampAlignment.lean",
+          "target": "examples/numerics/imu48/proofs/Workflow/Equivalence/TimestampAlignment.lean.txt",
+          "source_sha256": "9134b72535540e06a287780049401b281e9eaebb3e02808194c449443b00e06e",
+          "notes": "Preserves original 48-event assumptions and arithmetic schedules; adapts namespaces/imports, module visibility and width-100 formatting. Optional application proof templates require fresh extracted Rust functions, not a saved generated model. Omits the unreachable ticks_to_float helper theorem; its cast is checked inside the elapsed_seconds source bridge."
+        },
+        {
+          "source": "rust/src/timestamp_alignment.rs",
+          "target": "benchmarks/numerics/scale/timestamp_alignment.rs",
+          "source_sha256": "b92b4c82d2fee5914b947fedb4ef031e2eb9e82c3bdc87cb4c5ef9bbffcb0338",
+          "notes": "Companion UInt64 timing module, unchanged; linked with retained original imu48.rs in the application proof bundle."
+        },
+        {
+          "source": "rust/aeneas/patches/u64-f64.patch",
+          "target": "tools/numerics/u64-f64.patch",
+          "source_sha256": "1aea598502a5978dd8a9dae6476bb6c15af9fb93248210992ba9d2d65fbc1282",
+          "notes": "Lean-only Aeneas UInt64-to-f64 extraction patch over the pinned f64 fork; source-model trust boundary, not a compiler proof."
         }
       ]
     }

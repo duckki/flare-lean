@@ -1,0 +1,27 @@
+module
+
+/-! Checked conversion of bounded unsigned nanosecond intervals. Subtraction
+precedes binary64 conversion. Reversed or unsupported intervals are rejected. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.TimestampAlignment
+
+inductive Error where
+  | reversed
+  | outsidePeriod
+deriving Repr, BEq, DecidableEq
+
+/-- A separate integer subtraction, conversion and multiplication by the stored
+binary64 scale. The supported interval is between two and five milliseconds. -/
+def elapsedSeconds (previous current : UInt64) : Except Error Float :=
+  if current < previous then
+    .error .reversed
+  else
+    let ticks := current - previous
+    if ticks < 2000000 || 5000000 < ticks then
+      .error .outsidePeriod
+    else
+      .ok (ticks.toFloat * 1.0e-9)
+
+end Workflow.Subject.Implementation.TimestampAlignment

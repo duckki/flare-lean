@@ -1,0 +1,219 @@
+module
+
+public import Flare.Binary64.Pipeline
+public import Workflow.Subject.Proofs.FloatTimestampAlignment
+public import Workflow.Subject.Implementation.Correctness.IMUEpochPrediction
+
+/-! Finite binary64 prediction and original-integer timing composition for 48
+independent acceleration words. The generous local bounds are compositional;
+this is not a tight-error result or a matched tool-quality comparison. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Proofs.FloatIMUEpochPrediction
+
+open Flare.Binary64.Pipeline Flare.Binary64.Value Workflow.Subject.Implementation.IMUEpochPrediction
+  Workflow.Subject.Definitions.Theorems.IMUEpochPrediction
+  Workflow.Subject.Implementation.Correctness.IMUEpochPrediction
+
+set_option maxHeartbeats 1000000
+
+noncomputable def roundoff : ℝ := (2 : ℝ) ^ (-47 : Int)
+noncomputable def timeError : ℝ := (2 : ℝ) ^ (-55 : Int)
+noncomputable def increment : ℝ := (2 : ℝ) ^ (-35 : Int)
+
+private theorem smallMul {W I E V J F i j : ℝ} {n p : Float}
+    (a : NativeBounds 0 W I E n i) (b : NativeBounds 0 V J F p j)
+    (magnitude : W * V ≤ 32)
+    : NativeBounds 0 (W * V + roundoff) (I * J) (E * V + I * F + roundoff) (n * p) (i * j) := by
+  have size := abs_product (native_bound a.bounds) (native_bound b.bounds)
+  have result := native_mul a b 5 (by norm_num) (by norm_num) (by
+    norm_num at size ⊢
+    exact size.trans magnitude)
+  simpa [roundoff] using result
+
+private theorem smallAdd {W I E V J F i j : ℝ} {n p : Float}
+    (a : NativeBounds 0 W I E n i) (b : NativeBounds 0 V J F p j)
+    (magnitude : W + V ≤ 32)
+    : NativeBounds 0 (W + V + roundoff) (I + J) (E + F + roundoff) (n + p) (i + j) := by
+  have size := (abs_add_le (value n) (value p)).trans
+    (add_le_add (native_bound a.bounds) (native_bound b.bounds))
+  have result := native_add a b 5 (by norm_num) (by norm_num) (by
+    norm_num at size ⊢
+    exact size.trans magnitude)
+  simpa [roundoff] using result
+
+private theorem half {W I E i : ℝ} {n : Float}
+    (a : NativeBounds 0 W I E n i) (magnitude : W / 2 ≤ 32)
+    : NativeBounds 0 (W / 2 + 2 * roundoff) (I / 2) (E / 2 + 2 * roundoff) (n / 2.0) (i / 2) := by
+  have twoValue : value (2.0 : Float) = 2 := by
+    change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-51 : Int) = 2
+    norm_num
+  have two : NativeBounds 2 0 2 0 (2.0 : Float) 2 := by
+    refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [twoValue]
+  have size := abs_div_upper (native_bound a.bounds) (by norm_num : (0 : ℝ) < 2)
+    (by norm_num : (2 : ℝ) ≤ 2)
+  have result := native_div a two (by norm_num) (by norm_num) 5 (by norm_num) (by norm_num) (by
+    rw [twoValue]
+    norm_num at size ⊢
+    exact size.trans magnitude)
+  convert result using 1 <;> norm_num [roundoff]
+
+private theorem recenter {W I E I' E' W' i : ℝ} {n : Float}
+    (a : NativeBounds 0 W I E n i) (ideal : I ≤ I') (error : E ≤ E')
+    (width : I' + E' ≤ W')
+    : NativeBounds 0 W' I' E' n i := by
+  refine ⟨a.finite, ?_, a.bounds.ideal.trans ideal, a.bounds.error.trans error⟩
+  have size := (abs_add_le (value n - i) i).trans (add_le_add a.bounds.error a.bounds.ideal)
+  rw [sub_add_cancel] at size
+  simp only [sub_zero]
+  linarith
+
+/-- Carries incoming mean error and original-time conversion error through the
+actual T1 operation order, including finite execution. -/
+theorem step_accuracy (n : Nat) (hn : n ≤ 47)
+    (position velocity acceleration dt : Float) (P V D : ℝ)
+    (hp : NativeBounds 0 1 (n / 50) (n * increment) position P)
+    (hv : NativeBounds 0 2 (1 / 2 + n / 50) (n * increment) velocity V)
+    (ha : NativeBounds 0 4 4 0 acceleration (value acceleration))
+    (ht : NativeBounds 0 (1 / 100) (1 / 200) timeError dt D)
+    : NativeBounds 0 1 ((n + 1) / 50) ((n + 1) * increment)
+        (step position velocity acceleration dt).1
+        (P + D * V + D * D * value acceleration / 2)
+      ∧ NativeBounds 0 2 (1 / 2 + (n + 1) / 50) ((n + 1) * increment)
+          (step position velocity acceleration dt).2 (V + D * value acceleration) := by
+  have hsq := smallMul ht ht (by norm_num)
+  have hacc := smallMul hsq ha (by norm_num [roundoff])
+  have hhalf := half hacc (by norm_num [roundoff])
+  have htrans := smallMul ht hv (by norm_num)
+  have htranslated := smallAdd hp htrans (by norm_num [roundoff])
+  have hposition := smallAdd htranslated hhalf (by norm_num [roundoff])
+  have hdv := smallMul ht ha (by norm_num)
+  have hvelocity := smallAdd hv hdv (by norm_num [roundoff])
+  have hnR : (n : ℝ) ≤ 47 := by exact_mod_cast hn
+  have hn0 : (0 : ℝ) ≤ n := Nat.cast_nonneg _
+  constructor
+  · apply recenter hposition
+    · norm_num
+      linarith
+    · norm_num [roundoff, timeError, increment]
+      linarith
+    · norm_num [increment]
+      linarith
+  · apply recenter hvelocity
+    · norm_num
+      linarith
+    · norm_num [roundoff, timeError, increment]
+      linarith
+    · norm_num [increment]
+      linarith
+
+/-- Conditional composition through all 48 prefixes. The time contracts must
+still be supplied from the original timestamp API by the caller proof. -/
+theorem horizon (acceleration dt : Nat → Float) (elapsed : Nat → ℝ)
+    (ha : ∀ i < 48, NativeBounds 0 4 4 0 (acceleration i) (value (acceleration i)))
+    (ht : ∀ i < 48, NativeBounds 0 (1 / 100) (1 / 200) timeError (dt i) (elapsed i))
+    : ∀ n : Nat,
+        n ≤ 48
+        → NativeBounds 0 1 (n / 50) (n * increment) (trajectory acceleration dt n).1
+            (reference (fun i => value (acceleration i)) elapsed n).1
+          ∧ NativeBounds 0 2 (1 / 2 + n / 50) (n * increment)
+              (trajectory acceleration dt n).2
+              (reference (fun i => value (acceleration i)) elapsed n).2 := by
+  intro n
+  induction n with
+  | zero =>
+      intro _
+      have zeroValue : value (0.0 : Float) = 0 := rfl
+      have halfValue : value (0.5 : Float) = (1 / 2 : ℝ) := by
+        change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-53 : Int) = 1 / 2
+        norm_num
+      have position : NativeBounds 0 1 0 0 (0.0 : Float) 0 := by
+        refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [zeroValue]
+      have velocity : NativeBounds 0 2 (1 / 2) 0 (0.5 : Float) (1 / 2) := by
+        refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [halfValue]
+      constructor
+      · simpa [trajectory, reference] using position
+      · simpa [trajectory, reference] using velocity
+  | succ n ih =>
+      intro hn
+      have previous := ih (by omega)
+      simpa only [trajectory, reference, Nat.cast_add, Nat.cast_one]
+        using step_accuracy n (by omega) _ _ _ _ _ _ _ previous.1 previous.2
+          (ha n (by omega)) (ht n (by omega))
+
+/-- A universal arithmetic allowance below the frozen 0.1 mm requirement,
+conditional on the explicit incoming timestamp and acceleration contracts. -/
+theorem displacement_budget (acceleration dt : Nat → Float) (elapsed : Nat → ℝ)
+    (ha : ∀ i < 48, NativeBounds 0 4 4 0 (acceleration i) (value (acceleration i)))
+    (ht : ∀ i < 48, NativeBounds 0 (1 / 100) (1 / 200) timeError (dt i) (elapsed i))
+    : (trajectory acceleration dt 48).1.isFinite = true
+      ∧ |value (trajectory acceleration dt 48).1
+          - (reference (fun i => value (acceleration i)) elapsed 48).1|
+        ≤ 48 * increment
+      ∧ 48 * increment < 1 / 10000 := by
+  have certificate := horizon acceleration dt elapsed ha ht 48 (by omega)
+  exact ⟨certificate.1.finite, certificate.1.bounds.error, by norm_num [increment]⟩
+
+/-- The actual successful timestamp return supplies the original-integer
+contract used by every motion step. -/
+theorem time_contract (previous current : UInt64) (seconds : Float)
+    (run
+      : Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds previous current
+        = .ok seconds)
+    : NativeBounds 0 (1 / 100) (1 / 200) timeError seconds
+        (((current.toNat : ℝ) - previous.toNat) / 1000000000) := by
+  have accuracy := Workflow.Subject.Proofs.FloatTimestampAlignment.returned_accuracy previous
+      current seconds run
+  have domain := Workflow.Subject.Proofs.FloatTimestampAlignment.success_domain previous current
+      seconds run
+  have order : previous.toNat ≤ current.toNat := domain.1
+  have lower : (0 : ℝ) ≤ (current.toNat : ℝ) - previous.toNat := by
+    exact sub_nonneg.mpr (by exact_mod_cast order)
+  have upper : (current.toNat : ℝ) - previous.toNat ≤ 5000000 := by
+    have h := domain.2.2
+    exact_mod_cast (show current.toNat - previous.toNat ≤ 5000000 from h)
+  have ideal : |((current.toNat : ℝ) - previous.toNat) / 1000000000| ≤ 1 / 200 := by
+    rw [abs_of_nonneg (div_nonneg lower (by norm_num))]
+    linarith
+  refine ⟨accuracy.1, ?_, ideal, accuracy.2⟩
+  have size := (abs_sub_le (value seconds)
+    (((current.toNat : ℝ) - previous.toNat) / 1000000000) 0).trans
+    (add_le_add accuracy.2 (by simpa only [sub_zero] using ideal))
+  norm_num at size ⊢
+  linarith
+
+/-- Original integer epochs can vary arbitrarily within the supported period
+and unsigned representation. No absolute-epoch Float conversion is used. -/
+theorem original_epochs_displacement_budget (acceleration : Nat → Float)
+    (epochs : Nat → UInt64)
+    (ha : ∀ i < 48, NativeBounds 0 4 4 0 (acceleration i) (value (acceleration i)))
+    (ht
+      : ∀ i < 48,
+          Workflow.Subject.Implementation.Correctness.TimestampAlignment.Domain (epochs i)
+            (epochs (i + 1)))
+    : let dt := fun i => (epochs (i + 1) - epochs i).toFloat * 1.0e-9
+      let elapsed := fun i => ((epochs (i + 1)).toNat - (epochs i).toNat : ℝ) / 1000000000
+      (trajectory acceleration dt 48).1.isFinite = true
+      ∧ |value (trajectory acceleration dt 48).1
+          - (reference (fun i => value (acceleration i)) elapsed 48).1|
+        ≤ 48 * increment
+      ∧ 48 * increment < 1 / 10000 := by
+  apply displacement_budget acceleration _ _ ha
+  intro i hi
+  exact time_contract _ _ _ (Workflow.Subject.Proofs.FloatTimestampAlignment.complete _ _ (ht i hi))
+
+/-- Complete arithmetic certificate from the original input domain. -/
+theorem original_epochs_accuracy (acceleration : Nat → Float) (epochs : Nat → UInt64)
+    (domain : Domain acceleration epochs)
+    : Accuracy acceleration epochs := by
+  have ha : ∀ i < 48, NativeBounds 0 4 4 0 (acceleration i) (value (acceleration i)) := by
+    intro i hi
+    exact same _ 0 4 4 (domain.1 i hi).1 (by simpa using (domain.1 i hi).2) (domain.1 i hi).2
+  have h := original_epochs_displacement_budget acceleration epochs ha domain.2
+  exact ⟨h.1, h.2.1⟩
+
+theorem position_allowance_meets_budget : positionAllowance < (1 / 10000 : ℝ) := by
+  norm_num [positionAllowance]
+
+end Workflow.Subject.Proofs.FloatIMUEpochPrediction

@@ -290,7 +290,7 @@ baselines and use feedback to prioritize additional applications.
 
 `make numerics-scale` exercises the maintained progression in
 `benchmarks/numerics/scale.json`: 1/4/8/16/48/128 Kalman updates, 1/4/16/48 IMU
-motion updates, the original 48-event Rust admission challenge, and the original
+motion updates, the original 48-event Rust application proof bundle, and the original
 relative/global four-state covariance/correction graphs (7,758/7,761 operations).
 The [benchmark guide](../benchmarks/numerics/README.md) defines the domains,
 capability boundaries and recorded proof-stage timings. CI runs a smaller subset.
@@ -299,7 +299,9 @@ The bounded Python fixtures preserve the source worktree's scalar helpers and
 add explicit horizons with independent original observation inputs. The IMU loop
 uses an original Float `dt` shared across its steps; it does not certify the
 original UInt64 timestamp conversion, error-return branches or rounded decisions.
-Those remain explicit obligations of the unchanged Rust application fixture.
+Those are checked separately by the [Rust application proof bundle](../skills/verify-numerics/references/rust-applications.md),
+including all public API error exits and an exact-reference uncertain region.
+Select its optional scale case with the configured Charon/Aeneas tools.
 The large graph probes report untrusted candidates, without a Lean root or
 universal source bridge. They are not equivalent to completed application proofs.
 

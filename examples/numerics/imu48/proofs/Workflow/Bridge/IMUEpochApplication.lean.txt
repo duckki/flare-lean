@@ -1,0 +1,44 @@
+module
+
+public import Workflow.Generated.Types
+public import Workflow.Bridge.TimestampAlignment
+public import Workflow.Subject.Implementation.IMUEpochApplication
+
+/-! Stored-word relation for the mean-only IMU application. -/
+
+@[expose] public section
+
+namespace Workflow.Bridge.IMUEpochApplication
+
+open Aeneas.Std
+
+def decodeSample (s : Workflow.Generated.imu_epoch.Sample)
+    : Workflow.Subject.Definitions.Input.IMUEpoch.Sample :=
+  ⟨Workflow.Bridge.TimestampAlignment.decode s.timestamp, s.acceleration⟩
+
+def encodeError
+    : Workflow.Subject.Implementation.IMUEpochApplication.Error → Workflow.Generated.imu_epoch.Error
+  | .wrongSize => .WrongSize
+  | .unsupportedAcceleration => .UnsupportedAcceleration
+  | .unsupportedThreshold => .UnsupportedThreshold
+  | .timing .reversed => .Timing .Reversed
+  | .timing .outsidePeriod => .Timing .OutsidePeriod
+
+def encodeDecision
+    : Workflow.Subject.Implementation.IMUEpochApplication.Decision
+      → Workflow.Generated.imu_epoch.Decision
+  | .below => .Below
+  | .above => .Above
+  | .uncertain => .Uncertain
+
+def encodeAssessment (x : Workflow.Subject.Implementation.IMUEpochApplication.Assessment)
+    : Workflow.Generated.imu_epoch.Assessment :=
+  ⟨x.position, x.velocity, x.errorAllowance, encodeDecision x.decision⟩
+
+def encodeWith {α β : Type} (f : α → β)
+    : Except Workflow.Subject.Implementation.IMUEpochApplication.Error α
+      → core.result.Result β Workflow.Generated.imu_epoch.Error
+  | .ok x => .Ok (f x)
+  | .error e => .Err (encodeError e)
+
+end Workflow.Bridge.IMUEpochApplication

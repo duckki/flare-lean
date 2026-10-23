@@ -1,0 +1,126 @@
+module
+
+public import Workflow.Contract
+public import Workflow.Subject.Proofs.FloatIMUEpochApplication
+
+/-! Additional decision-region and error-exit proofs. The imported numerical
+proofs retain their original 48-event assumptions and operation order. -/
+
+@[expose] public section
+
+namespace Workflow.Regions
+
+open Flare.Binary64.Value Flare.Binary64.Pipeline
+open Workflow.Subject.Definitions.Input.IMUEpoch
+open Workflow.Subject.Implementation.IMUEpochApplication
+open Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+open Workflow.Subject.Proofs.FloatIMUEpochApplication
+open Workflow.Subject.Proofs.FloatIMUEpochPrediction
+open Workflow.Subject.Definitions.Theorems.IMUEpochApplication
+open Workflow.Contract
+
+set_option maxHeartbeats 2000000
+
+def errorOf {α : Type} : Except Error α → Option Error
+  | .ok _ => none
+  | .error error => some error
+
+/-- Rejection depends only on the ordered input gates, not floating state. -/
+theorem run_validation (previous : UInt64) (samples : List Sample) (state : Float × Float)
+    : errorOf (runFrom previous samples state) = sequenceValidation previous samples := by
+  induction samples generalizing previous state with
+  | nil => rfl
+  | cons sample rest ih =>
+      cases ha : supportedAcceleration sample.acceleration with
+      | false => simp [runFrom, advance, sequenceValidation, ha, errorOf]
+      | true =>
+          cases ht
+                : Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds previous
+                    sample.timestamp with
+          | error error => simp [runFrom, advance, sequenceValidation, ha, ht, errorOf]
+          | ok seconds =>
+              simpa only [runFrom, advance, sequenceValidation, ha, ite_true, ht]
+                using ih sample.timestamp
+                  (Workflow.Subject.Implementation.IMUEpochPrediction.step state.1 state.2
+                    sample.acceleration seconds)
+
+theorem assess_validation (previous : UInt64) (samples : List Sample) (threshold : Float)
+    : errorOf (assess previous samples threshold) = validation previous samples threshold := by
+  by_cases len : samples.length = 48
+  · cases ht : supportedThreshold threshold <;>
+      cases hr : runFrom previous samples (0.0, 0.5) <;>
+      simp [assess, validation, len, ht, errorOf, hr, ← run_validation previous samples (0.0, 0.5)]
+  · simp [assess, validation, len, errorOf]
+
+theorem validation_iff (previous : UInt64) (samples : List Sample) (threshold : Float)
+    : validation previous samples threshold = none ↔ Admitted previous samples threshold := by
+  rw [← assess_validation]
+  constructor
+  · intro h
+    cases run : assess previous samples threshold with
+    | error error => simp [run, errorOf] at h
+    | ok output =>
+        have result := returned previous samples threshold output run
+        exact ⟨result.1, result.2.1, result.2.2.1, result.2.2.2.1⟩
+  · rintro ⟨length, domain, ht, hb⟩
+    obtain ⟨output, run, _⟩ := assess_complete previous samples threshold length domain ⟨ht, hb⟩
+    simp [run, errorOf]
+
+/-- The uncertain branch includes both endpoints of the padding interval. -/
+theorem classify_uncertain (position threshold : Float) (ideal : ℝ)
+    (hp : position.isFinite = true) (hm : |value position| ≤ 1)
+    (ht : threshold.isFinite = true) (hb : |value threshold| ≤ 1)
+    (he : |value position - ideal| ≤ 48 * increment)
+    (hu : classify position threshold = .uncertain)
+    : |ideal - value threshold| ≤ uncertainRadius := by
+  have size := (abs_sub (value position) (value threshold)).trans (add_le_add hm hb)
+  obtain ⟨finite, error⟩ := Flare.Binary64.Arithmetic.sub_error position threshold 1 hp ht
+    (by norm_num) (by norm_num) (by norm_num at size ⊢; exact size)
+  have pf : padding.isFinite = true := by decide +kernel
+  have nf := Flare.Binary64.Order.neg_value padding pf
+  have lo : ¬position - threshold < -padding := by
+    intro h
+    simp [classify, h] at hu
+  have hi : ¬padding < position - threshold := by
+    intro h
+    simp [classify, lo, h] at hu
+  have lower := (Flare.Binary64.Order.lt_iff _ _ finite nf.1)
+  have upper := (Flare.Binary64.Order.lt_iff _ _ pf finite)
+  rw [lower] at lo
+  rw [upper] at hi
+  rw [nf.2, padding_value] at lo
+  rw [padding_value] at hi
+  have incoming := abs_le.mp he
+  have rounding := abs_le.mp error
+  apply abs_le.mpr
+  constructor <;> norm_num [uncertainRadius, increment] at * <;> linarith
+
+/-- Successful admitted calls also localize the uncertain decision. -/
+theorem complete (previous : UInt64) (samples : List Sample) (threshold : Float)
+    (admitted : Admitted previous samples threshold)
+    : ∃ output,
+        assess previous samples threshold = .ok output
+        ∧ Success previous samples threshold output := by
+  rcases admitted with ⟨length, domain, ht, hb⟩
+  obtain ⟨output, run, guarantees⟩ := assess_complete previous samples threshold length domain
+      ⟨ht, hb⟩
+  have zeroValue : value (0.0 : Float) = 0 := rfl
+  have halfValue : value (0.5 : Float) = (1 / 2 : ℝ) := by
+    change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-53 : Int) = _
+    norm_num
+  have hp : NativeBounds 0 1 0 0 (0.0 : Float) 0 := by
+    refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [zeroValue]
+  have hv : NativeBounds 0 2 (1 / 2) 0 (0.5 : Float) (1 / 2) := by
+    refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [halfValue]
+  obtain ⟨state, stateRun, position, _⟩ := runFrom_accuracy samples previous (0.0, 0.5)
+    (0, 1 / 2) 0 domain (by omega) (by simpa using hp) (by simpa using hv)
+  simp only [length, Nat.cast_zero, zero_add, Nat.cast_ofNat] at position
+  have guard := (supported_threshold_iff threshold).mpr ⟨ht, hb⟩
+  have result : output = ⟨state.1, state.2, errorAllowance, classify state.1 threshold⟩ := by
+    simpa [assess, length, guard, stateRun] using run.symm
+  refine ⟨output, run, guarantees, ?_⟩
+  rw [result]
+  exact classify_uncertain _ _ _ position.finite
+    (by simpa using position.bounds.centre) ht hb position.bounds.error
+
+end Workflow.Regions

@@ -1,0 +1,39 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "rust",
+  "source": "../../../benchmarks/numerics/scale/imu48.rs",
+  "function": "assess",
+  "target": "rust-aeneas",
+  "timeout_seconds": 240,
+  "rust_application": {
+    "entry": "imu_epoch::assess",
+    "files": {
+      "src/lib.rs": "lib.rs",
+      "src/imu_epoch.rs": "../../../benchmarks/numerics/scale/imu48.rs",
+      "src/timestamp_alignment.rs": "../../../benchmarks/numerics/scale/timestamp_alignment.rs",
+      "src/tests.rs": "tests.rs"
+    },
+    "lean_modules": {
+      "Workflow.Bridge.IMUEpochApplication": "proofs/Workflow/Bridge/IMUEpochApplication.lean.txt",
+      "Workflow.Bridge.TimestampAlignment": "proofs/Workflow/Bridge/TimestampAlignment.lean.txt",
+      "Workflow.Contract": "proofs/Workflow/Contract.lean.txt",
+      "Workflow.Equivalence.IMUEpochApplication": "proofs/Workflow/Equivalence/IMUEpochApplication.lean.txt",
+      "Workflow.Equivalence.TimestampAlignment": "proofs/Workflow/Equivalence/TimestampAlignment.lean.txt",
+      "Workflow.Proof": "proofs/Workflow/Proof.lean.txt",
+      "Workflow.Proofs.IMUEpochApplication": "proofs/Workflow/Proofs/IMUEpochApplication.lean.txt",
+      "Workflow.Regions": "proofs/Workflow/Regions.lean.txt",
+      "Workflow.Subject.Definitions.Input.IMUEpoch": "proofs/Workflow/Subject/Definitions/Input/IMUEpoch.lean.txt",
+      "Workflow.Subject.Definitions.Theorems.IMUEpochApplication": "proofs/Workflow/Subject/Definitions/Theorems/IMUEpochApplication.lean.txt",
+      "Workflow.Subject.Definitions.Theorems.IMUEpochPrediction": "proofs/Workflow/Subject/Definitions/Theorems/IMUEpochPrediction.lean.txt",
+      "Workflow.Subject.Implementation.Correctness.IMUEpochApplication": "proofs/Workflow/Subject/Implementation/Correctness/IMUEpochApplication.lean.txt",
+      "Workflow.Subject.Implementation.Correctness.IMUEpochPrediction": "proofs/Workflow/Subject/Implementation/Correctness/IMUEpochPrediction.lean.txt",
+      "Workflow.Subject.Implementation.Correctness.TimestampAlignment": "proofs/Workflow/Subject/Implementation/Correctness/TimestampAlignment.lean.txt",
+      "Workflow.Subject.Implementation.IMUEpochApplication": "proofs/Workflow/Subject/Implementation/IMUEpochApplication.lean.txt",
+      "Workflow.Subject.Implementation.IMUEpochPrediction": "proofs/Workflow/Subject/Implementation/IMUEpochPrediction.lean.txt",
+      "Workflow.Subject.Implementation.TimestampAlignment": "proofs/Workflow/Subject/Implementation/TimestampAlignment.lean.txt",
+      "Workflow.Subject.Proofs.FloatIMUEpochApplication": "proofs/Workflow/Subject/Proofs/FloatIMUEpochApplication.lean.txt",
+      "Workflow.Subject.Proofs.FloatIMUEpochPrediction": "proofs/Workflow/Subject/Proofs/FloatIMUEpochPrediction.lean.txt",
+      "Workflow.Subject.Proofs.FloatTimestampAlignment": "proofs/Workflow/Subject/Proofs/FloatTimestampAlignment.lean.txt"
+    }
+  }
+}

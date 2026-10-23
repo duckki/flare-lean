@@ -1,0 +1,41 @@
+module
+
+public import Workflow.Subject.Implementation.IMUEpochApplication
+public import Workflow.Subject.Implementation.Correctness.IMUEpochPrediction
+public import Workflow.Subject.Definitions.Theorems.IMUEpochApplication
+
+/-! Application domain and contract definitions. Completed witnesses are in
+Workflow.Subject.Proofs.FloatIMUEpochApplication; these definitions alone are not proofs. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+
+open Workflow.Subject.Definitions.Input.IMUEpoch Workflow.Subject.Implementation.IMUEpochApplication
+  Workflow.Subject.Definitions.Theorems.IMUEpochApplication Flare.Binary64.Value
+
+def SequenceDomain (previous : UInt64) (samples : List Sample) : Prop :=
+  match samples with
+  | [] => True
+  | sample :: rest =>
+      (sample.acceleration.isFinite = true ∧ |value sample.acceleration| ≤ 4)
+      ∧ Workflow.Subject.Implementation.Correctness.TimestampAlignment.Domain previous
+          sample.timestamp
+      ∧ SequenceDomain sample.timestamp rest
+
+def DecisionSound (decision : Decision) (position threshold : ℝ) : Prop :=
+  match decision with
+  | .below => position < threshold
+  | .above => threshold < position
+  | .uncertain => True
+
+def Guarantees (previous : UInt64) (samples : List Sample) (threshold : Float) (result : Assessment)
+    : Prop :=
+  result.position.isFinite = true
+  ∧ result.velocity.isFinite = true
+  ∧ result.errorAllowance = errorAllowance
+  ∧ |value result.position - (referenceFrom previous samples (0, 1 / 2)).1|
+    ≤ Workflow.Subject.Implementation.Correctness.IMUEpochPrediction.positionAllowance
+  ∧ DecisionSound result.decision (referenceFrom previous samples (0, 1 / 2)).1 (value threshold)
+
+end Workflow.Subject.Implementation.Correctness.IMUEpochApplication

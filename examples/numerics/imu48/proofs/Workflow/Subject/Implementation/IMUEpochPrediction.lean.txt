@@ -1,0 +1,28 @@
+module
+
+/-! Operation-ordered binary64 mean prediction in SI units. This is the
+mean-only eight-operation T1 motion graph, without covariance or correction.
+No reassociation, fused multiply-add or absolute-epoch conversion is requested. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.IMUEpochPrediction
+
+def step (position velocity acceleration dt : Float) : Float × Float :=
+  let squared := dt * dt
+  let accelerated := squared * acceleration
+  let half := accelerated / 2.0
+  let translation := dt * velocity
+  let translated := position + translation
+  let nextPosition := translated + half
+  let velocityIncrement := dt * acceleration
+  let nextVelocity := velocity + velocityIncrement
+  (nextPosition, nextVelocity)
+
+def trajectory (acceleration dt : Nat → Float) : Nat → Float × Float
+  | 0 => (0.0, 0.5)
+  | n + 1 =>
+      let previous := trajectory acceleration dt n
+      step previous.1 previous.2 (acceleration n) (dt n)
+
+end Workflow.Subject.Implementation.IMUEpochPrediction

@@ -1,0 +1,248 @@
+module
+
+public import Workflow.Subject.Proofs.FloatIMUEpochPrediction
+public import Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+
+/-! Admission, finite execution, accumulated original-input accuracy and rounded decision
+certificates for the complete mean-only prediction API. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Proofs.FloatIMUEpochApplication
+
+open Workflow.Subject.Definitions.Input.IMUEpoch Workflow.Subject.Implementation.IMUEpochApplication
+  Workflow.Subject.Implementation.IMUEpochPrediction
+  Workflow.Subject.Implementation.Correctness.IMUEpochApplication
+  Workflow.Subject.Definitions.Theorems.IMUEpochApplication Flare.Binary64.Pipeline
+  Workflow.Subject.Proofs.FloatIMUEpochPrediction Flare.Binary64.Value
+
+set_option maxHeartbeats 1000000
+
+private theorem four_value : value (4.0 : Float) = 4 := by
+  change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-50 : Int) = _
+  norm_num
+
+private theorem negative_four_value : value (-4.0 : Float) = -4 := by
+  simpa only [four_value] using (Flare.Binary64.Order.neg_value (4.0 : Float) (by decide +kernel)).2
+
+theorem supported_acceleration_iff (a : Float)
+    : supportedAcceleration a = true ↔ a.isFinite = true ∧ |value a| ≤ 4 := by
+  simp only [supportedAcceleration, Bool.and_eq_true, decide_eq_true_eq]
+  constructor
+  · rintro ⟨⟨hf, hl⟩, hu⟩
+    have lo := (Flare.Binary64.Order.le_iff _ _ (by decide +kernel) hf).mp hl
+    have up := (Flare.Binary64.Order.le_iff _ _ hf (by decide +kernel)).mp hu
+    rw [negative_four_value] at lo
+    rw [four_value] at up
+    exact ⟨hf, abs_le.mpr ⟨lo, up⟩⟩
+  · rintro ⟨hf, hb⟩
+    refine ⟨⟨hf, ?_⟩, ?_⟩
+    · apply (Flare.Binary64.Order.le_iff _ _ (by decide +kernel) hf).mpr
+      rw [negative_four_value]
+      exact (abs_le.mp hb).1
+    · apply (Flare.Binary64.Order.le_iff _ _ hf (by decide +kernel)).mpr
+      rw [four_value]
+      exact (abs_le.mp hb).2
+
+/-- Carries incoming original-input errors through the actual checked loop. -/
+theorem runFrom_accuracy (samples : List Sample) (previous : UInt64)
+    (state : Float × Float) (ideal : ℝ × ℝ) (n : Nat)
+    (domain : SequenceDomain previous samples) (horizon : n + samples.length ≤ 48)
+    (hp : NativeBounds 0 1 (n / 50) (n * increment) state.1 ideal.1)
+    (hv : NativeBounds 0 2 (1 / 2 + n / 50) (n * increment) state.2 ideal.2)
+    : ∃ output,
+        runFrom previous samples state = .ok output
+        ∧ NativeBounds 0 1 ((n + samples.length) / 50) ((n + samples.length) * increment)
+            output.1 (referenceFrom previous samples ideal).1
+        ∧ NativeBounds 0 2 (1 / 2 + (n + samples.length) / 50)
+            ((n + samples.length) * increment) output.2
+            (referenceFrom previous samples ideal).2 := by
+  induction samples generalizing previous state ideal n with
+  | nil =>
+      exact ⟨state, rfl, by simpa [referenceFrom] using hp, by simpa [referenceFrom] using hv⟩
+  | cons sample rest ih =>
+      rcases domain with ⟨ha, ht, tail⟩
+      have supported := (supported_acceleration_iff sample.acceleration).mpr ha
+      have time := Workflow.Subject.Proofs.FloatTimestampAlignment.complete _ _ ht
+      have timing := time_contract _ _ _ time
+      have acceleration := same sample.acceleration 0 4 4 ha.1 (by simpa using ha.2) ha.2
+      have next := step_accuracy n (by simp only [List.length_cons] at horizon; omega)
+        _ _ _ _ _ _ _ hp hv acceleration timing
+      let d := Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed previous
+          sample.timestamp
+      let nextState := step state.1 state.2 sample.acceleration ((sample.timestamp -
+          previous).toFloat * 1.0e-9)
+      let nextIdeal : ℝ × ℝ := (ideal.1 + d * ideal.2 + d * d * value sample.acceleration / 2,
+        ideal.2 + d * value sample.acceleration)
+      obtain ⟨output, run, hp', hv'⟩ := ih sample.timestamp nextState nextIdeal (n + 1) tail
+        (by simp only [List.length_cons] at horizon; omega)
+        (by simpa [nextState, nextIdeal, d,
+            Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed, Nat.cast_add,
+            Nat.cast_one] using next.1)
+        (by simpa [nextState, nextIdeal, d,
+            Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed, Nat.cast_add,
+            Nat.cast_one] using next.2)
+      refine ⟨output, ?_, ?_, ?_⟩
+      · simpa [runFrom, advance, supported, time] using run
+      · simpa [referenceFrom, nextIdeal, d,
+          Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed,
+          List.length_cons, Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm] using
+              hp'
+      · simpa [referenceFrom, nextIdeal, d,
+          Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed,
+          List.length_cons, Nat.cast_add, Nat.cast_one, add_assoc, add_left_comm, add_comm] using
+              hv'
+
+private theorem one_value : value (1.0 : Float) = 1 := by
+  change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-52 : Int) = _
+  norm_num
+
+private theorem negative_one_value : value (-1.0 : Float) = -1 := by
+  simpa only [one_value] using (Flare.Binary64.Order.neg_value (1.0 : Float) (by decide +kernel)).2
+
+theorem supported_threshold_iff (x : Float)
+    : supportedThreshold x = true ↔ x.isFinite = true ∧ |value x| ≤ 1 := by
+  simp only [supportedThreshold, Bool.and_eq_true, decide_eq_true_eq]
+  constructor
+  · rintro ⟨⟨hf, hl⟩, hu⟩
+    have lo := (Flare.Binary64.Order.le_iff _ _ (by decide +kernel) hf).mp hl
+    have up := (Flare.Binary64.Order.le_iff _ _ hf (by decide +kernel)).mp hu
+    rw [negative_one_value] at lo
+    rw [one_value] at up
+    exact ⟨hf, abs_le.mpr ⟨lo, up⟩⟩
+  · rintro ⟨hf, hb⟩
+    refine ⟨⟨hf, ?_⟩, ?_⟩
+    · apply (Flare.Binary64.Order.le_iff _ _ (by decide +kernel) hf).mpr
+      rw [negative_one_value]
+      exact (abs_le.mp hb).1
+    · apply (Flare.Binary64.Order.le_iff _ _ hf (by decide +kernel)).mpr
+      rw [one_value]
+      exact (abs_le.mp hb).2
+
+theorem padding_value : value padding = (2 : ℝ) ^ (-28 : Int) := by
+  change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-80 : Int) = _
+  norm_num
+
+/-- Includes subtraction rounding in the executable margin. -/
+theorem classify_sound (position threshold : Float) (ideal : ℝ)
+    (hp : position.isFinite = true) (hm : |value position| ≤ 1)
+    (ht : threshold.isFinite = true) (hb : |value threshold| ≤ 1)
+    (he : |value position - ideal| ≤ 48 * increment)
+    : DecisionSound (classify position threshold) ideal (value threshold) := by
+  have size := (abs_sub (value position) (value threshold)).trans (add_le_add hm hb)
+  obtain ⟨finite, error⟩ := Flare.Binary64.Arithmetic.sub_error position threshold 1 hp ht
+    (by norm_num) (by norm_num) (by norm_num at size ⊢; exact size)
+  have pf : padding.isFinite = true := by decide +kernel
+  have nf := (Flare.Binary64.Order.neg_value padding pf)
+  have negative : value (-padding) = -(2 : ℝ) ^ (-28 : Int) := by rw [nf.2, padding_value]
+  unfold classify
+  dsimp only
+  split
+  · rename_i below
+    have guard := (Flare.Binary64.Order.lt_iff _ _ finite nf.1).mp below
+    simp only [DecisionSound]
+    rw [negative] at guard
+    have e := abs_le.mp error
+    have incoming := abs_le.mp he
+    norm_num [increment] at incoming e guard
+    linarith
+  · split
+    · rename_i above
+      have guard := (Flare.Binary64.Order.lt_iff _ _ pf finite).mp above
+      simp only [DecisionSound]
+      rw [padding_value] at guard
+      have e := abs_le.mp error
+      have incoming := abs_le.mp he
+      norm_num [increment] at incoming e guard
+      linarith
+    · trivial
+
+theorem allowance_value
+    : errorAllowance.isFinite = true
+      ∧ value errorAllowance
+        = Workflow.Subject.Implementation.Correctness.IMUEpochPrediction.positionAllowance := by
+  constructor
+  · decide +kernel
+  · change (6755399441055744 : ℝ) * (2 : ℝ) ^ (-82 : Int) = _
+    norm_num [Workflow.Subject.Implementation.Correctness.IMUEpochPrediction.positionAllowance]
+
+theorem assess_complete (previous : UInt64) (samples : List Sample) (threshold : Float)
+    (length : samples.length = 48) (domain : SequenceDomain previous samples)
+    (thresholdDomain : threshold.isFinite = true ∧ |value threshold| ≤ 1)
+    : ∃ result,
+        assess previous samples threshold = .ok result
+        ∧ Guarantees previous samples threshold result := by
+  have zeroValue : value (0.0 : Float) = 0 := rfl
+  have halfValue : value (0.5 : Float) = (1 / 2 : ℝ) := by
+    change (4503599627370496 : ℝ) * (2 : ℝ) ^ (-53 : Int) = _
+    norm_num
+  have hp : NativeBounds 0 1 0 0 (0.0 : Float) 0 := by
+    refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [zeroValue]
+  have hv : NativeBounds 0 2 (1 / 2) 0 (0.5 : Float) (1 / 2) := by
+    refine ⟨by decide +kernel, ?_, ?_, ?_⟩ <;> norm_num [halfValue]
+  obtain ⟨output, run, position, velocity⟩ := runFrom_accuracy samples previous (0.0, 0.5)
+    (0, 1 / 2) 0 domain (by omega) (by simpa using hp) (by simpa using hv)
+  simp only [length, Nat.cast_zero, zero_add, Nat.cast_ofNat] at position velocity
+  have guard := (supported_threshold_iff threshold).mpr thresholdDomain
+  refine ⟨⟨output.1, output.2, errorAllowance, classify output.1 threshold⟩, ?_, ?_⟩
+  · simp [assess, length, guard, run]
+  · exact ⟨position.finite, velocity.finite, rfl, position.bounds.error,
+      classify_sound _ _ _ position.finite (by simpa using position.bounds.centre)
+        thresholdDomain.1 thresholdDomain.2 position.bounds.error⟩
+
+theorem advance_success_domain (previous : UInt64) (sample : Sample)
+    (state output : Float × Float) (run : advance previous sample state = .ok output)
+    : (sample.acceleration.isFinite = true ∧ |value sample.acceleration| ≤ 4)
+      ∧ Workflow.Subject.Implementation.Correctness.TimestampAlignment.Domain previous
+          sample.timestamp := by
+  cases hs : supportedAcceleration sample.acceleration with
+  | false => simp [advance, hs] at run
+  | true =>
+      refine ⟨(supported_acceleration_iff _).mp hs, ?_⟩
+      cases ht
+            : Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds previous
+                sample.timestamp with
+      | error error => simp [advance, hs, ht] at run
+      | ok seconds => exact Workflow.Subject.Proofs.FloatTimestampAlignment.success_domain _ _ _ ht
+
+theorem runFrom_success_domain (samples : List Sample) (previous : UInt64)
+    (state output : Float × Float) (run : runFrom previous samples state = .ok output)
+    : SequenceDomain previous samples := by
+  induction samples generalizing previous state with
+  | nil => trivial
+  | cons sample rest ih =>
+      cases equation : advance previous sample state with
+      | error error => simp [runFrom, equation] at run
+      | ok next =>
+          have domain := advance_success_domain previous sample state next equation
+          exact ⟨
+            domain.1,
+            domain.2,
+            ih sample.timestamp next (by simpa [runFrom, equation] using run)
+          ⟩
+
+/-- A successful API result itself establishes the checked domain and contract. -/
+theorem returned (previous : UInt64) (samples : List Sample) (threshold : Float)
+    (result : Assessment) (run : assess previous samples threshold = .ok result)
+    : samples.length = 48
+      ∧ SequenceDomain previous samples
+      ∧ threshold.isFinite = true
+      ∧ |value threshold| ≤ 1
+      ∧ Guarantees previous samples threshold result := by
+  by_cases len : samples.length = 48
+  · cases hs : supportedThreshold threshold with
+    | false => simp [assess, len, hs] at run
+    | true =>
+        cases equation : runFrom previous samples (0.0, 0.5) with
+        | error error => simp [assess, len, hs, equation] at run
+        | ok state =>
+            have domain := runFrom_success_domain samples previous _ state equation
+            have thresholdDomain := (supported_threshold_iff _).mp hs
+            obtain ⟨checked, success, contract⟩ := assess_complete previous samples threshold len
+                domain thresholdDomain
+            rw [run] at success
+            cases success
+            exact ⟨len, domain, thresholdDomain.1, thresholdDomain.2, contract⟩
+  · simp [assess, len] at run
+
+end Workflow.Subject.Proofs.FloatIMUEpochApplication

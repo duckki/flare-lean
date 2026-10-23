@@ -1,0 +1,13 @@
+module
+
+/-! Original nanosecond timestamps and binary64 acceleration words, in SI units. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Definitions.Input.IMUEpoch
+
+structure Sample where
+  timestamp : UInt64
+  acceleration : Float
+
+end Workflow.Subject.Definitions.Input.IMUEpoch

@@ -1,0 +1,137 @@
+module
+
+public import Workflow.Subject.Implementation.Correctness.TimestampAlignment
+public import Flare.Binary64.NaturalConversion
+
+/-! Native timing accuracy with an original-integer reference. The numerical
+radius is a normalized interface shared with the separate Gappa/Coq experiment. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Proofs.FloatTimestampAlignment
+
+open Workflow.Subject.Implementation.TimestampAlignment
+  Workflow.Subject.Implementation.Correctness.TimestampAlignment
+  Flare.Binary64.Value Flare.Binary64.Arithmetic
+
+private theorem scale_value
+    : value (1.0e-9 : Float) = (4835703278458517 : ℝ) * (2 : ℝ) ^ (-82 : Int) := by
+  rfl
+
+private theorem scale_bounds
+    : 0 ≤ value (1.0e-9 : Float)
+      ∧ value (1.0e-9 : Float) ≤ 1 / 500000000
+      ∧ |value (1.0e-9 : Float) - 1 / 1000000000| ≤ (2 : ℝ) ^ (-80 : Int) := by
+  rw [scale_value]
+  norm_num
+
+/-- The bounded conversion/multiplication kernel is finite and accurate. -/
+theorem ticks_accuracy (ticks : UInt64) (hupper : ticks.toNat ≤ 5000000)
+    : (ticks.toFloat * 1.0e-9).isFinite = true
+      ∧ |value (ticks.toFloat * 1.0e-9) - (ticks.toNat : ℝ) / 1000000000|
+        ≤ (2 : ℝ) ^ (-55 : Int) := by
+  obtain ⟨hf, hv⟩ := Flare.Binary64.NaturalConversion.uint64_exact ticks (by omega)
+  have hn : (0 : ℝ) ≤ ticks.toNat := by positivity
+  have hu : (ticks.toNat : ℝ) ≤ 5000000 := by exact_mod_cast hupper
+  have hp : |value ticks.toFloat * value (1.0e-9 : Float)| ≤ (2 : ℝ) ^ (-6 : Int) := by
+    rw [hv, abs_of_nonneg (mul_nonneg hn scale_bounds.1)]
+    have hb := mul_le_mul hu scale_bounds.2.1 scale_bounds.1 (by norm_num : (0 : ℝ) ≤ 5000000)
+    norm_num at hb ⊢
+    linarith
+  obtain ⟨finite, error⟩ := mul_error ticks.toFloat 1.0e-9 (-6) hf (by decide +kernel)
+    (by norm_num) (by norm_num) hp
+  refine ⟨finite, ?_⟩
+  rw [hv] at error
+  have hs : |(ticks.toNat : ℝ) * value (1.0e-9 : Float) - ticks.toNat / 1000000000|
+      ≤ 5000000 * (2 : ℝ) ^ (-80 : Int) := by
+    rw [show (ticks.toNat : ℝ) * value (1.0e-9 : Float) - ticks.toNat / 1000000000
+        = ticks.toNat * (value (1.0e-9 : Float) - 1 / 1000000000) by ring,
+      abs_mul, abs_of_nonneg hn]
+    exact mul_le_mul hu scale_bounds.2.2 (abs_nonneg _) (by norm_num)
+  have ht := abs_sub_le (value (ticks.toFloat * 1.0e-9))
+    ((ticks.toNat : ℝ) * value (1.0e-9 : Float)) ((ticks.toNat : ℝ) / 1000000000)
+  norm_num at error hs ht ⊢
+  linarith
+
+/-- Every admitted original timestamp pair executes successfully. -/
+theorem complete (previous current : UInt64) (domain : Domain previous current)
+    : elapsedSeconds previous current = .ok ((current - previous).toFloat * 1.0e-9) := by
+  rcases domain with ⟨horder, hlower, hupper⟩
+  have hd := UInt64.toNat_sub_of_le current previous horder
+  have hreverse : ¬current < previous := by
+    change ¬current.toNat < previous.toNat
+    change previous.toNat ≤ current.toNat at horder
+    omega
+  have hlo : ¬(current - previous < (2000000 : UInt64)) := by
+    change ¬((current - previous).toNat < (2000000 : UInt64).toNat)
+    simp only [hd]
+    change ¬(current.toNat - previous.toNat < 2000000)
+    omega
+  have hhi : ¬((5000000 : UInt64) < current - previous) := by
+    change ¬((5000000 : UInt64).toNat < (current - previous).toNat)
+    simp only [hd]
+    change ¬(5000000 < current.toNat - previous.toNat)
+    omega
+  simp [elapsedSeconds, hreverse, hlo, hhi]
+
+/-- A successful return establishes the integer-domain premises. -/
+theorem success_domain (previous current : UInt64) (seconds : Float)
+    (run : elapsedSeconds previous current = .ok seconds)
+    : Domain previous current := by
+  unfold elapsedSeconds at run
+  split at run
+  · cases run
+  · rename_i horder
+    have ho : previous ≤ current := by
+      change previous.toNat ≤ current.toNat
+      change ¬current.toNat < previous.toNat at horder
+      omega
+    have hd := UInt64.toNat_sub_of_le current previous ho
+    dsimp only at run
+    split at run
+    · cases run
+    · rename_i hperiod
+      simp only [Bool.or_eq_true, decide_eq_true_eq, not_or] at hperiod
+      rcases hperiod with ⟨hlo, hhi⟩
+      refine ⟨ho, ?_, ?_⟩
+      · change ¬((current - previous).toNat < 2000000) at hlo
+        rw [hd] at hlo
+        omega
+      · change ¬(5000000 < (current - previous).toNat) at hhi
+        rw [hd] at hhi
+        omega
+
+/-- The accuracy result names the actual successful executable return. -/
+theorem returned_accuracy (previous current : UInt64) (seconds : Float)
+    (run : elapsedSeconds previous current = .ok seconds)
+    : Accuracy previous current seconds := by
+  have domain := success_domain previous current seconds run
+  have equation := complete previous current domain
+  rw [equation] at run
+  cases run
+  have hd := UInt64.toNat_sub_of_le current previous domain.1
+  have hn : previous.toNat ≤ current.toNat := domain.1
+  simpa only [Accuracy, hd, Nat.cast_sub hn]
+    using ticks_accuracy (current - previous) (by simpa only [hd] using domain.2.2)
+
+/-- A consumer can safely use the normalized timing allowance in a strict
+decision. The margin is expressed over decoded reals; executable margin
+arithmetic would need its own rounding allowance. -/
+theorem before_threshold (previous current : UInt64) (seconds : Float) (threshold : ℝ)
+    (run : elapsedSeconds previous current = .ok seconds)
+    (margin : value seconds + (2 : ℝ) ^ (-55 : Int) < threshold)
+    : ((current.toNat : ℝ) - previous.toNat) / 1000000000 < threshold := by
+  have bound := (returned_accuracy previous current seconds run).2
+  have lower := (abs_le.mp bound).1
+  have le : ((current.toNat : ℝ) - previous.toNat) / 1000000000
+      ≤ value seconds + (2 : ℝ) ^ (-55 : Int) := by linarith only [lower]
+  exact le.trans_lt margin
+
+/-- The zero-roundoff alternative is false even at an ordinary supported tick
+count. This is a deliberate negative contract control. -/
+theorem nonzero_rounding_witness
+    : value ((5000000 : UInt64).toFloat * 1.0e-9) ≠ (5000000 : ℝ) / 1000000000 := by
+  change (5764607523034235 : ℝ) * (2 : ℝ) ^ (-60 : Int) ≠ _
+  norm_num
+
+end Workflow.Subject.Proofs.FloatTimestampAlignment

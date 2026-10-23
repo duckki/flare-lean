@@ -81,6 +81,13 @@ than treating these historical links as a second source of version selection.
    the shared tool pool and check out its exact recorded revision. Verify its
    `charon-pin` agrees with FLARE's Charon pin and its backend `lean-toolchain`
    agrees with FLARE before building.
+   Apply the patches listed in `aeneas.patches` in the revision file before
+   building. Verify each file's SHA-256, then run `git apply --check` and
+   `git apply` with `$FLARE_ROOT/tools/numerics/u64-f64.patch` from the Aeneas
+   checkout. This Lean-backend patch maps unsigned 64-bit casts to the existing
+   native `UInt64.toFloat` model. It is needed by the integer-time application,
+   and does not claim support for other floating-point casts. The complete IMU
+   extraction/proof preflight exercises it; a scalar-only preflight does not.
 2. Use an isolated OPAM switch for the tool build. The pinned Aeneas README uses
    OCaml 5 and gives 5.3.0 as an example. Initialize OPAM if necessary, install
    the switch and dependencies, then run the documented targets. For example,

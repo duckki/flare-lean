@@ -1,0 +1,29 @@
+module
+
+public import Workflow.Subject.Definitions.Input.IMUEpoch
+public import Workflow.Subject.Definitions.Theorems.IMUEpochPrediction
+public import Flare.Binary64.Value
+
+/-! Independent exact kinematics on original integer epochs and acceleration words, carried
+through every event without restarting from rounded state. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Definitions.Theorems.IMUEpochApplication
+
+open Workflow.Subject.Definitions.Input.IMUEpoch Flare.Binary64.Value
+
+noncomputable def referenceFrom (previous : UInt64) (samples : List Sample) (state : ℝ × ℝ)
+    : ℝ × ℝ :=
+  match samples with
+  | [] => state
+  | sample :: rest =>
+      let d :=
+        Workflow.Subject.Definitions.Theorems.IMUEpochPrediction.elapsed previous sample.timestamp
+      referenceFrom sample.timestamp rest
+        (
+          state.1 + d * state.2 + d * d * value sample.acceleration / 2,
+          state.2 + d * value sample.acceleration
+        )
+
+end Workflow.Subject.Definitions.Theorems.IMUEpochApplication

@@ -42,6 +42,9 @@ def prepare(path, *, replay=False):
         if not isinstance(request.get(field, default), str):
             raise ValueError('Expected string selector: '+field)
     source = (path.parent / request['source']).resolve()
+    if 'rust_application' in request:
+        from .application import prepare as prepare_application
+        return prepare_application(path, request)
     program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'))
     if program.arrays and (request.get('target','lean') != 'lean' or request.get('proof') or request.get('producer','lean-flare') != 'lean-flare'):
         raise Unsupported('The fixed-array profile currently uses Lean certification with the lean-flare producer')
@@ -302,6 +305,10 @@ def kernel_for_run(output, request, program):
 
 
 def certify(request_path, output):
+    selection = json.loads(Path(request_path).read_text())
+    if isinstance(selection, dict) and 'rust_application' in selection:
+        from .application import certify as certify_application
+        return certify_application(request_path, output)
     started = time.monotonic()
     request, source, program, questions = prepare(request_path)
     if questions:
@@ -453,6 +460,9 @@ def audit_run(path, frozen=False):
         for record in result.get('rust_port_sources', {}).values():
             if sha(record['path']) != record['sha256']:
                 raise ValueError('Rust port or equivalence proof source changed; regenerate the certificate')
+        for record in result.get('application_inputs', []):
+            if sha(record['path']) != record['sha256']:
+                raise ValueError('Application source, contract or proof changed: '+record['path'])
         if 'source-runtime.json' in result['artifacts']:
             runtime=json.loads((path/'source-runtime.json').read_text())
             if sha(runtime['executable'])!=runtime['executable_sha256']:
@@ -480,6 +490,10 @@ def audit_run(path, frozen=False):
 def replay_run(path, output, aeneas_lean_lib=None):
     """Replay saved Lean sources without a producer, source runtime, Rust extraction or LLM."""
     path=Path(path).resolve(); audit_run(path,frozen=True)
+    selection = json.loads((path/'request.json').read_text())
+    if isinstance(selection, dict) and 'rust_application' in selection:
+        from .application import replay as replay_application
+        return replay_application(path, output, aeneas_lean_lib)
     request,source,program,questions=prepare(path/'request.json', replay=True)
     if questions: raise ValueError('Frozen request is incomplete')
     from .integration import replay_evidence

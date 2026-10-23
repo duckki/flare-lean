@@ -1,0 +1,65 @@
+module
+
+public import Workflow.Equivalence.IMUEpochApplication
+public import Workflow.Subject.Proofs.FloatIMUEpochApplication
+
+/-! Original-input accuracy and rounded engineering decisions for successful/admitted generated
+Rust application executions. -/
+
+@[expose] public section
+
+namespace Workflow.Proofs.IMUEpochApplication
+
+open Aeneas.Std Workflow.Bridge.IMUEpochApplication Workflow.Equivalence.IMUEpochApplication
+
+/-- Complete finite successful Rust execution and original-input numerical/decision contract. -/
+theorem admitted_accuracy (previous : U64)
+    (samples : Slice Workflow.Generated.imu_epoch.Sample) (threshold : Float)
+    (length : samples.val.length = 48)
+    (domain
+      : Workflow.Subject.Implementation.Correctness.IMUEpochApplication.SequenceDomain
+          (Workflow.Bridge.TimestampAlignment.decode previous)
+          (samples.val.map decodeSample))
+    (thresholdDomain : threshold.isFinite = true ∧ |Flare.Binary64.Value.value threshold| ≤ 1)
+    : ∃ native,
+        Workflow.Generated.imu_epoch.assess previous samples threshold
+          = Result.ok (.Ok (encodeAssessment native))
+        ∧ Workflow.Subject.Implementation.Correctness.IMUEpochApplication.Guarantees
+            (Workflow.Bridge.TimestampAlignment.decode previous)
+            (samples.val.map decodeSample) threshold native := by
+  obtain ⟨native, run, contract⟩ :=
+      Workflow.Subject.Proofs.FloatIMUEpochApplication.assess_complete _ _ threshold
+    (by simpa using length) domain thresholdDomain
+  refine ⟨native, ?_, contract⟩
+  rw [assess_equiv, run]
+  rfl
+
+/-- Every successful Rust result establishes its admission conditions and guarantee. -/
+theorem returned_contract (previous : U64)
+    (samples : Slice Workflow.Generated.imu_epoch.Sample) (threshold : Float)
+    (output : Workflow.Generated.imu_epoch.Assessment)
+    (run : Workflow.Generated.imu_epoch.assess previous samples threshold = Result.ok (.Ok output))
+    : ∃ native,
+        encodeAssessment native = output
+        ∧ samples.val.length = 48
+        ∧ Workflow.Subject.Implementation.Correctness.IMUEpochApplication.SequenceDomain
+            (Workflow.Bridge.TimestampAlignment.decode previous)
+            (samples.val.map decodeSample)
+        ∧ threshold.isFinite = true
+        ∧ |Flare.Binary64.Value.value threshold| ≤ 1
+        ∧ Workflow.Subject.Implementation.Correctness.IMUEpochApplication.Guarantees
+            (Workflow.Bridge.TimestampAlignment.decode previous)
+            (samples.val.map decodeSample) threshold native := by
+  rw [assess_equiv] at run
+  cases equation
+        : Workflow.Subject.Implementation.IMUEpochApplication.assess
+            (Workflow.Bridge.TimestampAlignment.decode previous)
+            (samples.val.map decodeSample) threshold with
+  | error e => simp [equation, encodeWith] at run
+  | ok native =>
+      have equal : encodeAssessment native = output := by simpa [equation, encodeWith] using run
+      have contract := Workflow.Subject.Proofs.FloatIMUEpochApplication.returned _ _ _ native
+          equation
+      exact ⟨native, equal, by simpa using contract.1, contract.2⟩
+
+end Workflow.Proofs.IMUEpochApplication

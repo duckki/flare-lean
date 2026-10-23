@@ -1,0 +1,218 @@
+module
+
+public import Workflow.Equivalence.TimestampAlignment
+public import Workflow.Bridge.IMUEpochApplication
+
+/-! Completed actual-source-model correspondence, including iterator termination and all rejection
+exits. Translator and native compiler fidelity remain trusted. -/
+
+@[expose] public section
+
+namespace Workflow.Equivalence.IMUEpochApplication
+
+open Aeneas.Std Workflow.Bridge.IMUEpochApplication
+
+theorem acceleration_equiv (a : Float)
+    : Workflow.Generated.imu_epoch.supported_acceleration a
+      = Result.ok
+          (Workflow.Subject.Implementation.IMUEpochApplication.supportedAcceleration a) := by
+  have four : Float.ofBits 4616189618054758400 = (4.0 : Float) := rfl
+  have negFour : Float.ofBits 13839561654909534208 = (-4.0 : Float) := rfl
+  cases hf : a.isFinite <;> by_cases lo : (-4.0 : Float) ≤ a
+    <;> by_cases hi : a ≤ (4.0 : Float)
+    <;> simp [Workflow.Generated.imu_epoch.supported_acceleration,
+      Workflow.Subject.Implementation.IMUEpochApplication.supportedAcceleration, lift,
+          core.f64.is_finite, hf, four, negFour, lo, hi]
+
+theorem threshold_equiv (x : Float)
+    : Workflow.Generated.imu_epoch.supported_threshold x
+      = Result.ok (Workflow.Subject.Implementation.IMUEpochApplication.supportedThreshold x) := by
+  have one : Float.ofBits 4607182418800017408 = (1.0 : Float) := rfl
+  have negOne : Float.ofBits 13830554455654793216 = (-1.0 : Float) := rfl
+  cases hf : x.isFinite <;> by_cases lo : (-1.0 : Float) ≤ x
+    <;> by_cases hi : x ≤ (1.0 : Float)
+    <;> simp [Workflow.Generated.imu_epoch.supported_threshold,
+      Workflow.Subject.Implementation.IMUEpochApplication.supportedThreshold, lift,
+          core.f64.is_finite, hf, one, negOne, lo, hi]
+
+theorem step_equiv (p v a dt : Float)
+    : Workflow.Generated.imu_epoch.step p v a dt
+      = Result.ok (Workflow.Subject.Implementation.IMUEpochPrediction.step p v a dt) := by rfl
+
+theorem classify_equiv (p threshold : Float)
+    : Workflow.Generated.imu_epoch.classify p threshold
+      = Result.ok
+          (encodeDecision
+            (Workflow.Subject.Implementation.IMUEpochApplication.classify p threshold)) := by
+  unfold Workflow.Generated.imu_epoch.classify
+  simp only [Workflow.Generated.imu_epoch.DECISION_PADDING]
+  change (if p - threshold < -Workflow.Subject.Implementation.IMUEpochApplication.padding then
+      Result.ok Workflow.Generated.imu_epoch.Decision.Below
+    else if Workflow.Subject.Implementation.IMUEpochApplication.padding < p - threshold then
+        Result.ok Workflow.Generated.imu_epoch.Decision.Above
+    else Result.ok Workflow.Generated.imu_epoch.Decision.Uncertain) = _
+  unfold Workflow.Subject.Implementation.IMUEpochApplication.classify
+  dsimp only
+  by_cases below : p - threshold < -Workflow.Subject.Implementation.IMUEpochApplication.padding
+  · simp [below, encodeDecision]
+  · by_cases above : Workflow.Subject.Implementation.IMUEpochApplication.padding < p - threshold
+    <;> simp [below, above, encodeDecision]
+
+theorem advance_equiv (previous : U64) (sample : Workflow.Generated.imu_epoch.Sample)
+    (state : Float × Float)
+    : Workflow.Generated.imu_epoch.advance previous sample state
+      = Result.ok
+          (encodeWith (fun x => x)
+            (Workflow.Subject.Implementation.IMUEpochApplication.advance
+              (Workflow.Bridge.TimestampAlignment.decode previous) (decodeSample sample)
+              state)) := by
+  rcases state with ⟨p, v⟩
+  unfold Workflow.Generated.imu_epoch.advance
+  rw [acceleration_equiv]
+  simp only [bind_ok]
+  cases hs
+        : Workflow.Subject.Implementation.IMUEpochApplication.supportedAcceleration
+            sample.acceleration with
+  | false =>
+      simp [Workflow.Subject.Implementation.IMUEpochApplication.advance, decodeSample, hs,
+          encodeWith, encodeError]
+  | true =>
+      rw [Workflow.Equivalence.TimestampAlignment.elapsed_equiv]
+      simp only [bind_ok]
+      cases ht
+            : Workflow.Subject.Implementation.TimestampAlignment.elapsedSeconds
+                (Workflow.Bridge.TimestampAlignment.decode previous)
+                (Workflow.Bridge.TimestampAlignment.decode sample.timestamp) with
+      | error e =>
+          cases e <;> simp [hs, ht, Workflow.Bridge.TimestampAlignment.encode,
+            Workflow.Subject.Implementation.IMUEpochApplication.advance, decodeSample,
+                encodeWith, encodeError]
+      | ok seconds =>
+          simp [hs, ht, Workflow.Bridge.TimestampAlignment.encode,
+            Workflow.Subject.Implementation.IMUEpochApplication.advance, decodeSample,
+                step_equiv, encodeWith]
+
+private theorem next_some (a : Slice Workflow.Generated.imu_epoch.Sample) (i : Nat)
+    (hi : i < a.val.length)
+    : core.slice.iter.IteratorSliceIter.next ⟨a, i⟩ = Result.ok (some a.val[i], ⟨a, i + 1⟩) := by
+  unfold core.slice.iter.IteratorSliceIter.next
+  simp only [Slice.len_val]
+  rw [dite_eq_left hi]
+  rfl
+
+private theorem next_none (a : Slice Workflow.Generated.imu_epoch.Sample) (i : Nat)
+    (hi : ¬i < a.val.length)
+    : core.slice.iter.IteratorSliceIter.next ⟨a, i⟩ = Result.ok (none, ⟨a, i⟩) := by
+  unfold core.slice.iter.IteratorSliceIter.next
+  simp only [Slice.len_val]
+  rw [dite_eq_right hi]
+
+theorem loop_equiv (a : Slice Workflow.Generated.imu_epoch.Sample) (i : Nat)
+    (previous : U64) (state : Float × Float)
+    : Workflow.Generated.imu_epoch.run_from_loop ⟨a, i⟩ previous state
+      = Result.ok
+          (encodeWith (fun x => x)
+            (Workflow.Subject.Implementation.IMUEpochApplication.runFrom
+              (Workflow.Bridge.TimestampAlignment.decode previous)
+              ((a.val.drop i).map decodeSample) state)) := by
+  induction hfuel : a.val.length - i
+    using Nat.strong_induction_on generalizing i previous state with
+  | h fuel ih =>
+      rw [Workflow.Generated.imu_epoch.run_from_loop, loop]
+      dsimp only
+      rw [Workflow.Generated.imu_epoch.run_from_loop.body]
+      by_cases hi : i < a.val.length
+      · rw [next_some a i hi]
+        simp only [bind_ok, uncurry_apply_pair]
+        rw [advance_equiv]
+        simp only [bind_ok]
+        rw [List.drop_eq_getElem_cons hi, List.map_cons]
+        cases equation
+              : Workflow.Subject.Implementation.IMUEpochApplication.advance
+                  (Workflow.Bridge.TimestampAlignment.decode previous)
+                  (decodeSample a.val[i]) state with
+        | error e =>
+            simp [encodeWith, Workflow.Subject.Implementation.IMUEpochApplication.runFrom, equation,
+              core.result.Result.Insts.CoreOpsTry.branch,
+              core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual]
+        | ok next =>
+            simp only [encodeWith, core.result.Result.Insts.CoreOpsTry.branch, bind_ok]
+            have recursive := ih (a.val.length - (i + 1)) (by omega) (i + 1) a.val[i].timestamp
+                next rfl
+            simp only [Workflow.Subject.Implementation.IMUEpochApplication.runFrom, equation]
+            change _ = Result.ok (encodeWith (fun x => x)
+                (Workflow.Subject.Implementation.IMUEpochApplication.runFrom
+              (Workflow.Bridge.TimestampAlignment.decode a.val[i].timestamp)
+              ((a.val.drop (i + 1)).map decodeSample) next))
+            simpa only [Workflow.Generated.imu_epoch.run_from_loop] using recursive
+      · rw [next_none a i hi]
+        simp [List.drop_eq_nil_of_le (by omega : a.val.length ≤ i),
+          Workflow.Subject.Implementation.IMUEpochApplication.runFrom, encodeWith]
+
+theorem run_equiv (previous : U64) (samples : Slice Workflow.Generated.imu_epoch.Sample)
+    (state : Float × Float)
+    : Workflow.Generated.imu_epoch.run_from previous samples state
+      = Result.ok
+          (encodeWith (fun x => x)
+            (Workflow.Subject.Implementation.IMUEpochApplication.runFrom
+              (Workflow.Bridge.TimestampAlignment.decode previous)
+              (samples.val.map decodeSample) state)) := by
+  simp [Workflow.Generated.imu_epoch.run_from,
+    SharedSlice.Insts.CoreIterTraitsCollectIntoIteratorSharedIter.into_iter, loop_equiv]
+
+theorem assess_equiv (previous : U64)
+    (samples : Slice Workflow.Generated.imu_epoch.Sample) (threshold : Float)
+    : Workflow.Generated.imu_epoch.assess previous samples threshold
+      = Result.ok
+          (encodeWith encodeAssessment
+            (Workflow.Subject.Implementation.IMUEpochApplication.assess
+              (Workflow.Bridge.TimestampAlignment.decode previous)
+              (samples.val.map decodeSample) threshold)) := by
+  unfold Workflow.Generated.imu_epoch.assess
+  have zero : Float.ofBits 0 = (0.0 : Float) := rfl
+  have half : Float.ofBits 4602678819172646912 = (0.5 : Float) := rfl
+  simp only [zero, half]
+  have length : Slice.len samples = 48#usize ↔ samples.val.length = 48 := by
+    constructor
+    · intro h
+      have values := congrArg UScalar.val h
+      simp only [Slice.len_val] at values
+      scalar_tac
+    · intro h
+      apply UScalar.eq_of_val_eq
+      scalar_tac
+  by_cases len : samples.val.length = 48
+  · have wordlen := length.mpr len
+    simp only [wordlen, bne_self_eq_false, Bool.false_eq_true, ite_false]
+    rw [threshold_equiv]
+    simp only [bind_ok]
+    cases hs : Workflow.Subject.Implementation.IMUEpochApplication.supportedThreshold threshold with
+    | false =>
+        simp [Workflow.Subject.Implementation.IMUEpochApplication.assess, hs, List.length_map,
+            len, encodeWith, encodeError]
+    | true =>
+        rw [run_equiv]
+        simp only [bind_ok]
+        cases equation
+              : Workflow.Subject.Implementation.IMUEpochApplication.runFrom
+                  (Workflow.Bridge.TimestampAlignment.decode previous)
+                  (samples.val.map decodeSample) (0.0, 0.5) with
+        | error e =>
+            simp [encodeWith, encodeError,
+                Workflow.Subject.Implementation.IMUEpochApplication.assess,
+              hs, len, List.length_map, equation,
+              core.result.Result.Insts.CoreOpsTry.branch,
+              core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual]
+        | ok next =>
+            rcases next with ⟨position, velocity⟩
+            simp [encodeWith, encodeAssessment,
+                Workflow.Subject.Implementation.IMUEpochApplication.assess,
+              hs, len, List.length_map, equation, classify_equiv,
+              core.result.Result.Insts.CoreOpsTry.branch,
+              Workflow.Generated.imu_epoch.ERROR_ALLOWANCE,
+                  Workflow.Subject.Implementation.IMUEpochApplication.errorAllowance]
+  · have wordlen : Slice.len samples ≠ 48#usize := fun h => len (length.mp h)
+    simp [wordlen, len, Workflow.Subject.Implementation.IMUEpochApplication.assess,
+        List.length_map, encodeWith, encodeError]
+
+end Workflow.Equivalence.IMUEpochApplication

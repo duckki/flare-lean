@@ -1,6 +1,0 @@
-{
-  "schema": "numerics-request-v1",
-  "language": "rust",
-  "source": "imu48.rs",
-  "function": "assess"
-}

@@ -1,0 +1,70 @@
+module
+
+public import Workflow.Generated.Funs
+public import Workflow.Bridge.TimestampAlignment
+
+/-! Completed source-model equivalence for the checked Rust timing API. The
+compiler source recipe is independently pinned; compiler fidelity is trusted. -/
+
+@[expose] public section
+
+namespace Workflow.Equivalence.TimestampAlignment
+
+open Aeneas.Std Workflow.Subject.Implementation.TimestampAlignment
+  Workflow.Bridge.TimestampAlignment
+
+private theorem sub_eq (current previous : U64) (order : previous.val ≤ current.val)
+    : (current - previous : Result U64)
+      = Result.ok
+          (U64.ofNatCore (current.val - previous.val)
+            (Nat.lt_of_le_of_lt (Nat.sub_le _ _) current.hmax)) := by
+  simp only [HSub.hSub, UScalar.sub, show ¬ current.val < previous.val from by omega,
+    ite_false]
+  apply congrArg Result.ok
+  apply UScalar.eq_of_val_eq
+  change (current.val - previous.val) % 2 ^ UScalarTy.U64.numBits
+    = current.val - previous.val
+  exact Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.sub_le _ _) current.hmax)
+
+/-- Includes reversed/out-of-period rejection and normal outer return, for all
+original unsigned input words; no successful-run premise is assumed. -/
+theorem elapsed_equiv (previous current : U64)
+    : Generated.timestamp_alignment.elapsed_seconds previous current
+      = Result.ok (encode (elapsedSeconds (decode previous) (decode current))) := by
+  have scale : Float.ofBits 4472406533629990549 = (1.0e-9 : Float) := rfl
+  by_cases reverse : current.val < previous.val
+  · simp [Generated.timestamp_alignment.elapsed_seconds, elapsedSeconds, encode, UScalar.lt_equiv,
+      show decode current < decode previous from by
+        change (decode current).toNat < (decode previous).toNat
+        simpa using reverse, reverse]
+  · have order : previous.val ≤ current.val := by omega
+    have native_order : decode previous ≤ decode current := by
+      change (decode previous).toNat ≤ (decode current).toNat
+      simpa using order
+    have native_delta := UInt64.toNat_sub_of_le (decode current) (decode previous)
+      native_order
+    simp only [decode_toNat] at native_delta
+    let ticks := U64.ofNatCore (current.val - previous.val)
+      (Nat.lt_of_le_of_lt (Nat.sub_le _ _) current.hmax)
+    have ticks_val : ticks.val = current.val - previous.val := by
+      exact U64.ofNatCore_val_eq _
+    have delta_eq : decode ticks = decode current - decode previous := by
+      apply UInt64.toNat.inj
+      simp [ticks_val, native_delta]
+    have direct_delta : UInt64.ofNat (current.val - previous.val)
+        = UInt64.ofNat current.val - UInt64.ofNat previous.val := by
+      simpa [decode, ticks] using delta_eq
+    have bound : current.val - previous.val < 2 ^ 64 :=
+      Nat.lt_of_le_of_lt (Nat.sub_le _ _) current.hmax
+    have mod_delta : (current.val - previous.val) % 18446744073709551616
+        = current.val - previous.val := Nat.mod_eq_of_lt bound
+    by_cases lower : current.val - previous.val < 2000000
+    <;> by_cases upper : 5000000 < current.val - previous.val
+    <;> simp [Generated.timestamp_alignment.elapsed_seconds, elapsedSeconds, encode,
+        UScalar.lt_equiv,
+      reverse, sub_eq current previous order,
+      ← direct_delta, scale, lift, UInt64.lt_iff_toNat_lt, decode,
+      mod_delta, lower, upper]
+    rfl
+
+end Workflow.Equivalence.TimestampAlignment

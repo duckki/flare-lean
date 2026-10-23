@@ -80,6 +80,12 @@ mapping from actual source to executable model explicit. If support cannot be
 completed, report the unresolved construct or obligation; do not substitute a
 hand-rewritten surrogate and claim to have verified the original implementation.
 
+For a multi-module Rust API with validation, slices, enums/results, integer time
+or mutation, read [rust-applications.md](references/rust-applications.md). Use a
+reviewed application contract and fresh extraction; cover error returns and
+rounded decisions in the same Lean root. This route needs authored bridges and
+proofs, not just a scalar bound.
+
 For fixed-shape built-in Python list products, read [arrays.md](references/arrays.md).
 Supply explicit input shapes and an independent exact matrix expression. Inspect
 aliasing, every index and the accumulation order; a NumPy/BLAS call or an array
@@ -90,7 +96,8 @@ two-state fold on the original inputs. Review the whole horizon's allowance;
 intermediate state errors must carry forward. The provider can preserve helper
 boundaries and compose their checked contracts; see [composition.md](references/composition.md)
 for its scope and optional proof reuse. The provider's scale suite includes
-Kalman/IMU horizons and larger unproved application/model probes. An analysis
+Kalman/IMU horizons, a checked Rust application bundle and larger unproved model
+probes. An analysis
 candidate or a successful rejection test is not a completed certificate.
 
 Read [tool-routes.md](references/tool-routes.md) to select producers per obligation.

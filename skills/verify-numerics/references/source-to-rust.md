@@ -80,7 +80,7 @@ actual-runtime word diagnostics test samples independently of graph execution.
 | `python` | Positional/untyped or `float` parameters, scalar locals, tuple assignments, updating assignments, local numerical helpers, fixed literal-tuple loops, docstrings | CLI's Python with built-in floats |
 | `julia` | Long/short functions, optional `::Float64` parameters, explicit/implicit returns, tuple results and updating assignments | Julia in IEEE mode, startup/history disabled, scratch depot |
 | `matlab` | Function files with named outputs, optional `end`, semicolons, line continuations, scalar dot operators | MATLAB or GNU Octave, recorded explicitly |
-| `rust` | One `pub fn`, named `f64` parameters, `f64` or `(f64, f64)` result, scalar `let`, `let mut`, shadowing, assignments, return/tail expression | `rustc` |
+| `rust` (automatic scalar profile) | One `pub fn`, named `f64` parameters, `f64` or `(f64, f64)` result, scalar `let`, `let mut`, shadowing, assignments, return/tail expression | `rustc` |
 
 Python modules may contain a closed collection of numerical functions. Calls
 are positional and direct; recursion, external functions, decorators, defaults,
@@ -278,3 +278,12 @@ The implemented producer supports positive native and ideal divisor floors.
 Its fixed grids can inflate bounds or lose a tiny positive denominator. Failed
 budgets are not observations of large actual error. Repeated calls, physical
 coverage and covariance positivity need additional contracts and composition.
+
+## Larger Rust APIs
+
+Use the separate [Rust application proof-bundle route](rust-applications.md) for
+modules, structs, slices, enums/results, integer timestamps and validation gates.
+It uses the same CLI and tool configuration but replaces scalar domain/output
+fields with a separately reviewed Lean contract and authored proof modules.
+The 48-event IMU fixture covers the actual public API and all error outcomes;
+this does not expand the automatic scalar parser's admitted subset.

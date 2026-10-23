@@ -237,7 +237,7 @@ independent Lake package; no source-project checkout is needed to build or use i
 | `formal-demo` | `af1dd951770ee7d5b222331c31e0f3e885005681` | Initial scalar, matrix and analysis theorem collection |
 | `kalman-filter` | `b5077c258988627ca81a02b0767b0a814ee1c8e9` | Entrywise propagation, positivity margins, residuals, error recurrences, Householder preservation, sign/sqrt bounds and two-state Gram symmetry |
 | `kalman-filter-lean`, branch `paper` | `4d5330e176a6bf7059013b5689d7de9b07507ae4`, plus the file hashes recorded in the manifest | Numerical skill, adapters, graph/producer/emitters, pipeline contracts, tests, requests and frozen Gappa reconstruction inputs |
-| Same `kalman-filter-lean` snapshot | Same revision and per-file hashes | Scalar Kalman/IMU helpers, unchanged Rust admission challenge and compressed four-state graph probes |
+| Same `kalman-filter-lean` snapshot | Same revision and per-file hashes | Scalar Kalman/IMU helpers, original 48-event Rust application, companion timing and frozen proof closure, UInt64 conversion wrappers, translator cast patch and compressed graph probes |
 
 The workflow snapshot included uncommitted assets: its commit alone does not
 identify the imported bytes. The manifest hashes identify the original sources,
@@ -250,14 +250,19 @@ Extraction retained theorem assumptions, constants and native arithmetic order,
 while adapting namespaces, imports and numerical error types. The pipeline
 contracts reuse FLARE's existing arithmetic results; moving them establishes no
 stronger bound. Fixed-horizon Python loop wrappers and independent recurrences
-are explicit benchmark adaptations. The unchanged Rust source and large graphs
-remain capability probes. Gappa's Coq proof is reconstruction material, not an
+are explicit benchmark adaptations. The unchanged Rust application now has an
+authored proof bundle under
+`examples/numerics/imu48`; fresh extraction and its typed root check establish
+the current result. The large graphs remain analysis probes. Gappa's Coq proof is
+reconstruction material, not an
 accepted Lean theorem.
 
-The Kalman workflow source and FLARE use GPL-3.0. Application implementations,
-paper reports and historical success claims are excluded from the library's
-proof evidence. Source projects are neither modified nor required by this
-extraction; application-specific bridges remain in their own projects. Preserve
+The Kalman workflow source and FLARE use GPL-3.0. Core library modules remain
+independent of application implementations. Paper reports and historical success
+claims do not establish the current proof results. Source projects are neither
+modified nor required by this
+extraction. Application-specific definitions and bridges live in optional
+example bundles, outside the core library module trees. Preserve
 attribution, update destinations when modules move, and add source records when
 importing more results. Origin records establish neither mathematical novelty
 nor upstream acceptance.

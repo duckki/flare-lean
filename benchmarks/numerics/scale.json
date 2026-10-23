@@ -1,6 +1,6 @@
 {
   "schema": "numerics-benchmarks-v1",
-  "description": "Fixed-shape array prediction, increasing bounded Kalman/IMU iterations, original full-application admission and four-state DAG analysis probes. A graph probe or source rejection is never a certificate.",
+  "description": "Increasing bounded source workloads, complete Rust application proof bundle and four-state DAG analysis probes.",
   "cases": [
     {
       "name": "array_prediction4",
@@ -106,10 +106,9 @@
       "kind": "workflow",
       "family": "imu_integer_time_and_decisions",
       "iterations": 48,
-      "request": "scale/imu48.json",
-      "expected": "unsupported_or_invalid_request",
-      "expected_error_contains": "one pub fn",
-      "optional": false
+      "request": "../../examples/numerics/imu48/request.json",
+      "expected": "certified",
+      "optional": true
     },
     {
       "name": "covariance_relative",

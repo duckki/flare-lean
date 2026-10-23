@@ -54,13 +54,18 @@ def main():
         source_request=(manifest.parent/case['request']).resolve()
         request=json.loads(source_request.read_text())
         request['source']=str((source_request.parent/request['source']).resolve())
+        if 'rust_application' in request:
+            for field in ('files', 'lean_modules'):
+                request['rust_application'][field] = {
+                    key: str((source_request.parent/value).resolve())
+                    for key, value in request['rust_application'][field].items()}
         runtime=tools.get('runtimes',{}).get(request.get('language','python'))
-        if runtime: request['source_runtime']=runtime
+        if runtime and 'rust_application' not in request: request['source_runtime']=runtime
         if request.get('target')=='rust-aeneas' and tools.get('rust_tools'):
             request['rust_tools']=tools['rust_tools']
-        if tools.get('analysis_tools'):
+        if tools.get('analysis_tools') and 'rust_application' not in request:
             request['analysis_tools'] = tools['analysis_tools']
-        if args.contract_cache:
+        if args.contract_cache and 'rust_application' not in request:
             request['contract_cache'] = str(args.contract_cache.resolve())
         selected=out/(case['name']+'.json');save(selected,request)
         start=time.monotonic();run=out/case['name']
@@ -79,9 +84,12 @@ def main():
                 'outputs':result.get('outputs',[]),'command':command}
         if (run/'program.json').is_file():
             program=json.loads((run/'program.json').read_text())
-            record['metrics']={'graph_nodes':len(program['nodes']),
-                'arithmetic_operations':sum(n['op']!='constant' for n in program['nodes']),
-                'original_scalar_inputs':len(program['inputs'])}
+            record['metrics']={'graph_nodes':len(program.get('nodes', [])),
+                'arithmetic_operations':sum(n['op']!='constant' for n in program.get('nodes', [])),
+                'original_scalar_inputs':len(program.get('inputs', []))}
+            if program.get('profile') == 'rust-application-proof-v1':
+                record['metrics'] = {'crate_files': len(program['crate_files']),
+                                     'authored_modules': len(program['lean_modules'])}
         record['stage_seconds']={p.parent.name:json.loads(p.read_text())['seconds']
                                  for p in sorted((run/'runs').glob('*/run.json'))}
         checks = [json.loads(p.read_text()) for p in (run/'runs').glob('*/run.json')]

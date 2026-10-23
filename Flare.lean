@@ -29,6 +29,7 @@ public import Flare.Binary64.Model.NaturalConversion
 public import Flare.Binary64.Model.Rounding
 public import Flare.Binary64.Model.Value
 public import Flare.Binary64.Nearest
+public import Flare.Binary64.NaturalConversion
 public import Flare.Binary64.Order
 public import Flare.Binary64.Pipeline
 public import Flare.Binary64.Rounding

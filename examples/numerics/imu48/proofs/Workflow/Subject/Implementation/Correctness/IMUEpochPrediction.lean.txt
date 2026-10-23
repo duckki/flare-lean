@@ -1,0 +1,35 @@
+module
+
+public import Workflow.Subject.Implementation.IMUEpochPrediction
+public import Workflow.Subject.Implementation.Correctness.TimestampAlignment
+public import Workflow.Subject.Definitions.Theorems.IMUEpochPrediction
+
+/-! Original-input prediction contract. Completed witnesses are in
+`Workflow.Subject.Proofs.FloatIMUEpochPrediction`; these definitions alone are not proofs. -/
+
+@[expose] public section
+
+namespace Workflow.Subject.Implementation.Correctness.IMUEpochPrediction
+
+open Flare.Binary64.Value
+
+/-- Arithmetic allowance in metres after 48 events, not a physical error limit. -/
+noncomputable def positionAllowance : ℝ := 48 * (2 : ℝ) ^ (-35 : Int)
+
+def Domain (acceleration : Nat → Float) (epochs : Nat → UInt64) : Prop :=
+  (∀ i < 48, (acceleration i).isFinite = true ∧ |value (acceleration i)| ≤ 4)
+  ∧ (∀ i < 48, TimestampAlignment.Domain (epochs i) (epochs (i + 1)))
+
+/-- Finite position and error against the same original input words and integer
+intervals. The reference is not restarted from rounded states or time values. -/
+def Accuracy (acceleration : Nat → Float) (epochs : Nat → UInt64) : Prop :=
+  let dt := fun i => (epochs (i + 1) - epochs i).toFloat * 1.0e-9
+  let elapsed :=
+    fun i => Definitions.Theorems.IMUEpochPrediction.elapsed (epochs i) (epochs (i + 1))
+  (Implementation.IMUEpochPrediction.trajectory acceleration dt 48).1.isFinite = true
+  ∧ |value (Implementation.IMUEpochPrediction.trajectory acceleration dt 48).1
+      - (Definitions.Theorems.IMUEpochPrediction.reference
+          (fun i => value (acceleration i)) elapsed 48).1|
+    ≤ positionAllowance
+
+end Workflow.Subject.Implementation.Correctness.IMUEpochPrediction
