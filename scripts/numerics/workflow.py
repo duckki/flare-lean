@@ -236,7 +236,7 @@ def report(output, result):
     if 'producer' in result:
         lines += ['', 'Producer: `'+result['producer']+'`.']
     if result.get('producer_validation') == 'lean-scalar-interval-v1':
-        lines += ['Validation: reusable scalar inference with native nearest rounding, polynomial rewrites and interval subdivision.',
+        lines += ['Validation: reusable scalar inference with native nearest rounding, checked polynomial rewrites, exact rational enclosure rules and interval subdivision.',
                   'Acceptance requires Lean to prove the proposed allowance itself. See analysis.json for each input box and rounding allowance.']
     if result.get('producer_validation') == 'lean-conditional-four-flows-v1':
         lines += ['Validation: Lean checks all four native/exact branch choices, including divergent flows; no stability assumption is used.',

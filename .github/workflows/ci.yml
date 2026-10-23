@@ -63,6 +63,9 @@ jobs:
         run: >-
           python3 scripts/benchmark_numerics.py
           --case mean_update_gappa --case mean_update_fptaylor
+          --case square_gappa --case quartic_gappa
+          --case square_fptaylor --case quartic_fptaylor
+          --case regularized_gain_gappa --replay
           --tools .cache/numerics-generated/ci-tools/tools.json
           --out .cache/numerics-generated/bench-external-ci
       - name: Check out pinned README demo source

@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "energy.py",
+  "function": "regularized_gain",
+  "producer": "lean-flare",
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "1/(x*x+1)"
+  ],
+  "outputs": [
+    {
+      "name": "regularized_gain",
+      "unit": "1",
+      "limit": "1/1099511627776"
+    }
+  ]
+}

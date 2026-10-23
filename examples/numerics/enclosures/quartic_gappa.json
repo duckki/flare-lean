@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "energy.py",
+  "function": "quartic",
+  "producer": "gappa",
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "(x*x)*(x*x)"
+  ],
+  "outputs": [
+    {
+      "name": "quartic",
+      "unit": "1",
+      "limit": "1/1099511627776"
+    }
+  ]
+}

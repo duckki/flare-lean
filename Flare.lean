@@ -6,6 +6,7 @@ public import Flare.Analysis.EntrywiseError
 public import Flare.Analysis.ErrorRecurrence
 public import Flare.Analysis.Factorization
 public import Flare.Analysis.GramBounds
+public import Flare.Analysis.IntervalExpression
 public import Flare.Analysis.Householder
 public import Flare.Analysis.Jacobi
 public import Flare.Analysis.JacobiDiagonal

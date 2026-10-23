@@ -251,3 +251,13 @@ libraries and a weakened shape/execution root. Cold replay disables producers,
 NumPy/Julia admission and extraction. Rust source retains its actual API/loop;
 only the authored proof expands the two-element iteration. See the
 [scientific guide](scientific-arrays.md) for implementation boundaries.
+
+## Shared enclosure regression checks
+
+The pure `Analysis.IntervalExpression` interpreter and checker reuse Mathlib's
+interval soundness rules. `make check` audits their axioms and tests the exported
+interface; `make numerics-check` exercises correlated powers, positive native
+and exact denominator floors, corrupted rules/rewrites/leaf bounds, and frozen
+replay. Real Gappa/FPTaylor selections additionally certify the square/quartic
+family through the same engine and retain each tool's actual candidate.
+See [proof evidence](proof-evidence.md) for the supported vocabulary and commands.

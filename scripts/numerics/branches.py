@@ -10,7 +10,7 @@ from fractions import Fraction as Q
 from .analysis import Bound
 from .emit import applied, proposition, real
 from .integration import Proposal
-from . import scalar
+from . import scalar, enclosure
 
 
 def proposal(program, request, candidates=None, details=None):
@@ -69,6 +69,7 @@ def proposal(program, request, candidates=None, details=None):
         'claim_policy': 'producer-output-claims' if candidates is not None else 'requested-budget',
         'stable_flow_cases': 2, 'divergent_flow_cases': 2, 'boxes': len(leaves),
         'foreign_trace_checked': False,
+        'rule_checker': enclosure.CHECKER, 'enclosure_rules': enclosure.RULES,
         'qualification': 'All native/exact branch combinations and numerical premises are independently checked in Lean; no stable-test assumption.'}
     return Proposal(summaries, [], claims, metadata, lean_source=source,
         authored={'accuracy': 'Workflow.Scalar.accuracy', 'specification_equiv': 'Workflow.Branches.specification_equiv'})

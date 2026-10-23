@@ -7,6 +7,7 @@ import math
 from .adapter_external import PINS, node_expression
 from .frontend import Unsupported, number
 from .integration import Adapter, ToolError
+from .enclosure import CHECKER
 from . import scalar
 
 
@@ -150,7 +151,7 @@ def produce(session):
 ADAPTERS = (Adapter('precisa','producer','stable-and-unstable-error-candidates',
     'Reconstruct PRECiSA error candidates including divergent branch choices in Lean', produce, applicable,
     {'versions':PIN['versions'], 'source_revision':PIN['setup']['source']['revision'],
-     'max_arithmetic_nodes':32, 'conditional_profile':'one terminal Python scalar if/else',
+     'max_arithmetic_nodes':32, 'rule_checker':CHECKER, 'conditional_profile':'one terminal Python scalar if/else',
      'input_interpretation':'original finite binary64 inputs, exact decoded values in Lean',
      'stable_test_assumption':False, 'validation':['lean-conditional-four-flows-v1','lean-scalar-interval-v1'],
      'foreign_pvs_proof_import':False}, PIN['setup']),)

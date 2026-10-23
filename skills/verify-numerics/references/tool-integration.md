@@ -18,7 +18,8 @@ They cannot substitute a looser budget. Failed Lean arguments remain unresolved.
 trace is retained rather than imported; this is not a general foreign-proof importer.
 
 The scalar validator uses nearest-rounding theorems, checked polynomial rewrites,
-interval inference and bounded domain subdivision. It admits at most 32 IR nodes,
+exact rational enclosure inference with checked powers and bounded domain
+subdivision. It admits at most 32 IR nodes,
 256 polynomial terms, degree 16 and 16 input boxes, with arithmetic magnitude at most
 `2^1000` and positive native/exact divisor floors. The default producer also tries
 it when compositional analysis loses a floor or misses a budget. Preserve the
@@ -69,3 +70,21 @@ verified inference over per-application numerical proof patches. An adapter can
 emit a Lean proof module through the same typed root check. The
 [provider integration guide](https://github.com/duckki/flare-lean/blob/main/docs/tool-integration.md)
 defines these interfaces and their tests.
+
+## Shared enclosure inference
+
+The Gappa and FPTaylor adapters use the same proved
+`Flare.Analysis.IntervalExpression.Expr.check_sound` engine for rational
+constants, bounded real leaves, addition, multiplication, negation and natural
+powers. Leaf bounds are proved from the original input domain or a checked
+rounding theorem; Python calculations never become premises. Polynomial
+factorizations are checked separately by `ring`. Power inference can retain a
+positive denominator floor in `1/(x*x+1)` across a domain spanning zero.
+
+Keep the actual producer candidate as the target. FPTaylor's tighter candidate
+for that reciprocal is below the current reconstruction's allowance and remains
+unresolved; a successful Gappa/default route is a separate attempt.
+Saved typed Lean expressions replay without the producer or inference script.
+This is verified inference over retained candidate conclusions, not a Coq/PVS
+proof-trace importer. See the provider's `docs/proof-evidence.md` for maintained
+cases, controls and measurements.

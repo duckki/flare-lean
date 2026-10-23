@@ -34,6 +34,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Tiny positive gain denominator | `certified` | Preserve native and exact positive floors with both variances in `[2^-54,2^-53]` |
 | Array prediction / calibration / projection | `certified` | Built-in Python lists, checked shapes and original ascending product order, independent exact matrix expressions |
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
+| Shared square / quartic / regularized reciprocal | `certified` with selected producers | Gappa/FPTaylor share a proved power-aware rational enclosure engine; actual candidate targets and replay |
 | Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
 | Guarded reciprocal | `certified` | Direct input guard, local denominator premise, domain includes zero |
 | Counted smoothing loop | `certified` | Original `range(count)` loop; one preserved invariant and independent exact recurrence |
@@ -53,6 +54,8 @@ CI additionally builds the pinned Gappa/FPTaylor versions and selects
 `mean_update_gappa` / `mean_update_fptaylor`. See
 [tool integration](../../docs/tool-integration.md) for source setup, configuration,
 adapter extension and the distinction between raw output and checked bounds.
+CI also retains the [shared power/enclosure families](../../examples/numerics/enclosures/README.md)
+through both real tools and replays their frozen proofs.
 Explicitly selecting one requires its tools: absence is a failed prerequisite,
 not a successful proof rejection. `--case NAME` can select individual scenarios.
 A local tools file has `runtimes` keyed by `julia`, `matlab`, `c` or `rust`, each with

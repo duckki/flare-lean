@@ -27,7 +27,11 @@ delay implementing capabilities with clear acceptance cases.
   and trust boundaries. See the [C guide](c-verification.md).
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
-  [tool integration](tool-integration.md).
+  [tool integration](tool-integration.md). Gappa and FPTaylor share a proved
+  exact rational enclosure engine with power correlations and checked leaf
+  premises. Square/quartic families and positive regularized denominators have
+  maintained cases; foreign proof traces remain untrusted. See
+  [shared proof evidence](proof-evidence.md).
 - Charon/Aeneas supplies fresh Rust extraction. Reviewed bridges connect the
   actual extracted API to numerical contracts, including validation, integer
   timing, errors and decisions. General application bridges still need authored
@@ -64,12 +68,11 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Reuse proof evidence and inference.** Connect useful reasoning from tools to
-   reusable checked rules or verified Lean inference, selecting a measured
-   reconstruction bottleneck in the current source/array routes.
+1. **Broaden arithmetic models.** Add mixed binary32/binary64 semantics, explicit
+   FMA and implementation-specific function contracts on retained applications.
 2. **Broaden scientific code and automated delivery.** Extend actual library/API
-   bridges and arithmetic models where applications require them. Broaden Rust
-   correspondence-proof generation, counterexamples, setup and maintenance.
+   bridges where applications require them. Broaden Rust correspondence-proof
+   generation, counterexamples, setup and maintenance.
 
 Each milestone retains source, domain, independent reference and engineering
 requirements. Changes to any of these create a separate reviewed case. Completion
@@ -79,18 +82,16 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 12.
+The next implementation milestone is 13.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 12. Shared proof evidence and inference | More tool reasoning survives into Lean at lower checking cost | A reusable rule checker or verified inference engine consumes useful evidence across two tools and a family of applications |
 | 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 12 starts with a measured reconstruction bottleneck from the current
-C, scientific-array or scalar routes. Milestone 13 progresses per arithmetic
-feature once its semantic bridge is ready. Setup, counterexamples and maintenance
-work from 14 accompanies every milestone; a separate integration test closes 14.
+Milestone 13 progresses per arithmetic feature once its semantic bridge is ready.
+Setup, counterexamples and maintenance work from 14 accompanies every milestone;
+a separate integration test closes 14.
 
 No milestone requires integrating every candidate tool or supporting a complete
 source language before a useful closed profile can ship.
@@ -105,12 +106,12 @@ output. An external success verdict never discharges a Lean premise by itself.
 
 | Tool family | Current status | Next reusable capability | Milestones |
 | --- | --- | --- | --- |
-| Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 12 |
-| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 12 |
+| Gappa / FPTaylor | Candidate reconstruction with shared proved rational enclosure/power inference | Tighter division correlations, larger composed obligations and lower evidence/checking cost | Future evidence work |
+| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction using the common scalar proof path | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | Future evidence work |
 | Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 |
-| Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | 12 |
+| Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | Future evidence work |
 | CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 14 |
-| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 12, 13 |
+| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 13, future evidence work |
 
 Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
 The [C guide](c-verification.md) describes the export utility and why the current
@@ -158,33 +159,6 @@ proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
 promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
-
-## 12. Share proof evidence and verified inference
-
-### Deliver
-
-- Profile repeated reconstruction costs and missing reasoning in existing Gappa,
-  FPTaylor and PRECiSA runs and the new C/array routes. Choose a useful common
-  subset: for example interval, polynomial, order, rounding or recurrence rules.
-- Implement typed evidence parsing with explicit semantic interpretations and
-  Lean soundness proofs for every accepted rule, or implement the needed
-  inference in Lean with proved soundness. Reuse existing math rather than adding
-  application-specific bounds or manually copying foreign theorems.
-- Connect useful output from at least two tools to that checker. Coq/Flocq,
-  VCFloat2, LAProof and PVS may supply evidence or guide an implementation;
-  inspecting their actual output precedes choosing an importer. Foreign theorem
-  names, solver verdicts and unchecked transformation premises are insufficient.
-
-### Completion criteria
-
-Two tools and a family of applications use the same proved rule vocabulary or
-inference engine. Compare accepted allowances, checking time, memory and proof
-size against current reconstruction on unchanged requests. Show a measured
-coverage or cost benefit. Corrupt a rule, rounding mode, rewrite and side condition;
-all must fail the intended check. Saved Lean evidence replays without the tools.
-
-A universal Coq/PVS/SMT proof importer is not required. Keep candidate
-reconstruction where it is simpler and effective.
 
 ## 13. Cover more arithmetic models
 
@@ -249,6 +223,15 @@ Keep these recommendations for future iterations. They complement the planned
 capabilities and do not require every new integration to wait for a separate
 evaluation project.
 
+- **Further evidence integration and cost.** Extend the shared enclosure engine
+  with useful division/order/recurrence reasoning, external branch-local summaries
+  and selected Frama-C/WP/Why3 typed-memory or numerical evidence. Inspect pinned
+  Coq/Flocq, VCFloat2, LAProof or PVS output before choosing an importer or proved
+  inference. Reduce repeated expression/proof bytes and check costs; the present
+  power rules add coverage without a general speed or size improvement. Keep
+  FPTaylor's unresolved regularized-reciprocal candidate and unchanged engineering
+  budget as a correlation target. Recheck actual candidates, corrupt rules and
+  side conditions, and preserve producer-free replay for every extension.
 - **Further scaling and profile composition.** Extend the current
   [source-backed workloads](scaling.md) toward 10,000 arithmetic operations,
   array dimensions 2/4/8/16/32 and 1/4/16 composed components, where contracts

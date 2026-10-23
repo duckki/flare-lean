@@ -38,7 +38,10 @@ The scalar and conditional validators are described below. Further tools follow 
 `scripts/numerics/scalar.py` proposes exact rational enclosures, local rounding
 allowances, sparse polynomial rewrites and a bounded input subdivision. Lean
 checks these using FLARE's actual binary64 nearest-rounding theorems, Mathlib's
-`ring` normalization and `dyadic_interval` tactic. Generated case proofs also
+`ring` normalization and the proved `Analysis.IntervalExpression` inference
+engine. Exact rational enclosure checks run in the Lean kernel; their soundness
+reuses Mathlib's interval rules. Powers preserve nonnegative square floors.
+Generated case proofs also
 establish that the subdivisions cover the original domain. Python inference and
 external analyzers remain outside the proof's trusted assumptions.
 
@@ -56,6 +59,11 @@ intervals. `tiny_gain.json` certifies `p/(p+r)` for both inputs in
 `[2^-54,2^-53]`; no fixed absolute grid erases the divisor floor. Related input
 scales, false zero bounds, incorrect rewrites and producer-free replay are tested.
 No application-specific proof is supplied for these families.
+
+The [shared enclosure guide](proof-evidence.md) covers the typed rule vocabulary,
+power/regularized-reciprocal families, unchanged external candidates, rejection
+controls and measured coverage/cost comparison. Gappa and FPTaylor use this same
+inference engine; their foreign traces remain untrusted evidence.
 
 ## Conditional validation and PRECiSA
 

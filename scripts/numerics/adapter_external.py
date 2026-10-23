@@ -12,6 +12,7 @@ import re
 
 from .frontend import Unsupported, number
 from .integration import Adapter
+from .enclosure import CHECKER
 from . import scalar
 
 
@@ -152,7 +153,7 @@ ADAPTERS = (
             'Reconstruct the Gappa query conclusion with reusable Lean scalar inference',
             produce_gappa, gappa_applicable,
             {'versions': PINS['gappa']['versions'], 'domain_endpoints': 'dyadic',
-             'max_ir_nodes': scalar.MAX_OPERATIONS,
+             'max_ir_nodes': scalar.MAX_OPERATIONS, 'rule_checker': CHECKER,
              'goals': ['absolute-error-budget'], 'validation': ['lean-scalar-interval-v1']},
             PINS['gappa']['setup']),
     Adapter('fptaylor', 'producer', 'numeric-candidates',
@@ -160,7 +161,7 @@ ADAPTERS = (
             produce_fptaylor, applicable,
             {'versions': PINS['fptaylor']['versions'],
              'tested_source_revision': PINS['fptaylor']['setup']['source']['revision'],
-             'max_ir_nodes': scalar.MAX_OPERATIONS,
+             'max_ir_nodes': scalar.MAX_OPERATIONS, 'rule_checker': CHECKER,
              'goals': ['absolute-error-budget'], 'validation': ['lean-scalar-interval-v1']},
             PINS['fptaylor']['setup']),
 )

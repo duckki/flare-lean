@@ -57,3 +57,12 @@ example (rows inner columns : Nat) (a b result : Array Float)
     (h : Flare.Matrix.Dense.multiply rows inner columns a b = .ok result)
     : result = Flare.Matrix.OrderedProduct.product rows inner columns a b :=
   Flare.Matrix.OrderedProduct.multiply_eq rows inner columns a b result h
+
+-- A client can discharge a real square range using the shared computed checker.
+open Flare.Analysis.IntervalExpression in
+example (x : ℝ) (hx : -2 ≤ x ∧ x ≤ 3) : 0 ≤ x ^ 2 ∧ x ^ 2 ≤ 9 := by
+  let v : Variable := ⟨-2, 3, x, by norm_num; exact hx⟩
+  have h := Expr.check_sound (e := .pow (.atom v) 2) (lower := 0) (upper := 9)
+    (by dsimp only [Expr.check, Expr.enclosure, v]; decide +kernel)
+  norm_num only [Expr.eval, v, Rat.cast_zero, Rat.cast_ofNat] at h
+  exact h

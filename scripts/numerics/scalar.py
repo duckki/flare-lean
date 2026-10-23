@@ -1,8 +1,8 @@
 """Reusable, untrusted scalar inference with independently checked Lean arguments.
 
 Sparse polynomial normalization preserves correlations. Exact rational interval
-search proposes rounding allowances and input splits; Mathlib's interval tactic
-and ring normalization check the proposals against FLARE's native Float laws.
+search proposes rounding allowances and input splits; a proved Lean enclosure
+engine and ring normalization check them against FLARE's native Float laws.
 No foreign bound, rewrite or Python calculation is a theorem premise.
 """
 from dataclasses import replace
@@ -13,6 +13,7 @@ from .analysis import Bound, up
 from .emit import applied, expression, hypotheses, params, proposition, real as rational_real
 from .frontend import number
 from .integration import Proposal
+from . import enclosure
 
 
 MAX_OPERATIONS = 32
@@ -73,21 +74,31 @@ def multiply(left, right):
 
 
 def horner(poly):
-    """Deterministic factorization; Lean checks every use by ring normalization."""
+    """Factor a sparse polynomial; the independent Lean ring proof checks it.
+
+    Retain powers across missing degrees instead of expanding x*x into two
+    unrelated interval factors. This is essential for positive square floors.
+    """
     names = sorted({name for powers in poly for name, _ in powers})
     if not names:
         return ('constant', poly.get((), Q(0)))
     name = names[0]
-    degree = max(dict(powers).get(name, 0) for powers in poly)
-    groups = [{} for _ in range(degree+1)]
+    groups = {}
     for powers, coefficient in poly.items():
         exponents = dict(powers)
         power = exponents.pop(name, 0)
-        groups[power][tuple(sorted(exponents.items()))] = coefficient
-    result = horner(groups[-1])
-    for group in reversed(groups[:-1]):
-        result = ('add', ('mul', ('variable', name), result), horner(group))
-    return result
+        groups.setdefault(power, {})[tuple(sorted(exponents.items()))] = coefficient
+    degrees = sorted(groups, reverse=True)
+    result, previous = horner(groups[degrees[0]]), degrees[0]
+    def times_power(value, power):
+        if not power:
+            return value
+        factor = ('variable', name) if power == 1 else ('pow', ('variable', name), power)
+        return factor if value == ('constant', Q(1)) else ('mul', factor, value)
+    for degree in degrees[1:]:
+        result = ('add', times_power(result, previous-degree), horner(groups[degree]))
+        previous = degree
+    return times_power(result, previous)
 
 
 def interval(expr, ranges):
@@ -96,6 +107,14 @@ def interval(expr, ranges):
         return args[0], args[0]
     if op == 'variable':
         return ranges[args[0]]
+    if op == 'pow':
+        lo, hi = interval(args[0], ranges)
+        n = args[1]
+        if not n:
+            return Q(1), Q(1)
+        if n % 2 or lo >= 0:
+            return lo**n, hi**n
+        return (hi**n if hi <= 0 else Q(0)), max(lo**n, hi**n)
     a, b = [interval(child, ranges) for child in args]
     if op == 'add':
         return a[0]+b[0], a[1]+b[1]
@@ -109,6 +128,8 @@ def render(expr):
         return real(args[0])
     if op == 'variable':
         return '(value '+args[0]+')' if args[0].startswith('a') else args[0]
+    if op == 'pow':
+        return '('+render(args[0])+' ^ '+str(args[1])+')'
     return '('+render(args[0])+(' + ' if op == 'add' else ' * ')+render(args[1])+')'
 
 
@@ -250,10 +271,10 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
     args = applied(program)
     lines = ['module', '', 'public import Workflow.Kernel', 'public import Flare.Binary64.Pipeline',
              'public import Flare.Binary64.Nearest', 'public import Flare.Binary64.Zero',
-             'import Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Tactic',
-             'public meta import Mathlib.Tactic.Inclusion.Extension.IntervalDyadicReal.Rational', '',
+             'public import Flare.Analysis.IntervalExpression', '',
              '@[expose] public section', '', 'namespace Workflow.Scalar',
-             'open Flare.Binary64.Pipeline Flare.Binary64.Value', '',
+             'open Flare.Binary64.Pipeline Flare.Binary64.Value',
+             'open Flare.Analysis', '',
              'set_option maxHeartbeats 2000000', 'set_option maxRecDepth 4096', '']
     lines += ['set_option exponentiation.threshold 2048', '']
     for index, box in enumerate(leaves):
@@ -269,7 +290,7 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                       f'  have b_a{i} : NativeBounds {real(b.c)} {real(b.w)} {real(b.i)} 0 a{i} (value a{i}) := by',
                       f'    apply same _ _ _ _ h{i}.1',
                       f'    all_goals rw [abs_le]; constructor <;> linarith only [h{i}.2.1, h{i}.2.2]']
-        prior_ideal = []
+            lines += ['  '+line for line in enclosure.atom('a'+str(i), lo, hi, 'value a'+str(i))]
         for step in box['steps']:
             node, b, rho, cap = (step[key] for key in ['node','bound','rho','magnitude'])
             name, ideal_name = node.name, 'i'+node.name[1:]
@@ -283,12 +304,12 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 lines += [f'  have b_{name} : {target} := by', '    refine ⟨by decide +kernel, ?_, ?_, ?_⟩',
                           f'    all_goals norm_num [{ideal_name}, p_{name}]']
             elif node.op == 'neg':
-                proof = f'by convert (native_neg b_{node.args[0]}) using 1; norm_num'
+                proof = f'by simpa only [neg_neg, neg_zero, neg_div] using (native_neg b_{node.args[0]})'
                 lines += [f'  have b_{name} : {target} := {proof}']
                 if step['native'] is not None:
                     lines += [f'  have p_{name} : value {name} = {render(horner(step["native"]))} := by',
-                              f'    rw [(Flare.Binary64.Order.neg_value _ b_{node.args[0]}.finite).2]',
-                              *([f'    simp only [{", ".join(parent_native)}]'] if parent_native else []), '    ring']
+                              f'    conv_lhs => rw [(Flare.Binary64.Order.neg_value _ b_{node.args[0]}.finite).2]',
+                              *([f'    conv_lhs => simp only [{", ".join(parent_native)}]'] if parent_native else []), '    ring']
             else:
                 left, right = node.args
                 pre = expression(node, ideal=True)
@@ -296,9 +317,15 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 lines += [f'  have m_{name} : |{pre}| ≤ {real(cap)} := by']
                 if step['pre'] is not None:
                     expanded = render(horner(step['pre']))
-                    lines += [f'    have eq : {pre} = {expanded} := by',
-                              *([f'      simp only [{", ".join(parent_native)}]'] if parent_native else []),
-                              '      ring', '    rw [eq]', '    dyadic_interval [prec := 1400]']
+                    parent_polys = {s['node'].name: s['native'] for s in box['steps']}
+                    expanded_pre = re.sub(r'\(value (n\d+)\)',
+                        lambda m: render(horner(parent_polys[m[1]])), pre)
+                    identity = ([f'      have expanded : {pre} = {expanded_pre} := by',
+                                 f'        simp only [{", ".join(parent_native)}]',
+                                 '      exact expanded.trans (by ring)']
+                                if parent_native else ['      ring'])
+                    lines += [f'    have eq : {pre} = {expanded} := by', *identity, '    rw [eq]']
+                    lines += ['    '+line for line in enclosure.proof(horner(step['pre']), Q(0), cap)]
                 else:
                     if node.op in ('add', 'sub'):
                         lemma = 'abs_add_le' if node.op == 'add' else 'abs_sub'
@@ -337,17 +364,21 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                               f'  change -{real(rho)} ≤ {delta} at {delta}_lo',
                               f'  change {delta} ≤ {real(rho)} at {delta}_hi',
                               f'  have p_{name} : value {name} = {render(horner(step["native"]))} := by',
-                              f'    dsimp only [{delta}]',
-                              *([f'    simp only [{", ".join(parent_native)}]'] if parent_native else []), '    ring',
+                              f'    conv_rhs => dsimp only [{delta}]',
+                              *([f'    conv_rhs => simp only [{", ".join(parent_native)}]'] if parent_native else []), '    ring',
                               f'  clear_value {delta}',
+                              *['  '+line for line in enclosure.atom(delta, -rho, rho, delta)],
                               f'  have j_{name} : {ideal_name} = {render(horner(step["ideal"]))} := by',
-                              f'    dsimp only [{", ".join([ideal_name, *prior_ideal])}]', '    ring',
+                              '    ring!',
                               f'  have b_{name} : {target} := by', f'    refine ⟨q_{name}.1, ?_, ?_, ?_⟩',
-                              f'    · rw [p_{name}]; dyadic_interval [prec := 1400]',
-                              f'    · rw [j_{name}]; dyadic_interval [prec := 1400]',
+                              f'    · rw [p_{name}]',
+                              *['      '+line for line in enclosure.proof(horner(step['native']), b.c, b.w)],
+                              f'    · rw [j_{name}]',
+                              *['      '+line for line in enclosure.proof(horner(step['ideal']), Q(0), b.i)],
                               f'    · rw [p_{name}, j_{name}]',
                               f'      have eq : {render(horner(step["native"]))} - {render(horner(step["ideal"]))} = {render(horner(add(step["native"], step["ideal"], -1)))} := by ring',
-                              '      rw [eq]; dyadic_interval [prec := 1400]']
+                              '      rw [eq]',
+                              *['      '+line for line in enclosure.proof(horner(add(step['native'], step['ideal'], -1)), Q(0), b.e)]]
                 else:
                     operands = f'b_{left}.bounds b_{right}.bounds'
                     if node.op == 'div':
@@ -355,7 +386,6 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                     lines += [f'  have raw_{name} := rounded ({node.op}_bounds {operands}) r_{name}',
                               f'  have b_{name} : {target} := ⟨q_{name}.1, weaken raw_{name}',
                               '    (by norm_num) (by norm_num) (by norm_num)⟩']
-            prior_ideal.append(ideal_name)
         terms = []
         for name in program.outputs:
             terms += [f'b_{name}.finite', f'b_{name}.bounds.error.trans (by norm_num : {real(summaries[name].e)} ≤ {rational_real(claims[name].e)})']
@@ -379,10 +409,7 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 facts = ', '.join([f'h{i}.2.1', f'h{i}.2.2', *tests])
                 lines += [prefix+f'· exact ⟨h{i}.1, by linarith only [{facts}], by linarith only [{facts}]⟩']
     branch(root)
-    values = [abs(Q(v)) for leaf in leaves for pair in leaf['domain'].values() for v in pair]
-    values += [step['rho'] for leaf in leaves for step in leaf['steps']]
-    precision = max(256, max((-scale(v)+192 for v in values if v), default=256))
-    return '\n'.join([*lines, '', 'end Workflow.Scalar', '']).replace('prec := 1400', 'prec := '+str(precision))
+    return '\n'.join([*lines, '', 'end Workflow.Scalar', ''])
 
 
 def proposal(program, request, candidates=None, details=None):
@@ -400,6 +427,7 @@ def proposal(program, request, candidates=None, details=None):
     metadata = {**(details or {}), 'validation': 'lean-scalar-interval-v1',
                 'claim_policy': 'producer-output-claims' if candidates is not None else 'checked-scalar-inference',
                 'boxes': len(leaves), 'foreign_trace_checked': False,
+                'rule_checker': enclosure.CHECKER, 'enclosure_rules': enclosure.RULES,
                 'qualification': 'Candidate bounds and polynomial rewrites are checked against native Float laws in Lean.'}
     steps = [{'box': index, 'domain': box['domain'],
               'nodes': [{'node': step['node'].name, 'op': step['node'].op,

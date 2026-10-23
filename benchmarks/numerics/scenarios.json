@@ -199,6 +199,48 @@
       "request": "../../examples/numerics/scientific/calibration_rust.json",
       "expected": "certified",
       "optional": true
+    },
+    {
+      "name": "square_gappa",
+      "request": "../../examples/numerics/enclosures/square_gappa.json",
+      "expected": "certified",
+      "optional": true,
+      "family": "shared_enclosures"
+    },
+    {
+      "name": "quartic_gappa",
+      "request": "../../examples/numerics/enclosures/quartic_gappa.json",
+      "expected": "certified",
+      "optional": true,
+      "family": "shared_enclosures"
+    },
+    {
+      "name": "square_fptaylor",
+      "request": "../../examples/numerics/enclosures/square_fptaylor.json",
+      "expected": "certified",
+      "optional": true,
+      "family": "shared_enclosures"
+    },
+    {
+      "name": "quartic_fptaylor",
+      "request": "../../examples/numerics/enclosures/quartic_fptaylor.json",
+      "expected": "certified",
+      "optional": true,
+      "family": "shared_enclosures"
+    },
+    {
+      "name": "regularized_gain_lean",
+      "request": "../../examples/numerics/enclosures/regularized_gain_lean.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "shared_enclosures"
+    },
+    {
+      "name": "regularized_gain_gappa",
+      "request": "../../examples/numerics/enclosures/regularized_gain_gappa.json",
+      "expected": "certified",
+      "optional": true,
+      "family": "shared_enclosures"
     }
   ]
 }
