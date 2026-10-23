@@ -23,6 +23,7 @@ import all Flare.Analysis.SpectralPerturbation
 import all Flare.Binary64.Arithmetic
 import all Flare.Binary64.Congruence
 import all Flare.Binary64.Division
+import all Flare.Binary64.Memory
 import all Flare.Binary64.Model.Arithmetic
 import all Flare.Binary64.Model.Conversion
 import all Flare.Binary64.Model.NaturalConversion

@@ -26,6 +26,7 @@ class Program:
     arrays: dict | None = None
     branches: dict | None = None
     counted: dict | None = None
+    c: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -35,6 +36,8 @@ class Program:
             record.pop('branches')
         if self.counted is None:
             record.pop('counted')
+        if self.c is None:
+            record.pop('c')
         return record
 
 

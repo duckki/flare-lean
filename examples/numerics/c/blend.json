@@ -1,0 +1,44 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "c",
+  "source": "updates.c",
+  "function": "blend",
+  "domain": {
+    "state_0": [
+      "-1",
+      "1"
+    ],
+    "state_1": [
+      "-1",
+      "1"
+    ],
+    "observation_0": [
+      "-1/4",
+      "1/4"
+    ],
+    "observation_1": [
+      "-1/4",
+      "1/4"
+    ],
+    "gain": [
+      "0",
+      "1"
+    ]
+  },
+  "specification": [
+    "state_0+gain*(observation_0-state_0)",
+    "state_1+gain*(observation_1-state_1)"
+  ],
+  "outputs": [
+    {
+      "name": "out0",
+      "unit": "m",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "out1",
+      "unit": "m",
+      "limit": "1/1000000"
+    }
+  ]
+}

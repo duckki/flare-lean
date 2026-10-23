@@ -51,7 +51,14 @@ def main():
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
-                'source_profiles': {'rust_application': {
+                'source_profiles': {'c': {
+                    'parser':'pycparser 3.0; optional dependency, also needed for frozen-source replay',
+                    'inputs':'closed C11 double functions, pure scalar helpers, double-only value structs and static buffers',
+                    'operations':'separate binary64 arithmetic; unsigned int loops with constant bounds 1..128; no casts, preprocessing, allocation, pointer escape or indirect calls',
+                    'limits':'32 scalar input cells, 512 graph nodes, buffer extents 1..8; void APIs update one one/two-cell restrict buffer',
+                    'proof':'source access/counter conditions and numerical allowances in one Lean root; buffer roots include region validity, separation, execution and unchanged cells',
+                    'target':'lean for buffers; scalar/value-struct APIs also support retained Rust ports with checked correspondence proofs'},
+                    'rust_application': {
                     'request_field': 'rust_application',
                     'inputs': 'dependency-free multi-module Rust crate; original public API',
                     'contract': 'reviewed Workflow.Contract.Statement applied to the fresh extracted entry',
@@ -99,7 +106,8 @@ def main():
         print(json.dumps({k:v for k,v in result.items() if k not in ('dependencies','artifacts')}, indent=2))
         return 0 if result.get('status') in (None, 'ready', 'certified', 'fresh', 'replayed', 'installed') else 2
     except RuntimeError as error:
-        print(json.dumps({'status':'unresolved','error':str(error)},indent=2))
+        print(json.dumps({'status':'unresolved','error':str(error),
+                          **({'failure_kind':error.kind} if hasattr(error,'kind') else {})},indent=2))
         return 2
     except (Unsupported, ValueError, KeyError, OSError, SyntaxError, ZeroDivisionError) as error:
         print(json.dumps({'status': 'unsupported_or_invalid_request', 'error': str(error)}, indent=2))

@@ -1,0 +1,30 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "c",
+  "source": "updates.c",
+  "function": "mean_update",
+  "domain": {
+    "prior": [
+      "-10",
+      "10"
+    ],
+    "gain": [
+      "0",
+      "1"
+    ],
+    "residual": [
+      "-2",
+      "2"
+    ]
+  },
+  "specification": [
+    "prior+gain*residual"
+  ],
+  "outputs": [
+    {
+      "name": "out0",
+      "unit": "m",
+      "limit": "1/1000000"
+    }
+  ]
+}

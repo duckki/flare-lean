@@ -96,6 +96,15 @@ The [array workflow guide](../skills/verify-numerics/references/arrays.md) gives
 the shape configuration, limits and maintained examples. Input lists are
 read-only; NumPy/BLAS and automatic array Rust delivery need further bridges.
 
+The closed [C11 double profile](c-verification.md) admits scalar helpers,
+by-value structs, fixed buffers and unsigned counted loops. Its Lean root adds
+source-derived access/counter conditions and checked heap execution/frame
+behavior to numerical accuracy. Callers supply live initialized aligned objects,
+extents and required writable-region separation. Parser/source mapping and C
+compiler fidelity remain declared boundaries. Original-source O0/O2/sanitized
+word diagnostics accompany certification. Buffer delivery is currently Lean-only;
+scalar/value-struct entries can retain a reusable Rust port with a checked bridge.
+
 An explicit `python_method` binding also admits a narrow class-method subset:
 two scalar state fields, fixed binary64 attributes, `None`-default gains and a
 frozen observation horizon. The selected original body is lowered and used for
@@ -111,7 +120,8 @@ analysis limitations, proof failures and timeouts require different remedies.
 
 Saved-proof `replay` recompiles the frozen Lean sources and reconstructs the
 source/specification and expected root check. It requires no producer, LLM,
-source runtime or foreign checker. Rust replay still uses the compiled Aeneas
+source runtime or foreign checker. C replay still needs its pinned pure-Python
+parser; Rust replay still uses the compiled Aeneas
 Lean model. The original run retains diagnostic evidence; replay preserves its
 status and does not rerun diagnostics. `audit` checks identity/freshness only.
 Artifacts are evidence records, not signed attestations or proof substitutes.
@@ -289,7 +299,7 @@ These tests exercise the skill's executable path and packaging. They are not
 an independent evaluation of agent behavior on new engineering tasks.
 
 The [milestone plan](roadmap.md) defines the next capabilities and their
-completion criteria: C source/verification conditions, richer scientific APIs,
+completion criteria: richer scientific APIs,
 shared evidence checking, more arithmetic models and automated delivery.
 Keep the current scenarios as
 baselines and use feedback to prioritize additional applications.

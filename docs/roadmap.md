@@ -19,6 +19,12 @@ delay implementing capabilities with clear acceptance cases.
   conditional profiles. A compact two-state counted-loop profile retains a
   uniform invariant across all natural counts, with selected roots through 1,024.
   These profiles do not yet compose arbitrarily.
+- Closed C11 double APIs admit scalar helpers, by-value structs, fixed buffers
+  and unsigned literal-count loops. Source-derived access/counter conditions and
+  typed-cell heap execution join numerical accuracy in one Lean root. Scalar
+  Rust delivery retains the real API; buffer delivery is currently Lean-only.
+  Physical object validity and compiler/source mapping remain explicit premises
+  and trust boundaries. See the [C guide](c-verification.md).
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
   [tool integration](tool-integration.md).
@@ -53,10 +59,10 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Add C and richer scientific code.** Start with a closed C profile and a
-   verification-condition route, then bridge actual array/library operations in
-   Python, Julia and MATLAB-compatible code. Broaden Rust API automation alongside
-   these capabilities.
+1. **Bridge scientific libraries and richer APIs.** Connect actual array/library
+   operations in Python, Julia and MATLAB-compatible code, then extend the closed
+   C profile where applications require it. Broaden Rust bridge generation
+   alongside these capabilities.
 2. **Reduce repeated proof work and engineering effort.** Add reusable certificate
    checking where it helps, cover additional arithmetic models, and make genuine
    counterexamples, setup, maintenance and reporting part of ordinary delivery.
@@ -69,22 +75,19 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 10.
+The next implementation milestone is 11.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 10. C source and verification conditions | Verify common embedded and numerical C code | Two actual C functions, including a loop/buffer case, obtain Lean application roots through a reusable source/VC route |
 | 11. Scientific arrays and richer language APIs | Verify ordinary scientific code without hand-rewriting it | A fixed-shape NumPy application plus an idiomatic Julia or MATLAB-compatible application obtain source bridges and numerical roots |
 | 12. Shared proof evidence and inference | More tool reasoning survives into Lean at lower checking cost | A reusable rule checker or verified inference engine consumes useful evidence across two tools and a family of applications |
 | 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 10 starts with C source and verification conditions, reusing the existing
-scalar arithmetic and compact loop contracts. Milestone 11 extends collection
-and loop contracts; its library calls may also need 10 or 13 for C, FMA or
-precision bridges. Milestone 12 starts with a measured reconstruction bottleneck
-from any of these routes. Milestone 13 can
-progress per arithmetic feature once its semantic bridge is ready. Setup,
+Milestone 11 extends collection and loop contracts; its library calls may also
+need additional C semantics or milestone 13 for FMA/precision bridges. Milestone 12
+starts with a measured reconstruction bottleneck from any of these routes.
+Milestone 13 can progress per arithmetic feature once its semantic bridge is ready. Setup,
 counterexamples and maintenance work from 14 accompanies every milestone; a
 separate final integration test closes 14.
 
@@ -104,13 +107,16 @@ output. An external success verdict never discharges a Lean premise by itself.
 | Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 12 |
 | PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 12 |
 | Charon/Aeneas | Implemented Rust extraction with authored application bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 11, 14 |
-| Frama-C/WP / Why3 | Planned | C source contracts and exported verification tasks, connected to the original computation and reconstructed/checked in Lean | 10, 12 |
-| CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 10, 14 |
-| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 10, 12, 13 |
+| Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | 12 |
+| CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 14 |
+| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 12, 13 |
 
-Frama-C/WP produces verification conditions from C contracts; Why3 can export
-prover tasks through drivers. These are possible integration points, not existing
-Lean adapters. See the [Frama-C documentation](https://frama-c.com/index.html)
+Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
+The [C guide](c-verification.md) describes the export utility and why the current
+closed profile proves source-derived conditions directly in Lean. Task export
+is not a Lean adapter or a translation of JSON numerical requirements into ACSL.
+Useful foreign evidence checking still needs semantic bridges and a measured gap.
+See the [Frama-C documentation](https://frama-c.com/index.html)
 and [Why3 task/driver interface](https://why3.org/doc/manpages.html#the-prove-command).
 CBMC supplies bounded C/C++ checking and counterexample paths; absence of a
 bounded failure is not an unbounded-loop theorem or an imported Lean proof.
@@ -142,7 +148,7 @@ platform and Lean/Rust delivery separately in `capabilities` and regression case
 | Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
 | Julia | Restricted Float64 scalar functions and tuple results | Typed scalar helpers, counted loops and explicit array/reduction schedules | Multiple dispatch, broadcasting and BLAS/LAPACK calls each need selected semantics and bridges |
 | MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
-| C | Planned | Explicit binary64 scalar functions, fixed buffers, structs, counted loops and contracts under a selected compiler/arithmetic profile | Pointer-heavy APIs, allocation and broader C semantics |
+| C | Closed C11 double helpers, by-value structs, fixed buffers and unsigned literal-count loops; Lean access/counter/execution roots | Header/preprocessor integration, larger mutable buffers and reusable Rust buffer bridges selected from real applications | Pointer-heavy APIs, allocation, lifetime/provenance and broader C semantics |
 | C++ | Planned after the C route | A selected numeric API using supported value/container operations and an inspected frontend | Templates, exceptions, object lifetime and compiler/library behavior need their own coverage |
 | Fortran | Deferred candidate | Select an actual array kernel and a suitable frontend after C/array contracts are reusable | Do not assume a C or LLVM-based route already establishes Fortran source correspondence |
 
@@ -151,37 +157,6 @@ proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
 promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
-
-## 10. Add C source and verification conditions
-
-### Deliver
-
-- Choose one retained C numerical API and a closed language profile. Start with
-  explicit `double`, scalar helpers, fixed buffers, structs and counted loops.
-  Record compiler options, floating-point contraction/rounding, integer widths,
-  casts, aliasing and defined-behavior conditions.
-- Evaluate Frama-C/WP and Why3 on its actual source/VC output. Reuse current scalar
-  checking or add a supported evidence checker; preserve the link from every task
-  to the selected source, contract and caller. Keep memory/undefined-behavior
-  obligations alongside the numerical ones.
-- Use CBMC where a bounded execution or counterexample search addresses a real
-  gap. Reconstruct witnesses in Lean; leave unsupported positive proof evidence
-  unresolved. VST/VCFloat2 remain alternative routes when their models fit better.
-- Add optional reusable Rust delivery from the original C API, with separate
-  drivers and checked state/return correspondence. An extracted arithmetic
-  surrogate does not replace the production implementation.
-
-### Completion criteria
-
-Two C functions use one reusable route: a scalar kernel and a loop with fixed
-buffer/state behavior. Each has an original-source bridge, closed numerical and
-relevant memory/defined-behavior premises, a Lean root and replay. At least one
-receives a verified Rust port when requested. Incorrect aliasing, casts, loop
-bounds and operation order have rejection controls. A bounded witness, if used,
-gets its own Lean counterexample root.
-
-Broader C++, pointer-heavy C and Fortran are separate follow-ups selected from
-applications; completing this profile does not silently admit them.
 
 ## 11. Verify scientific arrays and richer APIs
 

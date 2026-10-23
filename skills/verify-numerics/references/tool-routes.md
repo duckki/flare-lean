@@ -21,8 +21,10 @@ their presence does not imply a foreign-proof-trace importer.
 The implemented PRECiSA route currently covers small scalar graphs and one
 terminal Python conditional; see [conditionals.md](conditionals.md). Modular
 summaries, arbitrary PVS programs and a foreign-PVS proof importer are outside
-that adapter's scope. Other tools in the table remain proposed routes unless
-`capabilities` declares an implemented adapter.
+that adapter's scope. The closed [C route](c-source.md) proves its source-derived conditions directly
+in Lean. Its optional Frama-C/WP/Why3 exporter retains task-inspection evidence;
+it is not a producer or foreign-proof importer. Other tools in the table remain
+proposed routes unless `capabilities` declares an implemented adapter.
 
 Gappa is primarily an arithmetic prover. A frontend such as Why3 can generate
 its verification conditions. User algebraic rewrite hypotheses in a generated

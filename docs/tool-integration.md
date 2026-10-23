@@ -153,6 +153,23 @@ exact references and weakened roots have Lean rejection controls. This profile
 does not extend the Gappa/FPTaylor source or Rust extraction subsets. See the
 [array guide](../skills/verify-numerics/references/arrays.md) for configuration.
 
+## C source conditions and optional foreign tasks
+
+The [C route](c-verification.md) reuses `lean-flare` numerical validation and
+adds source-derived access/counter proofs and an ordered typed-cell heap model.
+The root proves execution, frame behavior, finiteness, accuracy and budgets under
+the stated caller conditions. Physical C object validity and compiler/source
+mapping remain declared boundaries. This route is a source frontend plus Lean
+model/proof generation; it does not modify an external analyzer.
+
+`scripts/export_c_vcs.py` separately retains Frama-C/WP 31.0 and Why3 1.8.2 tasks
+from source ACSL. Their typed-memory/floating-point theories need further bridges
+before foreign proof steps could discharge Lean obligations. The exporter does
+not import proofs or translate JSON numerical contracts into ACSL. Its successful
+status is `task_evidence_only`, regardless of solver verdicts. Normal C
+certification/replay does not need these tools. See the C guide for the actual
+evaluation and future integration boundary.
+
 ## Select a producer
 
 The request's `backend` remains `lean-flare`, the independent proof-generation

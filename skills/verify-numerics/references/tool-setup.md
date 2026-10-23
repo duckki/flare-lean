@@ -223,3 +223,58 @@ Octave does not establish MATLAB runtime agreement. Report genuine licensing,
 credentials, platform or permission blockers with their evidence, after attempting
 the applicable supported setup. Do not substitute simulation, a different tool's
 semantics or a foreign proof for the required Lean result.
+
+## C parser and compiler
+
+Use [pycparser](https://github.com/eliben/pycparser) **3.0** with Python 3.10+.
+Reuse a matching Python installation first. Otherwise install only this parser
+in the shared user cache, announcing the path. For example, on Linux:
+
+```sh
+python3 -m pip install --no-deps --target "$HOME/.cache/flare/pycparser-3.0" pycparser==3.0
+```
+
+On macOS use `$HOME/Library/Caches/flare/pycparser-3.0`. Linux also honors
+`XDG_CACHE_HOME`. Set `FLARE_C_PARSER` to an explicit directory containing the
+`pycparser` package when using another location. Record the selected package
+version/distribution; the C evidence identifies the admitted parser profile,
+not a cryptographic audit of the entire Python environment. If pip is absent,
+obtain it or an isolated Python environment using the platform's supported route.
+The parser is needed for C inspection, certification and frozen replay.
+
+Obtain Clang or GCC with C11, binary64 double, 32-bit unsigned int and working
+address/undefined-behavior sanitizers. Configure `source_runtime.kind` as `clang`
+or `gcc` and select its executable; otherwise search PATH. Original-source
+preflight tests all three compiler modes. On macOS the provider resolves the
+selected Clang binary and active Xcode SDK; preserve the user's developer
+selection. A missing sanitizer runtime/SDK is setup failure, not proof rejection.
+Clang 21 on macOS ARM64 and GCC 13 on Ubuntu ARM64 were exercised. Compiler
+versions are recorded rather than treated as interchangeable formal models.
+Replay requires no C compiler or sanitizer installation.
+
+## Optional C verification task tools
+
+Frama-C/WP **31.0** and Why3 **1.8.2** are optional task-inspection tools;
+normal C certification/replay does not require them. Read the corresponding
+[Frama-C installation guide](https://frama-c.com/html/get-frama-c.html) and
+[Why3 documentation](https://why3.org/doc/install.html) before source setup.
+Use a versioned user-scoped OPAM switch and the releases' build prerequisites:
+
+```sh
+opam switch create /shared/tool-pool/frama-c-31.0 ocaml-system --no-switch --yes
+opam install --switch=/shared/tool-pool/frama-c-31.0 frama-c.31.0 why3.1.8.2 --yes
+opam exec --switch=/shared/tool-pool/frama-c-31.0 -- frama-c -version
+opam exec --switch=/shared/tool-pool/frama-c-31.0 -- why3 --version
+```
+
+Replace the example path with the announced writable user-cache destination.
+Choose a compatible OCaml compiler from the pinned packages' constraints instead
+of changing another tool's switch. Ubuntu ARM64 setup used a system OCaml 4.13
+switch and Z3 4.8.12. Obtain Z3 via its supported distribution and put it on the
+export command's PATH; the exporter creates a local Why3 configuration and runs
+prover detection. A bundled incompatible prover can make every task fail for a
+setup reason, so inspect actual driver/prover versions and logs first.
+Run `scripts/export_c_vcs.py` from the provider through `opam exec` and inspect
+its `export.json`, `wp.json`, raw tasks and command logs. Solver verdicts remain
+untrusted inspection evidence; this utility is not a Lean proof importer or
+an implementation of the JSON numerical contract in ACSL.

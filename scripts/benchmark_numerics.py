@@ -55,6 +55,9 @@ def main():
         source_request=(manifest.parent/case['request']).resolve()
         request=json.loads(source_request.read_text())
         request['source']=str((source_request.parent/request['source']).resolve())
+        if 'rust_port' in request:
+            for field in ('source', 'proof_source'):
+                request['rust_port'][field]=str((source_request.parent/request['rust_port'][field]).resolve())
         if 'rust_application' in request:
             for field in ('files', 'lean_modules', 'components', 'licenses'):
                 if field not in request['rust_application']: continue

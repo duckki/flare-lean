@@ -88,6 +88,7 @@ actual-runtime word diagnostics test samples independently of graph execution.
 | `python` | Positional/untyped or `float` parameters, scalar locals, tuple assignments, updating assignments, local numerical helpers, fixed literal-tuple loops, docstrings | CLI's Python with built-in floats |
 | `julia` | Long/short functions, optional `::Float64` parameters, explicit/implicit returns, tuple results and updating assignments | Julia in IEEE mode, startup/history disabled, scratch depot |
 | `matlab` | Function files with named outputs, optional `end`, semicolons, line continuations, scalar dot operators | MATLAB or GNU Octave, recorded explicitly |
+| `c` | Closed C11 double helpers, by-value structs, fixed read-only buffers or one one/two-cell mutable buffer, unsigned literal-count loops; see [C source](c-source.md) | Clang/GCC with the recorded binary64 profile |
 | `rust` (automatic scalar profile) | One `pub fn`, named `f64` parameters, `f64` or `(f64, f64)` result, scalar `let`, `let mut`, shadowing, assignments, return/tail expression | `rustc` |
 
 Python modules may contain a closed collection of numerical functions. Calls
@@ -157,13 +158,13 @@ monkey-patching, subclass dispatch and wider application behavior are outside
 this conditional certificate. The report records these assumptions and the
 fixed attributes' exact hexadecimal values.
 
-For Julia/MATLAB/Rust, select an executable using:
+For Julia/MATLAB/C/Rust, select an executable using:
 
 ```json
 "source_runtime": {"kind": "julia", "executable": "/absolute/path/to/julia"}
 ```
 
-Kinds are `julia`, `matlab`/`octave` or `rustc` respectively. Otherwise the CLI
+Kinds are `julia`, `matlab`/`octave`, `clang`/`gcc` or `rustc` respectively. Otherwise the CLI
 searches PATH; MATLAB is preferred over Octave. An Octave test does not establish
 MATLAB runtime behavior. Paths are passed as separate arguments. Interpreter
 versions, executable hashes, commands and output streams are retained.

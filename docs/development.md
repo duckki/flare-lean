@@ -199,3 +199,28 @@ to keep Aeneas outside the core Lake dependency graph; the provider materializes
 and compiles them as `.lean` files. Format materialized templates with the pinned
 `fmt --line-width 100` and their compiled imports on `LEAN_PATH`, preserve tokens,
 then copy formatting back to the templates. `make fmt` handles core Lean files.
+
+## C source regression checks
+
+Install pinned pycparser 3.0 in Python or the shared user cache as described in
+[tool setup](../skills/verify-numerics/references/tool-setup.md#c-parser-and-compiler).
+CI installs it before `make check`. Clang/GCC and working address/undefined-
+behavior sanitizers are required for original-source certification diagnostics;
+frozen replay only needs the parser and Lean. Optional Frama-C/WP/Why3 task tools
+are separate and are not required by the default suite.
+
+```sh
+make numerics-check
+python3 scripts/benchmark_numerics.py --replay \
+  --case c_mean_update --case c_blend --case c_calibrate --case c_dot2 \
+  --out .cache/numerics-generated/new-c-suite
+python3 scripts/benchmark_numerics.py --replay --case c_mean_update_rust \
+  --tools /absolute/path/to/local-tools.json \
+  --out .cache/numerics-generated/new-c-rust
+```
+
+The Rust case additionally needs the selected Charon/Aeneas tools/model. Tests
+reject unsupported casts/alias escape/loop forms, false references, concrete
+region overlap, resealed VCs, weakened roots and a changed Rust port. The actual
+C functions run at O0/O2 and with ASan/UBSan. See the [C guide](c-verification.md)
+for supported syntax, typed-cell assumptions and optional task export.

@@ -187,7 +187,14 @@ def rust_frontend(source, function):
     return parse_rust(source, function)
 
 
+def c_frontend(source, function):
+    from .c_frontend import c_frontend as admit_c
+    return admit_c(source, function)
+
+
 FRONTENDS = {
+    'c': SourceAdapter(c_frontend, None,
+        'Closed C11 double profile with pure scalar helpers, double-only value structs, static buffers and bounded unsigned loops. Parsing/source-to-heap mapping and compiler/runtime fidelity are trusted; Lean checks abstract memory safety and numerical contracts.', ('clang','gcc')),
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,

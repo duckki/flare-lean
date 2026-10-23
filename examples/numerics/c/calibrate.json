@@ -1,0 +1,30 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "c",
+  "source": "updates.c",
+  "function": "calibrate",
+  "domain": {
+    "value": [
+      "-1",
+      "1"
+    ],
+    "config_gain": [
+      "1",
+      "2"
+    ],
+    "config_offset": [
+      "-1/4",
+      "1/4"
+    ]
+  },
+  "specification": [
+    "value*config_gain+config_offset"
+  ],
+  "outputs": [
+    {
+      "name": "out0",
+      "unit": "m",
+      "limit": "1/1000000"
+    }
+  ]
+}

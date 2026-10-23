@@ -11,6 +11,7 @@ native operations from their real interpretations.
 | Area | Representative results |
 | --- | --- |
 | Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, and positive square-root squared residuals |
+| Typed binary64 memory | Checked array-cell access, region bounds/separation and frame rules; physical C object representation is outside these definitions |
 | Dense matrices | Finite storage, multiplication accuracy, LDLᵀ factorization, successful positive-definite solves, substitution and residual bounds, and two-state rounded Gram word symmetry |
 | Spectral algorithms | Jacobi convergence and spectral error, approximate PSD-check acceptance, and truncated pseudoinverse accuracy |
 | Real analysis | Schur complements, conditioning, matrix norms, Gram residual transport, spectral gaps, pseudoinverse perturbation, entrywise propagation and positivity margins, error recurrences, and Householder Gram preservation |
@@ -53,6 +54,7 @@ flare-lean/
 │   ├── using-library.md         # Importing FLARE from another Lean project
 │   ├── organization.md          # Results, layout and source attribution
 │   ├── numerical-verification.md # Workflow contracts and CLI
+│   ├── c-verification.md        # Closed C source, access/frame proofs and VC evaluation
 │   ├── tool-integration.md      # Adapter interfaces, evidence and validation
 │   ├── roadmap.md               # Planned capabilities and completion criteria
 │   ├── reference.md             # Theorem entry points and assumptions
@@ -121,6 +123,9 @@ and provider CLI beside the proof library. Python handles source admission,
 tool invocation and artifact retention; Lean checks numerical obligations and
 one root theorem. `Flare.Binary64.Pipeline` supplies reusable native/ideal
 contracts without importing application or extraction-tool code.
+`Flare.Binary64.Memory` supplies typed-cell access, separation and frame rules
+for the closed [C source route](c-verification.md); physical C objects and
+compiler fidelity remain outside those definitions.
 
 Keep source adapters, proposal producers and optional Charon/Aeneas extraction
 under `scripts/numerics`. Generated application models and proofs belong under

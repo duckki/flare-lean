@@ -55,6 +55,8 @@ def command(runtime, script=None):
     exe, kind = runtime['executable'], runtime['kind']
     if kind == 'rustc':
         return [exe, '-Vv']
+    if kind in ('clang','gcc'):
+        return [exe, '--version']
     if kind == 'julia':
         return [exe, '--startup-file=no', '--history-file=no', '--math-mode=ieee', '--threads=1',
                 '--color=no', *([str(script)] if script else ['--version'])]
@@ -69,12 +71,22 @@ def command(runtime, script=None):
 
 def admit_runtime(program, request, output, work, runner):
     runtime = runtime_selection(program, request)
+    if program.language=='c' and sys.platform=='darwin' and runtime['kind']=='clang':
+        selected=runner.run('source-compiler-path',[runtime['executable'],'-print-prog-name=clang'],
+                           cwd=work,phase='admission',inherit_developer_dir=True).strip()
+        if Path(selected).is_absolute() and Path(selected).is_file():
+            runtime['launcher']=runtime['executable'];runtime['executable']=selected
+        runtime['sdk']=runner.run('source-sdk',['/usr/bin/xcrun','--show-sdk-path'],
+                                  cwd=work,phase='admission',inherit_developer_dir=True).strip()
     if runtime['kind'] != 'python':
         env = {'JULIA_DEPOT_PATH': str(work/'julia-depot')} if runtime['kind'] == 'julia' else {}
-        runtime['version'] = runner.run('source-version', command(runtime), cwd=work, env=env, phase='admission').strip()
+        runtime['version'] = runner.run('source-version', command(runtime), cwd=work, env=env, phase='admission',
+                                       **({'inherit_developer_dir':True} if program.language=='c' else {})).strip()
     from .workflow import save, sha
     runtime['executable_sha256'] = sha(runtime['executable'])
     runtime['qualification'] = 'Actual selected interpreter; runtime/compiler semantics remain trusted. Octave is not evidence of MATLAB runtime execution.'
+    if program.language=='c':
+        runtime['qualification']='Actual selected C compiler and SDK; compiler/runtime fidelity remains trusted. c-runtime.json records original-source compiler modes, flags and sanitizer configuration.'
     save(output/'source-runtime.json', runtime)
     return runtime
 
@@ -152,6 +164,9 @@ def source_results(program, source, cases, runtime, output, work, runner, reques
     root = output/'source-diagnostics'
     root.mkdir()
     (root/'inputs.hex').write_text('\n'.join(' '.join(f'{x:016x}' for x in case) for case in cases)+'\n')
+    if program.language == 'c':
+        from .c_runtime import source_results as c_results
+        return c_results(program,source,cases,runtime,output,work,runner)
     if program.language == 'rust':
         (root/'source.rs').write_text(source)
         args=', '.join(f'f64::from_bits(w[{i}])' for i in range(len(program.inputs)))

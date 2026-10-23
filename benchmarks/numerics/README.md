@@ -39,6 +39,8 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Counted smoothing loop | `certified` | Original `range(count)` loop; one preserved invariant and independent exact recurrence |
 | Threshold gate / innovation through PRECiSA | `certified` / `budget_not_met` with optional producer | Actual maximum stable/unstable candidate proved in Lean |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
+| C scalar / buffer / struct / read-only reduction | `certified` with pinned parser and Clang/GCC | Original source, access/counter conditions, heap frame, independent numerical references; three compiler modes |
+| C mean update → reusable Rust | `certified` with optional extraction tools | Retained production function/helper and checked fresh extracted return |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
 | Python Kalman → Rust IR probe | `certified` with optional extraction tools | Internal straight-line kernel: fresh Charon/Aeneas return plus debug/release diagnostics; not a reusable production port |
 | Original Rust → extracted Rust model | `certified` with optional extraction tools | Original source retained, no port substitution |
@@ -50,10 +52,27 @@ CI additionally builds the pinned Gappa/FPTaylor versions and selects
 adapter extension and the distinction between raw output and checked bounds.
 Explicitly selecting one requires its tools: absence is a failed prerequisite,
 not a successful proof rejection. `--case NAME` can select individual scenarios.
-A local tools file has `runtimes` keyed by `julia`, `matlab` or `rust`, each with
+A local tools file has `runtimes` keyed by `julia`, `matlab`, `c` or `rust`, each with
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
 `analysis_tools` maps Gappa/FPTaylor/PRECiSA to their executable and optional identity/data selections.
 Use absolute paths. This machine configuration is not a version attestation.
+
+### C source scenarios
+
+Select `c_mean_update`, `c_blend`, `c_calibrate` and `c_dot2` with `--replay`.
+Their [source and requests](../../examples/numerics/c/README.md) use one closed
+C frontend, generated source conditions and the existing numerical validator.
+The buffer roots add successful typed-heap execution and frame behavior under
+region validity/separation; read-only regions may overlap. O0/O2/sanitized
+original-source word checks are diagnostics. The optional `c_mean_update_rust`
+case retains a reusable API/helper and authored extracted-return bridge.
+
+Controls reject casts, alias escape, wrong loop bounds, unsigned wrapping in
+floating expressions and out-of-bounds accesses. Lean rejects concrete overlap,
+false references and weakened roots; replay rejects resealed source-condition
+changes. Compiler admission, numerical producers and Rust extraction are disabled
+in replay tests. See the [C guide](../../docs/c-verification.md) for the physical
+object/source/compiler boundaries and separate optional WP/Why3 task evaluation.
 
 ### Array source scenarios
 

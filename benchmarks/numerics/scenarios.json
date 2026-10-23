@@ -145,6 +145,36 @@
       "request": "../../examples/numerics/branches/guarded_reciprocal.json",
       "expected": "certified",
       "optional": false
+    },
+    {
+      "name": "c_mean_update",
+      "request": "../../examples/numerics/c/mean_update.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "c_blend",
+      "request": "../../examples/numerics/c/blend.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "c_calibrate",
+      "request": "../../examples/numerics/c/calibrate.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "c_dot2",
+      "request": "../../examples/numerics/c/dot2.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "c_mean_update_rust",
+      "request": "../../examples/numerics/c/mean_update_rust.json",
+      "expected": "certified",
+      "optional": true
     }
   ]
 }

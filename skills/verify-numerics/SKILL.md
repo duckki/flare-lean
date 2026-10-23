@@ -1,6 +1,6 @@
 ---
 name: verify-numerics
-description: "Verify numerical application code with a final Lean certificate, optionally producing a verified Rust port. Use for floating-point error bounds, source/model correspondence, composed guarantees and decision margins in Python, Julia, MATLAB-compatible or Rust code. Use this skill when formal numerical guarantees or a verified Rust port are requested. Simulation and parameter tuning alone do not require it."
+description: "Verify numerical application code with a final Lean certificate, optionally producing a verified Rust port. Use for floating-point error bounds, source/model correspondence, composed guarantees and decision margins in Python, Julia, MATLAB-compatible, C or Rust code. Use this skill when formal numerical guarantees or a verified Rust port are requested. Simulation and parameter tuning alone do not require it."
 ---
 
 # Verify numerical software
@@ -88,6 +88,13 @@ proofs, not just a scalar bound. For non-Rust component composition, the same
 guide covers full constructor/field/option correspondence and the four-state
 planar tracker. Keep added validation/decisions distinct from the original API;
 deliver a standalone reusable crate with real loops and separate drivers.
+
+For closed C11 double APIs, read [c-source.md](references/c-source.md). Cover
+scalar helpers, by-value structs, fixed buffers and unsigned counted loops with
+one source/execution/numerical root. Review live-object and separation premises;
+typed-cell access proofs do not establish arbitrary C pointer validity. Obtain
+the pinned parser/compiler as needed. Foreign WP/Why3 tasks remain inspection
+evidence; buffer Rust delivery needs a separate bridge.
 
 For fixed-shape built-in Python list products, read [arrays.md](references/arrays.md).
 Supply explicit input shapes and an independent exact matrix expression. Inspect

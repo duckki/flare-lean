@@ -257,11 +257,19 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
             '``Workflow.Certificate.certificate','``Workflow.Certificate.scalar_certificate')
         text += array_proof_source(program,domain,conclusion,targets)
+    if program.c:
+        from .c_emit import proof_source as c_proof_source
+        text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
+            '``Workflow.Certificate.certificate','``Workflow.Certificate.scalar_certificate')
+        text += c_proof_source(program,domain,conclusion,targets,with_rust)
     return text
 
 
 def check_source(program, domain, summaries, targets, with_rust=False):
     """Ascribe the root's independently reconstructed type and audit its axiom closure."""
+    if program.c:
+        from .c_emit import check_source as c_check_source
+        return c_check_source(program,domain,summaries,targets,with_rust)
     if program.arrays:
         from .array_emit import check_source as array_check_source
         return array_check_source(program,domain,summaries,targets)

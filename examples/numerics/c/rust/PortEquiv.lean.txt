@@ -1,0 +1,16 @@
+module
+
+public import Workflow.Kernel
+public import Workflow.Generated.Funs
+
+@[expose] public section
+
+namespace Port
+
+theorem source_equiv (a0 a1 a2 : Float) :
+    Workflow.Generated.kernel a0 a1 a2 = .ok (Workflow.kernel a0 a1 a2) := by
+  simp [Workflow.Generated.kernel, Workflow.Generated.original.mean_update,
+    Workflow.Generated.original.correction, Workflow.kernel]
+  rfl
+
+end Port

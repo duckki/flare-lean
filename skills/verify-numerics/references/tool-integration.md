@@ -26,6 +26,10 @@ original contract when search or proof checking fails. Review per-box domains,
 rounding allowances and conclusions in `analysis.json`; saved proofs establish
 that all cases cover the original domain.
 
+For the closed [C profile](c-source.md), use its source-derived Lean conditions
+and the default producer. Optional WP/Why3 task export is inspection evidence,
+not registered producer output or an imported proof.
+
 For terminal scalar Python conditionals, read [conditionals.md](conditionals.md).
 PRECiSA's candidate is checked across all four native/exact flows, even if the
 analyzer claims stability. PVS files are retained rather than imported. This

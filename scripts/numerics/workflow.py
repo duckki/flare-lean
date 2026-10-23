@@ -46,6 +46,12 @@ def prepare(path, *, replay=False):
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
     program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'))
+    if program.c:
+        from .c_emit import memory_profile
+        if request.get('producer','lean-flare')!='lean-flare' or request.get('proof'):
+            raise Unsupported('The C profile currently uses automatic lean-flare validation')
+        if memory_profile(program) and request.get('target','lean')!='lean':
+            raise Unsupported('C buffer roots currently use Lean delivery; Rust memory bridges need application support')
     if program.counted and (request.get('target','lean')!='lean' or request.get('proof') or
             request.get('producer','lean-flare')!='lean-flare'):
         raise Unsupported('Counted source currently uses Lean and the lean-flare producer')
@@ -148,11 +154,11 @@ class Runner:
         self.output = output
         self.timeout = timeout
 
-    def run(self, label, command, cwd=ROOT, env=None, phase='check'):
+    def run(self, label, command, cwd=ROOT, env=None, phase='check', inherit_developer_dir=False):
         self.last_stage = label
         command = list(map(str, command))
         overrides = dict(env or {})
-        if sys.platform == 'darwin':
+        if sys.platform == 'darwin' and not inherit_developer_dir:
             overrides.setdefault('DEVELOPER_DIR', os.environ.get('DEVELOPER_DIR', '/Library/Developer/CommandLineTools'))
         invocation = [sys.executable, str(ROOT/'scripts/tool_integration_run.py'),
             '--output', str(self.output/'runs'/label), '--phase', phase,
@@ -200,6 +206,16 @@ def report(output, result):
     if request.get('python_arrays'):
         lines += ['', 'Built-in Python list input shapes: `'+json.dumps(request['python_arrays'])+'`.',
                   'Inputs are read-only; returned storage is fresh. The Lean root checks the shape guard and the original ascending product schedule.']
+    if result.get('c_api'):
+        lines += ['', 'Selected C API: `'+request['function']+'`.']
+        for parameter in result['c_api']:
+            if parameter['kind']=='buffer':
+                lines += ['- `'+parameter['name']+'`: '+str(parameter['length'])+' initialized double cells; '+
+                          ('read-only' if parameter['readonly'] else 'writable')+'.']
+        if any(p['kind']=='buffer' for p in result['c_api']):
+            lines += ['Caller contract: valid object extents and separation of each writable region from every other buffer. Read-only regions may overlap.']
+        if 'c_source_conditions_checked' in result.get('completed_stages',[]):
+            lines += ['The Lean root includes source-derived access/counter conditions and, for buffers, successful typed-heap execution and unchanged cells outside the writable region. See c-vcs.json and lean/Workflow/Check.lean.']
     lines += ['', 'Independent exact specification:']
     lines += ['- '+x for x in describe_specification(request['specification'])]
     lines += ['', 'Allowances:']
@@ -305,6 +321,12 @@ def output_bounds(program, request):
 
 
 def kernel_for_run(output, request, program):
+    if program.c:
+        from .c_emit import model_source, verification_conditions
+        saved=output/'c-vcs.json'
+        if saved.exists() and json.loads(saved.read_text())!=verification_conditions(program):
+            raise ValueError('Saved C verification conditions do not match the frozen source')
+        return model_source(program,request)
     if program.branches and program.branches['schema']=='python-guard-local-v1':
         from .branch_local import model_source
         return model_source(program,request,output)
@@ -395,6 +417,10 @@ def certify(request_path, output):
     if program.counted:
         result['scope']='A counted Python two-state helper loop, with a preserved native/exact invariant proved for all natural horizons and instantiated at the selected count.'
         result['assumptions'].append('The selected nonnegative integer count and ordinary scalar helper API are mapped to the compact fold by the admitted frontend; compiler/runtime correspondence remains trusted.')
+    if program.c:
+        result['scope']='One admitted C11 binary64 API, with source-derived access/counter conditions, checked abstract heap execution for buffers, and independent numerical allowances.'
+        result['c_api']=program.c['api']
+        result['assumptions'].append('Buffer regions represent live, initialized, correctly aligned C double objects. The caller establishes their extents and required separation; source parsing, typed-cell representation and compiler fidelity remain trusted. Floating-point status flags are outside the contract.')
     if program.arrays:
         result['scope']='One fixed-shape built-in Python list matrix/vector product, with checked shape guard, finite execution and entrywise numerical bounds relative to an independent real matrix specification.'
         result['array_shapes']=program.arrays
@@ -445,6 +471,9 @@ def certify(request_path, output):
             session.execute('rust-aeneas', 'extractor', source=frozen_source)
             result['completed_stages'].append('rust_source_extracted')
         lean=output/'lean/Workflow'; lean.mkdir(parents=True,exist_ok=True)
+        if program.c:
+            from .c_emit import verification_conditions
+            save(output/'c-vcs.json',verification_conditions(program))
         (lean/'Kernel.lean').write_text(kernel_for_run(output,frozen_request,program))
         (lean/'Proof.lean').write_text(proof_source(program,request['domain'],summaries,steps,
                                                   request['outputs'],with_rust,authored,
@@ -458,6 +487,7 @@ def certify(request_path, output):
         result['entry_theorem']='Workflow.Certificate.certificate'
         result['completed_stages'].append('lean_root_checked')
         result['completed_stages'].append('source_numerics_checked')
+        if program.c: result['completed_stages'].append('c_source_conditions_checked')
         for target in result['outputs']: target['evidence']='checked'
         from .diagnostics import diagnose
         runner.last_stage='source-diagnostics'
@@ -572,6 +602,8 @@ def replay_run(path, output, aeneas_lean_lib=None):
         shutil.copyfile(path/'validation.json', output/'validation.json')
     if (path/'model-layout.json').exists():
         shutil.copyfile(path/'model-layout.json', output/'model-layout.json')
+    if (path/'c-vcs.json').exists():
+        shutil.copyfile(path/'c-vcs.json', output/'c-vcs.json')
     if request.get('rust_port'):
         shutil.copyfile(path/request['rust_port']['source'], output/request['rust_port']['source'])
     runner=Runner(output,request.get('timeout_seconds',120)); work=output/'.work';work.mkdir()
