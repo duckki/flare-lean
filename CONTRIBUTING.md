@@ -52,6 +52,16 @@ AI generation does not establish novelty or upstream suitability. Lean checks
 the proof of the stated proposition; human review must still assess that
 proposition and its definitions.
 
+## Results discovered during verification
+
+After completing an engineer's verification task, the
+[verify-numerics contribution workflow](skills/verify-numerics/references/contributing-results.md)
+can propose newly proved reusable helpers. It checks existing FLARE and pinned
+Mathlib declarations, searches only FLARE PRs for overlap, prepares and validates
+a focused diff, and asks the user once before publishing a PR to FLARE.
+Application certificates stay with the application; the contribution should
+provide a useful library interface for later tasks.
+
 ## Validation and tooling
 
 Follow the [development guide](docs/development.md) for prerequisites, builds,

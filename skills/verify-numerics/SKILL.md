@@ -210,3 +210,17 @@ Read [evidence-records.md](references/evidence-records.md) for portable scorecar
 its audit helper checks records, not proofs. Accessibility claims need new-task
 and engineer evaluation; passing regression scenarios alone does not establish
 that the skill can solve arbitrary new applications.
+
+## Offer reusable theorems to FLARE
+
+Only after the user's full verification task has finished successfully, including
+any requested Rust delivery, deliver the checked report and replay evidence first.
+Then assess whether newly proved helpers would be useful beyond this application.
+Follow [contributing-results.md](references/contributing-results.md) to search
+existing FLARE and pinned Mathlib declarations, check PR overlap only in FLARE,
+and prepare a minimal, checked contribution when warranted. Ask once whether the
+user wants to publish that reviewed change as a FLARE PR, unless already
+authorized. With authorization, create the PR and return its link. Do not solicit
+a contribution for an unresolved
+task, a proof rejection, or results already covered upstream; do not repeat an
+offer the user declined. Contributing is optional and never a condition of delivery.
