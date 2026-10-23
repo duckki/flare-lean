@@ -30,8 +30,8 @@ Adapters can also emit a Lean proof module through the common validation
 interface. This supports reusable translators and Lean inference procedures
 without changing orchestration. The emitted accuracy declaration must have the
 expected original-input type and its full dependencies pass the same axiom audit.
-The scalar and conditional validators are described below. Further tools remain a
-[roadmap milestone](roadmap.md#8-add-further-verification-tools).
+The scalar and conditional validators are described below. Further tools follow the
+[roadmap integration plan](roadmap.md#integration-strategy).
 
 ## Reusable scalar validation
 

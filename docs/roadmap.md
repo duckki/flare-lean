@@ -1,450 +1,388 @@
 # Roadmap: broader numerical verification
 
-The demonstrated examples are the current baseline. Sharing FLARE and collecting
-feedback proceed alongside this plan. Reported problems and new application
-requests can change the order of later milestones.
+FLARE aims to give an engineer one reviewed contract, one final Lean theorem,
+and, when requested, a reusable verified Rust implementation of the original
+code. Broader applicability means covering more combinations of source constructs,
+arithmetic semantics, properties and delivery targets with reusable machinery.
 
-The goal is one engineer-facing skill that verifies the original numerical code,
-produces a reviewable Lean result, and optionally delivers a reusable verified
-Rust port. Define completeness for each supported combination of source
-constructs, arithmetic semantics, requested property and delivery target.
+Prioritize external tooling, evidence import/checking and verified Lean inference.
+Add mathematical lemmas for their soundness and semantic bridges. Measure progress
+by applications and supported families, rather than theorem or adapter counts.
+Feedback and retained application gaps can change the order below; they need not
+delay implementing capabilities with clear acceptance cases.
 
 ## Current baseline
 
-- The FilterPy scalar `GHFilter.update` example has an eight-update error
-  certificate. Its reusable Rust port was also certified and replayed in a
-  clean Ubuntu ARM64 VM after installing the required tools.
-- The naive scalar covariance example has a Lean counterexample to strict
-  positivity, with an admissible input and a positive exact reference.
-- The automatic path covers restricted scalar source, selected Python methods,
-  local helpers and bounded loops. Authored Lean proofs can supply arguments
-  beyond the automatic bound producer.
-- A four-state planar GH tracker now composes the original scalar API with
-  checked numerical components, complete validation/decisions and a reusable
-  multi-module Rust crate; see the [combined example](../examples/numerics/planar/README.md).
-- Larger loops and the original Rust IMU API have checked scale fixtures.
-  Four-state covariance/correction graphs remain analysis targets without a
-  source-program certificate; see the [scale guide](../benchmarks/numerics/README.md#increasing-scale).
+- Restricted scalar Python, Julia, MATLAB-compatible and Rust source has automatic
+  admission and numerical validation. Python additionally has selected scalar
+  methods, helpers, bounded loops and separate fixed-list array and terminal
+  conditional profiles. These profiles do not yet compose arbitrarily.
+- Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
+  proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
+  [tool integration](tool-integration.md).
+- Charon/Aeneas supplies fresh Rust extraction. Reviewed bridges connect the
+  actual extracted API to numerical contracts, including validation, integer
+  timing, errors and decisions. General application bridges still need authored
+  Lean proofs.
+- The scalar FilterPy GH filter, Rust IMU API and multi-module
+  [planar tracker](../examples/numerics/planar/README.md) have maintained certificates
+  and reusable Rust delivery examples. The planar tracker composes two scalar
+  filters; it is not a dense Kalman filter.
+- Fixed-shape Python list products have checked shapes, execution order and
+  entrywise error bounds. NumPy/BLAS calls have no source bridge yet.
+- The [conditional examples](../examples/numerics/branches/README.md) cover all four
+  native/exact branch choices. The profile currently validates both arms on the
+  whole domain and supports Lean delivery only.
+- The 16/48-update Kalman cases certify; 128 updates reach a checked
+  `budget_not_met` result with unchanged budgets. Large covariance/correction
+  graphs remain analysis probes without source-program certificates. See the
+  [scale guide](../benchmarks/numerics/README.md#increasing-scale).
+- The README's naive covariance example has an authored, replayable Lean
+  counterexample. The automatic error-bound CLI has no counterexample status yet.
 
-Each milestone must retain the original source, domain, reference and requirement.
-Changing any of these creates a separately reviewed case. A completed capability
-includes a checked Lean root, axiom audit, saved-proof replay and rejection tests.
-Setup failures, proposed bounds and resource exhaustion remain distinct outcomes.
+These are scoped capabilities, not support for arbitrary programs in each
+language. Independent engineer reproduction remains a sharing follow-up; current
+regressions and VM experiments establish automated reproduction of selected cases.
 
-## Integration strategy
+## Next priorities
 
-Build reusable verification capabilities through external tooling, evidence
-importers and verified Lean implementations. New lemmas support the semantics
-and soundness of those mechanisms. Success is measured by the class of requests
-the machinery handles, rather than by the number of individual proofs added.
+1. **Scale existing reasoning and compose source profiles.** Preserve sharing,
+   local contracts and real loops; support branch-local premises and counted
+   loops without expanding every iteration into a flat arithmetic graph.
+2. **Add C and richer scientific code.** Start with a closed C profile and a
+   verification-condition route, then bridge actual array/library operations in
+   Python, Julia and MATLAB-compatible code. Broaden Rust API automation alongside
+   these capabilities.
+3. **Reduce repeated proof work and engineering effort.** Add reusable certificate
+   checking where it helps, cover additional arithmetic models, and make genuine
+   counterexamples, setup, maintenance and reporting part of ordinary delivery.
 
-Use a common orchestration interface with tool-specific adapters and evidence
-payloads. It must accommodate analyzers, proof-producing tools, source extractors
-and Lean-native procedures; these have different roles and assurance boundaries.
-
-| Shared interface | Responsibility |
-| --- | --- |
-| Obligation | Identify the original source/model, exact reference, domain, arithmetic semantics and requested conclusion |
-| Capabilities and routing | Declare supported constructs, properties, arithmetic models, versions and evidence types; select compatible routes |
-| Setup and execution | Obtain compatible tools, record identities, enforce resource limits and retain commands and failures |
-| Evidence adapter | Preserve raw output and expose its tool-specific payload under a common provenance record |
-| Lean validation | Import proof evidence, independently prove a candidate claim, or run a verified Lean inference procedure |
-| Composition and delivery | Discharge caller premises, connect checked results to the application root, report outcomes and replay saved proofs |
-
-A tool that emits a useful proof trace can have an adapter plus a Lean proof
-importer or checker. A tool that emits bounds or hints can feed a reusable Lean
-procedure that independently establishes the proposed claim. Where external
-output is unsuitable, implement the needed inference algorithm in Lean and prove
-its soundness. Choose between these routes by coverage, implementation effort,
-maintenance and checking cost.
-
-Keep exact semantic information and tool-specific evidence; a common envelope
-does not make different arithmetic models equivalent. Existing adapters and
-checkers should compose across tools that share an obligation kind. A new tool
-using an existing proof vocabulary should need an adapter and capability record;
-new semantics or inference rules also need their own soundness argument.
-
-The core set for milestones 2–7 is Lean/Mathlib/FLARE, Gappa, FPTaylor and
-Charon/Aeneas. Additional tools are milestone 8, after the numerical and source
-capabilities below; they do not block completion with the core set.
-
-The planned integrations below are explicit work items. A documented route is
-not an implemented adapter, and invoking a tool does not import its reasoning.
-
-| Tools | Current integration | Planned reusable capability | Milestones |
-| --- | --- | --- | --- |
-| Gappa | Query conclusion reconstructed by reusable scalar validation; Coq trace retained | Broaden supported reasoning and retain checked algebraic rewrites | 2–3 |
-| FPTaylor | Parsed exact candidate is the Lean proof target | Extend coverage and useful hints through the same validator; reject unproved candidates | 2–3 |
-| Charon/Aeneas | Existing Rust-to-Lean extraction and checked return relation, with declared translator/model trust | Extend source coverage and compose extracted APIs, loops and state with numerical contracts | 4–7 |
-| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction; PVS traces retained | Broaden conditional/domain summaries while preserving divergent-flow semantics | 8 |
-| Why3, Frama-C/WP, VST | Documented routes only | Adapt supported source models and verification obligations; discharge their numerical and memory premises in Lean with explicit frontend boundaries | 8 |
-| Coq/Flocq, VCFloat2, LAProof | Reference workflows only | Import a useful shared evidence vocabulary or reimplement its needed inference with Lean soundness proofs; do not treat a foreign theorem name as a Lean proof | 8 |
-| Python, Julia, MATLAB/Octave, rustc | Restricted source admission and sampled runtime diagnostics | Extend source correspondence separately from proof evidence; retain interpreter/compiler assumptions and runtime distinctions | 4–7 |
-
-For each family, first select a retained application obligation and inspect the
-actual version's evidence and semantics. Then implement and test the adapter and
-its Lean validation path, or record the concrete blocking gap. This is a coverage
-plan, not a promise that every tool needs a distinct importer. Tools that share
-an evidence vocabulary should reuse its checker. The architecture must support
-adding tools without redesigning orchestration, reporting or replay.
-Application-specific authored proofs remain available, while the planned
-capability work prioritizes reusable automation.
+Each milestone retains source, domain, independent reference and engineering
+requirements. Changes to any of these create a separate reviewed case. Completion
+requires a Lean root, axiom audit, frozen-source replay and rejection controls.
+Setup failure, unsupported source, resource exhaustion, an unproved candidate and
+a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
+The next implementation milestone is 9.
+
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 1. Feedback and reproducibility | Other engineers can reproduce the demonstrated workflows | Reported issues become portable cases; public examples replay from a matching checkout |
-| 2. Shared tool integration | Reuse setup, routing, evidence handling and Lean validation across tools | Add distinct producer/evidence routes through the same workflow and replay boundary |
-| 3. Reusable scalar reasoning | Smaller values and tighter budgets become practical | Automatically close the retained `2^-51` obligation and preserve small positive divisor bounds |
-| 4. Composable loops and proofs | Longer computations reuse checked components | Resolve proof-resource failures in the 16/48-update Kalman cases; add induction over repeated calls |
-| 5. Vectors and matrices | Verify code that operates on collections | Complete a small array-based application with a source bridge and a Lean error theorem |
-| 6. Complete application behavior | Cover validation, branches, conversions and decisions | Verify the original 48-event Rust IMU application's success and error behavior |
-| 7. Combined workflows and Rust delivery | Verify larger applications and preserve their APIs when porting | Complete a multi-module application using composed proofs and its actual Rust implementation |
-| 8. Additional verification tools | Broaden coverage where another tool adds useful reasoning or source support | Add selected tools from the integration table through reusable Lean validation, driven by application gaps |
+| 9. Scale proofs and compose control flow | Larger existing programs need less expansion and manual proof work | A source-backed counted loop with a parameterized contract, a larger shared graph, and branch-local proofs all certify or reach checked numerical outcomes |
+| 10. C source and verification conditions | Verify common embedded and numerical C code | Two actual C functions, including a loop/buffer case, obtain Lean application roots through a reusable source/VC route |
+| 11. Scientific arrays and richer language APIs | Verify ordinary scientific code without hand-rewriting it | A fixed-shape NumPy application plus an idiomatic Julia or MATLAB-compatible application obtain source bridges and numerical roots |
+| 12. Shared proof evidence and inference | More tool reasoning survives into Lean at lower checking cost | A reusable rule checker or verified inference engine consumes useful evidence across two tools and a family of applications |
+| 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
+| 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 2 supplies the shared integration boundary. Milestones 3 and 4 build
-numerical and scaling capabilities through it. Milestones 5 and 6 can progress
-independently once their needed foundations are available.
-Rust correspondence and setup checks accompany each new source capability;
-milestone 7 composes them into a larger delivery.
+Milestone 9 comes first. Milestone 10 can reuse existing scalar arithmetic while
+9 develops compact loop proofs. Milestone 11 builds on 9's collection/loop
+contracts; its library calls may also need 10 or 13 for C, FMA or precision bridges.
+Milestone 12 starts with
+a measured reconstruction bottleneck from any of these routes. Milestone 13 can
+progress per arithmetic feature once its semantic bridge is ready. Setup,
+counterexamples and maintenance work from 14 accompanies every milestone; a
+separate final integration test closes 14.
 
-## 1. Turn feedback into reproducible workflows
+No milestone requires integrating every candidate tool or supporting a complete
+source language before a useful closed profile can ship.
 
-### Deliver
+## Integration strategy
 
-- Maintain a capability table by source construct, property, arithmetic model,
-  platform and Lean/Rust route. Distinguish demonstrated support from planned work.
-- Convert feedback into minimal fixtures with frozen source, contract, provider
-  and tool identities, commands, actual outcome and the precise failing stage.
-  Include unfamiliar applications as well as regressions from the current demos.
-- Keep copied-skill/provider compatibility explicit. Test setup without existing
-  Lean or extraction tools, output-directory agreement, and saved-proof replay.
-- Make the three engineering outcomes consistent across reports: requirement
-  proved, counterexample proved, unresolved. Give the authored counterexample
-  route a maintained delivery format alongside automatic error certificates.
+Keep common setup, version/model admission, routing, bounded execution, evidence
+identities, composition and replay. Preserve each tool's actual payload and
+arithmetic semantics. Select a source bridge, candidate reconstruction, proof
+checker or verified Lean implementation after inspecting a pinned version's
+output. An external success verdict never discharges a Lean premise by itself.
 
-### Completion criteria
+| Tool family | Current status | Next reusable capability | Milestones |
+| --- | --- | --- | --- |
+| Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 9, 12 |
+| PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | Branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 9, 12 |
+| Charon/Aeneas | Implemented Rust extraction with authored application bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 9, 11, 14 |
+| Frama-C/WP / Why3 | Planned | C source contracts and exported verification tasks, connected to the original computation and reconstructed/checked in Lean | 10, 12 |
+| CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 10, 14 |
+| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 10, 12, 13 |
 
-Another engineer can reproduce both README examples from public instructions
-and inspect their Lean roots. Every accepted feedback case has a repeatable test
-or an explicitly recorded open obligation. Setup results name the tested platform
-and tool route; a setup failure cannot count as a numerical rejection.
+Frama-C/WP produces verification conditions from C contracts; Why3 can export
+prover tasks through drivers. These are possible integration points, not existing
+Lean adapters. See the [Frama-C documentation](https://frama-c.com/index.html)
+and [Why3 task/driver interface](https://why3.org/doc/manpages.html#the-prove-command).
+CBMC supplies bounded C/C++ checking and counterexample paths; absence of a
+bounded failure is not an unbounded-loop theorem or an imported Lean proof.
+See its [official documentation](https://diffblue.github.io/cbmc/cprover_documentation.html).
 
-Record setup time, agent intervention and warm replay time separately. Use these
-measurements to prioritize usability work without changing proof requirements.
+Every new integration needs:
 
-## 2. Streamline integration across verification tools
+- A retained application gap, explicit source/arithmetic semantics and a supported
+  version. Tool setup or invocation alone is not a completed integration.
+- Useful output actually consumed by Lean validation. Candidate routes must prove
+  the selected candidate itself; another producer's result is a separate attempt.
+- Premises closed at the caller, including incoming error, memory/shape validity,
+  finiteness and exceptional behavior where applicable.
+- Frozen replay without producers or LLMs, plus controls for corrupted evidence,
+  changed versions, wrong models and missing premises.
 
-The first shared layer is implemented in the
-[tool integration guide](tool-integration.md): registered producer/extractor/
-validator roles, source setup, versioned obligations/evidence and producer-free
-replay. Gappa and FPTaylor exercise different output forms. Reusable scalar
-validation now consumes their candidate conclusions: Gappa's successful query
-radius or FPTaylor's exact parsed bound becomes the Lean proof target. Addition,
-polynomial and division families exercise both routes and replay without the
-producers. Corrupted bounds are rejected. This is independent reconstruction;
-the retained Coq trace is not a checked/imported proof. The core set is sufficient
-for this milestone; additional tools belong to milestone 8.
+Use shared evidence vocabularies when appropriate. Do not build a separate generic
+proof importer for every tool, or use a common envelope to erase semantic differences.
 
-### Deliver
+## Source language and library plan
 
-- Define versioned obligation, capability and evidence interfaces, reusing the
-  current request, command-record and frozen-proof formats where they fit.
-- Factor setup, invocation, resource limits and diagnostics into shared services.
-  Tool-specific flags, parsers, model assumptions and extraction details stay
-  in adapters. Declare compatibility and unsupported cases explicitly.
-- Provide reusable Lean validation routes for proof evidence, candidate claims
-  and extracted source models. Support both external inference with checked
-  output and inference implemented with a soundness proof in Lean.
-- Connect the existing `lean-flare` and Rust extraction paths to this interface.
-  Add external producer integrations exercising both proof-bearing output and
-  candidate-only output. Select the initial tools using retained fixtures and
-  user requests.
+A language name is insufficient to describe support. Track source constructs,
+value types, library operations, semantics, automatic/authored proof coverage,
+platform and Lean/Rust delivery separately in `capabilities` and regression cases.
 
-### Completion criteria
+| Source | Current supported profile | Next scope | Later scope / separate obligation |
+| --- | --- | --- | --- |
+| Python | Restricted scalar functions/helpers/loops, selected methods, fixed-list products, one terminal conditional | Compose these profiles; counted loops, branch-local arithmetic, state/configuration and fixed-shape NumPy calls | Dynamic dispatch, arbitrary mutation and general Python execution |
+| Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
+| Julia | Restricted Float64 scalar functions and tuple results | Typed scalar helpers, counted loops and explicit array/reduction schedules | Multiple dispatch, broadcasting and BLAS/LAPACK calls each need selected semantics and bridges |
+| MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
+| C | Planned | Explicit binary64 scalar functions, fixed buffers, structs, counted loops and contracts under a selected compiler/arithmetic profile | Pointer-heavy APIs, allocation and broader C semantics |
+| C++ | Planned after the C route | A selected numeric API using supported value/container operations and an inspected frontend | Templates, exceptions, object lifetime and compiler/library behavior need their own coverage |
+| Fortran | Deferred candidate | Select an actual array kernel and a suitable frontend after C/array contracts are reusable | Do not assume a C or LLVM-based route already establishes Fortran source correspondence |
 
-At least two external producers with different evidence forms use the same
-workflow to obtain Lean-checked application results, with their useful output
-actually consumed by validation. Merely retaining a trace while independently
-proving an unrelated requested allowance does not meet this criterion. Candidate
-output is accepted only after an independent Lean argument closes that candidate
-claim. A supported family of new inputs needs no handwritten numerical proof per
-instance.
+A parser or sampled cross-language agreement is not a new source-equivalence
+proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
+promotions, integer overflow rules, indexing, aliasing, rounding and reduction
+order belong to the bridge. A theorem about FLARE's matrix algorithm does not
+verify an arbitrary NumPy, BLAS or LAPACK call.
 
-A further adapter using an existing obligation/evidence kind can be added without
-changing core orchestration, reporting or replay. Unsupported rules and model
-mismatches remain unresolved. Tests corrupt evidence, omit premises and change
-tool versions, and check that rejection occurs at the appropriate boundary.
-Saved-proof replay needs neither the producer nor its installation.
-
-## 3. Close scalar gaps with reusable inference
-
-Implemented for small scalar graphs through
-[reusable scalar validation](tool-integration.md#reusable-scalar-validation).
-The unchanged mean-update request certifies at `2^-51` with three gain intervals,
-and the tiny-gain request preserves positive native/exact divisor floors.
-Related input ranges and scales use the same engine; tests reject false bounds,
-incorrect rewrites and arithmetic-model mismatches, and replay saved proofs
-without inference or external producers. Search limits remain explicit. Larger
-loops and proofs are milestone 4 rather than an extension of this scalar claim.
+## 9. Scale proofs and compose control flow
 
 ### Deliver
 
-- Choose external integration or verified Lean inference for each missing class
-  of reasoning. Address scale-aware outward bounds, positive native and exact
-  divisor floors, and useful precision/correlation handling through these engines.
-- Use the simple-addition inflation, tiny-denominator cases and frozen Gappa
-  four-stage mean-update argument as acceptance cases. They are documented in
-  the [benchmark guide](../benchmarks/numerics/README.md#known-analysis-gaps-and-external-fixtures).
-- For the Gappa case, import its useful output or implement the relevant
-  inference in Lean. Include rewrite validation and native binary64 semantics
-  in the reusable checking path. Apply the same design choice to other tools.
+- Preserve shared expressions and helper boundaries through source models,
+  inference and Lean checking. Generate local contracts and compact proof
+  modules instead of repeatedly expanding transitive expressions.
+- Compose the current scalar, method, array and conditional profiles through
+  explicit typed contracts. Add source locations for unsupported constructs and
+  failed obligations; a broader intermediate representation alone is not a proof.
+- Prove branch-local domains and numerical premises. A safe division in one arm
+  must not require a nonzero denominator in an unreachable arm. Use checked guard
+  implications and local contracts to avoid enumerating every global path.
+- Admit actual counted source loops with supplied or inferred invariants and
+  incoming-error recurrences. Treat inferred invariants as candidates checked in
+  Lean. Preserve the production loop and generate a separate verification driver.
+- Improve correlations and allowance quality independently of proof speed. Keep
+  the 128-update Kalman budgets unchanged while trying tighter reusable inference.
+  An above-budget theorem is a numerical result, not evidence of an attained bug.
+
+### Scaling scorecard
+
+Measure source admission, inference, Lean checking, cold replay and warm reuse
+separately. Record peak memory, proof/source bytes, unique operations, call edges,
+path splits, authored proof work and final outcome on a pinned runner. Freeze
+resource limits before comparing implementations; report all exhausted runs.
+
+| Axis | Planned progression | What must be demonstrated |
+| --- | --- | --- |
+| Repeated calls | 1, 16, 128, 1,024 iterations | A parameterized loop proof whose body does not grow with the horizon; no reset of incoming error |
+| Shared arithmetic graph | About 100, 1,000, 10,000 unique operations | Source-backed results, sharing retained, measured proof/checking growth |
+| Array dimension | 2, 4, 8, 16, then 32 where contracts permit | Fixed accumulation order, valid shapes and honest dimension/algorithm limits |
+| Module composition | 1, 4, 16 components | Local contract reuse; a caller edit invalidates affected dependents and preserves unrelated proofs |
+
+These are proposed targets, including sizes beyond current frontend/theorem
+limits; the progression continues across milestones 9–13. Raising an admission
+limit alone does not meet them. Keep large exported
+graphs marked as probes until the actual source bridge and application root exist.
 
 ### Completion criteria
 
-The unchanged tight mean-update request certifies at `2^-51` and replays through
-the reusable route. The small-denominator case obtains a checked bound without
-an artificial zero lower bound from normalization. Run related kernels and
-changed input ranges through the same machinery without adding per-case proofs.
+A counted loop from actual source has a parameterized contract instantiated at
+1, 16, 128 and 1,024 calls, with checked numerical outcomes under unchanged
+requirements. A source-backed application with at least 1,000 unique arithmetic
+operations completes within the recorded resource limits. A second family uses
+the same mechanisms, including a branch-local denominator obligation.
 
-Corrupt bounds, rewrite identities and rounding-model mismatches fail their
-intended checks. Compare coverage, accepted bounds, proof time and maintenance
-cost across available routes. Improving the current producer is one option;
-another backend can supply the capability.
+Cold replay uses no producers or compiled helper cache. Maintenance tests change
+one caller or component, preserve unaffected contracts and reject a false
+recurrence, missing path or stale dependency. Publish the scorecard; do not infer
+scaling from a larger timeout or a successful graph export.
 
-## 4. Compose proofs across loops and function boundaries
-
-Implemented for admitted Python helper chains and two-state folds. Generated
-models retain shared helper definitions, and each local contract accepts both
-native and exact incoming state with its accumulated error. The exact step is
-related to the independent recurrence once, then that identity rewrites the
-fold. Scale-aware outward summaries preserve the 128-update divisor floors.
-
-The unchanged 16/48-update Kalman cases certify; 128 updates reach a checked
-`budget_not_met` result with the original budgets. IMU loops exercise the same
-machinery. Optional content-keyed contract reuse preserves unchanged prefix
-proofs across callers, while replay recompiles saved source without that cache.
-Generic `foldl_contract` and `foldl_error_bound` rules support supplied invariants
-and local error recurrences; the API checks instantiate them at 16, 48 and 128
-steps. They do not infer missing invariants or admit unbounded source loops.
+## 10. Add C source and verification conditions
 
 ### Deliver
 
-- Preserve shared expressions and function boundaries in generated models and
-  proofs. Use reusable checked local contracts rather than expanding every
-  repeated mathematical expression.
-- Carry reached-domain invariants, finiteness, denominator floors and incoming
-  state error across calls. Add an induction rule for a supplied loop invariant
-  and error recurrence, supporting horizons expressed as a parameter.
-- Reuse unchanged local proofs when a caller changes, while regenerating affected
-  input wiring, reference equations and composition obligations.
+- Choose one retained C numerical API and a closed language profile. Start with
+  explicit `double`, scalar helpers, fixed buffers, structs and counted loops.
+  Record compiler options, floating-point contraction/rounding, integer widths,
+  casts, aliasing and defined-behavior conditions.
+- Evaluate Frama-C/WP and Why3 on its actual source/VC output. Reuse current scalar
+  checking or add a supported evidence checker; preserve the link from every task
+  to the selected source, contract and caller. Keep memory/undefined-behavior
+  obligations alongside the numerical ones.
+- Use CBMC where a bounded execution or counterexample search addresses a real
+  gap. Reconstruct witnesses in Lean; leave unsupported positive proof evidence
+  unresolved. VST/VCFloat2 remain alternative routes when their models fit better.
+- Add optional reusable Rust delivery from the original C API, with separate
+  drivers and checked state/return correspondence. An extracted arithmetic
+  surrogate does not replace the production implementation.
 
 ### Completion criteria
 
-The existing 16/48-update Kalman cases finish their Lean proof and budget stages
-under the maintained resource limits, without treating resource failure as a
-passing outcome. A checked bound above budget remains a valid diagnostic outcome.
-The 128-update case reaches a checked numerical result after its denominator
-obligations are discharged; it must retain the original engineering budgets.
+Two C functions use one reusable route: a scalar kernel and a loop with fixed
+buffer/state behavior. Each has an original-source bridge, closed numerical and
+relevant memory/defined-behavior premises, a Lean root and replay. At least one
+receives a verified Rust port when requested. Incorrect aliasing, casts, loop
+bounds and operation order have rejection controls. A bounded witness, if used,
+gets its own Lean counterexample root.
 
-Add a parameterized loop theorem and instantiate it at multiple horizons. Show
-that an incorrect recurrence or reset of incoming state error is rejected.
-Track proof construction, checking time, peak memory and artifact size across
-the existing Kalman/IMU progression. Raising limits alone does not complete this
-milestone.
+Broader C++, pointer-heavy C and Fortran are separate follow-ups selected from
+applications; completing this profile does not silently admit them.
 
-## 5. Admit vectors and matrices from actual source
-
-Implemented for fixed-shape built-in Python list products through the
-[`python_arrays` profile](../skills/verify-numerics/references/arrays.md).
-The same adapter and typed-root generator cover a two-state linear prediction,
-calibration matrix composition, a three-term projection, a four-state linear
-prediction and the one-entry boundary. Roots include input shape guards,
-fresh output shape, successful finite dense execution and entrywise error
-against independent real matrix expressions. The reusable ordered-product
-bridge preserves the original ascending, separately rounded schedule.
-
-Source-model regeneration and producer-free replay cover every example.
-Wrong shapes, aliases, indices and order are rejected at admission; false
-exact specifications and weakened roots are rejected in Lean. This scope does
-not establish NumPy/BLAS correspondence, arbitrary mutable collections or an
-automatic array Rust port. The original large covariance/correction graphs
-remain intermediate analysis targets; they have no application certificate.
+## 11. Verify scientific arrays and richer APIs
 
 ### Deliver
 
-- Start with fixed-size vectors and small dense matrices: indexing, updates,
-  shape checks, reductions, dot products and matrix multiplication with an
-  explicit accumulation order. State aliasing and mutation conditions.
-- Connect admitted source operations to existing `Flare.Matrix` algorithms and
-  numerical theorems. Begin within their proved dimension and arithmetic profiles.
-- Cover an array-based filtering or estimation example with an independent
-  matrix recurrence. Reuse the four-state graphs as intermediate proof targets,
-  then establish their connection to the actual source before claiming an
-  application certificate.
+- Connect a fixed-shape NumPy application to selected dtype, shape, indexing,
+  broadcasting/reduction and aliasing semantics. Start with operations whose
+  execution schedules can be stated and checked. Inspect the actual library path.
+- Generalize reusable array/loop contracts for Julia and MATLAB-compatible source;
+  first select one of those languages using an application gap. Retain explicit
+  runtime distinctions and close shape/indexing/state obligations at the caller.
+- Verify a full dense covariance/correction application from its actual source,
+  beyond the current independent-axis planar tracker. Connect existing exported
+  graphs only after their source mapping is established. Reuse FLARE's matrix
+  results where the algorithm, dimensions and operation order match.
+- Broaden generated source bridges and Rust deliveries to preserve collections,
+  configuration, state, errors and loops. Review solver/factorization adaptations
+  separately from the original implementation's contract.
 
 ### Completion criteria
 
-One small array-based application has checked shape/domain conditions, finite
-execution, an output error theorem and replay. A second use exercises the same
-vector/matrix contracts outside that application. Wrong shapes, aliasing,
-indexing and accumulation-order assumptions have rejection controls.
+A NumPy application and an idiomatic Julia or MATLAB-compatible application have
+source bridges and Lean application roots using reusable array contracts. Include
+at least one application outside filtering. The dense covariance/correction case
+has a source-program certificate rather than a candidate graph alone. Required
+Rust deliveries preserve the real API and receive their own extracted roots.
 
-NumPy/BLAS calls need a bridge for the selected implementation and arithmetic
-semantics. Existing theorems about FLARE's own matrix algorithms do not establish
-that bridge. Add such calls to supported capabilities only when that obligation
-has been discharged.
+Tests change shapes, dtype/promotions, aliasing, indices and reduction schedules.
+A BLAS/LAPACK or parallel reduction path needs its own reviewed implementation
+contract; an agreement sample or library name cannot supply that bridge.
 
-## 6. Cover validation, branches and decisions
-
-Implemented through the reusable [Rust application proof-bundle interface](../skills/verify-numerics/references/rust-applications.md).
-The original 48-event public API is freshly extracted with its companion timing
-module. Authored source bridges and numerical proofs close one Lean root for all
-input words: exact admission conditions, ordered rejection exits, finite success,
-original-integer timing, the returned position allowance and strict decisions.
-The uncertain branch has an explicit exact-reference neighborhood, including
-rounding in the final subtraction. This is an authored-contract route; it does
-not add arbitrary Rust APIs to the automatic scalar parser.
-
-The provider freezes every selected crate/proof file, checks Charon's local
-source identities, records tool/model hashes, independently applies the reviewed
-contract to the extracted entry and audits the root's transitive axioms. Replay
-compiles saved Lean sources without translators or Rust runtimes. Negative
-controls reject weakened/axiom roots, changed timestamp arithmetic and inadequate
-padding after source correspondence passes. Runtime cases cover branch endpoints,
-all decisions, NaN/infinities, wrong sizes, late errors and full-width epochs.
-The smaller scalar-loop fixture remains a separate regression.
+## 12. Share proof evidence and verified inference
 
 ### Deliver
 
-- Admit the needed source modules, structs, slices, enums, results and state
-  mutation. Include integer timestamps, subtraction and integer-to-float
-  conversion in the numerical contract.
-- Prove executable guards enforce the theorem's premises, including exceptional
-  values, range/shape checks and integer overflow behavior. Cover error returns.
-- Analyze floating-point branches and rounded decision arithmetic. Prove
-  agreement with the exact reference when a checked margin permits it, and
-  account explicitly for uncertain regions.
-- Bring in the companion timestamp code needed by the retained `imu48.rs`
-  fixture as a frozen compilable application, with source attribution.
+- Profile repeated reconstruction costs and missing reasoning in existing Gappa,
+  FPTaylor and PRECiSA runs and the new C/array routes. Choose a useful common
+  subset: for example interval, polynomial, order, rounding or recurrence rules.
+- Implement typed evidence parsing with explicit semantic interpretations and
+  Lean soundness proofs for every accepted rule, or implement the needed
+  inference in Lean with proved soundness. Reuse existing math rather than adding
+  application-specific bounds or manually copying foreign theorems.
+- Connect useful output from at least two tools to that checker. Coq/Flocq,
+  VCFloat2, LAProof and PVS may supply evidence or guide an implementation;
+  inspecting their actual output precedes choosing an importer. Foreign theorem
+  names, solver verdicts and unchecked transformation premises are insufficient.
 
 ### Completion criteria
 
-The original 48-event Rust IMU API has a root theorem covering its input gate,
-successful execution, arithmetic allowance and `Below`/`Above`/`Uncertain`
-decisions. Its error outcomes are also specified and checked. Use the actual
-timestamp path and public API; preserve the separate scalar-loop fixture as a
-smaller regression.
+Two tools and a family of applications use the same proved rule vocabulary or
+inference engine. Compare accepted allowances, checking time, memory and proof
+size against current reconstruction on unchanged requests. Show a measured
+coverage or cost benefit. Corrupt a rule, rounding mode, rewrite and side condition;
+all must fail the intended check. Saved Lean evidence replays without the tools.
 
-Add cases at branch thresholds, invalid timestamps, nonfinite inputs and wrong
-sizes. A deliberately inadequate decision padding must fail verification or
-produce a checked counterexample when the property is false.
+A universal Coq/PVS/SMT proof importer is not required. Keep candidate
+reconstruction where it is simpler and effective.
 
-## 7. Complete a combined application and reusable Rust delivery
-
-The engineering implementation and automated reproduction are complete. The
-[planar tracker](../examples/numerics/planar/README.md) uses two scalar FilterPy
-GH filters for `(x, vx, y, vy)`, with a separate application validation and
-decision layer. It is not the dense covariance graph or a full Kalman filter.
-The root combines both uses of one checked axis certificate, original
-constructor/all-field/option correspondence, the reusable application's API,
-its real loop, every validation exit and rounded decision regions. All four
-outputs are finite with absolute arithmetic errors at most `2^-30` in their
-engineering units on the documented eight-measurement domain. Every Python
-nonzero-divisor premise is discharged along the application trajectory.
-
-The provider imports sealed numerical components, regenerates the scalar API
-from original source and keys optional helper reuse by transitive imports.
-Maintenance tests change the actual Rust padding and reviewed model/contract,
-recheck the application and retain the unchanged axis proof modules. A Rust
-1.95.0-to-1.96.0 runtime upgrade retains the checked model and reruns diagnostics.
-Constructor mismatches and changed imported/source API models are rejected.
-All nine field words also match the selected original Python bodies across
-128 constructors and 1,024 updates in debug and release; these are diagnostics.
-
-Frozen roots replay on macOS and in an isolated Ubuntu ARM64 VM, with a fresh
-copied provider build and proof directory using existing pinned dependencies.
-Replay invokes no translators, numerical producers, Python runtime or LLM.
-The standalone crate passes its debug/release tests on both platforms. Reports
-include domain, properties, adaptations, trust boundaries, artifact paths and
-run/replay commands. Independent human reproduction from the report remains a
-sharing follow-up; automated reproduction supplies the current acceptance
-coverage without waiting for external feedback.
+## 13. Cover more arithmetic models
 
 ### Deliver
 
-- Choose the application using feedback, with a proposed initial target of a
-  multi-module four-state estimator combining initialization, prediction,
-  correction, validation and a caller-visible decision.
-- Compose source correspondence, checked numerical contracts, loop invariants
-  and tool results into one application theorem. Include all numerical
-  premises introduced by earlier stages.
-- For a non-Rust input, generate and extract the actual reusable Rust port:
-  constructors, state, methods, options, errors and loops. Keep verification
-  drivers separate and prove the required API/state correspondence in Lean.
-- Make the report identify which properties were proved, their runtime domain,
-  trust boundaries, artifact locations, and run/replay commands. Exercise source
-  changes and compatible tool upgrades as maintenance scenarios.
+- Add explicit binary32 and mixed binary32/binary64 semantics, promotion/narrowing
+  rules and reusable error propagation. Formats are independent capabilities;
+  parsed source types or a tool's format flag do not establish their Lean bridge.
+- Add explicit fused multiply-add as a distinct source operation and rounding
+  contract. Keep existing separately rounded schedules intact. Unrequested
+  reassociation or optimization remains outside the original-source claim.
+- Prioritize square root, then selected elementary functions from application
+  needs. Distinguish mathematical function bounds, rounded primitive semantics
+  and a particular platform/library implementation. Connect any analyzer models
+  through the appropriate contracts and exceptional-value domains.
 
 ### Completion criteria
 
-The original application and requested Rust delivery each have their required
-Lean roots and replay successfully from frozen evidence in a clean setup.
-API/state tests supplement the correspondence proof. At least one change to a
-module or contract regenerates affected proofs and preserves reusable local
-results. Another engineer reproduces the delivery from its report.
+An actual mixed-precision application and an explicit-FMA kernel have checked
+source/rounding bridges and numerical roots. A selected function-using application
+certifies against the specific primitive or implementation contract it executes.
+Wrong formats, hidden FMA, casts, domains and library versions have negative
+controls. Compare an alternative schedule only as a separate reviewed artifact.
 
-## 8. Add further verification tools
+## 14. Make automated delivery and maintenance routine
 
-Implemented for the selected PRECiSA integration through reusable
-[conditional validation](tool-integration.md#conditional-validation-and-precisa).
-The pinned Linux source recipe builds PRECiSA/Kodiak and records executable and
-backend identities. The adapter preserves its ordered PVS query, original domain
-and stable/unstable JSON results. Their maximum becomes the actual Lean claim.
-The new terminal scalar Python profile checks all four native/exact branch
-combinations with existing binary64 laws and real inequalities; no stable-test
-assumption or per-application numeric lemma is added.
+### Deliver
 
-The threshold gate certifies PRECiSA's one-unit unstable-flow allowance. A false
-zero candidate or missing unstable claim fails in Lean. The continuous innovation
-example retains the actual conservative PRECiSA allowance as `budget_not_met`,
-while the default procedure certifies the original engineering limit. Tests cover
-source/guard semantics, malformed evidence, version/backend identities, wrong
-references and producer-free replay. Real source setup and producer/Lean runs
-passed in an isolated Ubuntu ARM64 VM, with frozen replay on macOS ARM64.
-This reconstructs candidates; it does not import PVS proofs or support arbitrary
-PRECiSA source programs. See the [examples](../examples/numerics/branches/README.md).
+- Add a maintained counterexample request/result path alongside certification.
+  Freeze an admissible witness, actual source-model execution, independent exact
+  reference and violated requirement in one Lean root. Counterexample search may
+  use external tools; a rejected proof or sampled failure is not that certificate.
+- Route obligations using declared source/property/arithmetic capabilities and
+  explicit resource limits. Retain every attempt, its actual accepted claim and
+  failure stage. Alternative producers cannot silently change the requirement.
+- Produce actionable unresolved reports with source locations, missing premises
+  or unsupported features. Keep authored proof work separate from automatic
+  coverage and replay time; measure engineer intervention on unfamiliar code.
+- Exercise versioned setup, skill/provider compatibility, artifact-location
+  agreement, portable proof bundles, verified Rust delivery and incremental
+  rechecking after source/library/toolchain changes.
 
-Further integrations remain application-driven: Why3,
-Frama-C/WP, VST, Coq/Flocq, VCFloat2 and LAProof.
-Inspect each selected version's source model and output before choosing an
-importer, candidate checker or verified Lean implementation. Reuse existing
-evidence vocabularies where possible.
+### Completion criteria
 
-A completed integration must use the tool's useful result in a checked Lean
-application argument, replay without the producer, and reject corrupted evidence
-and mismatched semantics. Tool installation or retaining an unchecked foreign
-proof alone does not complete this milestone. No requirement to integrate every
-listed tool delays the preceding milestones.
+Maintain at least three held-out public application cases from different domains,
+including a new source language and a scientific-array library. Preserve their
+original sources and requirements; record needed assistance before incorporating
+new regressions. An engineer reproduces a positive result and a Lean counterexample
+from the report without session history.
+
+Fresh-machine runs start with no Lean/analyzers/translators installed and obtain
+only the selected route's tools. Test Linux x86-64 and ARM64 and the supported
+macOS routes separately; a Linux VM does not establish native macOS tool support.
+Cold replay needs no producers, translators, source execution or LLM, while retaining
+required proof-library dependencies. A compatible change rechecks affected
+results; an incompatible semantic change is reported instead of reusing stale
+proofs. Publish coverage, setup/checking costs and known open obligations.
+
+## Future considerations
+
+Keep these recommendations for future iterations. They complement the planned
+capabilities and do not require every new integration to wait for a separate
+evaluation project.
+
+- **First-class counterexample delivery.** Extend the authored counterexample
+  route into ordinary request/report/replay support, as proposed in milestone 14.
+  Require an admissible witness and a Lean-checked violation of the original
+  requirement; proof rejection and sampled failures remain different outcomes.
+- **Held-out public applications.** Evaluate unfamiliar applications from several
+  domains before turning them into regressions. Freeze source and requirements,
+  record the first attempt and needed assistance, and include independent engineer
+  reproduction. This tests applicability beyond examples used to develop FLARE.
+- **End-to-end cost comparisons.** Extend the scaling scorecard across tools and
+  source languages. Measure cold setup, analysis, Lean checking, cold replay and
+  warm reuse separately, alongside peak memory and artifact size. Retain failed
+  and resource-exhausted attempts so comparisons reflect actual coverage.
+- **Engineer intervention.** Track clarification, manual source/contract work,
+  authored Lean proofs and reusable adapter changes separately from automated
+  execution. Use these records to prioritize improvements that reduce effort on
+  new code; fast proof replay alone does not measure usability.
 
 ## Work that accompanies every milestone
 
-- Prioritize reusable external tooling, evidence importers and verified Lean
-  procedures. Add mathematical lemmas when needed for their soundness, semantic
-  bridges or reusable contracts. Reuse FLARE/Mathlib before adding alternatives;
-  keep results in the existing subject trees and track concrete upstream
-  candidates in [the Mathlib guide](upstream/mathlib.md).
-- Maintain one skill and one final Lean certification boundary. Optional tools
-  remain outside core library dependencies. Importer rules need proved semantics,
-  explicit version/model checks and rejection tests for unsupported evidence.
-- Expand the benchmark matrix with useful proofs, genuine counterexamples and
-  explicit open cases. Report these categories separately; successful rejection
-  tests do not increase the count of verified applications.
-- Keep platform/setup coverage and source-model/compiler/hardware trust
-  boundaries visible. Measure agent assistance separately from proof replay.
-
-After these milestones, prioritize additional capability packages from feedback:
-binary32 and mixed precision, explicit FMA, elementary functions, sparse kernels,
-and additional language/library adapters. Each package needs its own semantics,
-reusable numerical contracts and application acceptance cases.
+- Keep one engineer-facing skill and one final Lean certification boundary.
+  Optional tools remain outside core Lake dependencies. No admitted proofs or
+  additional axioms; audit the final theorem's transitive dependencies.
+- Extract reusable semantics, soundness arguments and compositional contracts.
+  Check FLARE/Mathlib before adding alternatives; track concrete upstream work in
+  [the Mathlib guide](upstream/mathlib.md).
+- Retain original source, provenance, domains, exact references, units, requirements,
+  arithmetic models, tool identities and assistance records. Preserve production
+  APIs and loops; keep verification drivers separate from Rust delivery.
+- Maintain positive results, genuine counterexamples, checked above-budget results
+  and explicit unresolved cases. Rejection tests do not increase the verified
+  application count. Physical/model premises remain distinct from arithmetic error.
+- Keep setup, semantic coverage and compiler/runtime trust visible. Use cold
+  producer-free replay and stale-evidence controls, even when warm proof caches
+  or agent-authored proofs make development faster.
