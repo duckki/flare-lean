@@ -6,6 +6,28 @@ Choose admitted analyzers and available libraries for the actual obligations.
 In this skill's deliverable, local numerical claims and their composition must
 all be checked in Lean; see [lean-conversion.md](lean-conversion.md).
 
+## Automatic provider route
+
+For admitted Python helper chains with a two-state fold request, the default
+producer preserves helper definitions and generates local contracts on native
+and exact incoming state. It checks finite execution, reached ranges, divisor
+floors and carried errors, then proves the application against the independent
+recurrence. This route closes the retained 16/48-update Kalman cases; 128 updates
+have a checked allowance above the mean budget. Do not call that a numerical bug.
+
+Review `model-layout.json`, per-helper identities in `analysis.json` and the
+function/contract modules under `lean/Workflow/`. Frozen-source replay regenerates
+the helper model and recompiles all saved proofs without inference or producers.
+Arbitrary invariants and unbounded source loops are not automatically admitted;
+the library's parameterized `foldl_contract` / `foldl_error_bound` rules can compose
+supplied local arguments for such proof models.
+
+For repeated work, an optional `contract_cache` request field can use the agreed
+verification directory's `.cache/contracts/`. Announce the path; no shared cache
+is created by default. Unchanged module text, helper dependencies and library/
+compiler identities allow reuse across changed callers. Inspect
+`proof-reuse.json`; replay deliberately bypasses this build cache.
+
 ## Pick the interface before the bound
 
 Keep the original source, input interpretation, reference and engineering

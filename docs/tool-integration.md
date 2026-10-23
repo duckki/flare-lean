@@ -56,6 +56,38 @@ intervals. `tiny_gain.json` certifies `p/(p+r)` for both inputs in
 scales, false zero bounds, incorrect rewrites and producer-free replay are tested.
 No application-specific proof is supplied for these families.
 
+## Helper and loop composition
+
+The default `lean-flare` producer recognizes admitted Python helper chains in
+two-state fold requests when the helper calls cover the ordered graph. It emits
+one native/exact function definition per distinct helper body and a checked local
+contract per reached input summary. Each contract takes separate native and exact
+operands, their finiteness, ranges and incoming errors. No call resets that error.
+
+The native and exact application models preserve those calls. Replay regenerates
+the layout and helper definitions from the frozen source graph before checking
+the saved proofs. Source parsing/model generation remains a declared boundary;
+regrouping does not change arithmetic order. For a repeated helper, one checked
+step identity connects its exact computation to the independent fold recurrence.
+The public `foldl_contract` and `foldl_error_bound` rules additionally compose
+supplied invariants/error recurrences for a parameterized horizon.
+
+`model-layout.json` identifies call spans and wiring. `validation.json` lists the
+standalone function/contract modules compiled before the application proof.
+`analysis.json` records each helper's contract identity. An optional request field
+`contract_cache` selects an explicit directory for compiled helper reuse; no shared
+contract cache is created by default. Use the agreed verification directory's
+`.cache/contracts/` for application work. `proof-reuse.json` reports actual reuse.
+Cache keys bind exact module text, imported helper text, compiler configuration
+and library identities; changed/corrupt entries are rebuilt. Like other Lean
+build caches, it reuses previously compiled modules. Saved-proof replay always
+recompiles the sources and requires neither this cache nor any numerical producer.
+
+The automatic route currently covers bounded helper chains; arbitrary loop
+invariants, mutation and collection operations need additional source/proof
+support. Gappa/FPTaylor retain their scalar graph limits. A loose checked bound
+remains `budget_not_met`, including the 128-update Kalman mean allowance.
+
 ## Select a producer
 
 The request's `backend` remains `lean-flare`, the independent proof-generation

@@ -36,8 +36,7 @@
       "iterations": 16,
       "request": "../../examples/numerics/scale/kalman_016.json",
       "expected": "certified",
-      "optional": false,
-      "resource_limits_allowed": true
+      "optional": false
     },
     {
       "name": "kalman_048",
@@ -45,9 +44,8 @@
       "family": "kalman",
       "iterations": 48,
       "request": "../../examples/numerics/scale/kalman_048.json",
-      "expected": "budget_not_met",
-      "optional": false,
-      "resource_limits_allowed": true
+      "expected": "certified",
+      "optional": false
     },
     {
       "name": "kalman_128",
@@ -55,10 +53,8 @@
       "family": "kalman",
       "iterations": 128,
       "request": "../../examples/numerics/scale/kalman_128.json",
-      "expected": "unresolved",
-      "optional": false,
-      "expected_failure_stage": "analysis",
-      "expected_error_contains": "denominator"
+      "expected": "budget_not_met",
+      "optional": false
     },
     {
       "name": "imu_001",

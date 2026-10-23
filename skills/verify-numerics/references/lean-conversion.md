@@ -123,6 +123,10 @@ accepted allowance and any successful budget proof, plus actual extracted Rust
 returns for `rust-aeneas`. Its independent checker audits all transitive axioms.
 No generated Rust, Kernel or extracted model should be edited to fit a proof.
 
+The automatic helper-composition route supplies its own `specification_equiv`:
+it proves one shared-step identity and rewrites the fold function. The manual
+authored-proof defaults above remain available for other cases.
+
 This interface accepts saved Lean arguments; it does not parse foreign traces.
 Retain the exact external invocation/output separately as provenance when an
 analyzer supplied the argument. Only the checked Lean bound is accepted.

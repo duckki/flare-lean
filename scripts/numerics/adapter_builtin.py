@@ -4,7 +4,14 @@ from .integration import Adapter, Proposal
 
 def produce(session):
     from . import scalar
+    from . import composition
     from fractions import Fraction as Q
+    if not session.request.get('proof') and isinstance(session.request.get('specification'), dict):
+        source = (session.output/session.source_name).read_text()
+        calls = composition.groups(session.program, source, session.request)
+        if calls:
+            value = composition.proposal(session.program, session.request, calls)
+            return value, value.details
     try:
         summaries, steps = session.baseline(session.program, session.request)
     except ValueError:

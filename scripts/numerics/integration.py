@@ -105,6 +105,8 @@ class Proposal:
     details: dict = field(default_factory=dict)
     lean_source: str | None = None
     authored: dict | None = None
+    modules: dict = field(default_factory=dict)
+    layout: list | None = None
 
 
 class Session:
@@ -112,6 +114,7 @@ class Session:
         from .workflow import save, sha
         self.program, self.request = program, request
         self.output, self.work, self.runner, self.baseline = output, work, runner, baseline
+        self.source_name = source_name
         frozen = obligation(program, request, sha(output/source_name))
         self.obligation = frozen
         self.identity = digest(frozen)
@@ -201,8 +204,23 @@ class Session:
         path = self.output/'lean/Workflow/Authored.lean'
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(proposal.lean_source)
+        for name, source in proposal.modules.items():
+            if (not isinstance(name, str) or not re.fullmatch(r'Workflow/(?:[A-Za-z_][A-Za-z_0-9]*/)*[A-Za-z_][A-Za-z_0-9]*\.lean', name)
+                    or name in {'Workflow/Authored.lean','Workflow/Kernel.lean','Workflow/Proof.lean','Workflow/Check.lean'}
+                    or not isinstance(source, str)):
+                raise ValueError('Invalid adapter proof module')
+            target = self.output/'lean'/name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(source)
+        if proposal.layout is not None:
+            from .composition import groups
+            expected = groups(self.program, (self.output/self.source_name).read_text(), self.request)
+            if proposal.layout != expected:
+                raise ValueError('Composed model does not match original source helper boundaries')
+            save(self.output/'model-layout.json', {'schema':'numerics-helper-layout-v1', 'calls':proposal.layout})
         save(self.output/'validation.json', {'schema': 'numerics-validation-v1',
-             'kind': 'adapter-lean-module', 'declarations': metadata})
+             'kind': 'adapter-lean-module', 'declarations': metadata,
+             **({'modules': list(proposal.modules)} if proposal.modules else {})})
         return metadata
 
 

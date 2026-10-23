@@ -128,21 +128,36 @@ The unchanged original integer-time Rust application's broader obligations are
 kept separate. The two graph fixtures are manual exports, not verified compilers.
 
 Each run retains actual expanded arithmetic/node/input counts, per-stage times,
-accepted versus proposed bounds, full command records and JSON/Markdown summaries.
+accepted versus proposed bounds, proposal time, Lean source size/module counts,
+maximum reported check-process resident memory, full command records and
+JSON/Markdown summaries. Memory is the maximum reported for completed children,
+not an aggregate across simultaneously running processes.
 The stage timeout is 120 seconds. A timeout is unresolved; any bound not yet
 checked stays proposed. `candidate_only` has no Lean theorem and is never a
 certification result. Expected admission/analysis gaps must match their stated
 reason, rather than passing because of an unrelated parser/setup/proof error.
 Warm local times are workload diagnostics, not a solver or agent ranking.
 
-The named 16/48-update Kalman cases may report Lean proof resource exhaustion
-instead of the intended certificate/budget outcome. Only a recorded wall timeout
-or deterministic heartbeat limit at `lean-proof` matches this allowance. Wrong
-statements, unsupported source or other proof errors do not. Summaries list
-`resource_limited_cases` explicitly, and those runs retain proposed bounds only.
-The compiler's generated proof uses a two-million-heartbeat limit; raising the
-wall limit alone does not remove that independent limit. Larger nonlinear state
-expressions need better sharing or modular proof composition.
+The 16/48-update Kalman cases now certify through helper-contract composition;
+their resource-failure allowances have been removed. The 128-update case also
+completes its Lean root, with a mean allowance above the original budget and a
+variance allowance within budget. This is `budget_not_met`, not an observed
+numerical failure. The two-million-heartbeat and 120-second per-stage limits are
+unchanged. Shared native/exact helper definitions and local contracts keep
+nonlinear trajectory expressions out of individual proof bodies.
+
+Compiled local contracts can be reused explicitly across horizons:
+
+```sh
+python3 scripts/benchmark_numerics.py --suite scale \
+  --contract-cache .cache/numerics-generated/contracts \
+  --out .cache/numerics-generated/scale-composed
+```
+
+The first pass compiles the local modules. Later compatible callers reuse their
+unchanged prefix contracts; the application root is still checked. Saved-proof
+replay ignores this cache and recompiles all saved modules. A fresh replay may
+take longer than a warm certification with reused contracts.
 
 The reusable exact-magnitude refinement is checked by `native_ideal_refine`.
 Proof generation restricts arithmetic facts and discards consumed bound facts;

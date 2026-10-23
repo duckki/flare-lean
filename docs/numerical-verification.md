@@ -297,7 +297,11 @@ range plus accumulated error gives a smaller exact magnitude bound. Lean checks
 every use. This avoids artificial growth in repeated covariance calculations;
 large-graph normalization and lost correlations still limit useful bounds.
 The scalar refinement route removes those particular grid losses for small
-supported graphs, while larger-loop composition remains the next milestone.
-The 16/48-update nonlinear Kalman profiles also expose limits in expanded proof
-construction; an unresolved proof has no accepted allowance. Named resource
-allowances in the scale suite do not count as certification success.
+supported graphs. The helper-composition route preserves shared native/exact
+functions and carries errors through larger Python folds. It certifies the
+16/48-update Kalman cases; 128 updates reach a checked result above the mean
+budget. See [helper composition](tool-integration.md#helper-and-loop-composition)
+for limits, explicit contract reuse and fresh replay.
+The nonlinear Kalman profiles use checked helper contracts rather than expanding
+the entire trajectory inside each proof. Resource failures remain unresolved
+and no longer match the completed 16/48-update scale cases.

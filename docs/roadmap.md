@@ -212,6 +212,20 @@ another backend can supply the capability.
 
 ## 4. Compose proofs across loops and function boundaries
 
+Implemented for admitted Python helper chains and two-state folds. Generated
+models retain shared helper definitions, and each local contract accepts both
+native and exact incoming state with its accumulated error. The exact step is
+related to the independent recurrence once, then that identity rewrites the
+fold. Scale-aware outward summaries preserve the 128-update divisor floors.
+
+The unchanged 16/48-update Kalman cases certify; 128 updates reach a checked
+`budget_not_met` result with the original budgets. IMU loops exercise the same
+machinery. Optional content-keyed contract reuse preserves unchanged prefix
+proofs across callers, while replay recompiles saved source without that cache.
+Generic `foldl_contract` and `foldl_error_bound` rules support supplied invariants
+and local error recurrences; the API checks instantiate them at 16, 48 and 128
+steps. They do not infer missing invariants or admit unbounded source loops.
+
 ### Deliver
 
 - Preserve shared expressions and function boundaries in generated models and
@@ -226,8 +240,8 @@ another backend can supply the capability.
 ### Completion criteria
 
 The existing 16/48-update Kalman cases finish their Lean proof and budget stages
-under the maintained resource limits, without the current resource-failure
-allowance. A checked bound above budget remains a valid diagnostic outcome.
+under the maintained resource limits, without treating resource failure as a
+passing outcome. A checked bound above budget remains a valid diagnostic outcome.
 The 128-update case reaches a checked numerical result after its denominator
 obligations are discharged; it must retain the original engineering budgets.
 

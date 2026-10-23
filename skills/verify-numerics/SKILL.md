@@ -82,7 +82,9 @@ hand-rewritten surrogate and claim to have verified the original implementation.
 
 For admitted Python helpers and bounded literal-tuple loops, specify an exact
 two-state fold on the original inputs. Review the whole horizon's allowance;
-intermediate state errors must carry forward. The provider's scale suite includes
+intermediate state errors must carry forward. The provider can preserve helper
+boundaries and compose their checked contracts; see [composition.md](references/composition.md)
+for its scope and optional proof reuse. The provider's scale suite includes
 Kalman/IMU horizons and larger unproved application/model probes. An analysis
 candidate or a successful rejection test is not a completed certificate.
 

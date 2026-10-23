@@ -76,6 +76,76 @@ def proposition(program, summaries, output="kernel", exact="reference"):
     return "\n      ∧ ".join(clauses)
 
 
+def bound_derivation(program, summaries, steps, ideal_inputs=None):
+    lines = []
+    uses=Counter(x for node in program.nodes for x in node.args)
+    uses.update(program.outputs)
+    for node, step in zip(program.nodes, steps, strict=True):
+        b = summaries[node.name]
+        ideal_name = "i" + node.name[1:]
+        native_expr = expression(node)
+        ideal_expr = expression(node, ideal=True)
+        ideal_expr = re.sub(r'\b[an]\d+\b', lambda m: (ideal_inputs or {}).get(m[0], f"(value {m[0]})") if m[0].startswith('a') else 'i'+m[0][1:], ideal_expr)
+        lines += [f"  let {node.name} : Float := {native_expr}", f"  let {ideal_name} : ℝ := {ideal_expr}"]
+        target = f"NativeBounds {real(b.c)} {real(b.w)} {real(b.i)} {real(b.e)} {node.name} {ideal_name}"
+        if node.op == "constant":
+            value = number(node.bits)
+            bits = node.bits
+            exponent = (bits >> 52) & 2047
+            mantissa = bits & ((1 << 52)-1)
+            if exponent:
+                mantissa += 1 << 52
+            power = exponent-1075 if exponent else -1074
+            if bits >> 63:
+                mantissa = -mantissa
+            lines += [f"  have v_{node.name} : value {node.name} = {real(Q.from_float(value))} := by",
+                f"    dsimp only [{node.name}]"]
+            if value == 0:
+                lines += ["    rfl"]
+            else:
+                lines += [f"    change ({mantissa} : ℝ) * (2 : ℝ) ^ ({power} : Int) = _", "    norm_num"]
+            lines += [f"  have b_{node.name} : {target} := by",
+                "    refine ⟨by decide +kernel, ?_, ?_, ?_⟩",
+                f"    all_goals norm_num [{ideal_name}, v_{node.name}]"]
+        elif node.op == "neg":
+            lines += [f"  have b_{node.name} : {target} := native_neg b_{node.args[0]}"]
+        else:
+            a, other = node.args
+            op = node.op
+            prefix = f"native_{op} b_{a} b_{other}"
+            if op == "div":
+                prefix += " (by norm_num) (by norm_num)"
+            prefix += f" ({step['exponent']}) (by norm_num) (by norm_num)"
+            lines += [f"  have raw_{node.name} := {prefix} (by"]
+            if op in ("add", "sub"):
+                lemma = "abs_add_le" if op == "add" else "abs_sub"
+                lines += [f"    have bound := ({lemma} (value {a}) (value {other})).trans",
+                    f"      (add_le_add (native_bound b_{a}.bounds) (native_bound b_{other}.bounds))"]
+            elif op == "mul":
+                lines += [f"    have bound := abs_product (native_bound b_{a}.bounds) (native_bound b_{other}.bounds)"]
+            else:
+                den = summaries[other]
+                lines += [f"    have lower : {real(den.c-den.w)} ≤ value {other} := by",
+                    f"      have h := (abs_le.mp b_{other}.bounds.centre).1", "      linarith only [h]",
+                    f"    have bound := abs_div_upper (native_bound b_{a}.bounds) (by norm_num : (0 : ℝ) < {real(den.c-den.w)}) lower"]
+            lines += ["    exact bound.trans (by norm_num))"]
+            if step.get('ideal_refinement'):
+                wide=f"NativeBounds {real(b.c)} {real(b.w)} {real(step['raw_ideal'])} {real(b.e)} {node.name} {ideal_name}"
+                lines += [f"  have wide_{node.name} : {wide} := native_weaken raw_{node.name}",
+                          "    (by norm_num) (by norm_num) (by norm_num)",
+                          f"  have b_{node.name} : {target} := native_ideal_refine wide_{node.name} (by norm_num)"]
+                lines += [f'  clear raw_{node.name} wide_{node.name}']
+            else:
+                lines += [f"  have b_{node.name} : {target} := native_weaken raw_{node.name}",
+                          "    (by norm_num) (by norm_num) (by norm_num)"]
+                lines += [f'  clear raw_{node.name}']
+        for parent in node.args:
+            uses[parent]-=1
+            if uses[parent]==0:
+                lines += [f'  clear b_{parent}']
+    return lines
+
+
 def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None, claims=None):
     args = applied(program)
     hyps = hypotheses(program, domain)
@@ -98,77 +168,13 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         lines += ['  exact '+authored['accuracy']+' '+args+' '+
                   ' '.join(f'h{i}' for i in range(len(program.inputs)))]
     else:
-        uses=Counter(x for node in program.nodes for x in node.args)
-        uses.update(program.outputs)
         for i, name in enumerate(program.inputs):
             b = summaries[f"a{i}"]
             lines += [f"  have b_a{i} : NativeBounds {real(b.c)} {real(b.w)} {real(b.i)} 0 a{i} (value a{i}) := by",
                 f"    apply same _ _ _ _ h{i}.1",
                 f"    · rw [abs_le]; constructor <;> linarith only [h{i}.2.1, h{i}.2.2]",
                 f"    · rw [abs_le]; constructor <;> linarith only [h{i}.2.1, h{i}.2.2]"]
-        for node, step in zip(program.nodes, steps, strict=True):
-            b = summaries[node.name]
-            ideal_name = "i" + node.name[1:]
-            native_expr = expression(node)
-            ideal_expr = expression(node, ideal=True)
-            ideal_expr = re.sub(r'\b[an]\d+\b', lambda m: f"(value {m[0]})" if m[0].startswith('a') else 'i'+m[0][1:], ideal_expr)
-            lines += [f"  let {node.name} : Float := {native_expr}", f"  let {ideal_name} : ℝ := {ideal_expr}"]
-            target = f"NativeBounds {real(b.c)} {real(b.w)} {real(b.i)} {real(b.e)} {node.name} {ideal_name}"
-            if node.op == "constant":
-                value = number(node.bits)
-                bits = node.bits
-                exponent = (bits >> 52) & 2047
-                mantissa = bits & ((1 << 52)-1)
-                if exponent:
-                    mantissa += 1 << 52
-                power = exponent-1075 if exponent else -1074
-                if bits >> 63:
-                    mantissa = -mantissa
-                lines += [f"  have v_{node.name} : value {node.name} = {real(Q.from_float(value))} := by",
-                    f"    dsimp only [{node.name}]"]
-                if value == 0:
-                    lines += ["    rfl"]
-                else:
-                    lines += [f"    change ({mantissa} : ℝ) * (2 : ℝ) ^ ({power} : Int) = _", "    norm_num"]
-                lines += [f"  have b_{node.name} : {target} := by",
-                    "    refine ⟨by decide +kernel, ?_, ?_, ?_⟩",
-                    f"    all_goals norm_num [{ideal_name}, v_{node.name}]"]
-            elif node.op == "neg":
-                lines += [f"  have b_{node.name} : {target} := native_neg b_{node.args[0]}"]
-            else:
-                a, other = node.args
-                op = node.op
-                prefix = f"native_{op} b_{a} b_{other}"
-                if op == "div":
-                    prefix += " (by norm_num) (by norm_num)"
-                prefix += f" ({step['exponent']}) (by norm_num) (by norm_num)"
-                lines += [f"  have raw_{node.name} := {prefix} (by"]
-                if op in ("add", "sub"):
-                    lemma = "abs_add_le" if op == "add" else "abs_sub"
-                    lines += [f"    have bound := ({lemma} (value {a}) (value {other})).trans",
-                        f"      (add_le_add (native_bound b_{a}.bounds) (native_bound b_{other}.bounds))"]
-                elif op == "mul":
-                    lines += [f"    have bound := abs_product (native_bound b_{a}.bounds) (native_bound b_{other}.bounds)"]
-                else:
-                    den = summaries[other]
-                    lines += [f"    have lower : {real(den.c-den.w)} ≤ value {other} := by",
-                        f"      have h := (abs_le.mp b_{other}.bounds.centre).1", "      linarith only [h]",
-                        f"    have bound := abs_div_upper (native_bound b_{a}.bounds) (by norm_num : (0 : ℝ) < {real(den.c-den.w)}) lower"]
-                lines += ["    exact bound.trans (by norm_num))"]
-                if step.get('ideal_refinement'):
-                    wide=f"NativeBounds {real(b.c)} {real(b.w)} {real(step['raw_ideal'])} {real(b.e)} {node.name} {ideal_name}"
-                    lines += [f"  have wide_{node.name} : {wide} := native_weaken raw_{node.name}",
-                              "    (by norm_num) (by norm_num) (by norm_num)",
-                              f"  have b_{node.name} : {target} := native_ideal_refine wide_{node.name} (by norm_num)"]
-                    lines += [f'  clear raw_{node.name} wide_{node.name}']
-                else:
-                    lines += [f"  have b_{node.name} : {target} := native_weaken raw_{node.name}",
-                              "    (by norm_num) (by norm_num) (by norm_num)"]
-                    lines += [f'  clear raw_{node.name}']
-            for parent in node.args:
-                uses[parent]-=1
-                if uses[parent]==0:
-                    lines += [f'  clear b_{parent}']
+        lines += bound_derivation(program, summaries, steps)
     if not authored:
         terms = []
         for node in program.outputs:

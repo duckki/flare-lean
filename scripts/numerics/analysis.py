@@ -31,6 +31,16 @@ def normalized(b):
     return Bound(c, up(b.w + abs(b.c-c), -20), up(b.i, -20), up(b.e, -45))
 
 
+def scale_normalized(b):
+    """Outward rounding relative to the current scale, including error bounds."""
+    cap = max(abs(b.c), b.w, b.i)
+    exponent = cap.numerator.bit_length()-cap.denominator.bit_length() if cap else -1022
+    grid = Q(2)**(exponent-40)
+    centre = (b.c//grid)*grid
+    return Bound(centre, up(b.w+abs(b.c-centre), exponent-40),
+                 up(b.i, exponent-40), up(b.e, exponent-64))
+
+
 def magnitude_exponent(x):
     n = max(-1022, x.numerator.bit_length() - x.denominator.bit_length())
     while Q(2) ** n < x:
@@ -40,7 +50,7 @@ def magnitude_exponent(x):
     return n
 
 
-def analyze(program, domain):
+def analyze(program, domain, normalizer=normalized):
     summaries = {}
     for i, name in enumerate(program.inputs):
         lo, hi = map(Q, domain[name])
@@ -78,7 +88,7 @@ def analyze(program, domain):
                 result = Bound(a.c/b.c, a.w/lower+abs(a.c)*b.w/(lower*b.c)+rho,
                     a.i/ideal_lower, a.e/lower+a.i*b.e/(lower*ideal_lower)+rho)
             raw_ideal = result.i
-            result = normalized(result)
+            result = normalizer(result)
             # Native range and accumulated error give another exact-magnitude
             # bound. Lean checks this refinement with native_ideal_refine.
             result = Bound(result.c,result.w,min(result.i,result.cap+result.e),result.e)

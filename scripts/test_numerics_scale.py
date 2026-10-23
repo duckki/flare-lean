@@ -88,7 +88,7 @@ class ScaleFixtureTests(unittest.TestCase):
         self.assertTrue(any(s['ideal_refinement'] for s in steps))
         self.assertLess(float(bounds[program.outputs[0]].e),1e-4)
 
-    def test_unresolved_scale_case_has_the_intended_analysis_failure(self):
+    def test_legacy_flat_producer_loses_the_128_step_denominator_floor(self):
         request,_,program,_=prepare(ROOT/'examples/numerics/scale/kalman_128.json')
         with self.assertRaisesRegex(ValueError,'denominator'):analyze(program,request['domain'])
 

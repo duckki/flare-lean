@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--case',action='append',default=[])
     parser.add_argument('--include-optional',action='store_true')
     parser.add_argument('--tools',type=Path,help='Local rust_tools and language runtimes overrides')
+    parser.add_argument('--contract-cache',type=Path,help='Explicit shared cache for compiled helper contracts')
     args=parser.parse_args(); out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
     manifest=ROOT/'benchmarks/numerics'/('scenarios.json' if args.suite=='smoke' else 'scale.json')
     suite=json.loads(manifest.read_text());tools=json.loads(args.tools.read_text()) if args.tools else {}
@@ -59,6 +60,8 @@ def main():
             request['rust_tools']=tools['rust_tools']
         if tools.get('analysis_tools'):
             request['analysis_tools'] = tools['analysis_tools']
+        if args.contract_cache:
+            request['contract_cache'] = str(args.contract_cache.resolve())
         selected=out/(case['name']+'.json');save(selected,request)
         start=time.monotonic();run=out/case['name']
         command=[sys.executable,str(ROOT/'scripts/certify_numerics.py'),'run','--request',str(selected),'--out',str(run)]
@@ -81,6 +84,15 @@ def main():
                 'original_scalar_inputs':len(program['inputs'])}
         record['stage_seconds']={p.parent.name:json.loads(p.read_text())['seconds']
                                  for p in sorted((run/'runs').glob('*/run.json'))}
+        checks = [json.loads(p.read_text()) for p in (run/'runs').glob('*/run.json')]
+        memory = [stage['peak_rss_bytes'] for stage in checks if stage['phase']=='check' and 'peak_rss_bytes' in stage]
+        record.setdefault('metrics',{}).update({'proposal_seconds':result.get('proposal_seconds'),
+                                  'lean_source_bytes':sum(p.stat().st_size for p in (run/'lean').rglob('*.lean')),
+                                  'lean_source_modules':len(list((run/'lean').rglob('*.lean'))),
+                                  'max_check_rss_bytes':max(memory) if memory else None})
+        if (run/'proof-reuse.json').exists():
+            reuse = json.loads((run/'proof-reuse.json').read_text())['modules']
+            record['metrics']['reused_proof_modules'] = sum(item['reused'] for item in reuse)
         records.append(record)
         note=' ('+result['failure_kind']+')' if record['resource_limited'] else ''
         print(case['name']+': '+result['status']+note,flush=True)

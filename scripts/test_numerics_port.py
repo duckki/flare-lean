@@ -83,7 +83,8 @@ class ExplicitPortTests(unittest.TestCase):
         save(frozen/'request.json',request)
         save(frozen/'result.json',{'status':'certified','artifacts':{},'completed_stages':['lean_root_checked']})
         save(frozen/'analysis.json',{'accepted_bounds':{n:'1' for n in program.outputs}})
-        def fake_check(output,*args):
+        def fake_check(output,*args,reuse=True):
+            self.assertFalse(reuse)
             self.assertEqual((output/'rust-port.rs').read_text(),'saved port')
             self.assertEqual((output/'lean/Workflow/RustEquiv.lean').read_text(),'saved proof')
         with patch('numerics.rust.tools',return_value={'lean_lib':self.root}), \

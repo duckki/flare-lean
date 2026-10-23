@@ -21,7 +21,7 @@ def return_annotation(annotation):
                 and all(float_annotation(x) for x in annotation.slice.elts)))
 
 
-def python_frontend(source, function):
+def python_frontend(source, function, trace=None):
     tree = ast.parse(source)
     statements = [x for x in tree.body if not (
         isinstance(x, ast.Expr) and isinstance(x.value, ast.Constant)
@@ -132,12 +132,18 @@ def python_frontend(source, function):
         if len(args) != len(arguments[name]):
             raise Unsupported('Helper call arity does not match its declaration')
         saved = graph.names
+        start = len(graph.nodes)
+        depth = len(active)
         graph.names = dict(zip(arguments[name], args, strict=True))
         active.append(name)
         try:
             result = body(functions[name].body)
             if result is None:
                 raise Unsupported('Missing numerical return')
+            if trace is not None and depth and all(x.ref is not None for x in [*args, *result]):
+                trace.append({'function': name, 'depth': depth, 'start': start,
+                              'end': len(graph.nodes), 'inputs': tuple(x.ref for x in args),
+                              'outputs': tuple(x.ref for x in result)})
             return result
         finally:
             active.pop()

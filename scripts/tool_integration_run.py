@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import signal
 import subprocess
+import sys
 import time
 
 
@@ -103,6 +104,13 @@ def main():
             record.update(status="launch_error" if process is None else "cleanup_error",
                           returncode=None, error=str(error))
     record["seconds"] = time.monotonic() - started
+    try:
+        import resource
+        peak = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+        record['peak_rss_bytes'] = int(peak if sys.platform == 'darwin' else peak*1024)
+        record['memory_measurement'] = 'Maximum resident set size reported for completed children; not aggregate process-tree memory.'
+    except ImportError:
+        pass
     record["finished_utc"] = datetime.now(timezone.utc).isoformat()
     record["streams"] = {
         name: {"bytes": (args.output / name).stat().st_size,

@@ -12,6 +12,7 @@ No upstream submission is recorded here yet.
 | Area | FLARE modules | Preparation needed |
 | --- | --- | --- |
 | Dyadic estimates | `Analysis.Dyadic` | Compare the exponent-selection and scaling lemmas with existing power bounds |
+| Indexed fold simulation | `Analysis.ErrorRecurrence.foldl_contract` | Compare with `List.foldl_rel` and `List.rel_foldl`; assess a useful interface for step-indexed invariants before proposing an upstream statement |
 | Matrix conditioning | `Analysis.Conditioning`, `Analysis.SchurComplement`, `Analysis.LinearSolve` | Compare positive-definite and operator-norm APIs; identify reusable missing lemmas |
 | Spectral estimates | `Analysis.SpectralGap`, `Analysis.SpectralPerturbation` | Compare spectral-theorem and norm infrastructure; retain the exact assumptions |
 | Pseudoinverses | `Analysis.MoorePenrose`, `Analysis.PseudoinversePerturbation` | Reconcile definitions and symmetry hypotheses with upstream interfaces |

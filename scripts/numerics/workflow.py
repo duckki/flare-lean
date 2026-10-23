@@ -92,6 +92,11 @@ def prepare(path, *, replay=False):
     timeout = request.get('timeout_seconds', 120)
     if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0:
         raise ValueError('timeout_seconds must be finite and positive')
+    cache = request.get('contract_cache')
+    if cache is not None:
+        if not isinstance(cache, str) or not cache.strip():
+            raise ValueError('contract_cache must name an explicit cache directory')
+        request['contract_cache'] = str((path.parent/Path(cache).expanduser()).resolve())
     port = request.get('rust_port')
     if port is not None:
         if (request.get('target') != 'rust-aeneas' or request.get('language') == 'rust' or
@@ -217,32 +222,48 @@ def lean_environment(output, runner, work, request):
     return environment, build
 
 
-def check_lean(output, request, program, bounds, runner, work):
+def check_lean(output, request, program, bounds, runner, work, reuse=True):
     from .emit import check_source
     environment, build = lean_environment(output, runner, work, request)
     with_rust = request.get('target','lean') == 'rust-aeneas'
     modules = []
     if with_rust:
         modules += [('types','Workflow/Generated/Types.lean'),('functions','Workflow/Generated/Funs.lean')]
-    modules += [('kernel','Workflow/Kernel.lean')]
-    if request.get('rust_port'):
-        modules += [('rust-equivalence','Workflow/RustEquiv.lean')]
     adapter_module = output/'validation.json'
     if adapter_module.exists():
         validation = json.loads(adapter_module.read_text())
         if validation.get('schema') != 'numerics-validation-v1' or validation.get('kind') != 'adapter-lean-module':
             raise ValueError('Unsupported adapter Lean validation record')
+        for index, name in enumerate(validation.get('modules', [])):
+            if not isinstance(name, str) or not re.fullmatch(r'Workflow/(?:[A-Za-z_][A-Za-z_0-9]*/)*[A-Za-z_][A-Za-z_0-9]*\.lean', name):
+                raise ValueError('Invalid adapter module path')
+            modules += [('contract-'+str(index), name)]
+    modules += [('kernel','Workflow/Kernel.lean')]
+    if request.get('rust_port'):
+        modules += [('rust-equivalence','Workflow/RustEquiv.lean')]
     if request.get('proof') or adapter_module.exists():
         modules += [('authored','Workflow/Authored.lean')]
     modules += [('proof','Workflow/Proof.lean')]
     (output/'lean/Workflow/Check.lean').write_text(check_source(program,request['domain'],bounds,
                                                              request['outputs'],with_rust))
     modules += [('root-check','Workflow/Check.lean')]
+    from .proof_cache import ProofCache
+    foundation = {name: digest for name,digest in dependencies().items()
+                  if name.startswith('Flare/') or name in {'lake-manifest.json','lean-toolchain'}}
+    cache = ProofCache(request.get('contract_cache') if reuse else None, foundation, output/'lean')
     for label,module in modules:
         target = build/Path(module).with_suffix('.olean'); target.parent.mkdir(parents=True,exist_ok=True)
+        reusable = label.startswith('contract-')
+        if reusable and cache.restore(output/'lean'/module, target):
+            continue
         runner.run('lean-'+label, ['lean','-DautoImplicit=false','-DwarningAsError=true',
             '-Dlinter.extra=true','-Dlinter.missingDocs=false','-o',target,module],
             cwd=output/'lean',env=environment)
+        if reusable:
+            cache.save(output/'lean'/module, target)
+    if cache.records:
+        save(output/'proof-reuse.json', {'schema':'numerics-proof-reuse-v1', 'cache_enabled':cache.root is not None,
+                                      'modules':cache.records})
 
 
 def output_bounds(program, request):
@@ -251,6 +272,25 @@ def output_bounds(program, request):
         return {n:Bound(Q(0),Q(0),Q(0),Q(e))
                 for n,e in zip(program.outputs,request['proof']['bounds'],strict=True)}, []
     return analyze(program,request['domain'])
+
+
+def kernel_for_run(output, request, program):
+    layout_path = output/'model-layout.json'
+    if not layout_path.exists():
+        return kernel_source(program,request['specification'])
+    from .composition import function_module, groups, identity, local_program, model_source
+    layout = json.loads(layout_path.read_text())
+    expected = groups(program, (output/request['source']).read_text(), request)
+    if (layout.get('schema') != 'numerics-helper-layout-v1' or expected is None or
+            layout.get('calls') != json.loads(json.dumps(expected))):
+        raise ValueError('Saved model layout does not match original source helper boundaries')
+    for call in expected:
+        local, _, _ = local_program(program, call)
+        key = identity(local.record())
+        source = output/'lean/Workflow/Functions'/('F'+key+'.lean')
+        if source.read_text() != function_module(local, key):
+            raise ValueError('Saved helper function does not match the frozen source graph')
+    return model_source(program,request['specification'],expected)
 
 
 def certify(request_path, output):
@@ -320,9 +360,13 @@ def certify(request_path, output):
         session = Session(program, request, output, work, runner, output_bounds, source_name)
         producer = request.get('producer', 'lean-flare')
         result['producer'] = producer
+        proposal_started = time.monotonic()
         proposal = session.execute(producer, 'producer')
+        result['proposal_seconds'] = time.monotonic()-proposal_started
         summaries, steps, bounds = proposal.summaries, proposal.steps, proposal.claims
         authored = session.proof_module(proposal)
+        if proposal.layout is not None:
+            result['assumptions'].append('The helper layout structurally groups the admitted graph without changing its ordered operations; frontend/model generation remains a source-correspondence trust boundary.')
         result['producer_validation'] = proposal.details.get('validation', 'lean-root')
         result['claim_policy'] = proposal.details.get('claim_policy', 'producer-output-claims')
         save(output/'analysis.json',{'producer':producer, 'steps':steps,
@@ -338,7 +382,7 @@ def certify(request_path, output):
             session.execute('rust-aeneas', 'extractor', source=frozen_source)
             result['completed_stages'].append('rust_source_extracted')
         lean=output/'lean/Workflow'; lean.mkdir(parents=True,exist_ok=True)
-        (lean/'Kernel.lean').write_text(kernel_source(program,request['specification']))
+        (lean/'Kernel.lean').write_text(kernel_for_run(output,frozen_request,program))
         (lean/'Proof.lean').write_text(proof_source(program,request['domain'],summaries,steps,
                                                   request['outputs'],with_rust,authored,
                                                   isinstance(request['specification'],dict),
@@ -428,7 +472,7 @@ def replay_run(path, output, aeneas_lean_lib=None):
     if questions: raise ValueError('Frozen request is incomplete')
     from .integration import replay_evidence
     replay_evidence(path, request, program)
-    expected=kernel_source(program,request['specification'])
+    expected=kernel_for_run(path,request,program)
     if expected!=(path/'lean/Workflow/Kernel.lean').read_text():
         raise ValueError('Saved kernel/specification does not match the frozen original source/request')
     original=json.loads((path/'result.json').read_text())
@@ -450,11 +494,13 @@ def replay_run(path, output, aeneas_lean_lib=None):
     shutil.copyfile(path/'request.json',output/'request.json'); shutil.copyfile(source,output/request['source'])
     if (path/'validation.json').exists():
         shutil.copyfile(path/'validation.json', output/'validation.json')
+    if (path/'model-layout.json').exists():
+        shutil.copyfile(path/'model-layout.json', output/'model-layout.json')
     if request.get('rust_port'):
         shutil.copyfile(path/request['rust_port']['source'], output/request['rust_port']['source'])
     runner=Runner(output,request.get('timeout_seconds',120)); work=output/'.work';work.mkdir()
     try:
-        check_lean(output,request,program,bounds,runner,work)
+        check_lean(output,request,program,bounds,runner,work,reuse=False)
     finally:
         shutil.rmtree(work)
     result={'status':'replayed', 'certificate_status':original['status'],

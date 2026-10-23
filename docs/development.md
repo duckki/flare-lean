@@ -135,6 +135,8 @@ Run `make numerics-check` for fresh Lean certification/replay and rejection
 controls, and `make numerics-bench` for the default end-to-end scenarios. Use
 `make numerics-scale` for increasing bounded-loop and larger-model workloads. CI
 runs the smoke suite, a representative scale subset and the two README examples.
+The scale subset includes 16/48/128-update Kalman and 16/48-update IMU checks;
+resource failures are not accepted for the completed helper-composition cases.
 It uploads the checked [README evidence](numerical-verification.md#replay-the-readme-examples)
 after a fresh replay.
 CI also builds the pinned Gappa/FPTaylor producers, checks external families and
@@ -151,3 +153,16 @@ Keep provider regression commands, failures and evidence under ignored
 into the library. Application verification uses the skill's confirmed artifact
 locations and verification-local scratch; new reusable tool downloads use the
 shared user cache. Candidate external bounds must become Lean proofs before acceptance.
+
+For repeated helper/loop benchmarks, pass
+`--contract-cache .cache/numerics-generated/contracts` to the benchmark runner.
+This optional cache reuses compiled local contracts whose source, imported helper
+and library/compiler identities still match. It preserves Lean's `.olean`,
+`.olean.private` and `.olean.server` proof-module data. `proof-reuse.json` records
+actual reuse; changed/corrupt entries are rebuilt. Replay always compiles saved
+sources afresh and uses no compiled contract cache. Application runs select an
+explicit `contract_cache` under their agreed verification directory instead.
+
+Benchmark summaries record proposal/check times, Lean source bytes/module count,
+reused modules and maximum reported check-process resident memory. Warm reuse
+and fresh replay have different costs; retain both when comparing scalability.

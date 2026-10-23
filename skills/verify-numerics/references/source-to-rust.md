@@ -52,6 +52,7 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `arithmetic` | Optional full model from `capabilities`; mismatched precision/rounding/FMA/subnormal semantics are rejected |
 | `target` | `lean` (default) or `rust-aeneas` |
 | `timeout_seconds` | Finite positive per-command limit, default 120 |
+| `contract_cache` | Optional explicit directory for compiled helper-contract reuse; prefer the agreed verification directory's `.cache/contracts/`; replay always recompiles saved sources |
 | `proof` | Optional saved Lean proof and bounds; see `lean-conversion.md` |
 | `python_method` | Optional explicit state, fixed attributes and measurement horizon for a selected `Class.method`; see below |
 | `rust_port` | Optional retained Rust implementation and checked equivalence module for `rust-aeneas`; see below |
@@ -60,7 +61,8 @@ Exact specification decimals are rationals; source literals mean their stored
 binary64 words. A changed literal interpretation needs a proof. Example ranges
 and budgets are conditional demonstration inputs, not engineering defaults.
 Expression-list reference bridges use unfolding and ring normalization; fold
-bridges use definitional equality. Other identities can use a saved authored proof.
+bridges use a shared step identity when helper composition applies, otherwise
+definitional equality. Other identities can use a saved authored proof.
 
 ## Admitted source subsets
 
