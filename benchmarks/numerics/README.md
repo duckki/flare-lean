@@ -29,8 +29,9 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Joseph covariance | `certified` | Alternative operation schedule and two outputs |
 | IMU prediction | `certified` | Scalar motion kernel, original Float time input |
 | Four-stage mean update | `certified` | Residual, gain multiplication, add zero, add prior mean |
-| Same mean update, `2^-51` target | `budget_not_met` | Current producer proves `2^-43`, retaining the original target |
-| Mean update through Gappa / FPTaylor | `certified` with optional producers | Retain different foreign evidence forms; independently prove the original requested budget in Lean |
+| Same mean update, `2^-51` target | `certified` | Reusable scalar inference, three gain intervals and the unchanged target |
+| Tiny positive gain denominator | `certified` | Preserve native and exact positive floors with both variances in `[2^-54,2^-53]` |
+| Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
 | Python Kalman → Rust IR probe | `certified` with optional extraction tools | Internal straight-line kernel: fresh Charon/Aeneas return plus debug/release diagnostics; not a reusable production port |
@@ -76,19 +77,25 @@ scenario runner's statuses. See [the worked example](../../docs/numerical-verifi
 
 ## Known analysis gaps and external fixtures
 
-The rational producer normalizes centers/radii/ideal magnitudes on a `2^-20`
+The fast compositional producer normalizes centers/radii/ideal magnitudes on a `2^-20`
 grid and errors on a `2^-45` grid. It can then refine the ideal magnitude using
 native range plus accumulated error; that refined value need not lie on the
-coarser grid. Tests retain two observed limitations: a simple addition
+coarser grid. Tests retain two limitations of that producer: a simple addition
 allowance inflates from `2^-51` to `2^-45`, and `p/(p+r)` is unresolved for both
 inputs in `[2^-54,2^-53]` after normalization loses a positive divisor floor.
-These describe producer limitations, not false mathematical conclusions.
+The default workflow now tries reusable scalar inference for graphs of at most
+32 IR nodes when a budget or divisor floor needs refinement. It uses relative
+outward enclosures, nearest rounding, polynomial correlations and checked input
+subdivision. The addition, tiny-gain and tight mean-update families now have
+Lean certificates; large graphs still use the compositional producer.
 
 `gappa/mean-update-tight.g`, its raw Coq trace and wrapper are preserved inputs
-for Lean reconstruction. They do not establish the `2^-51` theorem in Lean.
+for comparison with Lean reconstruction. The reusable Lean route now establishes
+the unchanged `2^-51` theorem without trusting that foreign trace.
 Foreign checker tools are not required for default local tests. Gappa/FPTaylor
-producer adapters retain output and independently derive requested budgets;
-their foreign proof traces are not imported. PRECiSA has no registered adapter.
+producer adapters retain output and validate the actual candidate conclusion;
+their foreign proof traces are not imported. PRECiSA is planned for milestone 8
+and has no registered adapter.
 Full matrix/filter applications,
 NumPy/BLAS mappings, unstable branches and physical coverage need further work.
 

@@ -3,7 +3,20 @@ from .integration import Adapter, Proposal
 
 
 def produce(session):
-    summaries, steps = session.baseline(session.program, session.request)
+    from . import scalar
+    from fractions import Fraction as Q
+    try:
+        summaries, steps = session.baseline(session.program, session.request)
+    except ValueError:
+        if session.request.get('proof') or not scalar.supported(session.program):
+            raise
+        value = scalar.proposal(session.program, session.request)
+        return value, value.details
+    if (not session.request.get('proof') and scalar.supported(session.program) and
+            any(summaries[name].e > Q(target['limit']) for name,target in
+                zip(session.program.outputs, session.request['outputs'], strict=True))):
+        value = scalar.proposal(session.program, session.request)
+        return value, value.details
     claims = {name: summaries[name] for name in session.program.outputs}
     details = {'validation': 'lean-flare-v1', 'proof_source': bool(session.request.get('proof')),
                'qualification': 'Untrusted proposals; the independent Lean root checks all accepted numerical claims.'}

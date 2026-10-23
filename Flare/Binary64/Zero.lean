@@ -31,6 +31,31 @@ theorem add_zero (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
   rw [hsa, hsb]
   cases sa <;> cases sb <;> rfl
 
+/-- Adding either signed zero to a finite operand introduces no numerical error.
+The resulting zero sign is deliberately not specified. -/
+theorem add_right_zero (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)
+    (hb0 : value b = 0)
+    : (a + b).isFinite = true ∧ value (a + b) = value a := by
+  obtain ⟨sb, hsb⟩ := unpack_zero b hb hb0
+  have he : Flare.Binary64.Value.modelToReal (a + b).toModel =
+      Flare.Binary64.Value.modelToReal a.toModel := by
+    change Flare.Binary64.Value.modelToReal (Float.Model.pack
+      (UnpackedFloat.add Format.binary64 a.toModel.unpack b.toModel.unpack)) = _
+    rw [hsb]
+    change a.toModel.unpack.isFinite = true at ha
+    cases hua : a.toModel.unpack with
+    | notANumber => simp [hua, UnpackedFloat.isFinite] at ha
+    | infinity s => simp [hua, UnpackedFloat.isFinite] at ha
+    | zero sa =>
+        cases sa <;> cases sb <;> simp [UnpackedFloat.add,
+          Flare.Binary64.Value.modelToReal, hua] <;> rfl
+    | finite sa m e hm =>
+        simp only [UnpackedFloat.add]
+        rw [← hua, interpretation_eq, interpretation_eq]
+        simp only [Flare.Binary64.Model.Value.toReal,
+          Flare.Binary64.Model.Rounding.pack_unpack_rational]
+  exact ⟨finite_of_value _ _ (he.trans (finite_value a ha)), by simp only [value, he]⟩
+
 /-- A product with exact real value zero remains zero, including underflow
 inputs and differing zero signs. -/
 theorem mul_zero (a b : Float) (ha : a.isFinite = true) (hb : b.isFinite = true)

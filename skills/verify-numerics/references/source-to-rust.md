@@ -235,8 +235,8 @@ Source/IR and Rust debug/release diagnostics remain required for certification.
 selects a producer and freezes its obligation/evidence (or loads an authored proof); checks Lean proofs and
 an independently generated root-type/axiom checker; then runs word diagnostics.
 Only checked bounds are recorded as `accepted_bounds`.
-The external routes independently prove the requested budgets; printed tighter
-allowances are candidates. See [tool integration](tool-integration.md).
+The external routes must prove their actual candidate conclusions in Lean;
+unproved candidates remain unresolved. See [tool integration](tool-integration.md).
 
 | Status | Interpretation |
 | --- | --- |

@@ -1,7 +1,8 @@
 """Gappa proof-bearing and FPTaylor candidate output through one validation route.
 
 Foreign traces are retained, not trusted or translated as Coq proofs. The shared
-Lean backend independently proves the requested budgets from the original IR.
+scalar validator consumes candidate conclusions and reconstructs their proofs
+against the original ordered native graph.
 """
 from fractions import Fraction as Q
 import json
@@ -11,6 +12,7 @@ import re
 
 from .frontend import Unsupported, number
 from .integration import Adapter
+from . import scalar
 
 
 PINS = json.loads((Path(__file__).resolve().parents[2]/'tools/numerics/producers.json').read_text())['tools']
@@ -21,6 +23,8 @@ def applicable(program, request):
         raise Unsupported('External producer routing and authored proof selection are separate routes')
     if any(node.op not in {'constant', 'neg', 'add', 'sub', 'mul', 'div'} for node in program.nodes):
         raise Unsupported('External scalar producer requires admitted arithmetic operations')
+    if not scalar.supported(program):
+        raise Unsupported('External scalar validation currently admits at most 32 IR nodes')
 
 
 def gappa_applicable(program, request):
@@ -119,7 +123,7 @@ def produce_gappa(session):
         claims.append(radius)
     details = {'tool': 'gappa', 'evidence_form': 'coq-proof-bearing-output', 'queried_error_radii': claims,
                'foreign_trace_checked': False}
-    proposal = session.budget_proposal(details)
+    proposal = scalar.proposal(session.program, session.request, claims, details)
     return proposal, proposal.details
 
 
@@ -139,22 +143,24 @@ def produce_fptaylor(session):
         candidates.append(parse_fptaylor(text))
     details = {'tool': 'fptaylor', 'evidence_form': 'numeric-candidates',
                'raw_candidate_bounds': candidates, 'foreign_trace_checked': False}
-    proposal = session.budget_proposal(details)
+    proposal = scalar.proposal(session.program, session.request, candidates, details)
     return proposal, proposal.details
 
 
 ADAPTERS = (
     Adapter('gappa', 'producer', 'coq-proof-bearing-output',
-            'Retain Gappa proof output; independently prove the requested budget in Lean',
+            'Reconstruct the Gappa query conclusion with reusable Lean scalar inference',
             produce_gappa, gappa_applicable,
             {'versions': PINS['gappa']['versions'], 'domain_endpoints': 'dyadic',
-             'goals': ['absolute-error-budget'], 'validation': ['independent-lean-rederivation-v1']},
+             'max_ir_nodes': scalar.MAX_OPERATIONS,
+             'goals': ['absolute-error-budget'], 'validation': ['lean-scalar-interval-v1']},
             PINS['gappa']['setup']),
     Adapter('fptaylor', 'producer', 'numeric-candidates',
-            'Retain FPTaylor error candidates; independently prove the requested budget in Lean',
+            'Validate the exact FPTaylor candidate with reusable Lean scalar inference',
             produce_fptaylor, applicable,
             {'versions': PINS['fptaylor']['versions'],
              'tested_source_revision': PINS['fptaylor']['setup']['source']['revision'],
-             'goals': ['absolute-error-budget'], 'validation': ['independent-lean-rederivation-v1']},
+             'max_ir_nodes': scalar.MAX_OPERATIONS,
+             'goals': ['absolute-error-budget'], 'validation': ['lean-scalar-interval-v1']},
             PINS['fptaylor']['setup']),
 )

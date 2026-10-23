@@ -164,7 +164,7 @@ class AdapterLeanTests(unittest.TestCase):
                      os.environ.get('FLARE_NUMERICS_ANALYSIS_TOOLS'),
                      'Set FLARE_NUMERICS_ANALYSIS_TOOLS for real external producer checks')
 class ExternalProducerTests(unittest.TestCase):
-    def test_foreign_success_cannot_replace_an_independent_lean_proof(self):
+    def test_foreign_success_cannot_accept_a_forged_candidate(self):
         configuration = json.loads(Path(os.environ['FLARE_NUMERICS_ANALYSIS_TOOLS']).read_text())
         tools = configuration.get('analysis_tools', configuration)
         with tempfile.TemporaryDirectory(prefix='flare-external-rejection-') as directory:
@@ -175,8 +175,16 @@ class ExternalProducerTests(unittest.TestCase):
                                'outputs': [{'name': 'sum', 'unit': 'm', 'limit': str(Q(2)**-50)}]}
                     save(root/'request.json', request)
                     run = root/producer
-                    result = certify(root/'request.json', run)
-                    self.assertEqual((result['status'], result['failure_stage']), ('unresolved', 'lean-proof'))
+                    from numerics.adapter_external import gappa_input
+                    # The real tool succeeds, but a faulty adapter reports zero.
+                    # Its candidate still has to pass the independent Lean argument.
+                    target = ('numerics.adapter_external.gappa_input' if producer == 'gappa'
+                              else 'numerics.adapter_external.parse_fptaylor')
+                    def forged(*args):
+                        return (gappa_input(*args)[0], '0') if producer == 'gappa' else '0'
+                    with patch(target, side_effect=forged):
+                        result = certify(root/'request.json', run)
+                    self.assertEqual((result['status'], result['failure_stage']), ('unresolved', 'lean-authored'))
                     command = json.loads((run/'runs'/(producer+'-output-0')/'run.json').read_text())
                     self.assertEqual(command['returncode'], 0, command)
                     self.assertNotIn('lean_root_checked', result['completed_stages'])
@@ -205,6 +213,9 @@ class ExternalProducerTests(unittest.TestCase):
                         evidence = json.loads((run/'evidence.json').read_text())
                         self.assertEqual(evidence['records'][0]['name'], producer)
                         self.assertTrue(evidence['tools'])
+                        details = evidence['records'][0]['details']
+                        candidates = details['raw_candidate_bounds' if producer == 'fptaylor' else 'queried_error_radii']
+                        self.assertEqual([entry['bound'] for entry in result['outputs']], candidates)
                         with patch.object(Session, 'tool', side_effect=AssertionError('tool admission called')), \
                              patch.object(Session, 'execute', side_effect=AssertionError('producer called')):
                             replayed = replay_run(run, root/(producer+'-'+str(index)+'-replay'))

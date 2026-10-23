@@ -11,11 +11,20 @@ optional expected `sha256`, and optional tool-data `base` directory. Environment
 variables `FLARE_GAPPA` / `FLARE_FPTAYLOR` and `PATH` are fallbacks. Preserve the
 source, domain, independent specification, units and engineering requirements.
 
-The initial external routes save proof-bearing or candidate output, then
-independently prove the **requested budgets** in Lean. Gappa Coq traces and sharper
-FPTaylor candidates remain untrusted raw evidence. If independent checking cannot
-prove the requested bound, report the remaining obligation. Do not describe this
-route as a general foreign-proof importer or mark printed tighter bounds checked.
+The external routes save proof-bearing or candidate output, then reconstruct the
+**candidate conclusion** in Lean: the Gappa query's exact dyadic radius or the
+actual FPTaylor hexadecimal bound. They cannot substitute a looser requested
+budget. Candidates that fail the Lean argument remain unresolved. Gappa's Coq
+trace is retained rather than imported; this is not a general foreign-proof importer.
+
+The scalar validator uses nearest-rounding theorems, checked polynomial rewrites,
+interval inference and bounded domain subdivision. It admits at most 32 IR nodes,
+256 polynomial terms, degree 16 and 16 input boxes, with arithmetic magnitude at most
+`2^1000` and positive native/exact divisor floors. The default producer also tries
+it when compositional analysis loses a floor or misses a budget. Preserve the
+original contract when search or proof checking fails. Review per-box domains,
+rounding allowances and conclusions in `analysis.json`; saved proofs establish
+that all cases cover the original domain.
 
 Reuse compatible tools. Otherwise obtain missing prerequisites and use the
 shared source-setup service in the agreed versioned user cache:

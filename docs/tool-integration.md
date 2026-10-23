@@ -13,23 +13,48 @@ Producer versions and setup sources are maintained in
 
 | Adapter | Role | Evidence and validation |
 | --- | --- | --- |
-| `lean-flare` | Producer | Rational proposals or the existing authored-proof interface; numerical claims checked in Lean |
-| `gappa` | Producer | Retains Gappa 1.8.3 Coq proof output; independently derives the requested budgets in Lean |
-| `fptaylor` | Producer | Retains pinned FPTaylor `0.9.4+dev` numeric candidates; independently derives the requested budgets in Lean |
+| `lean-flare` | Producer | Compositional proposals, automatic scalar refinement or authored proofs; numerical claims checked in Lean |
+| `gappa` | Producer | Reconstructs a successful Gappa 1.8.3 query's exact dyadic error conclusion in Lean; retains its Coq trace |
+| `fptaylor` | Producer | Parses the pinned `0.9.4+dev` hexadecimal candidate and proves that exact bound in Lean |
 | `rust-aeneas` | Extractor | Fresh Rust extraction and its actual return relation under the existing source-model trust boundaries |
 | `lean-root` | Validator | Compiles proof modules, independently ascribes the expected root type and audits its transitive axioms |
 
-The initial external routes certify the **requested budgets**, using the existing
-FLARE compositional derivation. Sharper foreign bounds remain candidates.
-Gappa's Coq trace is retained as proof-bearing output but is not imported or
-checked as a Coq proof. A foreign success cannot close a Lean premise; a requested
-bound that the independent derivation cannot prove remains unresolved.
+External candidate conclusions now drive the Lean proof target. The FPTaylor
+route must establish its parsed candidate itself; it cannot substitute a looser
+engineering budget. The Gappa route reconstructs the exact queried dyadic bound.
+Gappa's Coq trace is retained but is not imported or checked as a Coq proof.
+Candidates that the reusable argument cannot establish remain unresolved.
 
 Adapters can also emit a Lean proof module through the common validation
 interface. This supports reusable translators and Lean inference procedures
 without changing orchestration. The emitted accuracy declaration must have the
 expected original-input type and its full dependencies pass the same axiom audit.
-Implementing sharper scalar inference is the next [roadmap milestone](roadmap.md).
+The current scalar validator is described below. Additional tools are a later
+[roadmap milestone](roadmap.md#8-add-further-verification-tools).
+
+## Reusable scalar validation
+
+`scripts/numerics/scalar.py` proposes exact rational enclosures, local rounding
+allowances, sparse polynomial rewrites and a bounded input subdivision. Lean
+checks these using FLARE's actual binary64 nearest-rounding theorems, Mathlib's
+`ring` normalization and `dyadic_interval` tactic. Generated case proofs also
+establish that the subdivisions cover the original domain. Python inference and
+external analyzers remain outside the proof's trusted assumptions.
+
+The default producer tries this route when its compositional allowance misses a
+budget or loses a positive divisor floor, for graphs of at most 32 IR nodes.
+The external adapters use it directly to validate their candidate conclusions.
+Search is bounded by 256 polynomial terms, degree 16 and 16 input boxes; exhausted search
+does not establish a false requirement or permission to weaken a candidate.
+Correlations through division currently use compositional bounds and require
+positive native and exact denominator floors. Arithmetic magnitudes must be at
+most `2^1000`. Exceptional values remain excluded by the finite-input contract.
+
+The unchanged `mean_update_tight.json` now certifies at `2^-51`, with three gain
+intervals. `tiny_gain.json` certifies `p/(p+r)` for both inputs in
+`[2^-54,2^-53]`; no fixed absolute grid erases the divisor floor. Related input
+scales, false zero bounds, incorrect rewrites and producer-free replay are tested.
+No application-specific proof is supplied for these families.
 
 ## Select a producer
 

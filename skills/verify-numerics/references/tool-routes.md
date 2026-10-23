@@ -8,7 +8,7 @@ required numerical results in Lean before claiming workflow completion.
 
 Use [registered tool integration](tool-integration.md) for the current Gappa and
 FPTaylor adapters and `capabilities` for their version/model limits. These routes
-retain external output and independently check the requested budget in Lean;
+retain external output and independently prove its candidate conclusion in Lean;
 their presence does not imply a foreign-proof-trace importer.
 
 | Obligation | Useful routes | Check before using the result |

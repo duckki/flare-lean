@@ -237,19 +237,28 @@ external arguments without trusting a printed bound or foreign theorem. See
 
 Gappa and FPTaylor have [registered producer adapters](tool-integration.md) with
 shared source setup, capability records, bounded execution and evidence tied to
-the frozen source/contract. They currently retain foreign output and independently
-derive the requested budgets through the existing Lean backend. Sharper printed
-bounds remain candidates; Gappa's Coq trace is not imported or checked as a Coq proof.
-An adapter may also generate a Lean accuracy module for the same typed root check.
+the frozen source/contract. Their candidate conclusions feed reusable scalar
+validation: Lean proves Gappa's queried dyadic bound or FPTaylor's actual parsed
+bound. A looser engineering budget cannot replace an unproved candidate.
+Gappa's Coq trace is retained rather than imported. An adapter may also generate
+a Lean accuracy module for the same typed root check.
+
+For graphs of at most 32 IR nodes, the default producer automatically tries
+scalar refinement when compositional analysis misses a budget or loses a positive
+divisor floor. Exact rational proposals, polynomial rewrites and input splits
+are checked using native nearest-rounding theorems and Mathlib's interval tactic.
+This closes the unchanged `2^-51` mean-update target and tiny-gain family. See the
+[validator limits](tool-integration.md#reusable-scalar-validation).
 
 PRECiSA and other tools can supply further adapters. Choose from the installed
 version's supported arithmetic model, source constructs and output detail.
 Coq/PVS/HOL success alone never closes a numerical Lean premise.
 
 The [integration strategy](roadmap.md#integration-strategy) prioritizes shared tool
-adapters, reusable evidence import/checking and verified Lean inference. The first
-shared layer is implemented; sharper inference and additional evidence checkers
-remain capability work. Keep one Lean completion boundary and add mathematical
+adapters, reusable evidence import/checking and verified Lean inference. Shared
+orchestration and scalar reconstruction are implemented for the core set;
+additional tools follow the loop, matrix and application milestones. Keep one
+Lean completion boundary and add mathematical
 support for those mechanisms and their semantic bridges.
 
 ## Maintained validation and next work
@@ -286,7 +295,9 @@ universal source bridge. They are not equivalent to completed application proofs
 The producer now uses the already-proved `native_ideal_refine` rule when native
 range plus accumulated error gives a smaller exact magnitude bound. Lean checks
 every use. This avoids artificial growth in repeated covariance calculations;
-fixed normalization grids and lost correlations still limit useful bounds.
+large-graph normalization and lost correlations still limit useful bounds.
+The scalar refinement route removes those particular grid losses for small
+supported graphs, while larger-loop composition remains the next milestone.
 The 16/48-update nonlinear Kalman profiles also expose limits in expanded proof
 construction; an unresolved proof has no accepted allowance. Named resource
 allowances in the scale suite do not count as certification success.

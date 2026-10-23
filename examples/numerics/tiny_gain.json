@@ -1,0 +1,13 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "tiny_gain.py",
+  "function": "gain",
+  "target": "lean",
+  "domain": {
+    "p": ["1/18014398509481984", "1/9007199254740992"],
+    "r": ["1/18014398509481984", "1/9007199254740992"]
+  },
+  "outputs": [{"name": "gain", "unit": "dimensionless", "limit": "1/1000000000000"}],
+  "specification": ["p / (p + r)"]
+}

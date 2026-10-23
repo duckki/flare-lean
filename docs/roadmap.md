@@ -61,17 +61,21 @@ checkers should compose across tools that share an obligation kind. A new tool
 using an existing proof vocabulary should need an adapter and capability record;
 new semantics or inference rules also need their own soundness argument.
 
+The core set for milestones 2–7 is Lean/Mathlib/FLARE, Gappa, FPTaylor and
+Charon/Aeneas. Additional tools are milestone 8, after the numerical and source
+capabilities below; they do not block completion with the core set.
+
 The planned integrations below are explicit work items. A documented route is
 not an implemented adapter, and invoking a tool does not import its reasoning.
 
 | Tools | Current integration | Planned reusable capability | Milestones |
 | --- | --- | --- | --- |
-| Gappa | Query generation and retained Coq trace; FLARE independently derives requested budgets | Check useful trace rules or reconstruct their claims in Lean, including algebraic rewrites | 2–3 |
-| FPTaylor | Query generation and parsed candidate bounds; candidates do not drive the Lean argument | Feed exact candidates and useful hints into reusable Lean validation; reject unproved claims | 2–3 |
+| Gappa | Query conclusion reconstructed by reusable scalar validation; Coq trace retained | Broaden supported reasoning and retain checked algebraic rewrites | 2–3 |
+| FPTaylor | Parsed exact candidate is the Lean proof target | Extend coverage and useful hints through the same validator; reject unproved candidates | 2–3 |
 | Charon/Aeneas | Existing Rust-to-Lean extraction and checked return relation, with declared translator/model trust | Extend source coverage and compose extracted APIs, loops and state with numerical contracts | 4–7 |
-| PRECiSA/PVS | Documented route only | Admit branch/domain summaries and reconstruct or check them in Lean; preserve unstable-branch semantics | 2, 6 |
-| Why3, Frama-C/WP, VST | Documented routes only | Adapt supported source models and verification obligations; discharge their numerical and memory premises in Lean with explicit frontend boundaries | 2, 5–7 |
-| Coq/Flocq, VCFloat2, LAProof | Reference workflows only | Import a useful shared evidence vocabulary or reimplement its needed inference with Lean soundness proofs; do not treat a foreign theorem name as a Lean proof | 2–5 |
+| PRECiSA/PVS | Documented route only | Admit branch/domain summaries and reconstruct or check them in Lean; preserve unstable-branch semantics | 8 |
+| Why3, Frama-C/WP, VST | Documented routes only | Adapt supported source models and verification obligations; discharge their numerical and memory premises in Lean with explicit frontend boundaries | 8 |
+| Coq/Flocq, VCFloat2, LAProof | Reference workflows only | Import a useful shared evidence vocabulary or reimplement its needed inference with Lean soundness proofs; do not treat a foreign theorem name as a Lean proof | 8 |
 | Python, Julia, MATLAB/Octave, rustc | Restricted source admission and sampled runtime diagnostics | Extend source correspondence separately from proof evidence; retain interpreter/compiler assumptions and runtime distinctions | 4–7 |
 
 For each family, first select a retained application obligation and inspect the
@@ -94,6 +98,7 @@ capability work prioritizes reusable automation.
 | 5. Vectors and matrices | Verify code that operates on collections | Complete a small array-based application with a source bridge and a Lean error theorem |
 | 6. Complete application behavior | Cover validation, branches, conversions and decisions | Verify the original 48-event Rust IMU application's success and error behavior |
 | 7. Combined workflows and Rust delivery | Verify larger applications and preserve their APIs when porting | Complete a multi-module application using composed proofs and its actual Rust implementation |
+| 8. Additional verification tools | Broaden coverage where another tool adds useful reasoning or source support | Add selected tools from the integration table through reusable Lean validation, driven by application gaps |
 
 Milestone 2 supplies the shared integration boundary. Milestones 3 and 4 build
 numerical and scaling capabilities through it. Milestones 5 and 6 can progress
@@ -131,13 +136,13 @@ measurements to prioritize usability work without changing proof requirements.
 The first shared layer is implemented in the
 [tool integration guide](tool-integration.md): registered producer/extractor/
 validator roles, source setup, versioned obligations/evidence and producer-free
-replay. Gappa and FPTaylor exercise different output forms; the current validation
-route independently derives requested budgets in Lean. Foreign traces and sharper
-printed bounds remain untrusted evidence. Adapters can also emit a Lean argument
-module for the same typed root check. This completes orchestration infrastructure,
-not the intended integration of external reasoning: foreign results do not yet
-supply facts to Lean. The evidence-validation work below remains open and
-continues alongside milestone 3's scalar acceptance cases.
+replay. Gappa and FPTaylor exercise different output forms. Reusable scalar
+validation now consumes their candidate conclusions: Gappa's successful query
+radius or FPTaylor's exact parsed bound becomes the Lean proof target. Addition,
+polynomial and division families exercise both routes and replay without the
+producers. Corrupted bounds are rejected. This is independent reconstruction;
+the retained Coq trace is not a checked/imported proof. The core set is sufficient
+for this milestone; additional tools belong to milestone 8.
 
 ### Deliver
 
@@ -171,6 +176,15 @@ tool versions, and check that rejection occurs at the appropriate boundary.
 Saved-proof replay needs neither the producer nor its installation.
 
 ## 3. Close scalar gaps with reusable inference
+
+Implemented for small scalar graphs through
+[reusable scalar validation](tool-integration.md#reusable-scalar-validation).
+The unchanged mean-update request certifies at `2^-51` with three gain intervals,
+and the tiny-gain request preserves positive native/exact divisor floors.
+Related input ranges and scales use the same engine; tests reject false bounds,
+incorrect rewrites and arithmetic-model mismatches, and replay saved proofs
+without inference or external producers. Search limits remain explicit. Larger
+loops and proofs are milestone 4 rather than an extension of this scalar claim.
 
 ### Deliver
 
@@ -300,6 +314,20 @@ Lean roots and replay successfully from frozen evidence in a clean setup.
 API/state tests supplement the correspondence proof. At least one change to a
 module or contract regenerates affected proofs and preserves reusable local
 results. Another engineer reproduces the delivery from its report.
+
+## 8. Add further verification tools
+
+After milestones 3–7 with the core set, prioritize PRECiSA/PVS, Why3,
+Frama-C/WP, VST, Coq/Flocq, VCFloat2 and LAProof using actual application gaps.
+Inspect each selected version's source model and output before choosing an
+importer, candidate checker or verified Lean implementation. Reuse existing
+evidence vocabularies where possible.
+
+A completed integration must use the tool's useful result in a checked Lean
+application argument, replay without the producer, and reject corrupted evidence
+and mismatched semantics. Tool installation or retaining an unchecked foreign
+proof alone does not complete this milestone. No requirement to integrate every
+listed tool delays the preceding milestones.
 
 ## Work that accompanies every milestone
 

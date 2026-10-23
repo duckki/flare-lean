@@ -188,6 +188,9 @@ def report(output, result):
     lines += ['', 'Trust boundaries:'] + ['- '+x for x in result['assumptions']]
     if 'producer' in result:
         lines += ['', 'Producer: `'+result['producer']+'`.']
+    if result.get('producer_validation') == 'lean-scalar-interval-v1':
+        lines += ['Validation: reusable scalar inference with native nearest rounding, polynomial rewrites and interval subdivision.',
+                  'Acceptance requires Lean to prove the proposed allowance itself. See analysis.json for each input box and rounding allowance.']
     if result.get('claim_policy') == 'requested-budgets':
         lines += ['Foreign proof output and sharper printed bounds remain untrusted evidence.',
                   'The selected allowance is the requested budget; acceptance requires an independent Lean proof.',
@@ -340,7 +343,7 @@ def certify(request_path, output):
                                                   request['outputs'],with_rust,authored,
                                                   isinstance(request['specification'],dict),
                                                   request.get('rust_port',{}).get('equivalence'),
-                                                  bounds if producer != 'lean-flare' else None))
+                                                  bounds if producer != 'lean-flare' or authored else None))
         session.execute('lean-root', 'validator', bounds=bounds)
         record=json.loads((output/'analysis.json').read_text())
         record['accepted_bounds']={n:str(bounds[n].e) for n in program.outputs}

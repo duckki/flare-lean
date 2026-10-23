@@ -90,8 +90,9 @@ Read [tool-routes.md](references/tool-routes.md) to select producers per obligat
 Try a small version-specific preflight, retain failures, check option units and
 set external process limits. Read [tool-integration.md](references/tool-integration.md)
 for registered producer selection and shared source setup. The current Gappa and
-FPTaylor routes retain external evidence and independently prove the requested
-budgets through `lean-flare`. Sharper printed bounds and foreign proof traces
+FPTaylor routes retain external evidence and validate their candidate conclusions
+through reusable Lean scalar inference. Accept a candidate only after its actual
+bound is proved; do not substitute the user's looser budget. Foreign proof traces
 remain untrusted evidence; a general foreign-proof importer is not implemented.
 Use reusable adapters, evidence checking or verified inference when extending
 support to a new class of obligations.

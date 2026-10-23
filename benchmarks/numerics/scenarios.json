@@ -35,7 +35,13 @@
     {
       "name": "mean_update_tight",
       "request": "../../examples/numerics/mean_update_tight.json",
-      "expected": "budget_not_met",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "tiny_gain",
+      "request": "../../examples/numerics/tiny_gain.json",
+      "expected": "certified",
       "optional": false
     },
     {
