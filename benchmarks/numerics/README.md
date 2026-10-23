@@ -39,6 +39,9 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Counted smoothing loop | `certified` | Original `range(count)` loop; one preserved invariant and independent exact recurrence |
 | Threshold gate / innovation through PRECiSA | `certified` / `budget_not_met` with optional producer | Actual maximum stable/unstable candidate proved in Lean |
 | Julia / MATLAB-compatible Kalman | `certified` with optional runtime | Same equations; actual Julia or explicitly selected MATLAB/Octave |
+| NumPy calibration / dense update | `certified` with pinned NumPy | Eager operations/indexed loops; typed dimensions, fresh outputs, state plus every covariance entry against independent matrix algebra |
+| Julia vector calibration | `certified` with optional Julia | Typed helpers, one-based loop and original-runtime diagnostics |
+| Julia calibration → fixed-array Rust | `certified` with optional Julia/extraction tools | Actual reusable array API and production loop, extracted return in the typed root |
 | C scalar / buffer / struct / read-only reduction | `certified` with pinned parser and Clang/GCC | Original source, access/counter conditions, heap frame, independent numerical references; three compiler modes |
 | C mean update → reusable Rust | `certified` with optional extraction tools | Retained production function/helper and checked fresh extracted return |
 | Rust mean update | `certified` with rustc | Original Rust source and source/IR diagnostics |
@@ -56,6 +59,25 @@ A local tools file has `runtimes` keyed by `julia`, `matlab`, `c` or `rust`, eac
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
 `analysis_tools` maps Gappa/FPTaylor/PRECiSA to their executable and optional identity/data selections.
 Use absolute paths. This machine configuration is not a version attestation.
+
+### Scientific array scenarios
+
+The [scientific examples](../../examples/numerics/scientific/README.md) retain
+NumPy calibration, a two-state dense update and a Julia vector API. The dense
+case checks 82 native arithmetic operations and six outputs; the eight-channel
+scale case checks 16 operations using the same original calibration function.
+It exercises rank/shape, scalar broadcasting, fresh storage, nested helper loops,
+transpose and outer product. The source does not use BLAS or NumPy reductions.
+Mathlib matrix algebra supplies the independent dense reference.
+
+Select `numpy_calibration` / `numpy_dense_update` with `--replay`, and
+`numpy_calibration8` in the scale suite. `julia_vector_calibration` and
+`scientific_calibration_rust` use optional runtime/extraction selectors. The Rust
+port retains its fixed arrays and indexed loop. All routes share the typed root
+and replay checker; NumPy/Julia/compiler implementations remain declared trust
+boundaries. See the [profile](../../skills/verify-numerics/references/scientific-arrays.md)
+for exact limits. Source/dtype/index/alias/schedule controls and weakened-root,
+false-reference and runtime-library identity checks accompany positive roots.
 
 ### C source scenarios
 

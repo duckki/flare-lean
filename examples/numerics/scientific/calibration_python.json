@@ -1,0 +1,62 @@
+{
+  "schema": "numerics-request-v1",
+  "function": "calibrate",
+  "scientific_arrays": {
+    "values": [
+      2
+    ],
+    "gains": [
+      2
+    ],
+    "offsets": [
+      2
+    ]
+  },
+  "domain": {
+    "values_0": [
+      "-1",
+      "1"
+    ],
+    "values_1": [
+      "-1",
+      "1"
+    ],
+    "gains_0": [
+      "1",
+      "2"
+    ],
+    "gains_1": [
+      "1",
+      "2"
+    ],
+    "offsets_0": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_1": [
+      "-1/4",
+      "1/4"
+    ]
+  },
+  "specification": {
+    "kind": "collections",
+    "bindings": [],
+    "outputs": [
+      "values*gains+offsets"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "channel0",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel1",
+      "unit": "V",
+      "limit": "1/1000000"
+    }
+  ],
+  "language": "python",
+  "source": "calibration.py"
+}

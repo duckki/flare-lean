@@ -199,6 +199,7 @@ Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
 - [Theorem reference](docs/reference.md)
 - [Verification workflow and limitations](docs/numerical-verification.md)
 - [Tool integration and supported producer routes](docs/tool-integration.md)
+- [Scientific arrays: NumPy, Julia and dense covariance updates](docs/scientific-arrays.md)
 - [C source: supported APIs, memory conditions and verification tasks](docs/c-verification.md)
 - [Scaling: counted loops, shared contracts and measurements](docs/scaling.md)
 - [Milestones toward broader applicability](docs/roadmap.md)

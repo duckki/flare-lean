@@ -32,6 +32,10 @@ def lean_expression(source, inputs, bindings=None, allow_conditionals=False):
 
 
 def validate(specification, program):
+    if program.scientific:
+        from .collection_spec import specification as collections
+        collections(specification,program)
+        return
     if program.counted:
         from .counted import specification as counted_specification
         counted_specification(specification,program)
@@ -68,6 +72,9 @@ def validate(specification, program):
 
 
 def lean_specification(specification,program):
+    if program.scientific:
+        from .collection_spec import specification as collections
+        return collections(specification,program)
     if program.arrays:
         from .array_emit import matrix_specification
         return [matrix_specification(specification,program)]
@@ -86,6 +93,8 @@ def lean_specification(specification,program):
 
 def describe(specification):
     if isinstance(specification,list): return specification
+    if specification.get('kind') == 'collections':
+        return ['exact '+name+' = '+expression for name,expression in specification['bindings']]+['return '+expression for expression in specification['outputs']]
     if specification.get('kind') == 'matrix':
         return [specification['expression']+' (exact real matrix product)']
     if specification.get('kind') == 'iterate':

@@ -224,3 +224,30 @@ reject unsupported casts/alias escape/loop forms, false references, concrete
 region overlap, resealed VCs, weakened roots and a changed Rust port. The actual
 C functions run at O0/O2 and with ASan/UBSan. See the [C guide](c-verification.md)
 for supported syntax, typed-cell assumptions and optional task export.
+
+## Scientific collection regression checks
+
+Install NumPy 2.4.0 in the compatible Python environment or shared user cache;
+see [tool setup](../skills/verify-numerics/references/tool-setup.md#numpy-and-julia-collection-runtimes).
+The NumPy route needs Python 3.11+. CI installs the pinned runtime before checks.
+The Julia 1.11.7 and retained Rust cases use optional local tool selectors.
+
+```sh
+make numerics-check
+python3 scripts/benchmark_numerics.py --case numpy_calibration \
+  --case numpy_dense_update --replay \
+  --out .cache/numerics-generated/new-scientific
+python3 scripts/benchmark_numerics.py --suite scale --case numpy_calibration8 \
+  --replay --out .cache/numerics-generated/new-scientific-scale
+python3 scripts/benchmark_numerics.py --case julia_vector_calibration \
+  --case scientific_calibration_rust --replay \
+  --tools /absolute/path/to/local-tools.json \
+  --out .cache/numerics-generated/new-scientific-rust
+```
+
+Tests reject dtype/cast/unsupported broadcast changes, input/view mutation,
+invalid indices, altered native schedules, false references, changed runtime
+libraries and a weakened shape/execution root. Cold replay disables producers,
+NumPy/Julia admission and extraction. Rust source retains its actual API/loop;
+only the authored proof expands the two-element iteration. See the
+[scientific guide](scientific-arrays.md) for implementation boundaries.

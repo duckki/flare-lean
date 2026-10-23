@@ -1,0 +1,41 @@
+module
+
+public import Workflow.Kernel
+public import Workflow.Generated.Funs
+
+open Aeneas Aeneas.Std Result ControlFlow
+@[expose] public section
+
+namespace Port
+private theorem add_eq (x y z : Usize) (hz : z.val = x.val + y.val) : x + y = Result.ok z := by
+  have h := UScalar.add_equiv x y
+  generalize heq : (x + y) = result at h ⊢
+  cases result using Result.cases with
+  | ret z' =>
+      simp only [Result.match.ok] at h
+      congr 1
+      apply UScalar.eq_of_val_eq
+      exact h.2.1.trans hz.symm
+  | vis i k =>
+      cases i; simp only [Result.match.vis] at h
+      exfalso
+      apply h
+      scalar_tac
+  | div => simp only [Result.match.div] at h; exact h.elim
+
+theorem source_equiv (a0 a1 a2 a3 a4 a5 : Float)
+    : Workflow.Generated.kernel a0 a1 a2 a3 a4 a5 = .ok (Workflow.kernel a0 a1 a2 a3 a4 a5) := by
+  have add0 : (0#usize + 1#usize) = Result.ok (1#usize) := add_eq _ _ _ (by rfl)
+  have add1 : (1#usize + 1#usize) = Result.ok (2#usize) := add_eq _ _ _ (by rfl)
+  unfold Workflow.Generated.kernel Workflow.Generated.original.calibrate
+  rw [Workflow.Generated.original.calibrate_loop, loop]
+  dsimp only
+  simp [Workflow.Generated.original.calibrate_loop.body, Workflow.Generated.original.affine,
+    Array.make, Array.repeat, Array.to_slice, Slice.len, Array.index_usize, Array.update, lift, add0]
+  rw [loop]
+  simp [add1]
+  rw [loop]
+  simp [Workflow.kernel]
+  constructor <;> rfl
+
+end Port

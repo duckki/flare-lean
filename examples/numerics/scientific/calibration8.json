@@ -1,0 +1,164 @@
+{
+  "schema": "numerics-request-v1",
+  "function": "calibrate",
+  "scientific_arrays": {
+    "values": [
+      8
+    ],
+    "gains": [
+      8
+    ],
+    "offsets": [
+      8
+    ]
+  },
+  "domain": {
+    "values_0": [
+      "-1",
+      "1"
+    ],
+    "values_1": [
+      "-1",
+      "1"
+    ],
+    "values_2": [
+      "-1",
+      "1"
+    ],
+    "values_3": [
+      "-1",
+      "1"
+    ],
+    "values_4": [
+      "-1",
+      "1"
+    ],
+    "values_5": [
+      "-1",
+      "1"
+    ],
+    "values_6": [
+      "-1",
+      "1"
+    ],
+    "values_7": [
+      "-1",
+      "1"
+    ],
+    "gains_0": [
+      "1",
+      "2"
+    ],
+    "gains_1": [
+      "1",
+      "2"
+    ],
+    "gains_2": [
+      "1",
+      "2"
+    ],
+    "gains_3": [
+      "1",
+      "2"
+    ],
+    "gains_4": [
+      "1",
+      "2"
+    ],
+    "gains_5": [
+      "1",
+      "2"
+    ],
+    "gains_6": [
+      "1",
+      "2"
+    ],
+    "gains_7": [
+      "1",
+      "2"
+    ],
+    "offsets_0": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_1": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_2": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_3": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_4": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_5": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_6": [
+      "-1/4",
+      "1/4"
+    ],
+    "offsets_7": [
+      "-1/4",
+      "1/4"
+    ]
+  },
+  "specification": {
+    "kind": "collections",
+    "bindings": [],
+    "outputs": [
+      "values*gains+offsets"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "channel0",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel1",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel2",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel3",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel4",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel5",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel6",
+      "unit": "V",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "channel7",
+      "unit": "V",
+      "limit": "1/1000000"
+    }
+  ],
+  "language": "python",
+  "source": "calibration.py"
+}

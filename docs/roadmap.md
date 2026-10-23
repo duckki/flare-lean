@@ -37,7 +37,12 @@ delay implementing capabilities with clear acceptance cases.
   and reusable Rust delivery examples. The planar tracker composes two scalar
   filters; it is not a dense Kalman filter.
 - Fixed-shape Python list products have checked shapes, execution order and
-  entrywise error bounds. NumPy/BLAS calls have no source bridge yet.
+  entrywise error bounds. The separate [scientific profile](scientific-arrays.md)
+  certifies selected NumPy eager operations and ordinary Julia vector APIs, with
+  typed tensor dimensions/storage, source execution and independent exact
+  collection algebra. A two-state dense covariance/correction checks all six
+  outputs; a reusable fixed-array Rust calibration port retains its real loop.
+  NumPy reductions, BLAS calls and fused Julia broadcast remain unsupported.
 - The [conditional examples](../examples/numerics/branches/README.md) cover all four
   native/exact branch choices. The computed-guard profile validates both arms on
   the whole domain. A separate direct-input guard profile proves branch-local
@@ -59,13 +64,12 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Bridge scientific libraries and richer APIs.** Connect actual array/library
-   operations in Python, Julia and MATLAB-compatible code, then extend the closed
-   C profile where applications require it. Broaden Rust bridge generation
-   alongside these capabilities.
-2. **Reduce repeated proof work and engineering effort.** Add reusable certificate
-   checking where it helps, cover additional arithmetic models, and make genuine
-   counterexamples, setup, maintenance and reporting part of ordinary delivery.
+1. **Reuse proof evidence and inference.** Connect useful reasoning from tools to
+   reusable checked rules or verified Lean inference, selecting a measured
+   reconstruction bottleneck in the current source/array routes.
+2. **Broaden scientific code and automated delivery.** Extend actual library/API
+   bridges and arithmetic models where applications require them. Broaden Rust
+   correspondence-proof generation, counterexamples, setup and maintenance.
 
 Each milestone retains source, domain, independent reference and engineering
 requirements. Changes to any of these create a separate reviewed case. Completion
@@ -75,21 +79,18 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 11.
+The next implementation milestone is 12.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 11. Scientific arrays and richer language APIs | Verify ordinary scientific code without hand-rewriting it | A fixed-shape NumPy application plus an idiomatic Julia or MATLAB-compatible application obtain source bridges and numerical roots |
 | 12. Shared proof evidence and inference | More tool reasoning survives into Lean at lower checking cost | A reusable rule checker or verified inference engine consumes useful evidence across two tools and a family of applications |
 | 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 11 extends collection and loop contracts; its library calls may also
-need additional C semantics or milestone 13 for FMA/precision bridges. Milestone 12
-starts with a measured reconstruction bottleneck from any of these routes.
-Milestone 13 can progress per arithmetic feature once its semantic bridge is ready. Setup,
-counterexamples and maintenance work from 14 accompanies every milestone; a
-separate final integration test closes 14.
+Milestone 12 starts with a measured reconstruction bottleneck from the current
+C, scientific-array or scalar routes. Milestone 13 progresses per arithmetic
+feature once its semantic bridge is ready. Setup, counterexamples and maintenance
+work from 14 accompanies every milestone; a separate integration test closes 14.
 
 No milestone requires integrating every candidate tool or supporting a complete
 source language before a useful closed profile can ship.
@@ -106,7 +107,7 @@ output. An external success verdict never discharges a Lean premise by itself.
 | --- | --- | --- | --- |
 | Gappa / FPTaylor | Implemented scalar candidate reconstruction | Shared algebraic/interval evidence, useful correlations and larger composed obligations | 12 |
 | PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | 12 |
-| Charon/Aeneas | Implemented Rust extraction with authored application bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 11, 14 |
+| Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 |
 | Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | 12 |
 | CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 14 |
 | VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 12, 13 |
@@ -144,9 +145,9 @@ platform and Lean/Rust delivery separately in `capabilities` and regression case
 
 | Source | Current supported profile | Next scope | Later scope / separate obligation |
 | --- | --- | --- | --- |
-| Python | Restricted scalar functions/helpers/loops, selected methods, fixed-list products, one terminal conditional | Compose these profiles; input streams, state/configuration and fixed-shape NumPy calls | Dynamic dispatch, arbitrary mutation and general Python execution |
+| Python | Restricted scalar/method/loop/list/conditional profiles; separate NumPy 2.4.0 eager elementwise/indexed-loop/outer/transpose profile with typed roots | Compose profiles; selected scientific library calls, streams, state/configuration and broader collection contracts | Dynamic dispatch, arbitrary mutation and general Python/BLAS execution |
 | Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
-| Julia | Restricted Float64 scalar functions and tuple results | Typed scalar helpers, counted loops and explicit array/reduction schedules | Multiple dispatch, broadcasting and BLAS/LAPACK calls each need selected semantics and bridges |
+| Julia | Restricted Float64 scalar functions; separate Julia 1.11.7 typed Vector/helper/indexed-loop profile | Matrix APIs, selected broadcasting/reductions and more runtime versions | Multiple dispatch, fused broadcast and BLAS/LAPACK calls each need selected semantics and bridges |
 | MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
 | C | Closed C11 double helpers, by-value structs, fixed buffers and unsigned literal-count loops; Lean access/counter/execution roots | Header/preprocessor integration, larger mutable buffers and reusable Rust buffer bridges selected from real applications | Pointer-heavy APIs, allocation, lifetime/provenance and broader C semantics |
 | C++ | Planned after the C route | A selected numeric API using supported value/container operations and an inspected frontend | Templates, exceptions, object lifetime and compiler/library behavior need their own coverage |
@@ -157,36 +158,6 @@ proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
 promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
-
-## 11. Verify scientific arrays and richer APIs
-
-### Deliver
-
-- Connect a fixed-shape NumPy application to selected dtype, shape, indexing,
-  broadcasting/reduction and aliasing semantics. Start with operations whose
-  execution schedules can be stated and checked. Inspect the actual library path.
-- Generalize reusable array/loop contracts for Julia and MATLAB-compatible source;
-  first select one of those languages using an application gap. Retain explicit
-  runtime distinctions and close shape/indexing/state obligations at the caller.
-- Verify a full dense covariance/correction application from its actual source,
-  beyond the current independent-axis planar tracker. Connect existing exported
-  graphs only after their source mapping is established. Reuse FLARE's matrix
-  results where the algorithm, dimensions and operation order match.
-- Broaden generated source bridges and Rust deliveries to preserve collections,
-  configuration, state, errors and loops. Review solver/factorization adaptations
-  separately from the original implementation's contract.
-
-### Completion criteria
-
-A NumPy application and an idiomatic Julia or MATLAB-compatible application have
-source bridges and Lean application roots using reusable array contracts. Include
-at least one application outside filtering. The dense covariance/correction case
-has a source-program certificate rather than a candidate graph alone. Required
-Rust deliveries preserve the real API and receive their own extracted roots.
-
-Tests change shapes, dtype/promotions, aliasing, indices and reduction schedules.
-A BLAS/LAPACK or parallel reduction path needs its own reviewed implementation
-contract; an agreement sample or library name cannot supply that bridge.
 
 ## 12. Share proof evidence and verified inference
 
@@ -286,6 +257,12 @@ evaluation project.
   checking, cold replay, warm reuse, peak memory and proof bytes separately.
   Keep the 128-update Kalman budgets unchanged while improving correlation-aware
   inference. Larger exports alone do not establish source-program certification.
+- **Broader collection/source support.** Extend the current closed NumPy/Julia
+  profiles to selected reductions, richer broadcasting, views/strides and actual
+  BLAS/LAPACK paths only with their dtype, schedule, aliasing and implementation
+  contracts. Add MATLAB-compatible arrays and reusable Rust slice/state/error
+  bridge generation from retained application gaps. Larger dense filters remain
+  separate from the current two-state single-call certificate.
 - **First-class counterexample delivery.** Extend the authored counterexample
   route into ordinary request/report/replay support, as proposed in milestone 14.
   Require an admissible witness and a Lean-checked violation of the original

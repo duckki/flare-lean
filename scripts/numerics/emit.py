@@ -207,11 +207,13 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         f'    : reference {args} = specification {args} := by']
     if authored and authored.get('specification_equiv'):
         lines += ['  exact '+authored['specification_equiv']+' '+args]
-    elif folded and not program.arrays:
+    elif folded and not program.arrays and not program.scientific:
         lines += ['  rfl']
     else:
         lines += ['  unfold reference specification']
-        if program.arrays:
+        if program.scientific:
+            lines += (["  repeat' apply Prod.ext", '  all_goals simp'] if len(program.outputs)>1 else ['  simp'])
+        elif program.arrays:
             lines += ['  simp [Matrix.mul_apply'+(', Fin.sum_univ_succ' if program.arrays['product'][1]>1 else '')+', Matrix.of_apply'+
                       (', add_assoc' if program.arrays['product'][1]>2 else '')+']']
         else:
@@ -252,11 +254,18 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         '      throwError "Unexpected axiom {axiomName} in root certificate"',
         '  logInfo "Lean root certificate checked; standard Lean foundations only."', '']
     text = "\n".join(lines)
+    if program.scientific:
+        text = text.replace('namespace Workflow.Certificate','namespace Workflow.Certificate\n\nattribute [local simp] Matrix.mul_apply Fin.sum_univ_succ Matrix.of_apply',1)
     if program.arrays:
         from .array_emit import proof_source as array_proof_source
         text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
             '``Workflow.Certificate.certificate','``Workflow.Certificate.scalar_certificate')
         text += array_proof_source(program,domain,conclusion,targets)
+    if program.scientific:
+        from .scientific_emit import proof_source as scientific_proof_source
+        text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
+            '``Workflow.Certificate.certificate','``Workflow.Certificate.scalar_certificate')
+        text += scientific_proof_source(program,domain,conclusion,targets,with_rust)
     if program.c:
         from .c_emit import proof_source as c_proof_source
         text = text.replace('theorem certificate ', 'theorem scalar_certificate ').replace(
@@ -267,6 +276,9 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
 
 def check_source(program, domain, summaries, targets, with_rust=False):
     """Ascribe the root's independently reconstructed type and audit its axiom closure."""
+    if program.scientific:
+        from .scientific_emit import check_source as scientific_check_source
+        return scientific_check_source(program,domain,summaries,targets,with_rust)
     if program.c:
         from .c_emit import check_source as c_check_source
         return c_check_source(program,domain,summaries,targets,with_rust)

@@ -206,7 +206,12 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None):
+    if scientific_arrays is not None:
+        if language not in ('python','julia') or any(x is not None for x in (python_method,python_arrays,python_branches,python_counted)):
+            raise Unsupported('scientific_arrays uses its own Python/Julia source profile')
+        from .scientific import admit
+        return admit(source,function,scientific_arrays,language)
     if python_counted is not None:
         if language != 'python' or any(x is not None for x in [python_method,python_arrays,python_branches]):
             raise Unsupported('python_counted requires an ordinary Python function and its own source profile')

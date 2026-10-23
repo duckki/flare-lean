@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install pinned C parser
         run: python3 -m pip install --no-deps --target "$HOME/.cache/flare/pycparser-3.0" pycparser==3.0
+      - name: Install pinned NumPy runtime
+        run: python3 -m pip install --no-deps --target "$HOME/.cache/flare/numpy-2.4.0" numpy==2.4.0
       - name: Install Lean
         uses: leanprover/lean-action@v1
         with:

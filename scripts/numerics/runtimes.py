@@ -87,11 +87,17 @@ def admit_runtime(program, request, output, work, runner):
     runtime['qualification'] = 'Actual selected interpreter; runtime/compiler semantics remain trusted. Octave is not evidence of MATLAB runtime execution.'
     if program.language=='c':
         runtime['qualification']='Actual selected C compiler and SDK; compiler/runtime fidelity remains trusted. c-runtime.json records original-source compiler modes, flags and sanitizer configuration.'
+    if program.scientific:
+        from .scientific_runtime import admit as admit_scientific
+        admit_scientific(program,runtime)
     save(output/'source-runtime.json', runtime)
     return runtime
 
 
 def julia_driver(program, root):
+    if program.scientific:
+        from .scientific_runtime import julia_driver as scientific_driver
+        return scientific_driver(program,root)
     return f'''module WorkflowSource
 include({julia_string(root/'source.jl')})
 end
@@ -140,6 +146,9 @@ def source_results(program, source, cases, runtime, output, work, runner, reques
     """Execute the original admitted source, never the common graph as its proxy."""
     request = request or {}
     adapter = FRONTENDS[program.language]
+    if program.scientific and program.language=='python':
+        from .scientific_runtime import python_results
+        return python_results(program,source,cases)
     if adapter.load_for_diagnostics is not None:
         if request.get("python_method") is not None:
             from .python_method import load_method

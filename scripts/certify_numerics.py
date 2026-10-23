@@ -24,6 +24,7 @@ def main():
     inspect.add_argument('--source', required=True)
     inspect.add_argument('--function', required=True)
     inspect.add_argument('--language', default='python')
+    inspect.add_argument('--scientific-arrays', type=json.loads, help='JSON original parameter shapes for closed NumPy/Julia arrays; [] for scalars')
     inspect.add_argument('--python-arrays', type=json.loads, help='JSON mapping input names to fixed list shapes')
     inspect.add_argument('--python-branches', action='store_const', const=True, default=None,
                          help='Admit one terminal scalar Python if/else')
@@ -51,7 +52,16 @@ def main():
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
-                'source_profiles': {'c': {
+                'source_profiles': {'scientific_arrays': {
+                    'request_field':'scientific_arrays: original parameter shapes; [] for scalars',
+                    'languages':'Python with NumPy 2.4.0; Julia 1.11.7 ordinary typed vectors/helpers',
+                    'operations':'NumPy eager elementwise + - * / with equal shapes or scalar broadcasting, zeros/array(float64), outer and read-only transpose; both languages have indexed scalar loops with fresh output mutation; Julia adds typed helpers, zeros vectors and length',
+                    'limits':'NumPy rank one/two; Julia vectors; dimensions 1..8, at most 32 cells per array, 64 original cells, 1024 nodes, 10000 visited statements',
+                    'reference':'independent collections algebra with Mathlib matrix products, transpose and outer',
+                    'proof':'typed tensor dimensions/data sizes, source model execution, explicit access conditions, finiteness, accuracy and budgets in one Lean root',
+                    'target':'lean; retained fixed-array/scalar Rust APIs with at most two output cells and authored fresh-extraction bridges',
+                    'excluded':'BLAS/matmul/dot, NumPy reductions, arbitrary broadcasting, dtype changes, views/input mutation, fused Julia broadcast and general library dispatch'},
+                    'c': {
                     'parser':'pycparser 3.0; optional dependency, also needed for frozen-source replay',
                     'inputs':'closed C11 double functions, pure scalar helpers, double-only value structs and static buffers',
                     'operations':'separate binary64 arithmetic; unsigned int loops with constant bounds 1..128; no casts, preprocessing, allocation, pointer escape or indirect calls',
@@ -86,11 +96,12 @@ def main():
             p = parse(args.language, Path(args.source).read_text(), args.function,
                       python_arrays=args.python_arrays,
                       python_branches={'domains':'guard'} if args.guard_local else args.python_branches,
-                      python_counted=args.python_counted)
+                      python_counted=args.python_counted,scientific_arrays=args.scientific_arrays)
             result = {'status': 'needs_input', 'program': p.record(), 'required_inputs': {
                 'domain': {name: '[lower, upper] as exact rational strings' for name in p.inputs},
                 'outputs': [{'name': '', 'unit': '', 'limit': ''} for _ in p.outputs],
-                'specification': {'kind':'iterate','initial':['',''],'state':['state0','state1'],'step':['','']} if p.counted else
+                'specification': {'kind':'collections','bindings':[],'outputs':['independent exact collection expression' for _ in p.scientific['outputs']]} if p.scientific else
+                    {'kind':'iterate','initial':['',''],'state':['state0','state1'],'step':['','']} if p.counted else
                     {'kind':'matrix','expression':'independent matrix expression over original array names'} if p.arrays else
                     ['independent exact expression over input names' for _ in p.outputs]}}
         elif args.command == 'audit':

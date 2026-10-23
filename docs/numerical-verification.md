@@ -94,7 +94,18 @@ the actual operation order to `Matrix.Dense.multiply` through
 validator; an independent exact real matrix expression supplies the reference.
 The [array workflow guide](../skills/verify-numerics/references/arrays.md) gives
 the shape configuration, limits and maintained examples. Input lists are
-read-only; NumPy/BLAS and automatic array Rust delivery need further bridges.
+read-only. The separate scientific profile below covers selected NumPy calls
+and retained fixed-array Rust delivery; BLAS needs its own bridge.
+
+The [scientific array profile](scientific-arrays.md) admits selected eager
+NumPy operations and ordinary Julia vector functions/helpers with explicit
+indexed loops. Its typed tensor root checks dimensions/storage, source execution,
+returned component shapes, finiteness and all entrywise budgets against independent
+exact collection algebra. NumPy calibration and a dense covariance/correction
+application certify; an extracted reusable Rust calibration API retains its
+fixed arrays and real loop. Runtime/library/source mapping remains trusted.
+NumPy reductions, BLAS, general broadcasting and Julia fused broadcast need
+separate semantics. Replay requires no scientific runtime.
 
 The closed [C11 double profile](c-verification.md) admits scalar helpers,
 by-value structs, fixed buffers and unsigned counted loops. Its Lean root adds

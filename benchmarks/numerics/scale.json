@@ -216,6 +216,13 @@
       "request": "../../examples/numerics/scale/shared_0064.json",
       "expected": "certified",
       "optional": false
+    },
+    {
+      "name": "numpy_calibration8",
+      "request": "../../examples/numerics/scientific/calibration8.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "scientific_arrays"
     }
   ]
 }

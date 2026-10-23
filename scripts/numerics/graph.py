@@ -27,6 +27,7 @@ class Program:
     branches: dict | None = None
     counted: dict | None = None
     c: dict | None = None
+    scientific: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -38,6 +39,8 @@ class Program:
             record.pop('counted')
         if self.c is None:
             record.pop('c')
+        if self.scientific is None:
+            record.pop('scientific')
         return record
 
 

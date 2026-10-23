@@ -175,6 +175,30 @@
       "request": "../../examples/numerics/c/mean_update_rust.json",
       "expected": "certified",
       "optional": true
+    },
+    {
+      "name": "numpy_calibration",
+      "request": "../../examples/numerics/scientific/calibration_python.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "numpy_dense_update",
+      "request": "../../examples/numerics/scientific/dense_update.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "julia_vector_calibration",
+      "request": "../../examples/numerics/scientific/calibration_julia.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "scientific_calibration_rust",
+      "request": "../../examples/numerics/scientific/calibration_rust.json",
+      "expected": "certified",
+      "optional": true
     }
   ]
 }

@@ -55,6 +55,7 @@ Requests use `schema: numerics-request-v1`. See the provider's
 | `contract_cache` | Optional explicit directory for compiled helper-contract reuse; prefer the agreed verification directory's `.cache/contracts/`; replay always recompiles saved sources |
 | `proof` | Optional saved Lean proof and bounds; see `lean-conversion.md` |
 | `python_method` | Optional explicit state, fixed attributes and measurement horizon for a selected `Class.method`; see below |
+| `scientific_arrays` | Optional closed NumPy/Julia collection profile; original parameter shapes, `[]` for scalars; see [scientific arrays](scientific-arrays.md) |
 | `python_branches` | Explicit terminal scalar Python conditional profile; see [conditionals.md](conditionals.md) |
 | `python_counted` | Explicit count parameter and fixed integer horizon for a compact two-state loop proof; see [counted-loops.md](counted-loops.md) |
 | `rust_port` | Optional retained Rust implementation and checked equivalence module for `rust-aeneas`; see below |
@@ -78,7 +79,9 @@ terminal scalar Python branch and an exact conditional specification. In the
 guard-local variant, a direct input/literal guard supplies branch-local arithmetic
 premises. A separate [counted-loop profile](counted-loops.md) preserves a
 `range(count)` loop with fixed scalar configuration and a checked invariant.
-These profiles currently support Lean delivery with the default producer.
+These profiles currently support Lean delivery with the default producer. A separate
+[scientific array profile](scientific-arrays.md) admits selected NumPy and Julia
+collections, with optional retained fixed-array Rust delivery.
 In the ordinary scalar profiles, external calls, arrays, dynamic loops, branches,
 casts, fast-math and custom numeric objects are excluded. Source-language implementations remain trusted;
 actual-runtime word diagnostics test samples independently of graph execution.
@@ -224,8 +227,11 @@ The current single-file route can retain both the API and this separate function
 the same file. Do not duplicate the method's arithmetic in the driver or deliver
 an unrolled body. Expansion belongs in the internal model or Lean proof.
 
-The Rust function takes all original graph inputs in order and returns the same
-one/two-output type. Both source paths are relative to the request. FLARE freezes
+For ordinary scalar requests, the Rust function takes all original graph inputs
+in order and returns the same one/two-output type. The scientific-array route
+instead reconstructs the original fixed-array/scalar arguments, in parameter
+order, and flattens the actual return for checking; it currently admits at most
+two returned cells. Its production signature retains those fixed arrays. Both source paths are relative to the request. FLARE freezes
 the Rust bytes and proof module, extracts that actual port, and requires the
 named Lean theorem to prove `Generated.kernel args = .ok (kernel args)` for all
 Float inputs without extra premises. The file is copied unchanged into the

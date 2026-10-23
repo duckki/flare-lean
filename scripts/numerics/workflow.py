@@ -45,7 +45,12 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'))
+    if program.scientific:
+        if request.get('producer','lean-flare')!='lean-flare' or request.get('proof'):
+            raise Unsupported('Scientific arrays currently use automatic lean-flare validation')
+        if request.get('target','lean')=='rust-aeneas' and (not request.get('rust_port') or len(program.outputs)>2):
+            raise Unsupported('Scientific Rust delivery requires a retained API port with at most two output cells')
     if program.c:
         from .c_emit import memory_profile
         if request.get('producer','lean-flare')!='lean-flare' or request.get('proof'):
@@ -206,6 +211,11 @@ def report(output, result):
     if request.get('python_arrays'):
         lines += ['', 'Built-in Python list input shapes: `'+json.dumps(request['python_arrays'])+'`.',
                   'Inputs are read-only; returned storage is fresh. The Lean root checks the shape guard and the original ascending product schedule.']
+    if result.get('scientific_arrays'):
+        profile=result['scientific_arrays']
+        lines += ['', 'Scientific API: `'+request['function']+'`; runtime profile `'+profile['runtime']+'`.']
+        lines += ['- `'+field['name']+'`: '+(str(field['shape']) if field['shape'] else 'scalar') for field in profile['inputs']]
+        lines += ['Return shapes: `'+json.dumps(profile['outputs'])+'`, in API order; fresh collection storage. Input shapes and result dimensions/cell counts are part of the Lean root.']
     if result.get('c_api'):
         lines += ['', 'Selected C API: `'+request['function']+'`.']
         for parameter in result['c_api']:
@@ -321,6 +331,9 @@ def output_bounds(program, request):
 
 
 def kernel_for_run(output, request, program):
+    if program.scientific:
+        from .scientific_emit import model_source
+        return model_source(program,request,(output/request['source']).read_text())
     if program.c:
         from .c_emit import model_source, verification_conditions
         saved=output/'c-vcs.json'
@@ -371,7 +384,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -417,6 +430,11 @@ def certify(request_path, output):
     if program.counted:
         result['scope']='A counted Python two-state helper loop, with a preserved native/exact invariant proved for all natural horizons and instantiated at the selected count.'
         result['assumptions'].append('The selected nonnegative integer count and ordinary scalar helper API are mapped to the compact fold by the admitted frontend; compiler/runtime correspondence remains trusted.')
+    if program.scientific:
+        result['scope']='One closed fixed-shape scientific array API with explicit dtype, checked collection execution/shapes/accesses and independent exact collection algebra.'
+        result['scientific_arrays']=program.scientific
+        result['source_assurance']='Closed scientific collection profile: source/library mapping, native double operations, ordinary container representation and compiler/runtime fidelity are trusted; Lean checks typed shapes, model execution, finite values, exact-reference accuracy and budgets.'
+        result['assumptions'].append('Inputs are ordinary native-endian binary64 NumPy ndarrays with C-contiguous input storage, or Julia Vector{Float64} values, plus binary64 scalars, with the declared shapes and no custom dispatch. The floating-error policy is nontrapping; warning/status flags are outside the numerical theorem. Inputs are read-only and returned collection storage is fresh. Source parsing, library-primitive mapping, runtime and compiler/hardware fidelity remain trusted. No BLAS, fused broadcast or arbitrary reduction contract is claimed.')
     if program.c:
         result['scope']='One admitted C11 binary64 API, with source-derived access/counter conditions, checked abstract heap execution for buffers, and independent numerical allowances.'
         result['c_api']=program.c['api']
@@ -539,6 +557,9 @@ def audit_run(path, frozen=False):
                 raise ValueError('Application source, contract or proof changed: '+record['path'])
         if 'source-runtime.json' in result['artifacts']:
             runtime=json.loads((path/'source-runtime.json').read_text())
+            for library in runtime.get('libraries',[]):
+                for file,digest in library['files'].items():
+                    if sha(file)!=digest:raise ValueError('Source runtime library changed: '+file)
             if sha(runtime['executable'])!=runtime['executable_sha256']:
                 raise ValueError('Source runtime executable changed; regenerate diagnostics and certificate')
         if 'evidence.json' in result['artifacts']:

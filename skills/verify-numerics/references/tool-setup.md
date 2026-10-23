@@ -278,3 +278,38 @@ Run `scripts/export_c_vcs.py` from the provider through `opam exec` and inspect
 its `export.json`, `wp.json`, raw tasks and command logs. Solver verdicts remain
 untrusted inspection evidence; this utility is not a Lean proof importer or
 an implementation of the JSON numerical contract in ACSL.
+
+## NumPy and Julia collection runtimes
+
+The closed scientific profile pins NumPy **2.4.0**, requiring Python **3.11+**.
+Replay needs no NumPy installation; obtain it for original-source diagnostics.
+Reuse a compatible environment first, otherwise announce the shared user-cache
+path and install a matching distribution for this Python/platform:
+
+```sh
+python3 -m pip install --no-deps --target "$HOME/.cache/flare/numpy-2.4.0" numpy==2.4.0
+```
+
+On macOS use `$HOME/Library/Caches/flare/numpy-2.4.0`; Linux honors
+`XDG_CACHE_HOME`. `FLARE_NUMPY` can locate a cached distribution when NumPy is
+absent from the Python environment. An already imported incompatible NumPy
+requires a fresh compatible Python environment; do not mix extension builds or
+silently substitute another version. Follow NumPy's
+[installation guide](https://numpy.org/install/) for a missing interpreter or
+unavailable wheel, keeping setup outside the application checkout. Runtime
+admission records extension/shared-library hashes and checks nearest rounding
+and subnormals. Installation success is not a source correspondence proof.
+
+Julia collection diagnostics use **1.11.7**, ordinary `Vector{Float64}` values
+and `--math-mode=ieee`. Obtain the appropriate official Julia distribution in
+the versioned user cache if missing; configure the existing `source_runtime`
+selector with its actual executable. A local tools file can select it under
+`runtimes.julia`. No Julia packages are required by the maintained vector
+profile. Broader dispatch, fused broadcasting, matrix/BLAS libraries or another
+runtime revision require separately reviewed semantics/admission.
+
+Run calibration as a setup preflight, then the original application, its Lean
+root and cold replay. Sampled original-source agreement, Lean validation and
+physical container/compiler/library assumptions remain separate report items.
+See [scientific arrays](scientific-arrays.md) for the request and retained Rust
+API route. That optional delivery also needs the pinned Charon/Aeneas model.

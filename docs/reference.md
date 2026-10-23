@@ -13,6 +13,10 @@ are the complete contracts. Names below are relative to `Flare`.
 - `Binary64.Model.Value` supplies exact rational interpretations and a finite-value
   guard for model-level proofs. `Binary64.Arithmetic.interpretation_eq` proves
   agreement of direct-real and rational-backed model interpretations.
+- `Binary64.Collection.Tensor` carries dimensions and row-major cells. Its
+  operations totalize missing reads to zero; application roots require the
+  declared storage sizes and source index conditions. This is not numerical
+  recovery for malformed physical arrays.
 - `Matrix.Value.matrix` interprets row-major arrays. Missing entries are totalized
   to zero in this ghost interpretation. Individual theorems state their storage
   and numerical requirements; callers must respect the runtime interface.
@@ -31,6 +35,7 @@ The pinned Lean source is the definition of the logical machine operations:
 | `Binary64.Nearest` | `add_error_nearest`, `sub_error_nearest`, `mul_error_nearest`, `div_error_nearest` | Finite operands; exact-result magnitude ≤ 2^1000; division also requires a nonzero interpreted divisor |
 | `Binary64.Sqrt` | `sqrt_error_nearest` | Every finite nonnegative operand, including zero and positive subnormals |
 | `Binary64.Pipeline` | `Bounds`, `NativeBounds`, `native_add`, `native_mul`, `native_div`, `native_ideal_refine` | Composable magnitude/error summaries; finite native operations, explicit rounding profiles and positive native/ideal divisor floors; incoming errors are carried forward |
+| `Binary64.Collection` | `Tensor`, `binary`, `transpose`, `outer`, `binary_size`, `transpose_size`, `outer_size` | Explicit dimensions and row-major binary64 cells; scalar/equal-shape operations and size rules; source/implementation fidelity is a separate bridge boundary |
 | `Binary64.Memory` | `valid`, `separated`, `load_eq`, `store_eq`, `set_frame`, `region_index`, `separated_indices` | Initialized typed `Array Float` cells, bounds, disjoint half-open regions and unchanged cells; physical C representation remains a caller/source-bridge boundary |
 | `Binary64.Order` | `compare_value`, `lt_iff`, `le_iff`, `beq_iff`, `abs_value`, `neg_value` | Real interpretation of finite native comparisons and unary operations |
 | `Binary64.Zero` | `add_right_zero`, `add_zero`, `mul_zero`, `div_zero` | Exact real-zero behavior of finite operands; adding signed zero preserves a finite value without asserting bit equality |

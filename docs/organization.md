@@ -11,6 +11,7 @@ native operations from their real interpretations.
 | Area | Representative results |
 | --- | --- |
 | Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, and positive square-root squared residuals |
+| Binary64 collections | Typed dimensions/cells, separately rounded eager operations, transpose/outer semantics and size rules; selected NumPy/Julia source bridges live in the provider |
 | Typed binary64 memory | Checked array-cell access, region bounds/separation and frame rules; physical C object representation is outside these definitions |
 | Dense matrices | Finite storage, multiplication accuracy, LDLᵀ factorization, successful positive-definite solves, substitution and residual bounds, and two-state rounded Gram word symmetry |
 | Spectral algorithms | Jacobi convergence and spectral error, approximate PSD-check acceptance, and truncated pseudoinverse accuracy |
@@ -54,6 +55,7 @@ flare-lean/
 │   ├── using-library.md         # Importing FLARE from another Lean project
 │   ├── organization.md          # Results, layout and source attribution
 │   ├── numerical-verification.md # Workflow contracts and CLI
+│   ├── scientific-arrays.md     # NumPy/Julia collection roots and implementation boundaries
 │   ├── c-verification.md        # Closed C source, access/frame proofs and VC evaluation
 │   ├── tool-integration.md      # Adapter interfaces, evidence and validation
 │   ├── roadmap.md               # Planned capabilities and completion criteria
@@ -126,6 +128,10 @@ contracts without importing application or extraction-tool code.
 `Flare.Binary64.Memory` supplies typed-cell access, separation and frame rules
 for the closed [C source route](c-verification.md); physical C objects and
 compiler fidelity remain outside those definitions.
+`Flare.Binary64.Collection` supplies typed shapes and collection operations for
+selected [scientific array APIs](scientific-arrays.md). Mathlib supplies their
+independent exact matrix references; the binary64 pipeline checks accumulated
+error. Source/library/compiler fidelity remains a declared boundary.
 
 Keep source adapters, proposal producers and optional Charon/Aeneas extraction
 under `scripts/numerics`. Generated application models and proofs belong under

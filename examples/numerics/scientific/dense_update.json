@@ -1,0 +1,164 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "dense_update.py",
+  "function": "update",
+  "scientific_arrays": {
+    "state": [
+      2
+    ],
+    "covariance": [
+      2,
+      2
+    ],
+    "transition": [
+      2,
+      2
+    ],
+    "process": [
+      2,
+      2
+    ],
+    "measurement": [],
+    "noise": []
+  },
+  "domain": {
+    "state_0": [
+      "-1",
+      "1"
+    ],
+    "state_1": [
+      "-1",
+      "1"
+    ],
+    "covariance_0_0": [
+      "1",
+      "2"
+    ],
+    "covariance_0_1": [
+      "-1/16",
+      "1/16"
+    ],
+    "covariance_1_0": [
+      "-1/16",
+      "1/16"
+    ],
+    "covariance_1_1": [
+      "1",
+      "2"
+    ],
+    "transition_0_0": [
+      "1",
+      "1"
+    ],
+    "transition_0_1": [
+      "1/8",
+      "1/4"
+    ],
+    "transition_1_0": [
+      "0",
+      "0"
+    ],
+    "transition_1_1": [
+      "1",
+      "1"
+    ],
+    "process_0_0": [
+      "1/100",
+      "1/50"
+    ],
+    "process_0_1": [
+      "0",
+      "0"
+    ],
+    "process_1_0": [
+      "0",
+      "0"
+    ],
+    "process_1_1": [
+      "1/100",
+      "1/50"
+    ],
+    "measurement": [
+      "-1",
+      "1"
+    ],
+    "noise": [
+      "1",
+      "2"
+    ]
+  },
+  "specification": {
+    "kind": "collections",
+    "bindings": [
+      [
+        "predicted",
+        "transition @ state"
+      ],
+      [
+        "prior",
+        "transition @ covariance @ transition.T + process"
+      ],
+      [
+        "observation",
+        "[1, 1/2]"
+      ],
+      [
+        "projected",
+        "prior @ observation"
+      ],
+      [
+        "row_projection",
+        "prior.T @ observation"
+      ],
+      [
+        "innovation",
+        "observation @ projected + noise"
+      ],
+      [
+        "gain",
+        "projected / innovation"
+      ],
+      [
+        "residual",
+        "measurement - observation @ predicted"
+      ]
+    ],
+    "outputs": [
+      "predicted + gain*residual",
+      "prior - outer(gain,row_projection)"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "state_0",
+      "unit": "m",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "state_1",
+      "unit": "m/s",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "covariance_0_0",
+      "unit": "m^2",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "covariance_0_1",
+      "unit": "m^2/s",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "covariance_1_0",
+      "unit": "m^2/s",
+      "limit": "1/1000000"
+    },
+    {
+      "name": "covariance_1_1",
+      "unit": "m^2/s^2",
+      "limit": "1/1000000"
+    }
+  ]
+}

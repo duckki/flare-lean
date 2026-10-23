@@ -47,7 +47,25 @@ def extract(program, source, request, output, work, runner):
         params=', '.join(f'a{i}: f64' for i in range(len(program.inputs)))
         args=', '.join(f'a{i}' for i in range(len(program.inputs)))
         typ='f64' if len(program.outputs)==1 else '(f64, f64)'
-        code=f'mod original;\npub fn kernel({params}) -> {typ} {{ original::{function}({args}) }}\n'
+        if program.scientific:
+            from .scientific import count
+            call_args=[];offset=0
+            for field in program.scientific['inputs']:
+                size=count(field['shape'])
+                def aggregate(dims,base):
+                    if not dims:return 'a'+str(base)
+                    step=count(dims[1:])
+                    return '['+', '.join(aggregate(dims[1:],base+j*step) for j in range(dims[0]))+']'
+                call_args.append(aggregate(field['shape'],offset));offset+=size
+            from .emit import returned
+            values=[]
+            for i,shape in enumerate(program.scientific['outputs']):
+                base='result' if len(program.scientific['outputs'])==1 else 'result.'+str(i)
+                from .python_arrays import paths
+                values += [base+''.join('['+str(j)+']' for j in index) for index in paths(shape)]
+            code=f'mod original;\npub fn kernel({params}) -> {typ} {{\n    let result = original::{function}('+', '.join(call_args)+');\n    '+returned(values)+'\n}\n'
+        else:
+            code=f'mod original;\npub fn kernel({params}) -> {typ} {{ original::{function}({args}) }}\n'
     else:
         code=rust_source(program)
     (crate/'src/lib.rs').write_text(code)

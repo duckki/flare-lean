@@ -98,8 +98,15 @@ evidence; buffer Rust delivery needs a separate bridge.
 
 For fixed-shape built-in Python list products, read [arrays.md](references/arrays.md).
 Supply explicit input shapes and an independent exact matrix expression. Inspect
-aliasing, every index and the accumulation order; a NumPy/BLAS call or an array
-Rust port requires its own bridge.
+aliasing, every index and the accumulation order. Use the separate scientific
+profile below for selected NumPy calls and retained fixed-array Rust ports;
+BLAS and general array delivery require additional bridges.
+
+For NumPy or ordinary Julia vector APIs, read
+[scientific-arrays.md](references/scientific-arrays.md). Use explicit dtypes and
+shapes, inspect the actual library operations, and retain typed shape/execution
+guarantees in the Lean root. Selected eager operations and indexed loops have
+bridges; BLAS, arbitrary reductions and fused broadcasting need further support.
 
 For one terminal scalar Python `if`/`else`, read
 [conditionals.md](references/conditionals.md). Cover divergent native/exact choices
