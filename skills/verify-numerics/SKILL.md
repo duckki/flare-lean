@@ -1,6 +1,6 @@
 ---
 name: verify-numerics
-description: "Verify numerical application code with a final Lean certificate, optionally producing a verified Rust port. Use for floating-point error bounds, source/model correspondence, composed guarantees and decision margins in Python, Julia, MATLAB-compatible or Rust code. Ordinary simulation or filter tuning alone does not require this skill."
+description: "Verify numerical application code with a final Lean certificate, optionally producing a verified Rust port. Use for floating-point error bounds, source/model correspondence, composed guarantees and decision margins in Python, Julia, MATLAB-compatible or Rust code. Use this skill when formal numerical guarantees or a verified Rust port are requested. Simulation and parameter tuning alone do not require it."
 ---
 
 # Verify numerical software
