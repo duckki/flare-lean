@@ -42,7 +42,8 @@ cache is not a complete provider checkout.
 If only the application and skill are available, obtain the matching FLARE
 source from [its repository](https://github.com/duckki/flare-lean) or a supplied
 source bundle, under the shared user cache. Record the selected revision and
-verify that it contains this skill and `scripts/certify_numerics.py`. A copied
+verify that it contains this skill, `provider/numerics/`, `provider/manifests/`
+and `scripts/certify_numerics.py`. A copied
 skill does not imply that its provider is already installed. An unpublished
 provider revision needs a supplied source bundle or publication before a
 GitHub-only installation can reproduce it.
@@ -76,9 +77,9 @@ compatible selected installation; no missing-tool result proves a numerical clai
 
 ## Charon/Aeneas and its Lean model
 
-Read `$FLARE_ROOT/tools/numerics/aeneas-revisions.json` for the authoritative
+Read `$FLARE_ROOT/provider/manifests/aeneas-revisions.json` for the authoritative
 repository URLs, exact `aeneas.rev` / `charon.rev`, Lean toolchain and extraction
-nightly. Read `tools/numerics/rust-toolchain.toml` for the separate Rust delivery
+nightly. Read `provider/manifests/rust-toolchain.toml` for the separate Rust delivery
 toolchain. The Float-enabled Aeneas fork is required; an unrelated upstream
 release or the current branch head is not an equivalent replacement.
 
@@ -99,7 +100,7 @@ than treating these historical links as a second source of version selection.
    agrees with FLARE before building.
    Apply the patches listed in `aeneas.patches` in the revision file before
    building. Verify each file's SHA-256, then run `git apply --check` and
-   `git apply` with `$FLARE_ROOT/tools/numerics/u64-f64.patch` from the Aeneas
+   `git apply` with `$FLARE_ROOT/provider/patches/u64-f64.patch` from the Aeneas
    checkout. This Lean-backend patch maps unsigned 64-bit casts to the existing
    native `UInt64.toFloat` model. It is needed by the integer-time application,
    and does not claim support for other floating-point casts. The complete IMU

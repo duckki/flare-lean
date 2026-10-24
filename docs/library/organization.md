@@ -72,21 +72,32 @@ flare-lean/
 │   ├── arithmetic/              # FMA, square roots and mixed-storage contracts
 │   ├── integration/             # Tool adapters, proof evidence, witnesses and scaling
 │   └── evaluation/              # Application/platform evidence and release gates
-├── scripts/
-│   ├── certify_numerics.py      # Provider CLI for original-input Lean certificates
-│   ├── numerics/               # Source adapters, proposals, Lean/Rust emission
-│   ├── benchmark_numerics.py    # Maintained scenario runner
-│   ├── bootstrap_numerics.py    # Pinned user-scope Lean/provider setup and receipts
-│   ├── release_numerics.py      # Public cases, portable delivery and recheck evaluation
+├── provider/
+│   ├── numerics/
+│   │   ├── frontends/           # Source parsing, admission and source/API bridges
+│   │   ├── analysis/            # Bounds, enclosures and compositional proposals
+│   │   ├── emit/                # Lean/Rust emission and exact specifications
+│   │   ├── integrations/        # Tool adapters, setup and Rust extraction
+│   │   ├── runtimes/            # Original-source execution and diagnostics
+│   │   ├── workflow/            # Certification, replay, caching and delivery
+│   │   └── cli/                 # Implementations of the stable script commands
+│   ├── manifests/               # Tool pins, setup recipes and Rust toolchain
+│   ├── patches/                 # Hash-identified tool patches
+│   └── tests/
+│       ├── numerics/            # Provider and fresh Lean workflow regressions
+│       └── tooling/             # Repository tooling and process-runner checks
+├── scripts/                     # Stable CLI launchers and repository maintenance
+│   ├── certify_numerics.py      # Verification CLI launcher
+│   ├── benchmark_numerics.py    # Scenario runner launcher
+│   ├── bootstrap_numerics.py    # User-scope provider setup launcher
+│   ├── release_numerics.py      # Public application evaluation launcher
 │   ├── check_layout.py          # Import and export boundary checks
 │   ├── lint.py                  # Style, import-closure, and Lean lint driver
-│   ├── fmt.py                   # leanfmt at width 100, with optional Git base
-│   └── test_tooling.py          # Lint/format coverage regression tests
+│   └── fmt.py                   # leanfmt at width 100, with optional Git base
 ├── .github/workflows/ci.yml     # Build, audit, lint, and formatting checks
 ├── skills/verify-numerics/      # One authoritative engineer-facing agent skill
-├── examples/numerics/           # Source kernels and request fixtures
-├── benchmarks/numerics/         # Scenarios and external proof fixtures
-├── tools/numerics/              # Pinned setup, analyzer and extraction-tool records
+├── examples/numerics/           # Runnable subject families, including scalar/
+├── benchmarks/numerics/         # Suite manifests, heldout/, evidence/ and results/
 ├── .cache/numerics-generated/   # Provider regressions, local config and legacy tools
 ├── Makefile
 ├── CONTRIBUTING.md
@@ -145,7 +156,9 @@ independent exact matrix references; the binary64 pipeline checks accumulated
 error. Source/library/compiler fidelity remains a declared boundary.
 
 Keep source adapters, proposal producers and optional Charon/Aeneas extraction
-under `scripts/numerics`. Generated application models and proofs belong under
+under `provider/numerics`, organized by the responsibilities above. Public script
+paths remain thin launchers and need no package installation. Keep repository
+lint/format/build helpers in `scripts/`. Generated application models and proofs belong under
 the verification directory confirmed with the user; application scratch goes in
 that directory's `.cache/`. Confirm a separate destination for a requested Rust
 delivery. Preserve its reusable API, state and loops, with a separate driver
@@ -154,7 +167,8 @@ function for a bounded repeated-call certificate.
 FLARE's provider regression runs and local configuration use ignored
 `.cache/numerics-generated/`. Existing local tools may remain there; new shared
 tool downloads use a versioned user cache outside the checkout.
-`tools/numerics/` contains only maintained revision records. External tool
+`provider/manifests/` contains maintained tool pins and setup recipes;
+`provider/patches/` contains their hash-identified patches. External tool
 results are untrusted candidates until reconstructed in Lean. Their installation
 does not add a core Lake dependency.
 Provider adapter modules expose shared [tool integration](../integration/tool-integration.md):
@@ -176,6 +190,12 @@ application evaluations in `benchmarks/numerics/heldout` retain pinned original
 sources/licenses, contracts, first-attempt outcomes and needed provider assistance;
 these are reproducible benchmark data rather than session transcripts. Portable
 delivery and setup/checking costs are described in [automated delivery](../automated-delivery.md).
+
+Keep runnable source, request variants and authored bridges together in each
+example family. Keep suite manifests directly under `benchmarks/numerics`, foreign
+proof fixtures under `evidence/`, and durable aggregate measurements under
+`results/`. Original upstream file names and source hashes in the extraction
+manifest remain provenance; its target paths follow the current repository.
 
 ## Dependency rules
 

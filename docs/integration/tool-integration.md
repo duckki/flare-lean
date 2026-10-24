@@ -9,8 +9,8 @@ the application root check and saved-proof replay.
 Run `python3 scripts/certify_numerics.py capabilities` for the adapter records,
 supported versions, arithmetic constraints and source-setup recipes.
 Producer versions and setup sources are maintained in
-[`tools/numerics/producers.json`](../../tools/numerics/producers.json); the CBMC
-release and setup assets are in [`tools/numerics/cbmc.json`](../../tools/numerics/cbmc.json).
+[`provider/manifests/producers.json`](../../provider/manifests/producers.json); the CBMC
+release and setup assets are in [`provider/manifests/cbmc.json`](../../provider/manifests/cbmc.json).
 
 | Adapter | Role | Evidence and validation |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ restrictions and producer-free replay. C memory profiles need a separate bridge.
 
 ## Reusable scalar validation
 
-`scripts/numerics/scalar.py` proposes exact rational enclosures, local rounding
+`provider/numerics/analysis/scalar.py` proposes exact rational enclosures, local rounding
 allowances, sparse polynomial rewrites and a bounded input subdivision. Lean
 checks these using FLARE's actual binary64 nearest-rounding theorems, Mathlib's
 `ring` normalization and the proved `Analysis.IntervalExpression` inference
@@ -312,7 +312,7 @@ compiled Aeneas model. Existing pre-interface certificates retain their replay p
 
 ## Add another tool
 
-Add a provider module named `scripts/numerics/adapter_NAME.py` exporting an
+Add a provider module named `provider/numerics/integrations/adapter_NAME.py` exporting an
 `ADAPTERS` tuple. Discovery registers its capability records without edits to
 the CLI, workflow, reports or replay implementation. Adapters are trusted provider
 code; foreign output is parsed as data.

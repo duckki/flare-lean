@@ -493,57 +493,57 @@
       "modules": [
         {
           "source": "scripts/numerics/__init__.py",
-          "target": "scripts/numerics/__init__.py",
+          "target": "provider/numerics/__init__.py",
           "source_sha256": "5b0ef1868bbd6eed4c39b5621b01acfab4694598ffe5a1069ecbe83e2f72a386"
         },
         {
           "source": "scripts/numerics/analysis.py",
-          "target": "scripts/numerics/analysis.py",
+          "target": "provider/numerics/analysis/bounds.py",
           "source_sha256": "4652bf43e4db9c5df14151c7aeaae2a50503c9549145e62306321cb1e23d9943"
         },
         {
           "source": "scripts/numerics/diagnostics.py",
-          "target": "scripts/numerics/diagnostics.py",
+          "target": "provider/numerics/runtimes/diagnostics.py",
           "source_sha256": "4a1bc5e1aa0e84eed358363c4d283220348b6dd478da93244154b2b593cfabe3"
         },
         {
           "source": "scripts/numerics/emit.py",
-          "target": "scripts/numerics/emit.py",
+          "target": "provider/numerics/emit/scalar.py",
           "source_sha256": "65dc5ec01c89ce0e38d3868c5eafa123c47c7687a5c5f09f19f04ad3c1f63281"
         },
         {
           "source": "scripts/numerics/frontend.py",
-          "target": "scripts/numerics/frontend.py",
+          "target": "provider/numerics/frontends/scalar.py",
           "source_sha256": "c9478e7db0bf4231a2de76e513776d929542d430e530f855834b3f769cae65d8"
         },
         {
           "source": "scripts/numerics/graph.py",
-          "target": "scripts/numerics/graph.py",
+          "target": "provider/numerics/graph.py",
           "source_sha256": "9f17fd85260c18b5e9c450f22f8e1e21e38008019ee7d70d32a49b57ccf3ee44"
         },
         {
           "source": "scripts/numerics/runtimes.py",
-          "target": "scripts/numerics/runtimes.py",
+          "target": "provider/numerics/runtimes/source.py",
           "source_sha256": "dbf40f5bcd0b0b0e8885a003483c20f09f987f1c2c32ff2bf498a65644733fdc"
         },
         {
           "source": "scripts/numerics/scalar_languages.py",
-          "target": "scripts/numerics/scalar_languages.py",
+          "target": "provider/numerics/frontends/scalar_languages.py",
           "source_sha256": "2a899a96f6c6bc118440ca7a6385de2a95efd953f895f98fa29bfde476b45832"
         },
         {
           "source": "scripts/numerics/specification.py",
-          "target": "scripts/numerics/specification.py",
+          "target": "provider/numerics/emit/specification.py",
           "source_sha256": "de97c33c7bf3a696156ffe4705a01537aacce73cf2c1e5316c2063440b0b964f"
         },
         {
           "source": "scripts/numerics/workflow.py",
-          "target": "scripts/numerics/workflow.py",
+          "target": "provider/numerics/workflow/certification.py",
           "source_sha256": "a1929d2122e7e67fa7e6f12f3b6bb244f44dd0aed3ea7b9735a2a06b0d6ad926"
         },
         {
           "source": "scripts/certify_numerics.py",
-          "target": "scripts/certify_numerics.py",
+          "target": "provider/numerics/cli/certify.py",
           "source_sha256": "d8952fbb2aad0523815d09346abcad9a9ed9cac1e3207ea4bfc9ba3bc6839886"
         },
         {
@@ -553,17 +553,17 @@
         },
         {
           "source": "scripts/test_certify_numerics.py",
-          "target": "scripts/test_certify_numerics.py",
+          "target": "provider/tests/numerics/test_certify_numerics.py",
           "source_sha256": "900412be843b555a05a417b76c5e0cd9ee03ef873285be72767983dd266f5583"
         },
         {
           "source": "scripts/test_numerics_adapters.py",
-          "target": "scripts/test_numerics_adapters.py",
+          "target": "provider/tests/numerics/test_numerics_adapters.py",
           "source_sha256": "13a4e4c59e230a9aee044d0e6b0dc5acbe186eab5e75c78aef844050a444ad36"
         },
         {
           "source": "scripts/test_tool_integration_run.py",
-          "target": "scripts/test_tool_integration_run.py",
+          "target": "provider/tests/tooling/test_tool_integration_run.py",
           "source_sha256": "c67f945443d1774704d1c59a3310483fab67b28037e946f9b5371f38e673fca9"
         },
         {
@@ -608,37 +608,37 @@
         },
         {
           "source": "examples/numerics/idiomatic_kalman.json",
-          "target": "examples/numerics/idiomatic_kalman.json",
+          "target": "examples/numerics/scalar/idiomatic_kalman.json",
           "source_sha256": "1b3709ba35b4a115328561262201d5db495803fefed4e08104a8a0114c6dcd9a"
         },
         {
           "source": "examples/numerics/idiomatic_kalman.py",
-          "target": "examples/numerics/idiomatic_kalman.py",
+          "target": "examples/numerics/scalar/idiomatic_kalman.py",
           "source_sha256": "07941bc847c184b835792b7b83abaa84bcd622a3c2d8b86c6f792e9eeaf474c1"
         },
         {
           "source": "examples/numerics/imu_prediction.json",
-          "target": "examples/numerics/imu_prediction.json",
+          "target": "examples/numerics/scalar/imu_prediction.json",
           "source_sha256": "952bf2cfc88511ba820aec3c38ac2aad68e6f8150eac77b7ca89c8f6d6c914d6"
         },
         {
           "source": "examples/numerics/imu_prediction.py",
-          "target": "examples/numerics/imu_prediction.py",
+          "target": "examples/numerics/scalar/imu_prediction.py",
           "source_sha256": "d32f5a626274801fc8a8106ff9c3d0fd17628c561c0739118a59373e12039b8a"
         },
         {
           "source": "examples/numerics/joseph_kalman.json",
-          "target": "examples/numerics/joseph_kalman.json",
+          "target": "examples/numerics/scalar/joseph_kalman.json",
           "source_sha256": "9ed289967881f22d2c44bbf7d98f20244c4a9873bcac166b12ff20b449d850bc"
         },
         {
           "source": "examples/numerics/joseph_kalman.py",
-          "target": "examples/numerics/joseph_kalman.py",
+          "target": "examples/numerics/scalar/joseph_kalman.py",
           "source_sha256": "fa2dbd1664e8653ebaf41ef0d98d2facb1490d75b96a7463efeb649e445f338b"
         },
         {
           "source": "examples/numerics/julia_kalman.json",
-          "target": "examples/numerics/julia_kalman.json",
+          "target": "examples/numerics/scalar/julia_kalman.json",
           "source_sha256": "778bd0cc8ef3aefb67222d66193bd6d1736c3a028002154268efd9027176c14c"
         },
         {
@@ -648,22 +648,22 @@
         },
         {
           "source": "examples/numerics/matlab_kalman.json",
-          "target": "examples/numerics/matlab_kalman.json",
+          "target": "examples/numerics/scalar/matlab_kalman.json",
           "source_sha256": "cd13344004577863f7b9598c1c030886855d3a995286530532937aae9bf24642"
         },
         {
           "source": "examples/numerics/scalar_kalman.jl",
-          "target": "examples/numerics/scalar_kalman.jl",
+          "target": "examples/numerics/scalar/scalar_kalman.jl",
           "source_sha256": "ff16a2436ac9600768339efcdc378c8d37fb84c5a10688b26ab2973bfd6d7302"
         },
         {
           "source": "examples/numerics/scalar_kalman.json",
-          "target": "examples/numerics/scalar_kalman.json",
+          "target": "examples/numerics/scalar/scalar_kalman.json",
           "source_sha256": "e4ead15ba607ddf188f4ebc7315e8e8e45178ec94bfb9e8d30198a1fba89086f"
         },
         {
           "source": "examples/numerics/scalar_kalman.py",
-          "target": "examples/numerics/scalar_kalman.py",
+          "target": "examples/numerics/scalar/scalar_kalman.py",
           "source_sha256": "91c785e5d4dca348c43121d97ebb1035c7f5d35cf8b6f7644769b994083ace5d"
         },
         {
@@ -673,27 +673,27 @@
         },
         {
           "source": "paper/experiments/verification-comparison/mean-update-tight.g",
-          "target": "benchmarks/numerics/gappa/mean-update-tight.g",
+          "target": "benchmarks/numerics/evidence/gappa/mean-update-tight.g",
           "source_sha256": "47600bc232a22f197bad6a88fad09735d5a3c440247a40a74057c4f362b4227d"
         },
         {
           "source": "paper/experiments/verification-comparison/MeanUpdateTight.raw.v",
-          "target": "benchmarks/numerics/gappa/MeanUpdateTight.raw.v",
+          "target": "benchmarks/numerics/evidence/gappa/MeanUpdateTight.raw.v",
           "source_sha256": "0dbed735c6c6925d672c458cd10e15fe6b315722e378bbe03771ecfb3f84c0b6"
         },
         {
           "source": "paper/experiments/verification-comparison/MeanUpdateTight.v",
-          "target": "benchmarks/numerics/gappa/MeanUpdateTight.v",
+          "target": "benchmarks/numerics/evidence/gappa/MeanUpdateTight.v",
           "source_sha256": "b27edd08ebf421ab9e937e57cff9f79209618f0a37b6d1fd6b71e9b4ff890d54"
         },
         {
           "source": "rust/aeneas/revisions.json",
-          "target": "tools/numerics/aeneas-revisions.json",
+          "target": "provider/manifests/aeneas-revisions.json",
           "source_sha256": "ef0ea8e6a40e4ade6d7bcd8e7c9e32155b6213109ad0c8147d7994fdd3faa2ee"
         },
         {
           "source": "rust/rust-toolchain.toml",
-          "target": "tools/numerics/rust-toolchain.toml",
+          "target": "provider/manifests/rust-toolchain.toml",
           "source_sha256": "7d21c66a15f41bad66b82ed06a289f5dc8a6e3751951d2696bbf20ce296f2b0f"
         },
         {
@@ -704,7 +704,7 @@
         },
         {
           "source": "paper/experiments/workflow-gap-review/probe.py",
-          "target": "scripts/test_numerics_workflow.py",
+          "target": "provider/tests/numerics/test_numerics_workflow.py",
           "source_sha256": "40a6389c55f820b1610636c4e4d4ecae7b58bce764de8c58d9d2a1948743e4e3",
           "notes": "Retains the producer fixed-grid addition inflation and tiny-divisor probes as regression tests; application run/report code excluded."
         }
@@ -756,7 +756,7 @@
       "modules": [
         {
           "source": "Kalman/Tests/FloatImplementations.lean",
-          "target": "examples/numerics/naive_covariance.py",
+          "target": "examples/numerics/counterexamples/naive_covariance.py",
           "source_sha256": "cb2ff6e39b8ac9074636ecadd58cba0bdb691606a664afe8bdd469ce335419c6",
           "notes": "Scalar adaptation of cancellationChecks: H=1, prior P=1, noise R=2^-54. Retains gain division and compact covariance operation order. Does not import or claim a proved bridge to the full source filter."
         },
@@ -890,7 +890,7 @@
         },
         {
           "source": "rust/aeneas/patches/u64-f64.patch",
-          "target": "tools/numerics/u64-f64.patch",
+          "target": "provider/patches/u64-f64.patch",
           "source_sha256": "1aea598502a5978dd8a9dae6476bb6c15af9fb93248210992ba9d2d65fbc1282",
           "notes": "Lean-only Aeneas UInt64-to-f64 extraction patch over the pinned f64 fork; source-model trust boundary, not a compiler proof."
         }

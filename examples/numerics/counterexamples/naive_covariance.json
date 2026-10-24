@@ -1,7 +1,7 @@
 {
   "schema": "numerics-request-v1",
   "language": "python",
-  "source": "../naive_covariance.py",
+  "source": "naive_covariance.py",
   "function": "posterior_variance",
   "domain": {
     "p": [

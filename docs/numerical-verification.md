@@ -1,7 +1,7 @@
 # Numerical application verification
 
 FLARE hosts one engineer-facing [verify-numerics skill](../skills/verify-numerics/SKILL.md)
-and its separately invocable [CLI](../scripts/certify_numerics.py). The proof
+and its separately invocable [CLI](../provider/numerics/cli/certify.py). The proof
 library remains one Lake project: reusable native contracts live in
 `Flare.Binary64.Pipeline`, alongside the existing scalar and matrix results.
 Optional analysis and extraction tools are provider tooling, not dependencies
@@ -45,7 +45,7 @@ The `rust-aeneas` target produces or retains Rust source, performs fresh
 Charon/Aeneas extraction, and includes its actual return in the Lean theorem.
 An explicit Rust port may supply a saved Lean equivalence proof; its actual
 extracted return still has to equal the source kernel under the root's axiom audit.
-`tools/numerics/aeneas-revisions.json` records the compatible experimental Float
+`provider/manifests/aeneas-revisions.json` records the compatible experimental Float
 fork. The skill's [tool-setup guide](../skills/verify-numerics/references/tool-setup.md)
 directs agents to obtain/build missing tools and the compiled model in a shared
 user cache, then check an extraction/proof preflight. The
@@ -213,22 +213,22 @@ At original binary64 inputs `p = 1`, `r = 2^-54` (word
 is `p * r / (p + r) = 1 / (2^54 + 1) > 0`. These inputs satisfy the requested
 ranges, so this refutes strict positivity on that domain.
 
-The [maintained witness regression](../scripts/test_numerics_witnesses.py) admits
-[the actual Python snippet](../examples/numerics/naive_covariance.py), generates
+The [maintained witness regression](../provider/tests/numerics/test_numerics_witnesses.py) admits
+[the actual Python snippet](../examples/numerics/counterexamples/naive_covariance.py), generates
 its operation-ordered Lean kernel and proves `Workflow.Counterexample.counterexample`.
 The root includes the finite input/domain conditions, zero interpreted native
 output and positive exact reference. `decide +kernel` checks the closed native
 execution; no `native_decide` or additional numerical axiom is used. Its
 transitive axiom audit accepts only `propext`, `Classical.choice` and `Quot.sound`.
 The regression also replays the saved source and rejects a false output claim.
-The shared [witness workflow](../scripts/numerics/counterexample_run.py) also
+The shared [witness workflow](../provider/numerics/workflow/counterexample.py) also
 supplies the downloadable README evidence, without an application-specific
 authored argument. Its [request](../examples/numerics/counterexamples/naive_covariance.json)
 retains the domain, exact reference, positivity requirement and input words.
 
 ```sh
 FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover \
-  -s scripts -p test_numerics_witnesses.py -v
+  -s provider/tests -t provider -p test_numerics_witnesses.py -v
 ```
 
 The ordinary CLI has a `counterexample` result for a checked supplied witness,

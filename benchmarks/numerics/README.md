@@ -141,12 +141,12 @@ cleanup, artifact retention and non-overwriting skill installation.
 
 ## A proved numerical failure
 
-`scripts/test_numerics_counterexamples.py` maintains the README's standalone
+`provider/tests/numerics/test_numerics_counterexamples.py` maintains the README's standalone
 naive scalar covariance update. At `p = 1`, `r = 2^-54`, its binary64 posterior
 is zero while the exact posterior is `1 / (2^54 + 1) > 0`. The fast test compares
 actual Python execution and the admitted model. `make numerics-check` also
 checks and replays a Lean refutation with an axiom audit, then rejects a false
-output claim. The [witness regressions](../../scripts/test_numerics_witnesses.py)
+output claim. The [witness regressions](../../provider/tests/numerics/test_numerics_witnesses.py)
 cover ordinary request/report/replay delivery, attained-error failures, domain
 and reference checks, pair outputs, signed zeros/subnormals, runtime mismatch,
 missing tools and independently rejected root/axiom tampering. The scenario

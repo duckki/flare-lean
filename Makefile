@@ -17,13 +17,13 @@ fmt-check:
 	time python3 scripts/fmt.py --check
 
 check: lint
-	time python3 -m unittest discover -s scripts -p 'test_*.py'
+	time python3 -m unittest discover -s provider/tests -t provider -p 'test_*.py'
 	time python3 scripts/fmt.py --check
 
 c: check
 
 numerics-check:
-	env FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s scripts -p 'test_numerics*.py'
+	env FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s provider/tests -t provider -p 'test_numerics*.py'
 
 numerics-bench:
 	python3 scripts/benchmark_numerics.py --out .cache/numerics-generated/bench-$$(date +%Y%m%d-%H%M%S)

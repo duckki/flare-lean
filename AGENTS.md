@@ -30,7 +30,9 @@
 - Do not add application-specific dependencies. Any interoperability claim
   needs a proved bridge, isolated from the core module trees.
 - Maintain one engineer-facing skill in skills/verify-numerics and the provider
-  CLI in scripts/certify_numerics.py. Keep external analyzers and optional Rust
+  package in provider/numerics, with stable CLI launchers in scripts/.
+  Keep provider tests in provider/tests, tool records in provider/manifests and
+  patches in provider/patches. Keep external analyzers and optional Rust
   translators outside core Lake dependencies. Finish certification at one Lean
   entry theorem with numerical premises discharged and its axiom closure checked.
   Distinguish candidate bounds, checked allowances, sampled runtime diagnostics,

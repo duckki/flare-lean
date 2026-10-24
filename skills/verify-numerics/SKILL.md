@@ -47,7 +47,7 @@ identities when organizing or cleaning up.
 ## Execute the workflow
 
 Locate a complete FLARE provider checkout as `FLARE_ROOT`, checking for
-`lean-toolchain`, `Flare/` and `scripts/certify_numerics.py`. Reuse a supplied
+`lean-toolchain`, `Flare/`, `provider/numerics/` and `scripts/certify_numerics.py`. Reuse a supplied
 path or a checkout found by resolving the skill's symlink. Standard GitHub and
 skills CLI installations may contain only the skill folder; their parent is
 not necessarily the provider. If no complete checkout is available, obtain it

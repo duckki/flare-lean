@@ -13,7 +13,7 @@ budget remains `budget_not_met`; it does not establish an attained failure.
 ## Request
 
 Use the ordinary `numerics-request-v1` schema with a `counterexample` selection.
-For the [README covariance source](../../examples/numerics/naive_covariance.py), the
+For the [README covariance source](../../examples/numerics/counterexamples/naive_covariance.py), the
 [complete request](../../examples/numerics/counterexamples/naive_covariance.json) uses:
 
 ```json

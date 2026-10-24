@@ -4,85 +4,85 @@
   "cases": [
     {
       "name": "scalar_kalman",
-      "request": "../../examples/numerics/scalar_kalman.json",
+      "request": "../../examples/numerics/scalar/scalar_kalman.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "idiomatic_kalman",
-      "request": "../../examples/numerics/idiomatic_kalman.json",
+      "request": "../../examples/numerics/scalar/idiomatic_kalman.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "joseph_kalman",
-      "request": "../../examples/numerics/joseph_kalman.json",
+      "request": "../../examples/numerics/scalar/joseph_kalman.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "imu_prediction",
-      "request": "../../examples/numerics/imu_prediction.json",
+      "request": "../../examples/numerics/scalar/imu_prediction.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "mean_update",
-      "request": "../../examples/numerics/mean_update.json",
+      "request": "../../examples/numerics/scalar/mean_update.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "mean_update_tight",
-      "request": "../../examples/numerics/mean_update_tight.json",
+      "request": "../../examples/numerics/scalar/mean_update_tight.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "tiny_gain",
-      "request": "../../examples/numerics/tiny_gain.json",
+      "request": "../../examples/numerics/scalar/tiny_gain.json",
       "expected": "certified",
       "optional": false
     },
     {
       "name": "julia_kalman",
-      "request": "../../examples/numerics/julia_kalman.json",
+      "request": "../../examples/numerics/scalar/julia_kalman.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "matlab_kalman",
-      "request": "../../examples/numerics/matlab_kalman.json",
+      "request": "../../examples/numerics/scalar/matlab_kalman.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "rust_mean_update",
-      "request": "../../examples/numerics/rust_mean_update.json",
+      "request": "../../examples/numerics/scalar/rust_mean_update.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "scalar_kalman_rust",
-      "request": "../../examples/numerics/scalar_kalman_rust.json",
+      "request": "../../examples/numerics/scalar/scalar_kalman_rust.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "rust_mean_update_extracted",
-      "request": "../../examples/numerics/rust_mean_update_extracted.json",
+      "request": "../../examples/numerics/scalar/rust_mean_update_extracted.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "mean_update_gappa",
-      "request": "../../examples/numerics/mean_update_gappa.json",
+      "request": "../../examples/numerics/scalar/mean_update_gappa.json",
       "expected": "certified",
       "optional": true
     },
     {
       "name": "mean_update_fptaylor",
-      "request": "../../examples/numerics/mean_update_fptaylor.json",
+      "request": "../../examples/numerics/scalar/mean_update_fptaylor.json",
       "expected": "certified",
       "optional": true
     },

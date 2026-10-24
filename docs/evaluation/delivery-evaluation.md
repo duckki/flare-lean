@@ -5,7 +5,7 @@ contracts, [first attempts and needed assistance](../../benchmarks/numerics/held
 Their three positive certificates accompany the covariance failure and a separate
 ROS underflow counterexample. Reports, command receipts and portable bundles are
 retained under the ignored provider regression directory. Aggregate measurements
-are in [delivery-results.json](../../benchmarks/numerics/delivery-results.json).
+are in [delivery-results.json](../../benchmarks/numerics/results/delivery-results.json).
 
 ## Completed platform checks
 

@@ -98,7 +98,7 @@ as a separate API change.
 
 For a quick text check, run `python3 scripts/lint.py --style-only`. Run the
 tooling regression checks with
-`python3 -m unittest discover -s scripts -p 'test_*.py'`.
+`python3 -m unittest discover -s provider/tests -t provider -p 'test_*.py'`.
 
 The standalone commands `lake build`, `lake env lean Tests/ProofAudit.lean`,
 and `python3 scripts/check_layout.py` remain available for focused validation.
@@ -124,7 +124,12 @@ toolchain nor the provider's dependencies.
 ## Numerical workflow changes
 
 Maintain one skill at `skills/verify-numerics`, the provider CLI/adapters under
-`scripts/`, and requests/source fixtures under `examples/numerics`. Keep optional
+`provider/numerics`, stable CLI launchers under `scripts/`, and requests/source
+fixtures under `examples/numerics`. Tool pins/setup recipes live in
+`provider/manifests`, with hash-identified patches under `provider/patches`.
+Python regressions live in `provider/tests/numerics` and `provider/tests/tooling`;
+`unittest discover` uses `-t provider` to resolve the checked-out package without
+installing it. Keep optional
 external tools outside core Lake dependencies. Read
 [the workflow guide](numerical-verification.md) for certification boundaries
 and [the benchmark guide](../benchmarks/numerics/README.md) for scenarios.
@@ -279,7 +284,7 @@ Use CPython 3.13/3.14 with `math.fma`; CI selects 3.14. The
 no additional analyzer. After the library build finishes, run:
 
 ```sh
-FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_fma
+FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s provider/tests -t provider -p 'test_numerics_fma.py'
 python3 scripts/benchmark_numerics.py \
   --case fma_calibrate --case fma_residual --case fma_regularized_gain \
   --case fma_fused_dot3 --case fma_reciprocal_calibrate \
@@ -298,7 +303,7 @@ The [square-root profile](arithmetic/square-root.md) needs CPython 3.13/3.14 and
 analyzer. After the library build finishes, run:
 
 ```sh
-FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_sqrt
+FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s provider/tests -t provider -p 'test_numerics_sqrt.py'
 python3 scripts/benchmark_numerics.py \
   --case sqrt_standard_deviation --case sqrt_regularized_norm \
   --case sqrt_normalized_residual --case sqrt_fused_norm --case sqrt_nested_root \
@@ -316,7 +321,7 @@ The [mixed-storage profile](arithmetic/mixed-precision.md) uses CPython 3.13/3.1
 2.4.0. After the library build finishes, run:
 
 ```sh
-FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_mixed
+FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s provider/tests -t provider -p 'test_numerics_mixed.py'
 python3 scripts/benchmark_numerics.py \
   --case mixed_stored --case mixed_calibrate --case mixed_normalized_residual \
   --case mixed_storage_chain --case mixed_calibrate_tight --replay \
@@ -335,7 +340,7 @@ The [scalar witness route](integration/counterexamples.md) uses ordinary source-
 admission and no external analyzer. After the library build finishes, run:
 
 ```sh
-FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_witnesses
+FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover -s provider/tests -t provider -p 'test_numerics_witnesses.py'
 python3 scripts/benchmark_numerics.py \
   --case covariance_counterexample --case cancellation_counterexample --replay \
   --out .cache/numerics-generated/counterexample-regression

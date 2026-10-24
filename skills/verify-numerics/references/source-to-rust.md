@@ -38,7 +38,7 @@ Shared Lake caching is optional; configure it as described in the provider's
 `docs/development.md`. Commands inherit the caller's settings.
 
 Requests use `schema: numerics-request-v1`. See the provider's
-`examples/numerics/scalar_kalman.json` for a complete example.
+`examples/numerics/scalar/scalar_kalman.json` for a complete example.
 
 | Field | Meaning |
 | --- | --- |
@@ -176,7 +176,7 @@ versions, executable hashes, commands and output streams are retained.
 
 For `rust-aeneas`, obtain a matching Charon/Aeneas tool pair and its compiled Lean
 library using [tool-setup.md](tool-setup.md). Tested revision records live in
-`tools/numerics/aeneas-revisions.json`; they describe the compatible experimental
+`provider/manifests/aeneas-revisions.json`; they describe the compatible experimental
 Float fork, not evidence that an existing binary matches those revisions.
 Requests configure:
 
@@ -191,7 +191,7 @@ Requests configure:
 Alternatively set `FLARE_CHARON`, `FLARE_AENEAS`, `FLARE_AENEAS_LEAN_LIB`;
 executables can also be found on PATH. `lean_lib` must contain `Aeneas.olean`.
 Charon may require its sibling driver and the extraction nightly toolchain.
-The delivered crate pins the runtime Rust version in `tools/numerics/rust-toolchain.toml`.
+The delivered crate pins the runtime Rust version in `provider/manifests/rust-toolchain.toml`.
 
 Without `rust_port`, the CLI emits an operation-ordered straight-line Rust kernel
 from a non-Rust input. This is an internal checker/probe artifact. For a requested

@@ -1,0 +1,72 @@
+{
+  "schema": "numerics-producers-v1",
+  "tools": {
+    "gappa": {
+      "versions": [
+        "1.8.3"
+      ],
+      "setup": {
+        "source": {
+          "url": "https://gappa.gitlabpages.inria.fr/releases/gappa-1.8.3.tar.gz",
+          "sha256": "9b3e14e95a5b6aa0ee909b1d1e5c1fac04042024f29b66377cfb9e1923b25f5c",
+          "directory": "gappa-1.8.3"
+        },
+        "commands": [
+          [
+            "./configure",
+            "--prefix={install}"
+          ],
+          [
+            "./remake",
+            "-j2"
+          ],
+          [
+            "./remake",
+            "install"
+          ]
+        ],
+        "executable": "install/bin/gappa"
+      }
+    },
+    "fptaylor": {
+      "versions": [
+        "0.9.4+dev"
+      ],
+      "setup": {
+        "source": {
+          "repository": "https://github.com/soarlab/FPTaylor.git",
+          "revision": "b5a77cae348400f21f83512210d9f43c4bffb381"
+        },
+        "commands": [
+          [
+            "make",
+            "fptaylor-simple-interval"
+          ]
+        ],
+        "executable": "source/fptaylor"
+      }
+    },
+    "precisa": {
+      "versions": [
+        "4.0.4"
+      ],
+      "setup": {
+        "source": {
+          "repository": "https://github.com/nasa/PRECiSA.git",
+          "revision": "2626ba151a2915d7b148ff90ccfff5e1f764d948"
+        },
+        "commands": [
+          [
+            "python3",
+            "{provider}/scripts/setup_precisa.py",
+            "--source",
+            "{source}",
+            "--prefix",
+            "{install}"
+          ]
+        ],
+        "executable": "install/bin/precisa"
+      }
+    }
+  }
+}

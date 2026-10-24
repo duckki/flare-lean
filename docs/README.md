@@ -35,6 +35,7 @@ use; detailed documentation is grouped by subject.
 
 ## Tool integration and proofs
 
+- [Provider layout and Python tests](../provider/README.md)
 - [Producers, witness search and Lean validation](integration/tool-integration.md)
 - [Shared enclosure inference and proof evidence](integration/proof-evidence.md)
 - [Lean-checked counterexamples](integration/counterexamples.md)
