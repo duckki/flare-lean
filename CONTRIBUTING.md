@@ -69,5 +69,7 @@ provide a useful library interface for later tasks.
 Follow the [development guide](docs/development.md) for prerequisites, builds,
 shared caching, formatting, linters, proof audits and numerical workflow tests.
 Include relevant check results and any changed assumptions in the review.
-Prepare a bounded, reviewable change; commit only when requested, then stop for
-review unless continuing was explicitly authorized.
+Keep pull requests focused so definitions, statements and proof dependencies
+can be reviewed together. For a verification or setup problem, use the
+[issue form](https://github.com/duckki/flare-lean/issues/new/choose) and include
+the source, contract, provider revision and failing command.

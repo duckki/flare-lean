@@ -1,0 +1,22 @@
+name: Verification or setup problem
+description: Report a failed run, unexpected result or documentation problem.
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected and observed result
+      description: Include the reported status and any Lean entry theorem involved.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Include minimal source, the input domain/reference/requirement, and the failing command or agent prompt.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and evidence
+      description: Include the FLARE commit, OS/architecture, relevant tool versions and the failing stage's log. For a documentation issue, link the page.

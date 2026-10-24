@@ -1,8 +1,8 @@
 # Automated delivery evaluation
 
-**Milestone 14 is complete.** Pinned setup, retained public applications,
-Lean-checked counterexamples, portable replay, change-aware rechecking and
-maintenance/rejection controls have passed the automated checks below.
+Pinned setup, retained public applications, Lean-checked counterexamples,
+portable replay, change-aware rechecking and maintenance/rejection controls have
+passed the automated checks below.
 Independent engineer reproduction is a separate follow-up; it has not yet been
 recorded.
 

@@ -1,4 +1,4 @@
-.PHONY: all build check lint fmt fmt-check numerics-check numerics-bench numerics-scale
+.PHONY: all build check docs-check lint fmt fmt-check numerics-check numerics-bench numerics-scale
 
 all: build check
 
@@ -16,7 +16,10 @@ fmt:
 fmt-check:
 	time python3 scripts/fmt.py --check
 
-check: lint
+docs-check:
+	python3 scripts/check_docs.py
+
+check: docs-check lint
 	time python3 -m unittest discover -s provider/tests -t provider -p 'test_*.py'
 	time python3 scripts/fmt.py --check
 

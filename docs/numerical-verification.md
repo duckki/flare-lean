@@ -1,11 +1,32 @@
 # Numerical application verification
 
 FLARE hosts one engineer-facing [verify-numerics skill](../skills/verify-numerics/SKILL.md)
-and its separately invocable [CLI](../provider/numerics/cli/certify.py). The proof
+and its separately invocable [CLI](../scripts/certify_numerics.py). The proof
 library remains one Lake project: reusable native contracts live in
 `Flare.Binary64.Pipeline`, alongside the existing scalar and matrix results.
 Optional analysis and extraction tools are provider tooling, not dependencies
 of the core Lean library.
+
+## Supported source profiles
+
+Each profile admits particular source constructs and arithmetic semantics.
+Profiles have separate limits; combining them can require a new semantic bridge.
+
+| Source | Maintained coverage | Delivery |
+| --- | --- | --- |
+| Python scalars | Functions, helpers, selected stateful methods, bounded loops and separate conditional/counted-loop profiles | Lean; Rust delivery for selected scalar/stateful APIs with checked bridges |
+| Python lists | Fixed-shape products with explicit indexing and ordered accumulation | Lean |
+| NumPy / Julia arrays | Selected eager NumPy operations and typed Julia vector helpers/indexed loops with exact shapes | Lean; retained fixed-array Rust APIs with authored bridges |
+| Julia / MATLAB-compatible scalars | Restricted floating-point functions | Lean; scalar Rust ports with checked bridges |
+| C | Closed C11 double helpers, by-value structs, fixed buffers and unsigned literal-count loops | Lean; scalar/value-struct Rust bridges |
+| C++ | Selected C++20 by-value double functions from closed headers, with explicit binary64 constants | Lean |
+| Rust | Scalar functions and retained multi-module APIs extracted with Charon/Aeneas | Lean certificate for the actual extracted API; application bridges can need authored proofs |
+
+Explicit FMA, square roots and mixed storage use the separate
+[arithmetic profiles](README.md#floating-point-arithmetic).
+The sections below describe the contracts and trust boundaries; `capabilities`
+reports the provider's current limits. BLAS calls, arbitrary Python
+dispatch and unrestricted source-language semantics require further support.
 
 ## Install and use
 
@@ -160,9 +181,9 @@ engineering report outside the sealed run directories, under the agreed
 verification directory, so adding reproduction commands or commentary does not
 invalidate their recorded identities.
 
-FLARE's maintained benchmark outputs and legacy local tool installations live
-under ignored `.cache/numerics-generated/` in the provider checkout. This is not
-an application-output default; new shared tool downloads use the user cache.
+FLARE's maintained benchmark outputs live under ignored
+`.cache/numerics-generated/` in the provider checkout. Application artifacts use
+the agreed verification directory; shared tool downloads use the user cache.
 Moving saved runs preserves their frozen records;
 historical logs still show their original paths. If the compiled Aeneas model
 also moved, pass `replay --aeneas-lean-lib /new/path/to/compiled/model`. Replay

@@ -2,20 +2,23 @@
 
 _**F**loating-point **L**ibrary for **A**rithmetic, **R**ounding, and **E**rror bounds._
 
+[![Lean CI](https://github.com/duckki/flare-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/duckki/flare-lean/actions/workflows/ci.yml)
+
 **Numerical guarantees for your code, checked in [Lean](https://lean-lang.org/).**
 
 Give your AI agent a function and an error budget or a property to preserve.
 The skill combines FLARE and [Mathlib](https://leanprover-community.github.io/)
-with external tools: [Gappa](https://gappa.gitlabpages.inria.fr/),
+with tools chosen for your task: [Gappa](https://gappa.gitlabpages.inria.fr/),
 [FPTaylor](https://github.com/soarlab/FPTaylor) and
 [PRECiSA](https://github.com/nasa/PRECiSA) propose numerical bounds;
 [CBMC](https://www.cprover.org/cbmc/) can search for counterexamples.
 **Lean** checks the resulting proof or concrete counterexample; saved evidence
 lets you replay it.
 
-Also, the skill can generate a verified Rust port;
-**[Charon](https://aeneasverif.github.io/charon/)/[Aeneas](https://aeneasverif.github.io/)**
-extracts its model for the correspondence proof in Lean.
+When requested, the skill can also generate a reusable Rust port.
+[Charon](https://aeneasverif.github.io/charon/) and
+[Aeneas](https://aeneasverif.github.io/) extract its model for a correspondence
+proof in Lean, preserving the original API and loops.
 
 **No skill installation is needed.** Use an agent with GitHub access and local
 command execution. It [obtains FLARE and missing tools](skills/verify-numerics/references/tool-setup.md)
@@ -139,6 +142,11 @@ counterexample, with source, assumptions and commands. One replay command checks
 
 ## Try your own code
 
+Maintained profiles cover scalar Python, Julia, MATLAB-compatible, C and Rust
+code, plus selected NumPy/Julia array APIs and C++ headers. See
+[supported source profiles](docs/numerical-verification.md#supported-source-profiles)
+for the constructs and delivery options available today.
+
 Use this prompt in your project, filling in the contract:
 
 ```text
@@ -203,5 +211,12 @@ Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
 - [Milestones toward broader applicability](docs/roadmap.md)
 - [All documentation by subject](docs/README.md)
 - [Contributing](CONTRIBUTING.md)
+
+## Feedback and contributions
+
+[Report a problem or request support for your code](https://github.com/duckki/flare-lean/issues/new/choose).
+Include a small source example, its contract, the observed result and the FLARE
+revision. Reusable theorems, source bridges and tool integrations are welcome;
+see [Contributing](CONTRIBUTING.md) for proof and validation requirements.
 
 [GPL-3.0-only](LICENSE). Third-party dependencies retain their own licenses.

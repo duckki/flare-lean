@@ -18,8 +18,13 @@ make check
 
 This builds the library, checks public and private theorem axioms, checks import
 boundaries and coverage, runs the linters and their regression tests, and checks
-formatting. Include the check results and any changed assumptions or runtime
-behavior in the review.
+formatting and documentation links. Include the check results and any changed
+assumptions or runtime behavior in the review.
+
+For a documentation-only change, run `make docs-check`. It checks inline links
+to repository files and Markdown heading fragments, including links to this
+repository's `main` branch. It includes tracked and untracked Markdown sources
+and ignores code samples. External URLs and historical revisions are not fetched.
 
 ### Shared build cache
 
