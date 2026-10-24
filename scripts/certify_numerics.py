@@ -111,6 +111,14 @@ def main():
                     'dimensions':'1 through 8; at most 32 output entries',
                     'operations':'fixed indexing, fresh scalar updates, shape assertions, local helpers, range(size), ascending separately rounded products',
                     'target':'lean; no NumPy/BLAS bridge or automatic array Rust port'}},
+                'counterexamples': {
+                    'request_field':'counterexample: {inputs: original-input hexadecimal words, output: zero-based index}',
+                    'requirements':['strict_positive (positive exact reference, nonpositive native output)',
+                                    'absolute_error (attained error strictly greater than unchanged output limit)'],
+                    'scope':'at most 32 separate-binary64 scalar nodes; one/two finite outputs; rational references; Lean delivery',
+                    'search':'supplied witnesses only; no automatic search or CBMC integration',
+                    'entry_theorem':'Workflow.Counterexample.counterexample',
+                    'replay':'ordinary replay; no witness proposer, source execution, producer or translator'},
                 'source_runtimes': {name: runtime_candidates(name) for name in FRONTENDS}}
         elif args.command == 'inspect':
             p = parse(args.language, Path(args.source).read_text(), args.function,
@@ -135,7 +143,7 @@ def main():
         else:
             result = certify(args.request, args.out)
         print(json.dumps({k:v for k,v in result.items() if k not in ('dependencies','artifacts')}, indent=2))
-        return 0 if result.get('status') in (None, 'ready', 'certified', 'fresh', 'replayed', 'installed') else 2
+        return 0 if result.get('status') in (None, 'ready', 'certified', 'counterexample', 'fresh', 'replayed', 'installed') else 2
     except RuntimeError as error:
         print(json.dumps({'status':'unresolved','error':str(error),
                           **({'failure_kind':error.kind} if hasattr(error,'kind') else {})},indent=2))

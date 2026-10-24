@@ -85,9 +85,11 @@ named root, audit its transitive axioms and replay it with `lake env lean`
 using the provider's pinned dependencies. Kernel evaluation (`decide +kernel`)
 can establish a closed binary64 execution without a native-evaluation axiom.
 
-This is a standalone authored counterexample, not a successful error-bound
-certificate or a new automatic CLI status. A failed proof, timeout or loose
-upper allowance is insufficient. The
+For admitted scalar strict-positivity and absolute-error witnesses, prefer the
+provider's [counterexample request route](counterexamples.md), which generates
+and checks the root without an application-specific authored proof. For other
+properties retain a standalone authored refutation and report that scope.
+A failed proof, timeout or loose upper allowance is insufficient. The
 [scalar Kalman example](https://github.com/duckki/flare-lean/blob/main/docs/numerical-verification.md#kalman-counterexample)
 demonstrates a zero native posterior where the exact posterior is positive.
 

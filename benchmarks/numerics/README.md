@@ -36,6 +36,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
 | Shared square / quartic / regularized reciprocal | `certified` with selected producers | Gappa/FPTaylor share a proved power-aware rational enclosure engine; actual candidate targets and replay |
 | Mixed storage / calibration / residual / repeated storage | `certified` with selected NumPy | Binary32 nearest/even narrowing, exact binary64 promotion, incoming storage/computation error; tight budget returns `budget_not_met` |
+| Scalar covariance / cancellation witnesses | `counterexample` | Finite admissible input, actual output, independent exact reference and violated positivity/error requirement in one checked root; cold replay |
 | Square-root variance / norm / normalized residual / nested root | `certified` with CPython 3.13/3.14 | Correctly rounded primitive contract, checked radicand domains, endpoint proposals and incoming error; tight request returns `budget_not_met` |
 | Explicit FMA calibration / residual / dot product / reciprocal composition | `certified` with CPython 3.13/3.14 | One native rounding per FMA, incoming errors and independent exact reference; separate residual keeps its budget and returns `budget_not_met` |
 | Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
@@ -142,8 +143,12 @@ naive scalar covariance update. At `p = 1`, `r = 2^-54`, its binary64 posterior
 is zero while the exact posterior is `1 / (2^54 + 1) > 0`. The fast test compares
 actual Python execution and the admitted model. `make numerics-check` also
 checks and replays a Lean refutation with an axiom audit, then rejects a false
-output claim. This authored counterexample is separate from the error-bound
-scenario runner's statuses. See [the worked example](../../docs/numerical-verification.md#kalman-counterexample).
+output claim. The [witness regressions](../../scripts/test_numerics_witnesses.py)
+cover ordinary request/report/replay delivery, attained-error failures, domain
+and reference checks, pair outputs, signed zeros/subnormals, runtime mismatch,
+missing tools and independently rejected root/axiom tampering. The scenario
+runner retains `covariance_counterexample` and `cancellation_counterexample` as
+`counterexample` outcomes. See [the guide](../../docs/counterexamples.md).
 
 ## Known analysis gaps and external fixtures
 

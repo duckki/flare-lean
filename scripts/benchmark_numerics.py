@@ -68,7 +68,7 @@ def main():
         if runtime and 'rust_application' not in request: request['source_runtime']=runtime
         if request.get('target')=='rust-aeneas' and tools.get('rust_tools'):
             request['rust_tools']=tools['rust_tools']
-        if tools.get('analysis_tools') and 'rust_application' not in request:
+        if tools.get('analysis_tools') and 'rust_application' not in request and 'counterexample' not in request:
             request['analysis_tools'] = tools['analysis_tools']
         if args.contract_cache:
             request['contract_cache'] = str(args.contract_cache.resolve())
@@ -126,6 +126,7 @@ def main():
         print(case['name']+': '+result['status']+note,flush=True)
     summary={'schema':'numerics-benchmark-run-v1','suite':args.suite,'cases':records,
              'certified_cases':[r['case'] for r in records if r['status']=='certified'],
+             'counterexample_cases':[r['case'] for r in records if r['status']=='counterexample'],
              'candidate_only_cases':[r['case'] for r in records if r['status']=='candidate_only'],
              'resource_limited_cases':[r['case'] for r in records if r.get('resource_limited')],
              'passed':all(r['matched'] for r in records),'qualification':'Fresh workflow evidence; expected budget_not_met is not an observed numerical failure.'}

@@ -118,7 +118,7 @@ Inputs: p = 1, r = 2^-54
 Binary64 posterior: 0
 Exact posterior: 1 / (2^54 + 1) > 0
 Requirement: strictly positive variance — violated
-Lean entry: NaiveCovarianceFailure.failure
+Lean entry: Workflow.Counterexample.counterexample
 ```
 
 `p + r` rounds to `1`, so the gain becomes `1` and the returned variance is

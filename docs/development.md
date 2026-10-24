@@ -322,3 +322,22 @@ promotions, lost storage allowances, substituted primitives and false references
 Zero/subnormal domains and producer/NumPy-free replay accompany the application
 family. Public API tests compute ties, mantissa carry, signed zero and gradual
 underflow in the kernel; exact widening is proved for every finite binary32 input.
+
+## Counterexample regression checks
+
+The [scalar witness route](counterexamples.md) uses ordinary source-runtime
+admission and no external analyzer. After the library build finishes, run:
+
+```sh
+FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_witnesses
+python3 scripts/benchmark_numerics.py \
+  --case covariance_counterexample --case cancellation_counterexample --replay \
+  --out .cache/numerics-generated/counterexample-regression
+```
+
+Controls reject satisfying/out-of-domain witnesses, false reference values,
+changed native outputs, altered requirements, missing roots and extra axioms.
+Pair outputs, signed zero and the smallest subnormal have retained cases. Cold
+replay must not call witness proposal, source/model execution or producer adapters.
+The README evidence generator and CI use this same delivery path for the Kalman
+positivity example.

@@ -762,9 +762,9 @@
         },
         {
           "source": "Kalman/Tests/Specification.lean",
-          "target": "scripts/numerics/counterexample.py",
+          "target": "examples/numerics/counterexamples/naive_covariance.json",
           "source_sha256": "b8bc5dd5844f4172d355fd22fc376b8343c4578439b4504e7fd6c10550fc86bb",
-          "notes": "Reuses the positive exact scalar reference 1/(2^54+1). Adds a new kernel-checked refutation of the admitted standalone Python kernel, input-domain and axiom checks, saved-source replay and false-output rejection."
+          "notes": "Reuses the positive exact scalar reference 1/(2^54+1). The request supplies the unchanged domain, independent reference, positivity requirement and bit-exact witness to the shared kernel-checked counterexample workflow, including input-domain and axiom checks, saved-source replay and false-output rejection."
         }
       ]
     },

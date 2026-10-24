@@ -1,0 +1,33 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "cancellation.py",
+  "function": "residual",
+  "domain": {
+    "x": [
+      "1",
+      "2"
+    ],
+    "y": [
+      "1/18014398509481984",
+      "1/9007199254740992"
+    ]
+  },
+  "specification": [
+    "y"
+  ],
+  "outputs": [
+    {
+      "name": "residual",
+      "unit": "m",
+      "limit": "1/36028797018963968"
+    }
+  ],
+  "counterexample": {
+    "inputs": {
+      "x": "0x3ff0000000000000",
+      "y": "0x3c90000000000000"
+    },
+    "output": 0
+  }
+}

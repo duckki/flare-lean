@@ -159,6 +159,10 @@ does not add a core Lake dependency.
 Provider adapter modules expose shared [tool integration](tool-integration.md):
 setup recipes, capabilities, execution, evidence and Lean validation. External
 producer output remains untrusted until the numerical conclusion is checked.
+The [counterexample path](counterexamples.md) also accepts untrusted scalar
+witnesses, checks their original-domain execution and violated requirement in
+one Lean root, and uses the ordinary report/audit/replay interface. Witness
+search remains separate from proof checking.
 `skills/verify-numerics` is the sole skill source. Standard GitHub/skills CLI
 installers distribute that folder; the agent obtains the full provider
 separately. The development installer links the local skill into an agent

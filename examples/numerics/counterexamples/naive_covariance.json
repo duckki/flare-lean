@@ -1,0 +1,33 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "../naive_covariance.py",
+  "function": "posterior_variance",
+  "domain": {
+    "p": [
+      "1",
+      "2"
+    ],
+    "r": [
+      "1/18014398509481984",
+      "1/9007199254740992"
+    ]
+  },
+  "specification": [
+    "p*r/(p+r)"
+  ],
+  "outputs": [
+    {
+      "name": "posterior variance",
+      "unit": "m\u00b2",
+      "property": "strict_positive"
+    }
+  ],
+  "counterexample": {
+    "inputs": {
+      "p": "0x3ff0000000000000",
+      "r": "0x3c90000000000000"
+    },
+    "output": 0
+  }
+}

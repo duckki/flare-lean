@@ -63,19 +63,25 @@ def rust_source(program):
 
 
 def kernel_source(program, specification):
+    def binders(typ, body):
+        used = set(re.findall(r'\ba\d+\b', '\n'.join(body)))
+        return ' '.join(f"({'a' if 'a'+str(i) in used else '_a'}{i} : {typ})"
+                        for i in range(len(program.inputs)))
     result = []
     used={arg for node in program.nodes for arg in node.args} | set(program.outputs)
     for name, typ, ideal in [("kernel", "Float", False), ("reference", "ℝ", True)]:
-        params = " ".join(f"(a{i} : {typ})" for i in range(len(program.inputs)))
+        body = [f"  let {n.name if n.name in used else '_'+n.name} := {expression(n, ideal=ideal)}" for n in program.nodes]
+        body += ["  " + returned(program.outputs), ""]
+        params = binders(typ, body)
         out = result_type(typ,len(program.outputs))
         declaration = 'noncomputable def' if ideal else 'def'
         result += [f"{declaration} {name} {params} : {out} :="]
-        result += [f"  let {n.name if n.name in used else '_'+n.name} := {expression(n, ideal=ideal)}" for n in program.nodes]
-        result += ["  " + returned(program.outputs), ""]
-    arguments = ' '.join(f'(a{i} : ℝ)' for i in range(len(program.inputs)))
+        result += body
+    specification_body = lean_specification(specification,program)
+    arguments = binders('ℝ', specification_body)
     output_type = result_type('ℝ',len(program.outputs))
     result += [f'noncomputable def specification {arguments} : {output_type} :=',
-               *['  '+line for line in lean_specification(specification,program)], '']
+               *['  '+line for line in specification_body], '']
     imports = ['public import Flare.Binary64.Value']
     if program.precision:
         imports += ['public import Flare.Binary32.Conversion']

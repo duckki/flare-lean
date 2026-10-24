@@ -92,6 +92,11 @@ jobs:
           --case mixed_stored --case mixed_calibrate --case mixed_normalized_residual
           --case mixed_storage_chain --case mixed_calibrate_tight --replay
           --out .cache/numerics-generated/bench-mixed-ci
+      - name: Check and replay concrete failure witnesses
+        run: >-
+          python3 scripts/benchmark_numerics.py
+          --case covariance_counterexample --case cancellation_counterexample --replay
+          --out .cache/numerics-generated/bench-counterexamples-ci
       - name: Check out pinned README demo source
         uses: actions/checkout@v5
         with:

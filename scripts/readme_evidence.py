@@ -6,8 +6,8 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from numerics.counterexample import certificate_source
-from numerics.workflow import ROOT, Runner, certify, dependencies, replay_run, save, sha
+from numerics.counterexample_run import ENTRY
+from numerics.workflow import ROOT, certify, dependencies, replay_run, save, sha
 
 
 FILTERPY_REVISION = '3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33'
@@ -37,23 +37,9 @@ def generate(filterpy, output):
     if [x['bound'] for x in result['outputs']] != EXPECTED_BOUNDS:
         raise ValueError('Checked bounds changed; review the README and its request together')
 
-    negative = output/'naive-covariance'
-    negative.mkdir()
-    shutil.copyfile(ROOT/'examples/numerics/naive_covariance.py', negative/'source.py')
-    proof = negative/'Failure.lean'
-    proof.write_text(certificate_source((negative/'source.py').read_text()))
-    Runner(negative, 300).run('lean-root-check', ['lake', 'env', 'lean', proof])
-    (negative/'report.md').write_text('''# Counterexample proved
-
-- Inputs: `p = 1`, `r = 2^-54`, within the requested finite input domain.
-- Binary64 posterior: `0`.
-- Exact posterior: `1 / (2^54 + 1) > 0`.
-- Requirement: strictly positive variance — violated.
-- Lean entry: `NaiveCovarianceFailure.failure`.
-
-This authored proof checks the admitted Python kernel and its exact reference.
-The source/frontend and runtime trust boundaries still apply.
-''')
+    negative = certify(ROOT/'examples/numerics/counterexamples/naive_covariance.json', output/'naive-covariance')
+    if negative['status'] != 'counterexample':
+        raise RuntimeError('Covariance witness did not check; inspect naive-covariance/report.md and runs/')
     (output/'README.md').write_text('''# README example evidence
 
 - `filterpy/report.md`: eight-update scalar error certificate and assumptions.
@@ -113,8 +99,12 @@ def check_bundle(bundle):
     negative = bundle/'naive-covariance'
     if (negative/'source.py').read_bytes() != (ROOT/'examples/numerics/naive_covariance.py').read_bytes():
         raise ValueError('Covariance source differs from the README example')
-    if (negative/'Failure.lean').read_text() != certificate_source((negative/'source.py').read_text()):
-        raise ValueError('Saved refutation does not match the admitted covariance source')
+    request = json.loads((negative/'request.json').read_text())
+    expected = json.loads((ROOT/'examples/numerics/counterexamples/naive_covariance.json').read_text())
+    expected['source'] = 'source.py'
+    result = json.loads((negative/'result.json').read_text())
+    if request != expected or result.get('status') != 'counterexample':
+        raise ValueError('Covariance evidence does not record the README positivity refutation')
 
 
 def replay(bundle, output):
@@ -123,12 +113,9 @@ def replay(bundle, output):
     check_bundle(bundle)
     output.mkdir(parents=True, exist_ok=False)
     positive = replay_run(bundle/'filterpy', output/'filterpy')
-    negative = output/'naive-covariance'
-    negative.mkdir()
-    shutil.copyfile(bundle/'naive-covariance/Failure.lean', negative/'Failure.lean')
-    Runner(negative, 300).run('lean-root-check', ['lake', 'env', 'lean', negative/'Failure.lean'])
+    negative = replay_run(bundle/'naive-covariance', output/'naive-covariance')
     result = {'status': 'replayed', 'filterpy': positive,
-              'counterexample_entry': 'NaiveCovarianceFailure.failure'}
+              'counterexample': negative, 'counterexample_entry': ENTRY}
     save(output/'replay.json', result)
     return result
 

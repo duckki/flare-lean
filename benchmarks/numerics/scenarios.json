@@ -360,6 +360,20 @@
       "expected": "budget_not_met",
       "optional": false,
       "family": "mixed_storage"
+    },
+    {
+      "name": "covariance_counterexample",
+      "request": "../../examples/numerics/counterexamples/naive_covariance.json",
+      "expected": "counterexample",
+      "optional": false,
+      "family": "counterexamples"
+    },
+    {
+      "name": "cancellation_counterexample",
+      "request": "../../examples/numerics/counterexamples/cancellation.json",
+      "expected": "counterexample",
+      "optional": false,
+      "family": "counterexamples"
     }
   ]
 }

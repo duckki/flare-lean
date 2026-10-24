@@ -193,13 +193,15 @@ freshly extracted return relation. Audit the root's transitive axioms: only
 `propext`, `Classical.choice` and `Quot.sound` are allowed. Preserve the declared
 frontend, runtime, translation and compiler/hardware trust boundaries.
 
-If the requested property is false, deliver a saved Lean counterexample with a
-named root proving an input satisfies the stated domain, the executable model's
-actual result, and violation of the required property against the independent
-reference. Audit its transitive axioms and replay the saved proof. Use the
-authored-proof guidance in [lean-conversion.md](references/lean-conversion.md);
-the automatic error-bound CLI has no counterexample status. A proof rejection
-or an upper bound above budget does not establish an attained failure.
+If a candidate input violates the requested property, read
+[counterexamples.md](references/counterexamples.md). The provider's witness route
+checks scalar strict-positivity or attained-error failures with
+`Workflow.Counterexample.counterexample`, report status `counterexample` and
+ordinary cold replay. Preserve the original domain, independent reference and
+requirement. For other properties use the authored-refutation guidance in
+[lean-conversion.md](references/lean-conversion.md), with a named, axiom-audited
+root and saved-proof replay. A proof rejection or an upper bound above budget
+does not establish an attained failure.
 
 Replay the saved Lean proof into a new directory without an analyzer, LLM or
 foreign prover. `audit` checks identity/freshness; it does not check mathematics.

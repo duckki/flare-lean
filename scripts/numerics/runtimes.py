@@ -37,7 +37,8 @@ def runtime_selection(program, request):
     kind = selection['kind'] if selection else next((x for x in allowed if shutil.which(x)), allowed[0])
     executable = shutil.which(selection.get('executable', kind) if selection else kind)
     if not executable:
-        raise RuntimeError(f'Missing source runtime {kind}; provide source_runtime.kind and executable or install it on PATH. Source-runtime validation cannot be replaced by graph execution.')
+        from .integration import ToolError
+        raise ToolError('missing_tool', f'Missing source runtime {kind}; provide source_runtime.kind and executable or install it on PATH. Source-runtime validation cannot be replaced by graph execution.')
     # Preserve launcher names: rustup chooses rustc from argv[0].
     return {'kind': kind, 'executable': str(Path(executable).absolute())}
 

@@ -70,8 +70,10 @@ delay implementing capabilities with clear acceptance cases.
   `budget_not_met` result with unchanged budgets. Large covariance/correction
   graphs remain analysis probes without source-program certificates. See the
   [scale guide](../benchmarks/numerics/README.md#increasing-scale).
-- The README's naive covariance example has an authored, replayable Lean
-  counterexample. The automatic error-bound CLI has no counterexample status yet.
+- The [counterexample request route](counterexamples.md) checks supplied scalar
+  witnesses for strict-positivity and attained-error failures. The README's
+  covariance example uses its generated Lean root, report and cold replay;
+  witness search and additional source/profile bridges remain open.
 
 These are scoped capabilities, not support for arbitrary programs in each
 language. Independent engineer reproduction remains a sharing follow-up; current
@@ -174,10 +176,11 @@ verify an arbitrary NumPy, BLAS or LAPACK call.
 
 ### Deliver
 
-- Add a maintained counterexample request/result path alongside certification.
-  Freeze an admissible witness, actual source-model execution, independent exact
-  reference and violated requirement in one Lean root. Counterexample search may
-  use external tools; a rejected proof or sampled failure is not that certificate.
+- Extend the maintained scalar counterexample request/result path to selected
+  additional profiles and search-tool candidates. It already freezes an admissible
+  witness, actual source-model execution, independent exact reference and violated
+  requirement in one Lean root, with ordinary report/replay and rejection controls.
+  Search may use external tools; a rejected proof or sampled failure is not that certificate.
 - Route obligations using declared source/property/arithmetic capabilities and
   explicit resource limits. Retain every attempt, its actual accepted claim and
   failure stage. Alternative producers cannot silently change the requirement.
@@ -246,8 +249,8 @@ evaluation project.
   contracts. Add MATLAB-compatible arrays and reusable Rust slice/state/error
   bridge generation from retained application gaps. Larger dense filters remain
   separate from the current two-state single-call certificate.
-- **First-class counterexample delivery.** Extend the authored counterexample
-  route into ordinary request/report/replay support, as proposed in milestone 14.
+- **Broader counterexample delivery.** Extend ordinary scalar witness delivery
+  to further source profiles, properties and inspected external search evidence.
   Require an admissible witness and a Lean-checked violation of the original
   requirement; proof rejection and sampled failures remain different outcomes.
 - **Held-out public applications.** Evaluate unfamiliar applications from several

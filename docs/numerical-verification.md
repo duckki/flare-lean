@@ -203,27 +203,30 @@ At original binary64 inputs `p = 1`, `r = 2^-54` (word
 is `p * r / (p + r) = 1 / (2^54 + 1) > 0`. These inputs satisfy the requested
 ranges, so this refutes strict positivity on that domain.
 
-The [maintained regression](../scripts/test_numerics_counterexamples.py) admits
+The [maintained witness regression](../scripts/test_numerics_witnesses.py) admits
 [the actual Python snippet](../examples/numerics/naive_covariance.py), generates
-its operation-ordered Lean kernel and proves `NaiveCovarianceFailure.failure`.
+its operation-ordered Lean kernel and proves `Workflow.Counterexample.counterexample`.
 The root includes the finite input/domain conditions, zero interpreted native
 output and positive exact reference. `decide +kernel` checks the closed native
 execution; no `native_decide` or additional numerical axiom is used. Its
 transitive axiom audit accepts only `propext`, `Classical.choice` and `Quot.sound`.
 The regression also replays the saved source and rejects a false output claim.
-The shared [authored argument](../scripts/numerics/counterexample.py) also supplies
-the downloadable README evidence.
+The shared [witness workflow](../scripts/numerics/counterexample_run.py) also
+supplies the downloadable README evidence, without an application-specific
+authored argument. Its [request](../examples/numerics/counterexamples/naive_covariance.json)
+retains the domain, exact reference, positivity requirement and input words.
 
 ```sh
 FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover \
-  -s scripts -p test_numerics_counterexamples.py -v
+  -s scripts -p test_numerics_witnesses.py -v
 ```
 
-This is an authored Lean counterexample route, with a named refutation theorem
-and an engineering report. The automatic error-bound CLI still reports
-`certified`, `budget_not_met` or `unresolved`; it does not emit a counterexample
-status or infer a bug from a rejected proof. The source/frontend and native
-runtime trust boundaries described above still apply.
+The ordinary CLI now has a `counterexample` result for a checked supplied witness,
+alongside `certified`, `budget_not_met` and `unresolved`. The
+[counterexample guide](counterexamples.md) describes strict-positivity and
+attained-absolute-error requests, reports and cold replay. There is no automatic
+witness search, and a rejected proof never implies a bug. The source/frontend
+and native runtime trust boundaries described above still apply.
 
 ## Replay the README examples
 
@@ -247,7 +250,7 @@ python3 scripts/readme_evidence.py replay \
 
 The output directory must be new and outside the frozen bundle. Success reports
 `"status": "replayed"`, with `Workflow.Certificate.certificate` for FilterPy and
-`NaiveCovarianceFailure.failure` for the counterexample. Replay verifies file
+`Workflow.Counterexample.counterexample` for the counterexample. Replay verifies file
 identities, checks that the saved source and contract match the examples, and
 recompiles both Lean roots with their transitive axiom audits. It needs Python
 and the built Lean library, without FilterPy dependencies or external numerical

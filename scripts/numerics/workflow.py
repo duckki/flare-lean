@@ -38,6 +38,8 @@ def prepare(path, *, replay=False):
     for field in ['source', 'function']:
         if not isinstance(request.get(field), str) or not request[field].strip():
             raise ValueError('Missing source selection: '+field)
+    if 'counterexample' in request and 'rust_application' in request:
+        raise Unsupported('Counterexamples currently admit closed scalar source, not Rust application bundles')
     for field, default in [('language', 'python'), ('backend', 'lean-flare'), ('target', 'lean')]:
         if not isinstance(request.get(field, default), str):
             raise ValueError('Expected string selector: '+field)
@@ -46,6 +48,10 @@ def prepare(path, *, replay=False):
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
     program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed'))
+    counterexample = 'counterexample' in request
+    if counterexample:
+        from .counterexample_run import validate_request
+        validate_request(request, program)
     if program.precision and (request.get('producer','lean-flare')!='lean-flare' or request.get('proof')
             or request.get('target','lean')!='lean' or request.get('rust_port')):
         raise Unsupported('Mixed storage currently uses automatic lean-flare validation and Lean delivery')
@@ -102,7 +108,14 @@ def prepare(path, *, replay=False):
         for i, target in enumerate(targets):
             if not isinstance(target, dict):
                 raise ValueError('Each output needs a name, unit and limit')
-            for field in ['name', 'unit', 'limit']:
+            positive = counterexample and target.get('property') == 'strict_positive'
+            if target.get('property', 'absolute_error') not in ('absolute_error', 'strict_positive'):
+                raise Unsupported('Unsupported output property')
+            if target.get('property', 'absolute_error') != 'absolute_error' and not counterexample:
+                raise Unsupported('Strict positivity currently uses the counterexample witness route')
+            if positive and 'limit' in target:
+                raise ValueError('Strict positivity has no error limit; use a separate absolute-error requirement')
+            for field in (['name', 'unit'] if positive else ['name', 'unit', 'limit']):
                 if not target.get(field):
                     questions.append({'field': f'outputs.{i}.{field}', 'question': f'What is output {i+1} {field}?'})
                 elif not isinstance(target[field], str) or not target[field].strip():
@@ -157,7 +170,7 @@ def prepare(path, *, replay=False):
         if any(not isinstance(x,str) or Q(x)<0 for x in authored['bounds']):
             raise ValueError('proof bounds must be nonnegative exact-rational strings')
     from .integration import validate
-    validate(request, program, require_adapters=not replay)
+    validate(request, program, require_adapters=not replay and not counterexample)
     return request, source, program, questions
 
 
@@ -382,6 +395,9 @@ def kernel_for_run(output, request, program):
 
 def certify(request_path, output):
     selection = json.loads(Path(request_path).read_text())
+    if isinstance(selection, dict) and 'counterexample' in selection:
+        from .counterexample_run import certify as certify_counterexample
+        return certify_counterexample(request_path, output)
     if isinstance(selection, dict) and 'rust_application' in selection:
         from .application import certify as certify_application
         return certify_application(request_path, output)
@@ -615,6 +631,11 @@ def replay_run(path, output, aeneas_lean_lib=None):
     """Replay saved Lean sources without a producer, source runtime, Rust extraction or LLM."""
     path=Path(path).resolve(); audit_run(path,frozen=True)
     selection = json.loads((path/'request.json').read_text())
+    if isinstance(selection, dict) and 'counterexample' in selection:
+        from .counterexample_run import replay
+        if aeneas_lean_lib is not None:
+            raise ValueError('--aeneas-lean-lib applies only to Rust-model replay')
+        return replay(path, output)
     if isinstance(selection, dict) and 'rust_application' in selection:
         from .application import replay as replay_application
         return replay_application(path, output, aeneas_lean_lib)
