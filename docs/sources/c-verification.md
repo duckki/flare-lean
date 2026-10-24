@@ -2,9 +2,9 @@
 
 FLARE's closed C11 profile connects original double-precision C functions to
 ordered Lean execution and numerical contracts. Start with the
-[skill profile](../skills/verify-numerics/references/c-source.md) for admission,
+[skill profile](../../skills/verify-numerics/references/c-source.md) for admission,
 request fields, caller premises and setup. The maintained
-[examples](../examples/numerics/c/README.md) cover scalar helpers, a buffer update,
+[examples](../../examples/numerics/c/README.md) cover scalar helpers, a buffer update,
 a by-value struct and a read-only reduction.
 
 ## One root for execution and accuracy
@@ -46,7 +46,7 @@ diagnostics use `-fno-fast-math -ffp-contract=off -fexcess-precision=standard`,
 `-O0`, `-O2` and address/undefined-behavior sanitizers. Reports retain compiler/SDK
 identities, modes and probes. Diagnostic samples do not prove compiler correctness
 or universal absence of undefined behavior; floating-point flags/traps are outside
-the contract. See the [profile guide](../skills/verify-numerics/references/c-source.md)
+the contract. See the [profile guide](../../skills/verify-numerics/references/c-source.md)
 for exact limits and rejected syntax.
 
 ## Frama-C/WP and Why3 evaluation
@@ -63,7 +63,7 @@ python3 scripts/export_c_vcs.py \
   --out /absolute/new/task-directory
 ```
 
-Read the [optional setup instructions](../skills/verify-numerics/references/tool-setup.md#optional-c-verification-task-tools)
+Read the [optional setup instructions](../../skills/verify-numerics/references/tool-setup.md#optional-c-verification-task-tools)
 when tools are missing. The exporter pins these task interfaces and invokes
 Why3's Z3 driver with a bounded prover timeout. Its `export.json` status is
 `task_evidence_only`, with `lean_proof_imported: false`; an exporter success means
@@ -77,8 +77,8 @@ for those theories, contract translation and checked proof steps. An SMT success
 flag or a translated task proposition supplies none of those. For this closed
 profile, direct source-derived conditions plus the existing Lean arithmetic
 checker give a reusable complete route within the stated boundary. Foreign
-proof evidence checking remains a separate [roadmap](roadmap.md) item. The
-[CBMC adapter](counterexamples.md#cbmc-witness-search) searches a separate scalar
+proof evidence checking remains a separate [roadmap](../roadmap.md) item. The
+[CBMC adapter](../integration/counterexamples.md#cbmc-witness-search) searches a separate scalar
 positivity profile; it does not establish C memory or access conditions.
 
 ## Regressions
@@ -93,4 +93,4 @@ Replay tests disable producers, compiler admission and Rust extraction.
 Original-source diagnostics were exercised with macOS ARM64 Clang 21 and Linux
 ARM64 GCC 13, at all three compiler modes. Lean certification and Rust extraction
 were exercised on macOS; GCC diagnostics alone are not a Linux Lean replay run.
-Use [development commands](development.md#c-source-regression-checks) to reproduce.
+Use [development commands](../development.md#c-source-regression-checks) to reproduce.

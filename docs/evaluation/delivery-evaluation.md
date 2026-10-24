@@ -1,11 +1,11 @@
 # Automated delivery evaluation
 
 The release checks retain unmodified Chemicals, NumPy and ROS sources, frozen
-contracts, [first attempts and needed assistance](../benchmarks/numerics/heldout/README.md).
+contracts, [first attempts and needed assistance](../../benchmarks/numerics/heldout/README.md).
 Their three positive certificates accompany the covariance failure and a separate
 ROS underflow counterexample. Reports, command receipts and portable bundles are
 retained under the ignored provider regression directory. Aggregate measurements
-are in [delivery-results.json](../benchmarks/numerics/delivery-results.json).
+are in [delivery-results.json](../../benchmarks/numerics/delivery-results.json).
 
 ## Completed platform checks
 
@@ -84,7 +84,7 @@ graphs; large matrix graphs retain their structural proof path and sharing.
 An independent engineer still needs to reproduce one positive certificate and
 one counterexample from their delivered reports/bundles, without session history.
 Agent-operated VM/container/native runs cannot satisfy that human step. The
-[delivery guide](automated-delivery.md) provides the commands and prerequisites.
+[delivery guide](../automated-delivery.md) provides the commands and prerequisites.
 
 Broader NumPy APIs, general C++ semantics, additional counterexample properties,
 Rust bridge generation and native binary32 arithmetic remain roadmap work. These

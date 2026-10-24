@@ -22,12 +22,12 @@ they are the subject of a correctness or error theorem.
 Use content-specific module names and matching `Flare` namespaces. Shared type
 methods may use their type's namespace. Add each library module to `Flare.lean`;
 use direct module imports within the library. Keep one Lake package and one
-`lean_lib`. See [the organization guide](docs/organization.md) for import boundaries.
+`lean_lib`. See [the organization guide](docs/library/organization.md) for import boundaries.
 Use `module`, `public import` for re-exports, and `@[expose] public section`
 for the existing public API and unfoldable definitions. Keep private helper
 specification rules local with `@[local spec]`.
 
-Potential [Mathlib contributions](docs/upstream/mathlib.md) are tracked
+Potential [Mathlib contributions](docs/library/mathlib.md) are tracked
 separately from the library's source organization. Add another destination
 only after identifying a concrete missing result that fits that project's
 definitions and scope. Keep one authoritative implementation of each result
@@ -48,7 +48,7 @@ in its subject module.
 4. **Proof dependencies.** No admitted proofs or additional axioms. The audit
    permits only `propext`, `Classical.choice`, and `Quot.sound`.
 5. **Documentation.** Describe exported guarantees and their limits. For imported
-   material, preserve attribution and update the [source manifest](docs/extraction-manifest.json).
+   material, preserve attribution and update the [source manifest](docs/library/extraction-manifest.json).
 
 AI generation does not establish novelty or upstream suitability. Lean checks
 the proof of the stated proposition; human review must still assess that

@@ -30,7 +30,7 @@ compiler/hardware correctness. Frozen replay reparses source and rechecks Lean
 without loading NumPy or running inference. An allowance above budget is not a
 counterexample.
 
-See [the profile guide](../../../docs/mixed-precision.md) and
+See [the profile guide](../../../docs/arithmetic/mixed-precision.md) and
 [maintained applications](../../../examples/numerics/mixed/README.md) for exact
 contracts, limits and reproducible commands. Application output locations follow
 the confirmed verification directory, with scratch beneath its `.cache/`.

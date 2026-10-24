@@ -84,7 +84,7 @@ profiles retain their existing identities and `fma: false` model.
 
 ## Maintained examples and rejection controls
 
-The [example family](../examples/numerics/fma/README.md) includes sensor calibration,
+The [example family](../../examples/numerics/fma/README.md) includes sensor calibration,
 a cancellation residual, a fused three-term dot product, a positive regularized
 reciprocal and calibration after an inexact reciprocal. Each has a checked Lean
 root and producer/runtime-free replay.
@@ -93,7 +93,7 @@ The residual compares against `x*x-1` near one. Explicit FMA certifies the fixed
 `10⁻²³` budget; the separate schedule retains its own source and the same budget,
 and returns `budget_not_met`. That status describes the checked allowance; it
 is not itself a Lean counterexample. Separate kernel-checked bit-pattern examples
-in [Tests/PublicAPI.lean](../Tests/PublicAPI.lean) establish that `(1+2⁻²⁷)*(1-2⁻²⁷)-1` is `-2⁻⁵⁴` with
+in [Tests/PublicAPI.lean](../../Tests/PublicAPI.lean) establish that `(1+2⁻²⁷)*(1-2⁻²⁷)-1` is `-2⁻⁵⁴` with
 FMA and `+0` with separate arithmetic.
 
 Controls reject wrong formats/models, shadowed/aliased imports, unsupported calls,

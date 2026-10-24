@@ -29,6 +29,6 @@ is not a counterexample certificate. Zero rounding allowances and substituting
 separate arithmetic under the FMA proof must be rejected by Lean.
 
 For the schema, proof assumptions, sample commands and retained cases, see
-[the profile guide](../../../docs/explicit-fma.md) and
+[the profile guide](../../../docs/arithmetic/explicit-fma.md) and
 [the example family](../../../examples/numerics/fma/README.md).
 Confirm application artifact locations using the main skill before creating them.

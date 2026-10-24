@@ -8,8 +8,8 @@ native operations from their real interpretations.
 
 ## What is proved
 
-The [explicit-FMA](explicit-fma.md), [square-root](square-root.md) and
-[mixed-storage](mixed-precision.md) guides
+The [explicit-FMA](../arithmetic/explicit-fma.md), [square-root](../arithmetic/square-root.md) and
+[mixed-storage](../arithmetic/mixed-precision.md) guides
 describe their source profiles, rounding/propagation proofs, runtime boundaries
 and retained applications.
 
@@ -40,7 +40,7 @@ conversions explicitly use the pinned rounding/packing definitions; rational/rea
 interpretations remain proof support.
 
 See the [theorem guide](reference.md) for declarations and their precise
-assumptions, and [using the library](using-library.md) for client setup. The
+assumptions, and [using the library](../using-library.md) for client setup. The
 agent workflow can apply supported contracts to application code; this summary
 does not imply automatic admission of arbitrary matrix or library calls.
 
@@ -61,21 +61,17 @@ flare-lean/
 │   └── PublicAPI.lean           # Client import and exported-definition checks
 ├── Lint.lean                    # Lake lint executable, outside the library
 ├── docs/
-│   ├── development.md           # Building, checking and changing FLARE
+│   ├── README.md                # Documentation index by subject
+│   ├── numerical-verification.md # User workflow, contracts and CLI
+│   ├── automated-delivery.md    # User setup, bundles and rechecking
 │   ├── using-library.md         # Importing FLARE from another Lean project
-│   ├── organization.md          # Results, layout and source attribution
-│   ├── numerical-verification.md # Workflow contracts and CLI
-│   ├── scientific-arrays.md     # NumPy/Julia collection roots and implementation boundaries
-│   ├── c-verification.md        # Closed C source, access/frame proofs and VC evaluation
-│   ├── tool-integration.md      # Adapter interfaces, evidence and validation
-│   ├── counterexamples.md      # Supplied witnesses, CBMC search and Lean refutations
-│   ├── automated-delivery.md   # Setup, source selection, bundles and rechecking
-│   ├── delivery-evaluation.md  # Tested applications/platforms and remaining gate
+│   ├── development.md           # Building, checking and changing FLARE
 │   ├── roadmap.md               # Planned capabilities and completion criteria
-│   ├── reference.md             # Theorem entry points and assumptions
-│   ├── upstream/
-│   │   └── mathlib.md           # Pure-mathematics contribution preparation
-│   └── extraction-manifest.json # Source revisions, file hashes and extraction notes
+│   ├── library/                 # Results, theorem reference, attribution and Mathlib work
+│   ├── sources/                 # Scientific arrays and closed C source profiles
+│   ├── arithmetic/              # FMA, square roots and mixed-storage contracts
+│   ├── integration/             # Tool adapters, proof evidence, witnesses and scaling
+│   └── evaluation/              # Application/platform evidence and release gates
 ├── scripts/
 │   ├── certify_numerics.py      # Provider CLI for original-input Lean certificates
 │   ├── numerics/               # Source adapters, proposals, Lean/Rust emission
@@ -135,16 +131,16 @@ separately from the source layout.
 
 ## Application verification tooling
 
-The [numerical workflow](numerical-verification.md) adds an engineer-facing skill
+The [numerical workflow](../numerical-verification.md) adds an engineer-facing skill
 and provider CLI beside the proof library. Python handles source admission,
 tool invocation and artifact retention; Lean checks numerical obligations and
 one root theorem. `Flare.Binary64.Pipeline` supplies reusable native/ideal
 contracts without importing application or extraction-tool code.
 `Flare.Binary64.Memory` supplies typed-cell access, separation and frame rules
-for the closed [C source route](c-verification.md); physical C objects and
+for the closed [C source route](../sources/c-verification.md); physical C objects and
 compiler fidelity remain outside those definitions.
 `Flare.Binary64.Collection` supplies typed shapes and collection operations for
-selected [scientific array APIs](scientific-arrays.md). Mathlib supplies their
+selected [scientific array APIs](../sources/scientific-arrays.md). Mathlib supplies their
 independent exact matrix references; the binary64 pipeline checks accumulated
 error. Source/library/compiler fidelity remains a declared boundary.
 
@@ -161,10 +157,10 @@ tool downloads use a versioned user cache outside the checkout.
 `tools/numerics/` contains only maintained revision records. External tool
 results are untrusted candidates until reconstructed in Lean. Their installation
 does not add a core Lake dependency.
-Provider adapter modules expose shared [tool integration](tool-integration.md):
+Provider adapter modules expose shared [tool integration](../integration/tool-integration.md):
 setup recipes, capabilities, execution, evidence and Lean validation. External
 producer output remains untrusted until the numerical conclusion is checked.
-The [counterexample path](counterexamples.md) also accepts untrusted scalar
+The [counterexample path](../integration/counterexamples.md) also accepts untrusted scalar
 witnesses, checks their original-domain execution and violated requirement in
 one Lean root, and uses the ordinary report/audit/replay interface. Witness
 search remains separate from proof checking.
@@ -179,7 +175,7 @@ not import an application's paper, session logs or historical roadmap. Public
 application evaluations in `benchmarks/numerics/heldout` retain pinned original
 sources/licenses, contracts, first-attempt outcomes and needed provider assistance;
 these are reproducible benchmark data rather than session transcripts. Portable
-delivery and setup/checking costs are described in [automated delivery](automated-delivery.md).
+delivery and setup/checking costs are described in [automated delivery](../automated-delivery.md).
 
 ## Dependency rules
 
@@ -232,12 +228,12 @@ library. `lake lint` includes the proof audit and a Lean-derived dependency chec
 covering all repository Lean files. Normal and extra Lean linters run as part of
 the incremental Lake build; only the audit is elaborated separately. `make check`
 adds formatting and tooling regression checks. See
-[the development guide](development.md) for details.
+[the development guide](../development.md) for details.
 
 ## Separating future contributions
 
 Pure mathematical candidates stay in `Analysis`, where they can be assessed
-without native Float dependencies. The [Mathlib guide](upstream/mathlib.md)
+without native Float dependencies. The [Mathlib guide](mathlib.md)
 records candidate areas and how to turn a result into an upstream change.
 
 Scalar results stay in `Binary32`/`Binary64`, shared format inference in
@@ -251,6 +247,11 @@ accepted result to an upstream import once the pinned dependency contains it,
 retaining a compatibility lemma only when needed by clients.
 
 ## Documentation and generated files
+
+Keep user-facing workflow, setup and library-use guides directly under `docs/`.
+Group detailed documentation by subject and list it in the
+[documentation index](../README.md). Keep this layout, the index and incoming
+links consistent when adding or moving a document.
 
 Module documentation describes the current API. Durable source attribution
 lives in the [source manifest](extraction-manifest.json) and the attribution

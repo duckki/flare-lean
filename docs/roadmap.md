@@ -24,25 +24,25 @@ delay implementing capabilities with clear acceptance cases.
   typed-cell heap execution join numerical accuracy in one Lean root. Scalar
   Rust delivery retains the real API; buffer delivery is currently Lean-only.
   Physical object validity and compiler/source mapping remain explicit premises
-  and trust boundaries. See the [C guide](c-verification.md).
-- A separate [explicit-FMA Python profile](explicit-fma.md) certifies sensor
+  and trust boundaries. See the [C guide](sources/c-verification.md).
+- A separate [explicit-FMA Python profile](arithmetic/explicit-fma.md) certifies sensor
   calibration, cancellation residuals, fused accumulation and reciprocal/FMA
   composition with one final rounding per `math.fma`. Its native rounding proof,
   numerical roots and cold replay are checked. It currently uses `lean-flare`
-  and Lean delivery. A [square-root source bridge](square-root.md) now certifies
+  and Lean delivery. A [square-root source bridge](arithmetic/square-root.md) now certifies
   standard deviation, regularized norms, normalized residuals and nested roots
   with checked endpoint/perturbation rules and explicit runtime/libm contracts.
-  A [mixed storage profile](mixed-precision.md) adds binary32 narrowing and exact
+  A [mixed storage profile](arithmetic/mixed-precision.md) adds binary32 narrowing and exact
   promotion around binary64 computation, including repeated storage and division.
   Shared format/packing/rounding inference proves both widths. Binary32 arithmetic,
   arbitrary dtype promotions and additional elementary functions remain open.
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
-  [tool integration](tool-integration.md). Gappa and FPTaylor share a proved
+  [tool integration](integration/tool-integration.md). Gappa and FPTaylor share a proved
   exact rational enclosure engine with power correlations and checked leaf
   premises. Square/quartic families and positive regularized denominators have
   maintained cases; foreign proof traces remain untrusted. See
-  [shared proof evidence](proof-evidence.md).
+  [shared proof evidence](integration/proof-evidence.md).
 - Charon/Aeneas supplies fresh Rust extraction. Reviewed bridges connect the
   actual extracted API to numerical contracts, including validation, integer
   timing, errors and decisions. General application bridges still need authored
@@ -52,7 +52,7 @@ delay implementing capabilities with clear acceptance cases.
   and reusable Rust delivery examples. The planar tracker composes two scalar
   filters; it is not a dense Kalman filter.
 - Fixed-shape Python list products have checked shapes, execution order and
-  entrywise error bounds. The separate [scientific profile](scientific-arrays.md)
+  entrywise error bounds. The separate [scientific profile](sources/scientific-arrays.md)
   certifies selected NumPy eager operations and ordinary Julia vector APIs, with
   typed tensor dimensions/storage, source execution and independent exact
   collection algebra. A two-state dense covariance/correction checks all six
@@ -65,12 +65,12 @@ delay implementing capabilities with clear acceptance cases.
 - Source-backed shared pipelines reach 1,024 arithmetic operation instances with
   local contract reuse after a caller changes. Counted-loop proofs stay compact;
   frozen-source replay recompiles saved modules without producers or the helper
-  cache. See the [scaling guide](scaling.md) for measurements and limits.
+  cache. See the [scaling guide](integration/scaling.md) for measurements and limits.
 - The 16/48-update Kalman cases certify; 128 updates reach a checked
   `budget_not_met` result with unchanged budgets. Large covariance/correction
   graphs remain analysis probes without source-program certificates. See the
   [scale guide](../benchmarks/numerics/README.md#increasing-scale).
-- The [counterexample request route](counterexamples.md) checks supplied scalar
+- The [counterexample request route](integration/counterexamples.md) checks supplied scalar
   witnesses for strict-positivity and attained-error failures. The README's
   covariance example uses its generated Lean root, report and cold replay;
   selected CBMC 6.11.0 search proposes strict-positivity witnesses that use the
@@ -108,7 +108,7 @@ in the arithmetic and source-coverage sections below.
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Automated setup, counterexamples and held-out checks pass; an independent engineer reproduces a positive root and counterexample |
 
 Setup, counterexamples and maintenance accompany each capability. The
-[delivery evaluation](delivery-evaluation.md) records completed automated checks
+[delivery evaluation](evaluation/delivery-evaluation.md) records completed automated checks
 and the remaining independent reproduction gate.
 
 No milestone requires integrating every candidate tool or supporting a complete
@@ -132,7 +132,7 @@ output. An external success verdict never discharges a Lean premise by itself.
 | VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | Future evidence work |
 
 Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
-The [C guide](c-verification.md) describes the export utility and why the current
+The [C guide](sources/c-verification.md) describes the export utility and why the current
 closed profile proves source-derived conditions directly in Lean. Task export
 is not a Lean adapter or a translation of JSON numerical requirements into ACSL.
 Useful foreign evidence checking still needs semantic bridges and a measured gap.
@@ -227,7 +227,7 @@ evaluation project.
   budget as a correlation target. Recheck actual candidates, corrupt rules and
   side conditions, and preserve producer-free replay for every extension.
 - **Further scaling and profile composition.** Extend the current
-  [source-backed workloads](scaling.md) toward 10,000 arithmetic operations,
+  [source-backed workloads](integration/scaling.md) toward 10,000 arithmetic operations,
   array dimensions 2/4/8/16/32 and 1/4/16 composed components, where contracts
   permit. Add input streams, time-varying invariants, typed profile composition
   and source-local failure diagnostics. Measure source admission, inference,
@@ -264,7 +264,7 @@ evaluation project.
   additional axioms; audit the final theorem's transitive dependencies.
 - Extract reusable semantics, soundness arguments and compositional contracts.
   Check FLARE/Mathlib before adding alternatives; track concrete upstream work in
-  [the Mathlib guide](upstream/mathlib.md).
+  [the Mathlib guide](library/mathlib.md).
 - Retain original source, provenance, domains, exact references, units, requirements,
   arithmetic models, tool identities and assistance records. Preserve production
   APIs and loops; keep verification drivers separate from Rust delivery.

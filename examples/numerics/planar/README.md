@@ -81,7 +81,7 @@ compiler correctness.
 
 `source/gh_filter.py` is the unchanged FilterPy file at revision
 `3b51149ebcff0401ff1e10bf08ffca7b6bbc4a33`; see `LICENSE-FilterPy` and the
-[extraction manifest](../../../docs/extraction-manifest.json). The Rust scalar
+[extraction manifest](../../../docs/library/extraction-manifest.json). The Rust scalar
 port preserves that selected constructor/update; the planar composition is new.
 The Python frontend is an explicit source-model trust boundary: ordinary fields,
 built-in floats, the selected original bodies and nonzero finite divisors.

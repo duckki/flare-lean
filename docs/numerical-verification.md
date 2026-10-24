@@ -62,11 +62,11 @@ driver states the verification horizon; unrolling remains internal to the model
 or proof. The CLI's automatic straight-line Rust emitter is a checker aid, not
 that reusable delivery.
 
-Explicit Python `math.fma` uses a separate [source/arithmetic profile](explicit-fma.md)
+Explicit Python `math.fma` uses a separate [source/arithmetic profile](arithmetic/explicit-fma.md)
 with CPython 3.13/3.14, `lean-flare` and Lean delivery. Its one-rounding native
 contract composes with ordinary separately rounded operations. The same source
-selector admits [math.sqrt](square-root.md), with checked nonnegative domains, rational root
-endpoints and incoming-error propagation. A separate [mixed-storage profile](mixed-precision.md)
+selector admits [math.sqrt](arithmetic/square-root.md), with checked nonnegative domains, rational root
+endpoints and incoming-error propagation. A separate [mixed-storage profile](arithmetic/mixed-precision.md)
 checks binary32 narrowing and exact promotion around binary64 computation. Further
 math functions, binary32 arithmetic, profile composition and primitive-aware Rust
 delivery need additional bridges.
@@ -108,7 +108,7 @@ the shape configuration, limits and maintained examples. Input lists are
 read-only. The separate scientific profile below covers selected NumPy calls
 and retained fixed-array Rust delivery; BLAS needs its own bridge.
 
-The [scientific array profile](scientific-arrays.md) admits selected eager
+The [scientific array profile](sources/scientific-arrays.md) admits selected eager
 NumPy operations and ordinary Julia vector functions/helpers with explicit
 indexed loops. Its typed tensor root checks dimensions/storage, source execution,
 returned component shapes, finiteness and all entrywise budgets against independent
@@ -118,7 +118,7 @@ fixed arrays and real loop. Runtime/library/source mapping remains trusted.
 NumPy reductions, BLAS, general broadcasting and Julia fused broadcast need
 separate semantics. Replay requires no scientific runtime.
 
-The closed [C11 double profile](c-verification.md) admits scalar helpers,
+The closed [C11 double profile](sources/c-verification.md) admits scalar helpers,
 by-value structs, fixed buffers and unsigned counted loops. Its Lean root adds
 source-derived access/counter conditions and checked heap execution/frame
 behavior to numerical accuracy. Callers supply live initialized aligned objects,
@@ -205,7 +205,7 @@ The README's standalone `posterior_variance` is the scalar compact update
 comes from `cancellationChecks` in the source Kalman worktree's
 `Kalman/Tests/FloatImplementations.lean`; its exact-positive reference is in
 `Kalman/Tests/Specification.lean`. Source hashes and the scalar adaptation are
-recorded in the [extraction manifest](extraction-manifest.json). This example
+recorded in the [extraction manifest](library/extraction-manifest.json). This example
 covers the displayed scalar snippet, without importing the full filter.
 
 At original binary64 inputs `p = 1`, `r = 2^-54` (word
@@ -233,7 +233,7 @@ FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover \
 
 The ordinary CLI has a `counterexample` result for a checked supplied witness,
 alongside `certified`, `budget_not_met` and `unresolved`. The
-[counterexample guide](counterexamples.md) describes strict-positivity and
+[counterexample guide](integration/counterexamples.md) describes strict-positivity and
 attained-absolute-error requests, reports and cold replay. Selected CBMC 6.11.0
 search can propose strict-positivity witnesses for small scalar graphs; the same
 Lean witness checker establishes any violation. No witness, a timeout or a
@@ -295,7 +295,7 @@ optional specification identity. This provides a path for reconstructing useful
 external arguments without trusting a printed bound or foreign theorem. See
 [Lean conversion](../skills/verify-numerics/references/lean-conversion.md).
 
-Gappa and FPTaylor have [registered producer adapters](tool-integration.md) with
+Gappa and FPTaylor have [registered producer adapters](integration/tool-integration.md) with
 shared source setup, capability records, bounded execution and evidence tied to
 the frozen source/contract. Their candidate conclusions feed reusable scalar
 validation: Lean proves Gappa's queried dyadic bound or FPTaylor's actual parsed
@@ -309,7 +309,7 @@ divisor floor. Exact rational proposals, polynomial rewrites and input splits
 are checked using native nearest-rounding theorems, Mathlib's algebraic rules and
 FLARE's proved rational enclosure inference.
 This closes the unchanged `2^-51` mean-update target and tiny-gain family. See the
-[validator limits](tool-integration.md#reusable-scalar-validation).
+[validator limits](integration/tool-integration.md#reusable-scalar-validation).
 
 PRECiSA now has a registered candidate adapter for small scalar graphs and the
 explicit [terminal-conditional profile](../skills/verify-numerics/references/conditionals.md).
@@ -334,7 +334,7 @@ and fresh Lean controls; optional Julia/Octave/Rust tools are tested separately.
 These tests exercise the skill's executable path and packaging. They are not
 an independent evaluation of agent behavior on new engineering tasks.
 
-The [delivery evaluation](delivery-evaluation.md) records automated clean-tool
+The [delivery evaluation](evaluation/delivery-evaluation.md) records automated clean-tool
 setup, public application checks, portable bundles and change-aware rechecking.
 Independent engineer reproduction remains its release gate. The
 [milestone plan](roadmap.md) tracks broader scientific APIs, shared evidence
@@ -348,7 +348,7 @@ scenarios as baselines and use feedback to prioritize additional applications.
 motion updates, the original 48-event Rust application proof bundle, and the original
 relative/global four-state covariance/correction graphs (7,758/7,761 operations).
 It also includes compact counted loops at 1/16/128/1,024 calls and shared
-source graphs with up to 1,024 arithmetic operations. The [scaling guide](scaling.md)
+source graphs with up to 1,024 arithmetic operations. The [scaling guide](integration/scaling.md)
 describes their invariant proofs, branch-local premises, maintenance reuse and
 cold replay measurements.
 The [benchmark guide](../benchmarks/numerics/README.md) defines the domains,
@@ -372,7 +372,7 @@ The scalar refinement route removes those particular grid losses for small
 supported graphs. The helper-composition route preserves shared native/exact
 functions and carries errors through larger Python folds. It certifies the
 16/48-update Kalman cases; 128 updates reach a checked result above the mean
-budget. See [helper composition](tool-integration.md#helper-and-loop-composition)
+budget. See [helper composition](integration/tool-integration.md#helper-and-loop-composition)
 for limits, explicit contract reuse and fresh replay.
 The nonlinear Kalman profiles use checked helper contracts rather than expanding
 the entire trajectory inside each proof. Resource failures remain unresolved

@@ -68,7 +68,7 @@ horizons. Keep an application's cache under its agreed verification directory.
 Cold replay recompiles saved proofs without inference, producers or helper-cache
 reuse, and regenerates the helper/model from frozen original source.
 
-See the provider's [scaling guide](https://github.com/duckki/flare-lean/blob/main/docs/scaling.md)
+See the provider's [scaling guide](https://github.com/duckki/flare-lean/blob/main/docs/integration/scaling.md)
 for smoothing and decay families, the larger shared source graph, measured costs
 and rejection controls. Preserve production loops when generating a Rust port;
 the existing explicit-port/application routes require their own source bridges.

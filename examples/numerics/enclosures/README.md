@@ -26,5 +26,5 @@ python3 scripts/benchmark_numerics.py --replay \
   --out .cache/numerics-generated/new-enclosure-suite
 ```
 
-The [shared evidence guide](../../../docs/proof-evidence.md) describes the proved
+The [shared evidence guide](../../../docs/integration/proof-evidence.md) describes the proved
 rule vocabulary, rejection controls and coverage/cost comparison.

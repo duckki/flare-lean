@@ -72,7 +72,7 @@ kinds. Saved-proof replay uses neither setup nor producers.
 For provider extensions, prefer another adapter, a reusable evidence checker or
 verified inference over per-application numerical proof patches. An adapter can
 emit a Lean proof module through the same typed root check. The
-[provider integration guide](https://github.com/duckki/flare-lean/blob/main/docs/tool-integration.md)
+[provider integration guide](https://github.com/duckki/flare-lean/blob/main/docs/integration/tool-integration.md)
 defines these interfaces and their tests.
 
 ## Shared enclosure inference
@@ -90,5 +90,5 @@ for that reciprocal is below the current reconstruction's allowance and remains
 unresolved; a successful Gappa/default route is a separate attempt.
 Saved typed Lean expressions replay without the producer or inference script.
 This is verified inference over retained candidate conclusions, not a Coq/PVS
-proof-trace importer. See the provider's `docs/proof-evidence.md` for maintained
+proof-trace importer. See the provider's `docs/integration/proof-evidence.md` for maintained
 cases, controls and measurements.

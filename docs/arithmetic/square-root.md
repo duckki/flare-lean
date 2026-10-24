@@ -3,7 +3,7 @@
 The restricted Python math profile certifies explicit `math.sqrt` calls, optionally
 combined with `math.fma` and ordinary scalar operations. It checks input domains,
 incoming errors, native square-root rounding and later operations in one Lean
-root. The [retained applications](../examples/numerics/sqrt/README.md) include
+root. The [retained applications](../../examples/numerics/sqrt/README.md) include
 standard deviation, regularized norms and a normalized residual.
 
 ## Select the source and primitive contract

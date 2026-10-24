@@ -24,5 +24,5 @@ python3 scripts/benchmark_numerics.py \
 ```
 
 Application destinations follow the skill's confirmed verification directory.
-See the [profile guide](../../../docs/mixed-precision.md) for exact scope and trust
+See the [profile guide](../../../docs/arithmetic/mixed-precision.md) for exact scope and trust
 boundaries, shared inference, model-backed conversions and rejection controls.

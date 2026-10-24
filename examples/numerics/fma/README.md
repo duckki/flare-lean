@@ -2,7 +2,7 @@
 
 These requests preserve each explicit `math.fma` rounding site and an independent
 exact specification. Use CPython 3.13/3.14 and the `lean-flare` producer.
-See the [profile and trust boundaries](../../../docs/explicit-fma.md).
+See the [profile and trust boundaries](../../../docs/arithmetic/explicit-fma.md).
 
 | Request | Property | Expected result |
 | --- | --- | --- |

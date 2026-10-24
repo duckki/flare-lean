@@ -51,7 +51,7 @@ python3 scripts/benchmark_numerics.py --case guarded_reciprocal \
 
 Output directories must be new. These paths are provider regressions; application
 artifacts and scratch use the engineer's confirmed verification directory.
-Shared Lake caching is optional and follows [the development guide](development.md#shared-build-cache).
+Shared Lake caching is optional and follows [the development guide](../development.md#shared-build-cache).
 
 `summary.json` records proposal/check times, graph sizes, expanded counted-loop
 work, Lean source bytes/module counts, reused modules and maximum reported check
@@ -101,11 +101,11 @@ the saved source proof even when development used compiled contract reuse.
 
 ## Scope and rejection controls
 
-The [counted-loop profile](../skills/verify-numerics/references/counted-loops.md)
+The [counted-loop profile](../../skills/verify-numerics/references/counted-loops.md)
 currently handles two states, fixed scalar configuration, and one helper call per
 `range(count)` iteration. It proposes a uniform invariant; general input streams,
 time-varying recurrences and arbitrary combinations with array/branch profiles
-remain open capabilities. The [guard-local profile](../skills/verify-numerics/references/conditionals.md#guard-local-arithmetic)
+remain open capabilities. The [guard-local profile](../../skills/verify-numerics/references/conditionals.md#guard-local-arithmetic)
 uses a direct input/literal comparison. Computed floating-point guards retain the
 separate four-flow route and its full-domain arithmetic premises.
 
@@ -120,4 +120,4 @@ probes. Those still have no source-program certificate. The 128-update Kalman ca
 retains its unchanged budgets and checked `budget_not_met` baseline; the new
 counted-loop examples do not establish a tighter bound for that application.
 Larger dimensions, 10,000-operation source graphs and broader source-profile
-composition remain [roadmap work](roadmap.md).
+composition remain [roadmap work](../roadmap.md).

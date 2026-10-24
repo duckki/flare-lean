@@ -115,5 +115,5 @@ Frozen replay reparses the saved source and recompiles saved Lean proofs without
 loading NumPy, running producers or repeating inference. Live freshness auditing
 checks recorded runtime identities; replay does not validate a changed runtime.
 
-See the [maintained cases](../examples/numerics/mixed/README.md) for domains,
+See the [maintained cases](../../examples/numerics/mixed/README.md) for domains,
 budgets and reproducible benchmark commands.

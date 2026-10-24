@@ -9,8 +9,8 @@ the application root check and saved-proof replay.
 Run `python3 scripts/certify_numerics.py capabilities` for the adapter records,
 supported versions, arithmetic constraints and source-setup recipes.
 Producer versions and setup sources are maintained in
-[`tools/numerics/producers.json`](../tools/numerics/producers.json); the CBMC
-release and setup assets are in [`tools/numerics/cbmc.json`](../tools/numerics/cbmc.json).
+[`tools/numerics/producers.json`](../../tools/numerics/producers.json); the CBMC
+release and setup assets are in [`tools/numerics/cbmc.json`](../../tools/numerics/cbmc.json).
 
 | Adapter | Role | Evidence and validation |
 | --- | --- | --- |
@@ -33,7 +33,7 @@ interface. This supports reusable translators and Lean inference procedures
 without changing orchestration. The emitted accuracy declaration must have the
 expected original-input type and its full dependencies pass the same axiom audit.
 The scalar and conditional validators are described below. Further tools follow the
-[roadmap integration plan](roadmap.md#integration-strategy).
+[roadmap integration plan](../roadmap.md#integration-strategy).
 
 ## Counterexample search
 
@@ -85,7 +85,7 @@ conditional with an ordered guard, up to 32 arithmetic nodes and an independent
 exact conditional reference. It uses the scalar arithmetic checker, then checks
 all four native/exact branch combinations with finite-order bridges and real
 inequalities. It never assumes branch stability. Both arms must satisfy arithmetic
-premises on the whole domain. See the [profile guide](../skills/verify-numerics/references/conditionals.md)
+premises on the whole domain. See the [profile guide](../../skills/verify-numerics/references/conditionals.md)
 for restrictions, including the current Lean-only delivery target.
 
 The separate `python_branches: {"domains": "guard"}` mode proves agreement for
@@ -110,7 +110,7 @@ The threshold gate uses PRECiSA's one-unit unstable-flow candidate; ignoring it
 or asserting stability fails Lean reconstruction. The continuous innovation
 example retains PRECiSA's conservative roughly 40 m bound as `budget_not_met`,
 while the default branch route proves the unchanged `10^-6` m allowance.
-See the [examples and commands](../examples/numerics/branches/README.md).
+See the [examples and commands](../../examples/numerics/branches/README.md).
 
 ## Helper and loop composition
 
@@ -172,11 +172,11 @@ then recompiles the proof and reconstructs its expected array root type. Wrong
 shapes, aliasing, indices and accumulation order have admission controls; false
 exact references and weakened roots have Lean rejection controls. This profile
 does not extend the Gappa/FPTaylor source or Rust extraction subsets. See the
-[array guide](../skills/verify-numerics/references/arrays.md) for configuration.
+[array guide](../../skills/verify-numerics/references/arrays.md) for configuration.
 
 ## C source conditions and optional foreign tasks
 
-The [C route](c-verification.md) reuses `lean-flare` numerical validation and
+The [C route](../sources/c-verification.md) reuses `lean-flare` numerical validation and
 adds source-derived access/counter proofs and an ordered typed-cell heap model.
 The root proves execution, frame behavior, finiteness, accuracy and budgets under
 the stated caller conditions. Physical C object validity and compiler/source
@@ -218,12 +218,12 @@ followed by the executable's parent directory.
 The ordinary and external-producer arithmetic model is separate binary64
 operations, nearest/even, gradual subnormals and no FMA or reassociation. An optional
 `arithmetic` object must match the model printed by `capabilities`. The separate
-[explicit-FMA Python profile](explicit-fma.md) uses `fma: "explicit"` with
-`lean-flare` and Lean delivery. The [square-root profile](square-root.md) adds
+[explicit-FMA Python profile](../arithmetic/explicit-fma.md) uses `fma: "explicit"` with
+`lean-flare` and Lean delivery. The [square-root profile](../arithmetic/square-root.md) adds
 an explicit correctly rounded function contract, checked endpoints and incoming
 error rules. External producers retain their current admission; these primitive
 models are not yet bridged to their exporters. The separate
-[mixed-storage profile](mixed-precision.md) similarly uses a declared binary32
+[mixed-storage profile](../arithmetic/mixed-precision.md) similarly uses a declared binary32
 narrowing/exact-promotion contract and Lean delivery; existing external exporters
 do not gain cast support from a format label.
 Gappa's exporter requires dyadic domain endpoints. Both exporters preserve the
@@ -274,14 +274,14 @@ Use `--make-arg 'NAME=value'` for an explicit Make override, such as an isolated
 compiler or Num include directory. Builds inherit the caller's environment;
 on macOS an explicit `DEVELOPER_DIR` is preserved. The PRECiSA recipe requires
 Linux, GHC 9.6.7, Cabal >=3.6.2.1 and C/C++ prerequisites; its
-[setup guide](../skills/verify-numerics/references/tool-setup.md#precisa) describes
+[setup guide](../../skills/verify-numerics/references/tool-setup.md#precisa) describes
 Ubuntu ARM64 setup. It builds the pinned Kodiak submodule and a hash-pinned
 filib++ archive. The upstream executable has no version command; the installed
 launcher reports recorded package/source identity. Admission checks the receipt,
 native binary and backend library hashes. The
-[bootstrap helper](automated-delivery.md#obtain-only-the-selected-tools) covers
+[bootstrap helper](../automated-delivery.md#obtain-only-the-selected-tools) covers
 Lean/provider setup and optional NumPy/pycparser. The
-[tool setup instructions](../skills/verify-numerics/references/tool-setup.md)
+[tool setup instructions](../../skills/verify-numerics/references/tool-setup.md)
 cover Charon/Aeneas and remaining prerequisites. No setup action itself establishes
 a numerical proof.
 

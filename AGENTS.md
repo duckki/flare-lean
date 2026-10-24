@@ -16,8 +16,8 @@
 - Use content-specific module names and match declaration namespaces to file
   paths. Shared type methods may use their type namespace. Do not add
   per-directory import aggregators; keep Flare.lean as the public entry point.
-- Follow docs/organization.md and CONTRIBUTING.md. Track potential Mathlib
-  work in docs/upstream/mathlib.md. Name another contribution destination only
+- Follow docs/library/organization.md and CONTRIBUTING.md. Track potential Mathlib
+  work in docs/library/mathlib.md. Name another contribution destination only
   for a concrete result that fits its definitions and scope. Keep theorem
   sources organized by subject, with one authoritative copy.
 - Keep source interpretations distinct from implementation adaptations. Cite
@@ -44,14 +44,16 @@
 - Run relevant checks and present a reviewable slice. Commit only when requested.
   After committing, stop unless the user authorized continuing.
 - Keep documentation consistent with actual exported results and proof status.
+  Keep user guides directly under docs/ and detailed documentation in its subject
+  directories; maintain docs/README.md and update incoming links when moving files.
   Use doc-gen4 and importGraph/Graphviz for generated documentation when needed;
   keep generated artifacts under ignored docs-generated/.
 - Format Lean with make fmt (pinned leanfmt, width 100). Run make check for
   formatting, linters, build, proof audit, and layout/import checks.
   Keep formatter exceptions limited to the affected syntax and explain why.
-  Keep docs/extraction-manifest.json
+  Keep docs/library/extraction-manifest.json
   accurate when importing additional source results. Never change a source
   project as a side effect of extracting into FLARE.
 - Keep public docs focused on the current library. Retain durable attribution
-  in docs/organization.md and the source manifest; omit session logs and inherited
+  in docs/library/organization.md and the source manifest; omit session logs and inherited
   application roadmaps.

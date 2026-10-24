@@ -32,7 +32,7 @@ search evidence. No new external tool or core Lake dependency is introduced.
 
 ## Useful correlations
 
-The [maintained examples](../examples/numerics/enclosures/README.md) include
+The [maintained examples](../../examples/numerics/enclosures/README.md) include
 squares, quartics and `1/(x*x+1)`. A naive product enclosure puts `x*x` in `[-1,1]`
 when `x ∈ [-1,1]`; it then loses the denominator floor. Power enclosure proves
 `x*x ∈ [0,1]`, and separately checked rounding allowances retain positive native
@@ -53,7 +53,7 @@ positive-floor contract, outside the expression interpreter.
 
 ## Run and replay
 
-Select the [example suite](../examples/numerics/enclosures/README.md) with
+Select the [example suite](../../examples/numerics/enclosures/README.md) with
 `benchmark_numerics.py --replay`. `--tools` supplies the pinned Gappa/FPTaylor
 installations; normal setup is described in [tool integration](tool-integration.md).
 The existing benchmark summary records accepted allowances, checking time,

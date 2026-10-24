@@ -196,19 +196,12 @@ Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
 
 ## Documentation
 
-- [Development: build, format and test](docs/development.md)
-- [Use FLARE as a Lean library](docs/using-library.md)
-- [Proved results, organization and attribution](docs/organization.md)
-- [Theorem reference](docs/reference.md)
 - [Verification workflow and limitations](docs/numerical-verification.md)
-- [Tools: producers, witness search and Lean validation](docs/tool-integration.md)
 - [Setup, portable delivery and rechecking](docs/automated-delivery.md)
-- [Tested applications, platforms and remaining release gate](docs/delivery-evaluation.md)
-- [Scientific arrays: NumPy, Julia and dense covariance updates](docs/scientific-arrays.md)
-- [C source: supported APIs, memory conditions and verification tasks](docs/c-verification.md)
-- [Scaling: counted loops, shared contracts and measurements](docs/scaling.md)
+- [Use FLARE as a Lean library](docs/using-library.md)
+- [Development: build, format and test](docs/development.md)
 - [Milestones toward broader applicability](docs/roadmap.md)
-- [Benchmarks](benchmarks/numerics/README.md)
+- [All documentation by subject](docs/README.md)
 - [Contributing](CONTRIBUTING.md)
 
 [GPL-3.0-only](LICENSE). Third-party dependencies retain their own licenses.

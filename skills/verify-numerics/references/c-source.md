@@ -101,4 +101,4 @@ or Lean proof importer. JSON numerical requests are retained for identity but
 are not translated to ACSL, so WP verdicts do not compare the same numerical
 target. The current route proves its own source-derived conditions and uses
 FLARE's reusable arithmetic validation. See the provider's
-[C guide](https://github.com/duckki/flare-lean/blob/main/docs/c-verification.md).
+[C guide](https://github.com/duckki/flare-lean/blob/main/docs/sources/c-verification.md).

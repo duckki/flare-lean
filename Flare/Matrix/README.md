@@ -19,4 +19,4 @@ Dimension, conditioning, gap, finiteness, and rounding assumptions remain
 explicit. PSD diagnostic acceptance is not an exact PSD certificate. These
 proofs do not automatically apply to a different BLAS or language implementation.
 
-See the [theorem guide](../../docs/reference.md) for entry points and limits.
+See the [theorem guide](../../docs/library/reference.md) for entry points and limits.

@@ -4,7 +4,7 @@
 live in `examples/numerics/`. These include reusable fixtures extracted from
 Kalman experiments and FLARE's fixed-shape array examples, rather than the
 paper or its frozen performance reports.
-The [source attribution](../../docs/organization.md#source-attribution) identifies their source.
+The [source attribution](../../docs/library/organization.md#source-attribution) identifies their source.
 
 ```sh
 make numerics-check  # Adapter, installation, producer-gap and fresh Lean controls
@@ -57,7 +57,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 Optional cases are excluded by default and marked separately in summaries.
 CI additionally builds the pinned Gappa/FPTaylor versions and selects
 `mean_update_gappa` / `mean_update_fptaylor`. See
-[tool integration](../../docs/tool-integration.md) for source setup, configuration,
+[tool integration](../../docs/integration/tool-integration.md) for source setup, configuration,
 adapter extension and the distinction between raw output and checked bounds.
 CI also retains the [shared power/enclosure families](../../examples/numerics/enclosures/README.md)
 through both real tools and replays their frozen proofs.
@@ -103,7 +103,7 @@ Controls reject casts, alias escape, wrong loop bounds, unsigned wrapping in
 floating expressions and out-of-bounds accesses. Lean rejects concrete overlap,
 false references and weakened roots; replay rejects resealed source-condition
 changes. Compiler admission, numerical producers and Rust extraction are disabled
-in replay tests. See the [C guide](../../docs/c-verification.md) for the physical
+in replay tests. See the [C guide](../../docs/sources/c-verification.md) for the physical
 object/source/compiler boundaries and separate optional WP/Why3 task evaluation.
 
 ### Array source scenarios
@@ -151,7 +151,7 @@ cover ordinary request/report/replay delivery, attained-error failures, domain
 and reference checks, pair outputs, signed zeros/subnormals, runtime mismatch,
 missing tools and independently rejected root/axiom tampering. The scenario
 runner retains `covariance_counterexample` and `cancellation_counterexample` as
-`counterexample` outcomes. See [the guide](../../docs/counterexamples.md).
+`counterexample` outcomes. See [the guide](../../docs/integration/counterexamples.md).
 
 ## Known analysis gaps and external fixtures
 
@@ -219,7 +219,7 @@ certification result. Expected admission/analysis gaps must match their stated
 reason, rather than passing because of an unrelated parser/setup/proof error.
 Warm local times are workload diagnostics, not a solver or agent ranking.
 Use `--replay` to record cold saved-proof replay separately from fresh
-certification and warm contract reuse. See the [scaling guide](../../docs/scaling.md)
+certification and warm contract reuse. See the [scaling guide](../../docs/integration/scaling.md)
 for focused commands, measured workloads and the distinction between lowered
 graph size and repeated counted-loop work.
 

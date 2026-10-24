@@ -13,8 +13,8 @@ budget remains `budget_not_met`; it does not establish an attained failure.
 ## Request
 
 Use the ordinary `numerics-request-v1` schema with a `counterexample` selection.
-For the [README covariance source](../examples/numerics/naive_covariance.py), the
-[complete request](../examples/numerics/counterexamples/naive_covariance.json) uses:
+For the [README covariance source](../../examples/numerics/naive_covariance.py), the
+[complete request](../../examples/numerics/counterexamples/naive_covariance.json) uses:
 
 ```json
 {
@@ -142,6 +142,6 @@ absolute-error search and further source/memory profiles need separate support.
 A retained ROS header case finds a positive subnormal degree input whose computed
 radians round to zero. This is a separate positivity contract; it does not change
 the held-out accuracy case's frozen domain or error requirement. See
-[delivery evaluation](delivery-evaluation.md) for evidence and
+[delivery evaluation](../evaluation/delivery-evaluation.md) for evidence and
 [CBMC's command interface](https://diffblue.github.io/cbmc/man/cbmc.html) for the
 external tool's trace and floating-point options.

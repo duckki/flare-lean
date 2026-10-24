@@ -45,7 +45,7 @@ python3 "$FLARE_ROOT/scripts/certify_numerics.py" setup \
 
 This verifies the official release digest and extracts into user scope with
 `dpkg-deb`; it does not install a system package. Other OS distributions need a
-compatible selected installation. See [counterexamples](counterexamples.md).
+compatible selected installation. See [counterexamples](integration/counterexamples.md).
 Charon/Aeneas setup and proof-model identities follow the skill's
 [tool guide](../skills/verify-numerics/references/tool-setup.md).
 
@@ -126,7 +126,7 @@ Authored proofs, retained Rust ports, crate files and nested component contracts
 are compared by content rather than original path. A changed Aeneas proof model
 requires fresh verification. An unchanged model can be relocated without its
 translator. Changed application source needs a fresh extraction/run; the existing
-component/contract proof cache reuses unaffected work. See [scaling](scaling.md).
+component/contract proof cache reuses unaffected work. See [scaling](integration/scaling.md).
 
 A CLI `run` rejected before source admission retains the original request,
 `admission.json` and a report when its requested output directory is new. It also
@@ -153,7 +153,7 @@ without session history. Record that person's result separately. Agent-driven
 VM/container/native runs establish automated reproduction, not this human step.
 
 Current platform evidence and remaining release gates are in
-[the delivery evaluation](delivery-evaluation.md). Full source-language support,
+[the delivery evaluation](evaluation/delivery-evaluation.md). Full source-language support,
 general C++ semantics and arbitrary NumPy/library calls are outside these cases.
 
 ## Reference equality and resource bounds

@@ -55,8 +55,8 @@ domain before applying a result. Native `Float` operations and their real
 interpretations are distinct; exceptional values and signed zero require the
 stated interpretation rules.
 
-Use the [theorem guide](reference.md) to find entry points and the
-[organization guide](organization.md) for subject areas and dependency rules.
+Use the [theorem guide](library/reference.md) to find entry points and the
+[organization guide](library/organization.md) for subject areas and dependency rules.
 The Lean declarations give the complete contracts. A theorem about a Lean
 algorithm does not by itself verify an unrelated Python, Rust or BLAS
 implementation; that requires an explicit correspondence argument or the

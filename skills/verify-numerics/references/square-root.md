@@ -26,7 +26,7 @@ metadata; preflight and source/IR samples are diagnostics. Do not claim that Lea
 verified CPython/libm implementation correctness. Frozen replay rechecks the Lean
 model and numerical root without invoking that runtime or inference.
 
-See [the profile guide](../../../docs/square-root.md) and
+See [the profile guide](../../../docs/arithmetic/square-root.md) and
 [the application family](../../../examples/numerics/sqrt/README.md) for exact scope,
 measurements, controls and reproducible commands. External producers and Rust
 extraction do not yet have this function bridge.

@@ -85,4 +85,4 @@ and a direct floating literal in the guard (no unary minus), scalar return
 expressions, the `lean` target and `lean-flare`. It does not silently assume stability for a computed
 floating-point guard: those continue to use the separate four-flow profile.
 The independent exact conditional reference, root audit and producer-free replay
-requirements are the same. See the [scaling examples](https://github.com/duckki/flare-lean/blob/main/docs/scaling.md).
+requirements are the same. See the [scaling examples](https://github.com/duckki/flare-lean/blob/main/docs/integration/scaling.md).

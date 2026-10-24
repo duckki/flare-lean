@@ -1,7 +1,7 @@
 # Square-root applications
 
 These original scalar Python kernels use explicit `math.sqrt` calls and an
-independent exact reference. Use the [square-root profile](../../../docs/square-root.md)
+independent exact reference. Use the [square-root profile](../../../docs/arithmetic/square-root.md)
 with CPython 3.13/3.14, `lean-flare` and Lean delivery.
 
 | Request | Checked behavior | Expected result |

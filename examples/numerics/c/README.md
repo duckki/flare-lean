@@ -32,6 +32,6 @@ extent, with required writable-region separation. Parsing, typed-cell mapping
 and compiler/runtime fidelity remain trusted. The Lean model proves conditional
 access/frame behavior; source samples and sanitizers are diagnostics. See the
 [C profile](../../../skills/verify-numerics/references/c-source.md) and
-[VC evaluation](../../../docs/c-verification.md) for scope and optional foreign
+[VC evaluation](../../../docs/sources/c-verification.md) for scope and optional foreign
 task export. Source ACSL is inspected by WP; JSON numerical budgets are checked
 by FLARE and are not automatically ACSL contracts.

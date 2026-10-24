@@ -8,4 +8,4 @@
 The first request uses the original [README snippet](../naive_covariance.py).
 Both use ordinary source admission, a separate independent reference, a generated
 Lean root and cold replay. They are concrete violations, not upper allowances
-above budget. See [the guide](../../../docs/counterexamples.md).
+above budget. See [the guide](../../../docs/integration/counterexamples.md).

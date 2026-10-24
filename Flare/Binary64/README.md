@@ -15,4 +15,4 @@ Modules may import Analysis and Binary64 modules, together with Lean's
 `Init`/`Std` and Mathlib. They must remain independent of matrix algorithms
 and future interoperability modules.
 
-See the [theorem guide](../../docs/reference.md) for entry points and domains.
+See the [theorem guide](../../docs/library/reference.md) for entry points and domains.

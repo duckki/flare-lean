@@ -128,7 +128,7 @@ Maintain one skill at `skills/verify-numerics`, the provider CLI/adapters under
 external tools outside core Lake dependencies. Read
 [the workflow guide](numerical-verification.md) for certification boundaries
 and [the benchmark guide](../benchmarks/numerics/README.md) for scenarios.
-The [tool integration guide](tool-integration.md) describes adapter extension,
+The [tool integration guide](integration/tool-integration.md) describes adapter extension,
 shared setup, versioned obligations/evidence and independent validation.
 
 Finish `make check` or `lake build` before starting numerical certification or
@@ -159,7 +159,7 @@ Locally, set `FLARE_CBMC` to the selected executable to enable these real-tool
 tests. The [delivery guide](automated-delivery.md) covers its setup recipe and
 `scripts/release_numerics.py`, which checks retained Python/NumPy/C++ cases,
 counterexamples, portable bundles and change-aware rechecking. Platform evidence
-and the independent engineer gate are in the [delivery evaluation](delivery-evaluation.md).
+and the independent engineer gate are in the [delivery evaluation](evaluation/delivery-evaluation.md).
 Optional runtimes and Rust extraction are selected separately with local tool
 paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set
@@ -182,7 +182,7 @@ explicit `contract_cache` under their agreed verification directory instead.
 
 Pass `--replay` to the benchmark runner to check each saved root again without
 producers or compiled helper reuse and record its elapsed cost. The
-[scaling guide](scaling.md) gives focused counted-loop, shared-graph and
+[scaling guide](integration/scaling.md) gives focused counted-loop, shared-graph and
 guard-local commands. Ordinary `make check` runs their fast admission/word tests;
 `make numerics-check` additionally runs fresh proofs, replay and rejection controls.
 
@@ -232,7 +232,7 @@ python3 scripts/benchmark_numerics.py --replay --case c_mean_update_rust \
 The Rust case additionally needs the selected Charon/Aeneas tools/model. Tests
 reject unsupported casts/alias escape/loop forms, false references, concrete
 region overlap, resealed VCs, weakened roots and a changed Rust port. The actual
-C functions run at O0/O2 and with ASan/UBSan. See the [C guide](c-verification.md)
+C functions run at O0/O2 and with ASan/UBSan. See the [C guide](sources/c-verification.md)
 for supported syntax, typed-cell assumptions and optional task export.
 
 ## Scientific collection regression checks
@@ -260,7 +260,7 @@ invalid indices, altered native schedules, false references, changed runtime
 libraries and a weakened shape/execution root. Cold replay disables producers,
 NumPy/Julia admission and extraction. Rust source retains its actual API/loop;
 only the authored proof expands the two-element iteration. See the
-[scientific guide](scientific-arrays.md) for implementation boundaries.
+[scientific guide](sources/scientific-arrays.md) for implementation boundaries.
 
 ## Shared enclosure regression checks
 
@@ -270,12 +270,12 @@ interface; `make numerics-check` exercises correlated powers, positive native
 and exact denominator floors, corrupted rules/rewrites/leaf bounds, and frozen
 replay. Real Gappa/FPTaylor selections additionally certify the square/quartic
 family through the same engine and retain each tool's actual candidate.
-See [proof evidence](proof-evidence.md) for the supported vocabulary and commands.
+See [proof evidence](integration/proof-evidence.md) for the supported vocabulary and commands.
 
 ## Explicit FMA regression checks
 
 Use CPython 3.13/3.14 with `math.fma`; CI selects 3.14. The
-[explicit-FMA profile](explicit-fma.md) uses the standard library and Lean, with
+[explicit-FMA profile](arithmetic/explicit-fma.md) uses the standard library and Lean, with
 no additional analyzer. After the library build finishes, run:
 
 ```sh
@@ -294,7 +294,7 @@ ties and overflow cancellation in the kernel.
 
 ## Square-root regression checks
 
-The [square-root profile](square-root.md) needs CPython 3.13/3.14 and no external
+The [square-root profile](arithmetic/square-root.md) needs CPython 3.13/3.14 and no external
 analyzer. After the library build finishes, run:
 
 ```sh
@@ -312,7 +312,7 @@ platform/library identities, zero/subnormal domains and producer/runtime-free re
 
 ## Mixed-storage regression checks
 
-The [mixed-storage profile](mixed-precision.md) uses CPython 3.13/3.14 and NumPy
+The [mixed-storage profile](arithmetic/mixed-precision.md) uses CPython 3.13/3.14 and NumPy
 2.4.0. After the library build finishes, run:
 
 ```sh
@@ -331,7 +331,7 @@ underflow in the kernel; exact widening is proved for every finite binary32 inpu
 
 ## Counterexample regression checks
 
-The [scalar witness route](counterexamples.md) uses ordinary source-runtime
+The [scalar witness route](integration/counterexamples.md) uses ordinary source-runtime
 admission and no external analyzer. After the library build finishes, run:
 
 ```sh

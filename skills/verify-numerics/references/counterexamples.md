@@ -48,5 +48,5 @@ profiles, use the authored-refutation guidance in
 [lean-conversion.md](lean-conversion.md) and report authored coverage explicitly.
 
 Read the provider's
-[counterexample guide](https://github.com/duckki/flare-lean/blob/main/docs/counterexamples.md)
+[counterexample guide](https://github.com/duckki/flare-lean/blob/main/docs/integration/counterexamples.md)
 for the complete request, current profile limits and rejection controls.
