@@ -15,6 +15,10 @@ jobs:
       MATHLIB_NO_CACHE_ON_UPDATE: "1"
     steps:
       - uses: actions/checkout@v5
+      - name: Select Python with explicit math.fma
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
       - name: Install pinned C parser
         run: python3 -m pip install --no-deps --target "$HOME/.cache/flare/pycparser-3.0" pycparser==3.0
       - name: Install pinned NumPy runtime
@@ -68,6 +72,13 @@ jobs:
           --case regularized_gain_gappa --replay
           --tools .cache/numerics-generated/ci-tools/tools.json
           --out .cache/numerics-generated/bench-external-ci
+      - name: Certify and replay explicit FMA schedules
+        run: >-
+          python3 scripts/benchmark_numerics.py
+          --case fma_calibrate --case fma_residual --case fma_regularized_gain
+          --case fma_fused_dot3 --case fma_reciprocal_calibrate
+          --case fma_separate_residual --replay
+          --out .cache/numerics-generated/bench-fma-ci
       - name: Check out pinned README demo source
         uses: actions/checkout@v5
         with:

@@ -24,6 +24,11 @@ def expression(node, ideal=False, rust=False):
         if ideal:
             return real(Q.from_float(number(node.bits)))
         return repr(number(node.bits)) if rust else f"Float.ofBits {node.bits}"
+    if node.op == "fma":
+        a, b, c = node.args
+        if rust:
+            raise ValueError('Explicit FMA Rust delivery requires a separate extraction bridge')
+        return f"({a} * {b} + {c})" if ideal else f"Float.fma {a} {b} {c}"
     if node.op == "neg":
         return f"(-{node.args[0]})"
     symbol = {"add": "+", "sub": "-", "mul": "*", "div": "/"}[node.op]

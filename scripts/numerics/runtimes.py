@@ -87,11 +87,40 @@ def admit_runtime(program, request, output, work, runner):
     runtime['qualification'] = 'Actual selected interpreter; runtime/compiler semantics remain trusted. Octave is not evidence of MATLAB runtime execution.'
     if program.language=='c':
         runtime['qualification']='Actual selected C compiler and SDK; compiler/runtime fidelity remains trusted. c-runtime.json records original-source compiler modes, flags and sanitizer configuration.'
+    if program.math:
+        admit_math(runtime)
     if program.scientific:
         from .scientific_runtime import admit as admit_scientific
         admit_scientific(program,runtime)
     save(output/'source-runtime.json', runtime)
     return runtime
+
+
+def admit_math(runtime):
+    """Admit an actual CPython/math implementation; these checks are diagnostics."""
+    import math
+    import platform
+    from .integration import ToolError
+    from .workflow import sha
+    if platform.python_implementation() != 'CPython' or sys.version_info[:2] not in ((3,13),(3,14)):
+        raise ToolError('unsupported_tool_version','python_math requires CPython 3.13 or 3.14')
+    if not callable(getattr(math,'fma',None)):
+        raise ToolError('missing_tool','The selected Python math library has no fma')
+    a, b = 1.0+2.0**-27, 1.0-2.0**-27
+    tiny = float.fromhex('0x0.0000000000001p-1022')
+    # Variables keep the nearest-rounding probe out of Python constant folding.
+    one, half_ulp = float.fromhex('0x1p0'), float.fromhex('0x1p-53')
+    if (math.fma(a,b,-1.0) != -2.0**-54 or a*b-1.0 != 0.0 or
+            math.fma(tiny,one,0.0) != tiny or one+half_ulp != one or
+            word(math.fma(-0.0,1.0,-0.0)) != 1 << 63):
+        raise ToolError('unsupported_arithmetic','Explicit FMA/nearest/subnormal preflight failed')
+    library=Path(getattr(math,'__file__','')).resolve()
+    if not library.is_file():
+        raise ToolError('unsupported_tool_version','python_math requires a file-backed math extension identity')
+    runtime['libraries']=[{'name':'CPython math','version':platform.python_version(),
+                           'files':{str(library):sha(library)}}]
+    runtime['math_profile']='python-math-fma-v1'
+    runtime['qualification']='CPython math.fma single-rounding contract; sampled preflight and binary identities do not prove runtime/libm/hardware correspondence to Lean.'
 
 
 def julia_driver(program, root):

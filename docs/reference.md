@@ -32,7 +32,7 @@ The pinned Lean source is the definition of the logical machine operations:
 
 | Module | Entry points | Scope |
 | --- | --- | --- |
-| `Binary64.Nearest` | `add_error_nearest`, `sub_error_nearest`, `mul_error_nearest`, `div_error_nearest` | Finite operands; exact-result magnitude ≤ 2^1000; division also requires a nonzero interpreted divisor |
+| `Binary64.Nearest` | `add_error_nearest`, `sub_error_nearest`, `mul_error_nearest`, `div_error_nearest`, `fma_error_nearest` | Finite operands; exact-result magnitude ≤ 2^1000; division also requires a nonzero interpreted divisor |
 | `Binary64.Sqrt` | `sqrt_error_nearest` | Every finite nonnegative operand, including zero and positive subnormals |
 | `Binary64.Pipeline` | `Bounds`, `NativeBounds`, `native_add`, `native_mul`, `native_div`, `native_ideal_refine` | Composable magnitude/error summaries; finite native operations, explicit rounding profiles and positive native/ideal divisor floors; incoming errors are carried forward |
 | `Binary64.Collection` | `Tensor`, `binary`, `transpose`, `outer`, `binary_size`, `transpose_size`, `outer_size` | Explicit dimensions and row-major binary64 cells; scalar/equal-shape operations and size rules; source/implementation fidelity is a separate bridge boundary |

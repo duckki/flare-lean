@@ -176,7 +176,7 @@ def analyze_box(program, domain):
                 parent = polys[node.args[0]]
                 polys[node.name] = multiply(constant(-1), parent) if parent is not None else None
         else:
-            left, right = node.args
+            left, right, *tail = node.args
             a, b = summaries[left], summaries[right]
             if node.op == 'div':
                 lower, exact_lower = b.c-b.w, b.c-b.w-b.e
@@ -190,12 +190,22 @@ def analyze_box(program, domain):
                 operation = multiply if node.op == 'mul' else lambda x, y: add(x, y, -1 if node.op == 'sub' else 1)
                 for polys in [native, ideal]:
                     x, y = polys[left], polys[right]
-                    polys[node.name] = operation(x, y) if x is not None and y is not None else None
+                    if node.op == 'fma':
+                        z = polys[tail[0]]
+                        polys[node.name] = add(multiply(x, y), z) if all(p is not None for p in [x,y,z]) else None
+                    else:
+                        polys[node.name] = operation(x, y) if x is not None and y is not None else None
                 pre = native[node.name]
-                cap = magnitude(pre, ranges) if pre is not None else (a.cap*b.cap if node.op == 'mul' else a.cap+b.cap)
-                if node.op == 'mul':
+                if node.op == 'fma':
+                    c = summaries[tail[0]]
+                    raw = Bound(a.c*b.c+c.c, a.w*b.cap+abs(a.c)*b.w+c.w,
+                                a.i*b.i+c.i, a.e*b.cap+a.i*b.e+c.e)
+                    cap = magnitude(pre, ranges) if pre is not None else a.cap*b.cap+c.cap
+                elif node.op == 'mul':
+                    cap = magnitude(pre, ranges) if pre is not None else a.cap*b.cap
                     raw = Bound(a.c*b.c, a.w*b.cap+abs(a.c)*b.w, a.i*b.i, a.e*b.cap+a.i*b.e)
                 else:
+                    cap = magnitude(pre, ranges) if pre is not None else a.cap+b.cap
                     raw = Bound(a.c+(-b.c if node.op == 'sub' else b.c), a.w+b.w, a.i+b.i, a.e+b.e)
                 zero = node.op == 'add' and b.c == b.w == 0
             if cap > Q(2)**1000:
@@ -307,11 +317,12 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 proof = f'by simpa only [neg_neg, neg_zero, neg_div] using (native_neg b_{node.args[0]})'
                 lines += [f'  have b_{name} : {target} := {proof}']
                 if step['native'] is not None:
+                    identity = (f'((congrArg Neg.neg {parent_native[0]}).trans (by ring))'
+                                if parent_native else '(by ring)')
                     lines += [f'  have p_{name} : value {name} = {render(horner(step["native"]))} := by',
-                              f'    conv_lhs => rw [(Flare.Binary64.Order.neg_value _ b_{node.args[0]}.finite).2]',
-                              *([f'    conv_lhs => simp only [{", ".join(parent_native)}]'] if parent_native else []), '    ring']
+                              f'    exact (Flare.Binary64.Order.neg_value _ b_{node.args[0]}.finite).2.trans {identity}']
             else:
-                left, right = node.args
+                left, right, *tail = node.args
                 pre = expression(node, ideal=True)
                 pre = re.sub(r'\b[an]\d+\b', lambda match: '(value '+match[0]+')', pre)
                 lines += [f'  have m_{name} : |{pre}| ≤ {real(cap)} := by']
@@ -334,6 +345,10 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                     elif node.op == 'mul':
                         lines += [f'    exact (abs_product (native_bound b_{left}.bounds)',
                                   f'      (native_bound b_{right}.bounds)).trans (by norm_num)']
+                    elif node.op == 'fma':
+                        lines += [f'    exact ((abs_add_le _ _).trans (add_le_add',
+                                  f'      (abs_product (native_bound b_{left}.bounds) (native_bound b_{right}.bounds))',
+                                  f'      (native_bound b_{tail[0]}.bounds))).trans (by norm_num)']
                     else:
                         den = summaries[right]
                         lines += [f'    have low : {real(den.c-den.w)} ≤ value {right} := by',
@@ -349,7 +364,9 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                     divisor = ''
                     if node.op == 'div':
                         divisor = f' (by have h := (abs_le.mp b_{right}.bounds.centre).1; intro hz; rw [hz] at h; norm_num at h)'
-                    lines += [f'  have q_{name} := Flare.Binary64.Nearest.{node.op}_error_nearest _ _ b_{left}.finite b_{right}.finite'+divisor,
+                    operands = ('_ _ _ '+f'b_{left}.finite b_{right}.finite b_{tail[0]}.finite' if node.op == 'fma'
+                                else f'_ _ b_{left}.finite b_{right}.finite')
+                    lines += [f'  have q_{name} := Flare.Binary64.Nearest.{node.op}_error_nearest '+operands+divisor,
                               f'    (m_{name}.trans (by norm_num))',
                               f'  have r_{name} : |value {name} - {pre}| ≤ {real(rho)} := by',
                               f'    apply q_{name}.2.trans',
@@ -383,7 +400,9 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                     operands = f'b_{left}.bounds b_{right}.bounds'
                     if node.op == 'div':
                         operands += ' (by norm_num) (by norm_num)'
-                    lines += [f'  have raw_{name} := rounded ({node.op}_bounds {operands}) r_{name}',
+                    bounds = (f'add_bounds (mul_bounds {operands}) b_{tail[0]}.bounds' if node.op == 'fma'
+                              else f'{node.op}_bounds {operands}')
+                    lines += [f'  have raw_{name} := rounded ({bounds}) r_{name}',
                               f'  have b_{name} : {target} := ⟨q_{name}.1, weaken raw_{name}',
                               '    (by norm_num) (by norm_num) (by norm_num)⟩']
         terms = []

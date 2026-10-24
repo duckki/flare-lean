@@ -66,3 +66,43 @@ example (x : ℝ) (hx : -2 ≤ x ∧ x ≤ 3) : 0 ≤ x ^ 2 ∧ x ^ 2 ≤ 9 := b
     (by dsimp only [Expr.check, Expr.enclosure, v]; decide +kernel)
   norm_num only [Expr.eval, v, Rat.cast_zero, Rat.cast_ofNat] at h
   exact h
+
+#check Flare.Binary64.Nearest.fma_error_nearest
+
+-- One final rounding retains a residual that separate multiplication loses.
+example
+    : (Float.fma (Float.ofBits 4607182418833571840) (Float.ofBits 4607182418732908544)
+        (-1.0)).toBits
+      = 13587360075776786432 := by
+  decide +kernel
+
+example
+    : ((Float.ofBits 4607182418833571840) * (Float.ofBits 4607182418732908544) - 1.0).toBits
+      = 0 := by
+  decide +kernel
+
+-- Signed zero and the smallest subnormal are checked in the logical model.
+example : (Float.fma (-0.0) 1.0 (-0.0)).toBits = 9223372036854775808 := by
+  decide +kernel
+
+example : (Float.fma (Float.ofBits 1) 1.0 0.0).toBits = 1 := by
+  decide +kernel
+
+-- FMA can cancel an exact product that would overflow if rounded separately.
+example
+    : (Float.fma (Float.ofBits 9218868437227405311) (Float.ofBits 4607182418800017409)
+        (-(Float.ofBits 9218868437227405311))).isFinite
+      = true := by
+  decide +kernel
+
+example
+    : ((Float.ofBits 9218868437227405311) * (Float.ofBits 4607182418800017409)).isFinite
+      = false := by
+  decide +kernel
+
+-- Underflow halfway cases round to the even subnormal significand.
+example : (Float.fma (Float.ofBits 1) 0.5 0.0).toBits = 0 := by
+  decide +kernel
+
+example : (Float.fma (Float.ofBits 3) 0.5 0.0).toBits = 2 := by
+  decide +kernel

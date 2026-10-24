@@ -45,7 +45,10 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'))
+    if program.math and (request.get('producer','lean-flare') != 'lean-flare' or request.get('proof')
+                         or request.get('target','lean') != 'lean' or request.get('rust_port')):
+        raise Unsupported('Explicit FMA currently uses automatic lean-flare validation and Lean delivery')
     if program.scientific:
         if request.get('producer','lean-flare')!='lean-flare' or request.get('proof'):
             raise Unsupported('Scientific arrays currently use automatic lean-flare validation')
@@ -384,7 +387,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -417,6 +420,10 @@ def certify(request_path, output):
             'The selected runtime/compiler/hardware implements separate nearest/even binary64 operations with gradual underflow, no FMA or reassociation.',
             'The exact specification and engineering domain require review. Physical/model uncertainty and calls beyond this frozen bounded computation are excluded.'],
         'source_assurance':FRONTENDS[program.language].assurance}
+    if program.math:
+        result['scope']='One restricted Python scalar kernel with explicit math.fma calls, separately rounded ordinary operations and finite binary64 inputs.'
+        result['arithmetic_profile']=program.math
+        result['assumptions'][1]='CPython math.fma implements IEEE binary64 single-rounding fused multiply-add; ordinary operators remain separate nearest/even operations with gradual underflow and no implicit fusion or reassociation. Runtime, platform math library and hardware fidelity remain trusted.'
     if request.get('python_method'):
         result['scope']='A frozen finite horizon of the selected original Python method body on the configured scalar state and fixed binary64 attributes.'
         result['assumptions'].append('The caller invokes the selected original method body on an ordinary instance with the configured scalar fields and omitted optional gains. Module initialization, construction and dynamic dispatch are outside this certificate.')

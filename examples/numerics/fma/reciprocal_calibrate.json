@@ -1,0 +1,31 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "reciprocal_calibrate",
+  "python_math": true,
+  "domain": {
+    "x": [
+      "1",
+      "2"
+    ],
+    "gain": [
+      "1/2",
+      "2"
+    ],
+    "offset": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "gain/x+offset"
+  ],
+  "outputs": [
+    {
+      "name": "reciprocal_calibrate",
+      "unit": "1",
+      "limit": "1/10000000000000"
+    }
+  ]
+}

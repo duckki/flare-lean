@@ -241,6 +241,48 @@
       "expected": "certified",
       "optional": true,
       "family": "shared_enclosures"
+    },
+    {
+      "name": "fma_calibrate",
+      "request": "../../examples/numerics/fma/calibrate.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "explicit_fma"
+    },
+    {
+      "name": "fma_residual",
+      "request": "../../examples/numerics/fma/residual.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "explicit_fma"
+    },
+    {
+      "name": "fma_regularized_gain",
+      "request": "../../examples/numerics/fma/regularized_gain.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "explicit_fma"
+    },
+    {
+      "name": "fma_fused_dot3",
+      "request": "../../examples/numerics/fma/fused_dot3.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "explicit_fma"
+    },
+    {
+      "name": "fma_reciprocal_calibrate",
+      "request": "../../examples/numerics/fma/reciprocal_calibrate.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "explicit_fma"
+    },
+    {
+      "name": "fma_separate_residual",
+      "request": "../../examples/numerics/fma/separate_residual.json",
+      "expected": "budget_not_met",
+      "optional": false,
+      "family": "explicit_fma"
     }
   ]
 }

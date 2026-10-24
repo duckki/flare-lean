@@ -8,9 +8,12 @@ native operations from their real interpretations.
 
 ## What is proved
 
+The [explicit-FMA guide](explicit-fma.md) describes its source profile, rounding
+proof, runtime boundary and retained kernels.
+
 | Area | Representative results |
 | --- | --- |
-| Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, and positive square-root squared residuals |
+| Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, explicit single-rounding FMA, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, and positive square-root squared residuals |
 | Binary64 collections | Typed dimensions/cells, separately rounded eager operations, transpose/outer semantics and size rules; selected NumPy/Julia source bridges live in the provider |
 | Typed binary64 memory | Checked array-cell access, region bounds/separation and frame rules; physical C object representation is outside these definitions |
 | Dense matrices | Finite storage, multiplication accuracy, LDLᵀ factorization, successful positive-definite solves, substitution and residual bounds, and two-state rounded Gram word symmetry |

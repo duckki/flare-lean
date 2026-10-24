@@ -131,6 +131,10 @@ and [the benchmark guide](../benchmarks/numerics/README.md) for scenarios.
 The [tool integration guide](tool-integration.md) describes adapter extension,
 shared setup, versioned obligations/evidence and independent validation.
 
+Finish `make check` or `lake build` before starting numerical certification or
+replay in the same checkout. Those checks read compiled library artifacts;
+rebuilding dependencies concurrently can invalidate their module imports.
+
 Run `make numerics-check` for fresh Lean certification/replay and rejection
 controls, and `make numerics-bench` for the default end-to-end scenarios. Use
 `make numerics-scale` for increasing bounded-loop and larger-model workloads. CI
@@ -261,3 +265,23 @@ and exact denominator floors, corrupted rules/rewrites/leaf bounds, and frozen
 replay. Real Gappa/FPTaylor selections additionally certify the square/quartic
 family through the same engine and retain each tool's actual candidate.
 See [proof evidence](proof-evidence.md) for the supported vocabulary and commands.
+
+## Explicit FMA regression checks
+
+Use CPython 3.13/3.14 with `math.fma`; CI selects 3.14. The
+[explicit-FMA profile](explicit-fma.md) uses the standard library and Lean, with
+no additional analyzer. After the library build finishes, run:
+
+```sh
+FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_fma
+python3 scripts/benchmark_numerics.py \
+  --case fma_calibrate --case fma_residual --case fma_regularized_gain \
+  --case fma_fused_dot3 --case fma_reciprocal_calibrate \
+  --case fma_separate_residual --replay \
+  --out .cache/numerics-generated/fma-regression
+```
+
+The tests distinguish missing runtimes, unsupported models, invalid numerical
+proofs and the separate schedule's checked allowance above budget. The public
+Lean API tests also compute FMA/separate bit differences, signed zero, subnormal
+ties and overflow cancellation in the kernel.

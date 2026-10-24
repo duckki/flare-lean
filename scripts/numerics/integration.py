@@ -22,6 +22,13 @@ ARITHMETIC = {
 }
 
 
+EXPLICIT_FMA_ARITHMETIC = {**ARITHMETIC, 'fma':'explicit'}
+
+
+def arithmetic(program):
+    return EXPLICIT_FMA_ARITHMETIC if program.math else ARITHMETIC
+
+
 def digest(record):
     return hashlib.sha256(json.dumps(record, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
@@ -65,9 +72,11 @@ def select(name, role, program, request):
 
 
 def validate(request, program, require_adapters=True):
-    model = request.get('arithmetic', ARITHMETIC)
-    if model != ARITHMETIC or any(type(model[key]) is not type(value) for key, value in ARITHMETIC.items()):
-        raise Unsupported('Unsupported arithmetic model; require separate nearest/even binary64 with gradual underflow')
+    expected = arithmetic(program)
+    model = request.get('arithmetic', expected)
+    if model != expected or any(type(model[key]) is not type(value) for key, value in expected.items()):
+        fusion = 'explicit FMA' if program.math else 'separate operations with FMA disabled'
+        raise Unsupported('Unsupported arithmetic model; require nearest/even binary64 with gradual underflow and '+fusion)
     producer = request.get('producer', 'lean-flare')
     if not isinstance(producer, str):
         raise ValueError('producer must name an adapter')
@@ -94,7 +103,7 @@ def obligation(program, request, source_sha256):
     return {'schema': 'numerics-obligation-v1', 'source_sha256': source_sha256,
             'program': json.loads(json.dumps(program.record())), 'domain': request['domain'],
             'specification': request['specification'], 'outputs': request['outputs'],
-            'arithmetic': dict(ARITHMETIC)}
+            'arithmetic': dict(arithmetic(program))}
 
 
 @dataclass
@@ -128,7 +137,7 @@ class Session:
         save(self.output/'evidence.json', self.evidence)
 
     def record(self, adapter, details):
-        self.evidence['records'].append({**adapter.record(), 'details': details})
+        self.evidence['records'].append({**adapter.record(), 'arithmetic':dict(arithmetic(self.program)), 'details': details})
         self.save()
 
     def execute(self, name, role, **arguments):

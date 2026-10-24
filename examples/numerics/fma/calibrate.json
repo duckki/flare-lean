@@ -1,0 +1,31 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "calibrate",
+  "python_math": true,
+  "domain": {
+    "reading": [
+      "-10",
+      "10"
+    ],
+    "gain": [
+      "1/2",
+      "2"
+    ],
+    "offset": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "reading*gain+offset"
+  ],
+  "outputs": [
+    {
+      "name": "calibrate",
+      "unit": "1",
+      "limit": "1/10000000000000"
+    }
+  ]
+}

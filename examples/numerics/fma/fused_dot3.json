@@ -1,0 +1,43 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "fused_dot3",
+  "python_math": true,
+  "domain": {
+    "x0": [
+      "-1",
+      "1"
+    ],
+    "w0": [
+      "-1",
+      "1"
+    ],
+    "x1": [
+      "-1",
+      "1"
+    ],
+    "w1": [
+      "-1",
+      "1"
+    ],
+    "x2": [
+      "-1",
+      "1"
+    ],
+    "w2": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "x0*w0+x1*w1+x2*w2"
+  ],
+  "outputs": [
+    {
+      "name": "fused_dot3",
+      "unit": "1",
+      "limit": "1/10000000000000"
+    }
+  ]
+}

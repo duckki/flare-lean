@@ -202,11 +202,14 @@ version or changed selected hash has a distinct `failure_kind`.
 For FPTaylor data, an explicit `base` takes precedence over `FPTAYLOR_BASE`,
 followed by the executable's parent directory.
 
-The common arithmetic model is separate binary64 operations, nearest/even,
-gradual subnormals and no FMA or reassociation. An optional `arithmetic` object
-must match the full model printed by `capabilities`. Gappa's initial exporter
-requires dyadic domain endpoints. Both exporters preserve the ordered admitted
-graph and use exact constants; Lean still checks its independent specification.
+The ordinary and external-producer arithmetic model is separate binary64
+operations, nearest/even, gradual subnormals and no FMA or reassociation. An optional
+`arithmetic` object must match the model printed by `capabilities`. The separate
+[explicit-FMA Python profile](explicit-fma.md) uses `fma: "explicit"` with
+`lean-flare` and Lean delivery; external producers retain their current admission.
+Gappa's exporter requires dyadic domain endpoints. Both exporters preserve the
+ordered admitted graph and use exact constants; Lean still checks its independent
+specification.
 
 Run the maintained cases with configured tools:
 

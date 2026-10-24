@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "residual",
+  "python_math": true,
+  "domain": {
+    "x": [
+      "134217727/134217728",
+      "134217729/134217728"
+    ]
+  },
+  "specification": [
+    "x*x-1"
+  ],
+  "outputs": [
+    {
+      "name": "residual",
+      "unit": "1",
+      "limit": "1/100000000000000000000000"
+    }
+  ]
+}

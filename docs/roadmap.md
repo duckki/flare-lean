@@ -25,6 +25,11 @@ delay implementing capabilities with clear acceptance cases.
   Rust delivery retains the real API; buffer delivery is currently Lean-only.
   Physical object validity and compiler/source mapping remain explicit premises
   and trust boundaries. See the [C guide](c-verification.md).
+- A separate [explicit-FMA Python profile](explicit-fma.md) certifies sensor
+  calibration, cancellation residuals, fused accumulation and reciprocal/FMA
+  composition with one final rounding per `math.fma`. Its native rounding proof,
+  numerical roots and cold replay are checked. It currently uses `lean-flare`
+  and Lean delivery; binary32 and source-level elementary functions remain open.
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
   [tool integration](tool-integration.md). Gappa and FPTaylor share a proved
@@ -68,8 +73,8 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Broaden arithmetic models.** Add mixed binary32/binary64 semantics, explicit
-   FMA and implementation-specific function contracts on retained applications.
+1. **Broaden arithmetic models.** Add mixed binary32/binary64 semantics, extend
+   explicit FMA coverage and add function contracts on retained applications.
 2. **Broaden scientific code and automated delivery.** Extend actual library/API
    bridges where applications require them. Broaden Rust correspondence-proof
    generation, counterexamples, setup and maintenance.
@@ -90,6 +95,8 @@ The next implementation milestone is 13.
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
 Milestone 13 progresses per arithmetic feature once its semantic bridge is ready.
+Explicit binary64 FMA is delivered; mixed precision and function-using source
+profiles remain required to close it.
 Setup, counterexamples and maintenance work from 14 accompanies every milestone;
 a separate integration test closes 14.
 
@@ -162,14 +169,19 @@ verify an arbitrary NumPy, BLAS or LAPACK call.
 
 ## 13. Cover more arithmetic models
 
-### Deliver
+### Remaining work
+
+Explicit binary64 FMA has a native single-rounding proof, restricted Python source
+profile, maintained applications, checked roots, frozen replay and rejection
+controls. See the [guide](explicit-fma.md). Complete the milestone with:
 
 - Add explicit binary32 and mixed binary32/binary64 semantics, promotion/narrowing
   rules and reusable error propagation. Formats are independent capabilities;
   parsed source types or a tool's format flag do not establish their Lean bridge.
-- Add explicit fused multiply-add as a distinct source operation and rounding
-  contract. Keep existing separately rounded schedules intact. Unrequested
-  reassociation or optimization remains outside the original-source claim.
+- Broaden the delivered explicit FMA bridge to other source/delivery and producer
+  profiles when applications require them. Keep existing separately rounded
+  schedules intact. Unrequested reassociation or optimization remains outside
+  the original-source claim.
 - Prioritize square root, then selected elementary functions from application
   needs. Distinguish mathematical function bounds, rounded primitive semantics
   and a particular platform/library implementation. Connect any analyzer models

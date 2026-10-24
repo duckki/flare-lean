@@ -60,6 +60,11 @@ driver states the verification horizon; unrolling remains internal to the model
 or proof. The CLI's automatic straight-line Rust emitter is a checker aid, not
 that reusable delivery.
 
+Explicit Python `math.fma` uses a separate [source/arithmetic profile](explicit-fma.md)
+with CPython 3.13/3.14, `lean-flare` and Lean delivery. Its one-rounding native
+contract composes with ordinary separately rounded operations. Other math
+functions, mixed precision and FMA Rust delivery need additional bridges.
+
 ## What completion means
 
 One named root, `Workflow.Certificate.certificate`, quantifies over the original

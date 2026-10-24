@@ -46,6 +46,7 @@ import Flare.Binary64.Nearest
 
 #check Flare.Binary64.Nearest.add_error_nearest
 #check Flare.Binary64.Nearest.div_error_nearest
+#check Flare.Binary64.Nearest.fma_error_nearest
 ```
 
 Theorems retain explicit assumptions about finiteness, magnitudes, dimensions

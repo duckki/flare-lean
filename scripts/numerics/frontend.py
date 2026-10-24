@@ -1,6 +1,6 @@
 """Restricted source adapters. Each parser and runtime mapping is a trust boundary."""
 import ast
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Callable
 
 from .graph import Graph, Node, Program, Unsupported, number, word
@@ -21,17 +21,22 @@ def return_annotation(annotation):
                 and all(float_annotation(x) for x in annotation.slice.elts)))
 
 
-def python_frontend(source, function, trace=None, max_outputs=2):
+def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile=False):
     tree = ast.parse(source)
     statements = [x for x in tree.body if not (
         isinstance(x, ast.Expr) and isinstance(x.value, ast.Constant)
         and isinstance(x.value.value, str))]
+    if math_profile:
+        imports = [x for x in statements if isinstance(x, ast.Import)]
+        if len(imports) != 1 or len(imports[0].names) != 1 or imports[0].names[0].name != 'math' or imports[0].names[0].asname:
+            raise Unsupported('python_math requires exactly import math without aliases')
+        statements = [x for x in statements if x is not imports[0]]
     if not statements or any(not isinstance(x, ast.FunctionDef) for x in statements):
         raise Unsupported('Expected numerical functions; imports and module execution are unsupported')
     functions = {fn.name: fn for fn in statements}
     if len(functions) != len(statements) or function not in functions:
         raise Unsupported('Function names must be distinct and the selected function must exist')
-    if set(functions)&{'float','tuple','__builtins__'}:
+    if set(functions)&({'float','tuple','__builtins__','math'} if math_profile else {'float','tuple','__builtins__'}):
         raise Unsupported('Numerical functions must not shadow annotation types or builtins')
     arguments = {}
     local_names = {}
@@ -57,6 +62,13 @@ def python_frontend(source, function, trace=None, max_outputs=2):
     work = 0
 
     def values(node):
+        if math_profile and isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            if (not isinstance(node.func.value, ast.Name) or node.func.value.id != 'math'
+                    or node.func.attr != 'fma' or 'math' in local_names[active[-1]]
+                    or node.keywords or len(node.args) != 3):
+                raise Unsupported('Only unshadowed math.fma(x, y, z) calls are admitted')
+            args = [graph.floating(expression(x)) for x in node.args]
+            return [graph.emit('fma', args)]
         if isinstance(node, ast.Tuple):
             return [expression(x) for x in node.elts]
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
@@ -65,6 +77,8 @@ def python_frontend(source, function, trace=None, max_outputs=2):
                 raise Unsupported('Only calls to unshadowed local numerical helpers are admitted')
             args = [expression(x) for x in node.args]
             return call(name, args)
+        if isinstance(node, ast.Call):
+            raise Unsupported('Only admitted numerical helper or explicit math.fma calls are supported')
         return [expression(node)]
 
     def expression(node):
@@ -154,7 +168,12 @@ def python_frontend(source, function, trace=None, max_outputs=2):
     if len(graph.nodes) > 10000:
         raise Unsupported('Bounded source expansion exceeds the admitted work limit')
     compile(tree,'<admitted-numerical-source>','exec')
-    return graph.finish(outputs, max_outputs=max_outputs)
+    program = graph.finish(outputs, max_outputs=max_outputs)
+    if math_profile:
+        if not any(n.op == 'fma' for n in program.nodes) or len(program.nodes) > 32:
+            raise Unsupported('python_math requires explicit FMA and at most 32 IR nodes')
+        program = replace(program, math={'schema':'python-math-fma-v1','operations':['fma']})
+    return program
 
 
 @dataclass(frozen=True)
@@ -198,7 +217,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, explicit math.fma, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -206,7 +225,12 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None, python_math=None):
+    if python_math is not None:
+        if (python_math is not True or language != 'python' or any(x is not None for x in
+                (python_method,python_arrays,python_branches,python_counted,scientific_arrays))):
+            raise Unsupported('python_math requires true on its own ordinary Python scalar profile')
+        return python_frontend(source,function,math_profile=True)
     if scientific_arrays is not None:
         if language not in ('python','julia') or any(x is not None for x in (python_method,python_arrays,python_branches,python_counted)):
             raise Unsupported('scientific_arrays uses its own Python/Julia source profile')
@@ -261,6 +285,9 @@ def execute(program, arguments):
             value = -xs[0]
         elif n.op in ('select_lt', 'select_le'):
             value = xs[2] if (xs[0] < xs[1] if n.op == 'select_lt' else xs[0] <= xs[1]) else xs[3]
+        elif n.op == 'fma':
+            import math
+            value = math.fma(*xs)
         elif n.op == 'add':
             value = xs[0] + xs[1]
         elif n.op == 'sub':

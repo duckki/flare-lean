@@ -80,6 +80,10 @@ mapping from actual source to executable model explicit. If support cannot be
 completed, report the unresolved construct or obligation; do not substitute a
 hand-rewritten surrogate and claim to have verified the original implementation.
 
+For explicit Python `math.fma`, read [explicit-fma.md](references/explicit-fma.md).
+Select its source/arithmetic profile; preserve one final rounding per explicit
+call and two sites for ordinary multiply/add. Do not insert fusion into a port.
+
 For a multi-module Rust API with validation, slices, enums/results, integer time
 or mutation, read [rust-applications.md](references/rust-applications.md). Use a
 reviewed application contract and fresh extraction; cover error returns and

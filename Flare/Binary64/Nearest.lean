@@ -64,6 +64,86 @@ theorem model_mul_nearest (a b : Float.Model) (x y : Rat)
   rw [hs, hvalue, ← habs] at herr
   exact ⟨q, hq, herr⟩
 
+/-- Explicit fused multiply-add rounds the exact product and sum once. The bound
+uses the final magnitude, including cancellation; the product need not fit in
+binary64 on its own. All three operands must be finite. -/
+theorem model_fma_nearest (a b c : Float.Model) (x y z : Rat)
+    (ha : Flare.Binary64.Model.Value.toRational a = some x)
+    (hb : Flare.Binary64.Model.Value.toRational b = some y)
+    (hc : Flare.Binary64.Model.Value.toRational c = some z)
+    (hbound : |x * y + z| ≤ (2 : Rat) ^ (1000 : Int))
+    : ∃ q,
+        Flare.Binary64.Model.Value.toRational (a.fma b c) = some q
+        ∧ |q - (x * y + z)|
+          ≤ (2 : Rat) ^ (-53 : Int) * (|x * y + z| + (2 : Rat) ^ (-1022 : Int)) := by
+  have hpos : (0 : Rat) ≤ (2 : Rat) ^ (-53 : Int) * (|x * y + z| +
+      (2 : Rat) ^ (-1022 : Int)) :=
+    mul_nonneg (by norm_num) (add_nonneg (abs_nonneg _) (by norm_num))
+  rcases Flare.Binary64.Model.Arithmetic.unpack_cases a x ha with
+    ⟨sa, hua, rfl⟩ | ⟨sa, ma, ea, hma, hua, rfl⟩
+  · refine ⟨z, ?_, by simpa using hpos⟩
+    change Flare.Binary64.Model.Value.toRational (Float.Model.pack
+      (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)) = _
+    rw [hua]
+    rcases Flare.Binary64.Model.Arithmetic.unpack_cases b y hb with
+      ⟨sb, hub, rfl⟩ | ⟨sb, mb, eb, hmb, hub, rfl⟩ <;>
+      rcases Flare.Binary64.Model.Arithmetic.unpack_cases c z hc with
+        ⟨sc, huc, rfl⟩ | ⟨sc, mc, ec, hmc, huc, rfl⟩ <;> rw [hub, huc]
+    · simp only [UnpackedFloat.fma]
+      all_goals cases sa <;> cases sb <;> cases sc <;> rfl
+    · simpa only [UnpackedFloat.fma, ← huc,
+        Flare.Binary64.Model.Rounding.pack_unpack_rational] using hc
+    · simp only [UnpackedFloat.fma]
+      all_goals cases sa <;> cases sb <;> cases sc <;> rfl
+    · simpa only [UnpackedFloat.fma, ← huc,
+        Flare.Binary64.Model.Rounding.pack_unpack_rational] using hc
+  · rcases Flare.Binary64.Model.Arithmetic.unpack_cases b y hb with
+      ⟨sb, hub, rfl⟩ | ⟨sb, mb, eb, hmb, hub, rfl⟩
+    · refine ⟨z, ?_, by simpa using hpos⟩
+      change Flare.Binary64.Model.Value.toRational (Float.Model.pack
+        (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)) = _
+      rw [hua, hub]
+      rcases Flare.Binary64.Model.Arithmetic.unpack_cases c z hc with
+        ⟨sc, huc, rfl⟩ | ⟨sc, mc, ec, hmc, huc, rfl⟩ <;> rw [huc]
+      · simp only [UnpackedFloat.fma]
+        all_goals cases sa <;> cases sb <;> cases sc <;> rfl
+      · simpa only [UnpackedFloat.fma, ← huc,
+          Flare.Binary64.Model.Rounding.pack_unpack_rational] using hc
+    · rcases Flare.Binary64.Model.Arithmetic.unpack_cases c z hc with
+        ⟨sc, huc, rfl⟩ | ⟨sc, mc, ec, hmc, huc, rfl⟩
+      · obtain ⟨q, hq, herr⟩ := model_mul_nearest a b _ _ ha hb (by simpa using hbound)
+        refine ⟨q, ?_, by simpa using herr⟩
+        change Flare.Binary64.Model.Value.toRational (Float.Model.pack
+          (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)) = _
+        change Flare.Binary64.Model.Value.toRational (Float.Model.pack
+          (UnpackedFloat.mul Format.binary64 a.unpack b.unpack)) = _ at hq
+        simpa only [hua, hub, huc, UnpackedFloat.fma, UnpackedFloat.mul] using hq
+      · let e := min (ea + eb) ec
+        let m := (sa * sb).apply ((decreaseExponent (ma * mb) (ea + eb) e).1 : Int)
+          + sc.apply ((decreaseExponent mc ec e).1 : Int)
+        have hproduct : (((sa * sb).apply (ma * mb : Nat) : Int) : Rat) *
+            (2 : Rat) ^ (ea + eb) =
+            ((sa.apply (ma : Int) : Rat) * (2 : Rat) ^ ea) *
+            ((sb.apply (mb : Int) : Rat) * (2 : Rat) ^ eb) := by
+          rw [zpow_add₀ (by norm_num : (2 : Rat) ≠ 0)]
+          cases sa <;> cases sb <;> simp [Sign.apply] <;> ring
+        have hvalue : (m : Rat) * (2 : Rat) ^ e =
+            ((sa.apply (ma : Int) : Rat) * (2 : Rat) ^ ea) *
+              ((sb.apply (mb : Int) : Rat) * (2 : Rat) ^ eb)
+            + (sc.apply (mc : Int) : Rat) * (2 : Rat) ^ ec := by
+          dsimp only [m]
+          rw [Int.cast_add, add_mul,
+            Flare.Binary64.Model.Arithmetic.aligned_value _ _ _ _ (min_le_left _ _),
+            Flare.Binary64.Model.Arithmetic.aligned_value _ _ _ _ (min_le_right _ _),
+            hproduct]
+        obtain ⟨q, hq, herr⟩ := normalize_relative_nearest m e .positive
+          (by rw [hvalue]; exact hbound)
+        refine ⟨q, ?_, by simpa only [hvalue] using herr⟩
+        change Flare.Binary64.Model.Value.toRational (Float.Model.pack
+          (UnpackedFloat.fma Format.binary64 a.unpack b.unpack c.unpack)) = _
+        rw [hua, hub, huc]
+        exact hq
+
 private lemma native_rational (a : Float) (ha : a.isFinite = true)
     : ∃ x : Rat, Flare.Binary64.Model.Value.toRational a.toModel = some x ∧ (x : ℝ) = value a := by
   apply Flare.Binary64.Model.Arithmetic.rational_of_real
@@ -138,6 +218,29 @@ theorem mul_error_nearest (a b : Float) (ha : a.isFinite = true) (hb : b.isFinit
   have hh := (Rat.cast_le (K := ℝ)).mpr herr
   simpa only [Rat.cast_abs, Rat.cast_sub, Rat.cast_add, Rat.cast_mul, Rat.cast_zpow, Rat.cast_ofNat,
     hxr, hyr]
+    using hh
+
+/-- Native explicit FMA has one unit-roundoff allowance for the exact product
+and sum. This does not identify it with separately rounded multiplication/addition. -/
+theorem fma_error_nearest (a b c : Float) (ha : a.isFinite = true)
+    (hb : b.isFinite = true) (hc : c.isFinite = true)
+    (hbound : |value a * value b + value c| ≤ (2 : ℝ) ^ (1000 : Int))
+    : (a.fma b c).isFinite = true
+      ∧ |value (a.fma b c) - (value a * value b + value c)|
+        ≤ (2 : ℝ) ^ (-53 : Int) * (|value a * value b + value c| + (2 : ℝ) ^ (-1022 : Int)) := by
+  obtain ⟨x, hx, hxr⟩ := native_rational a ha
+  obtain ⟨y, hy, hyr⟩ := native_rational b hb
+  obtain ⟨z, hz, hzr⟩ := native_rational c hc
+  have hxyz : |x * y + z| ≤ (2 : Rat) ^ (1000 : Int) := by
+    apply (Rat.cast_le (K := ℝ)).mp
+    simpa only [Rat.cast_abs, Rat.cast_mul, Rat.cast_add, Rat.cast_zpow,
+      Rat.cast_ofNat, hxr, hyr, hzr] using hbound
+  obtain ⟨q, hq, herr⟩ := model_fma_nearest a.toModel b.toModel c.toModel x y z hx hy hz hxyz
+  apply native_bound
+  refine ⟨q, hq, ?_⟩
+  have hh := (Rat.cast_le (K := ℝ)).mpr herr
+  simpa only [Rat.cast_abs, Rat.cast_sub, Rat.cast_add, Rat.cast_mul, Rat.cast_zpow, Rat.cast_ofNat,
+    hxr, hyr, hzr]
     using hh
 
 /-- The quotient-core accuracy flag represents the exact rational quotient,

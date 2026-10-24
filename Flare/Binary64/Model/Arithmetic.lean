@@ -14,7 +14,8 @@ open Flare.Binary64.Model.Rounding
 namespace Flare.Binary64.Model.Arithmetic
 open Flare.Binary64.Model.Conversion
 
-private theorem unpack_cases (v : Float.Model) (x : Rat)
+/-- A finite model value is either signed zero or an exact signed dyadic. -/
+theorem unpack_cases (v : Float.Model) (x : Rat)
     (h : Flare.Binary64.Model.Value.toRational v = some x)
     : (∃ s, v.unpack = .zero s ∧ x = 0)
       ∨ ∃ s m e,
@@ -38,7 +39,8 @@ private theorem unpack_cases (v : Float.Model) (x : Rat)
       simpa [Flare.Binary64.Model.Value.toRational, hu,
         Flare.Binary64.Model.Value.unpackedToRational] using h.symm
 
-private theorem aligned_value (s : Sign) (m : Nat) (e target : Int) (ht : target ≤ e)
+/-- Decreasing a dyadic exponent aligns its mantissa without rounding. -/
+theorem aligned_value (s : Sign) (m : Nat) (e target : Int) (ht : target ≤ e)
     : (s.apply ((decreaseExponent m e target).1 : Int) : Rat) * (2 : Rat) ^ target
       = (s.apply (m : Int) : Rat) * (2 : Rat) ^ e := by
   have h := decrease_preserves_value m (e - target).toNat e

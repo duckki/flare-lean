@@ -28,6 +28,7 @@ class Program:
     counted: dict | None = None
     c: dict | None = None
     scientific: dict | None = None
+    math: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -41,6 +42,10 @@ class Program:
             record.pop('c')
         if self.scientific is None:
             record.pop('scientific')
+        if self.math is None:
+            record.pop('math')
+        else:
+            record['schema'] = 'ordered-binary64-explicit-fma-v1'
         return record
 
 

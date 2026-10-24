@@ -6,6 +6,9 @@ def produce(session):
     from . import scalar
     from . import composition
     from fractions import Fraction as Q
+    if session.program.math:
+        value=scalar.proposal(session.program,session.request)
+        return value,value.details
     if session.program.counted:
         from .counted import proposal
         value=proposal(session.program,session.request)
@@ -64,9 +67,11 @@ def check(session, bounds):
 
 ADAPTERS = (
     Adapter('lean-flare', 'producer', 'rational-proposals-or-authored-lean',
-            'Existing FLARE compositional numerical proof generation', produce),
+            'Existing FLARE compositional numerical proof generation', produce,
+            constraints={'arithmetic_models':['separate-binary64','explicit-fma-binary64']}),
     Adapter('rust-aeneas', 'extractor', 'lean-source-model',
             'Fresh Charon/Aeneas extraction with the actual return relation checked in Lean', extract),
     Adapter('lean-root', 'validator', 'lean-proof-terms',
-            'Compile proof modules and independently check the root type and its axioms', check),
+            'Compile proof modules and independently check the root type and its axioms', check,
+            constraints={'arithmetic_models':['separate-binary64','explicit-fma-binary64']}),
 )
