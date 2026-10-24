@@ -121,7 +121,7 @@ Rust extractors or an LLM; only the compatible Lean proof libraries are needed.
 
 ## Setup and Rust delivery
 
-Read [tool-setup.md](tool-setup.md#numpy-and-julia-collection-runtimes) to obtain
+Read [tool-setup.md](tool-setup.md#numpy-and-julia-runtimes) to obtain
 missing runtimes in the announced shared user cache. NumPy needs Python 3.11+;
 other CLI profiles retain their own lower requirement. Julia uses the existing
 `source_runtime` selector. Build FLARE, then use normal `plan`, `run`, `audit`

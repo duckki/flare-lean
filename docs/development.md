@@ -232,7 +232,7 @@ for supported syntax, typed-cell assumptions and optional task export.
 ## Scientific collection regression checks
 
 Install NumPy 2.4.0 in the compatible Python environment or shared user cache;
-see [tool setup](../skills/verify-numerics/references/tool-setup.md#numpy-and-julia-collection-runtimes).
+see [tool setup](../skills/verify-numerics/references/tool-setup.md#numpy-and-julia-runtimes).
 The NumPy route needs Python 3.11+. CI installs the pinned runtime before checks.
 The Julia 1.11.7 and retained Rust cases use optional local tool selectors.
 
@@ -303,3 +303,22 @@ python3 scripts/benchmark_numerics.py \
 Controls include negative domains, incompatible function models, corrupt root
 endpoints, missing incoming error, wrong native primitives/references, changed
 platform/library identities, zero/subnormal domains and producer/runtime-free replay.
+
+## Mixed-storage regression checks
+
+The [mixed-storage profile](mixed-precision.md) uses CPython 3.13/3.14 and NumPy
+2.4.0. After the library build finishes, run:
+
+```sh
+FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_mixed
+python3 scripts/benchmark_numerics.py \
+  --case mixed_stored --case mixed_calibrate --case mixed_normalized_residual \
+  --case mixed_storage_chain --case mixed_calibrate_tight --replay \
+  --out .cache/numerics-generated/mixed-regression
+```
+
+Controls reject wrong storage/rounding/subnormal models, unpaired casts, hidden
+promotions, lost storage allowances, substituted primitives and false references.
+Zero/subnormal domains and producer/NumPy-free replay accompany the application
+family. Public API tests compute ties, mantissa carry, signed zero and gradual
+underflow in the kernel; exact widening is proved for every finite binary32 input.

@@ -17,7 +17,7 @@ from .frontend import FRONTENDS, Unsupported, parse
 from .specification import validate as validate_specification, describe as describe_specification
 
 ROOT = Path(__file__).resolve().parents[2]
-BACKENDS = {"lean-flare": "Checked compositional binary64 contracts using existing FLARE lemmas"}
+BACKENDS = {"lean-flare": "Checked compositional IEEE arithmetic and storage contracts using FLARE proofs"}
 TARGETS = {"lean": "Lean certificate without a Rust port", "rust-aeneas": "Rust f64 source and fresh Charon/Aeneas Lean extraction"}
 
 
@@ -45,7 +45,10 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'))
+    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed'))
+    if program.precision and (request.get('producer','lean-flare')!='lean-flare' or request.get('proof')
+            or request.get('target','lean')!='lean' or request.get('rust_port')):
+        raise Unsupported('Mixed storage currently uses automatic lean-flare validation and Lean delivery')
     if program.math and (request.get('producer','lean-flare') != 'lean-flare' or request.get('proof')
                          or request.get('target','lean') != 'lean' or request.get('rust_port')):
         profile='Square-root profile' if 'sqrt' in program.math['operations'] else 'Explicit FMA'
@@ -388,7 +391,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -421,6 +424,10 @@ def certify(request_path, output):
             'The selected runtime/compiler/hardware implements separate nearest/even binary64 operations with gradual underflow, no FMA or reassociation.',
             'The exact specification and engineering domain require review. Physical/model uncertainty and calls beyond this frozen bounded computation are excluded.'],
         'source_assurance':FRONTENDS[program.language].assurance}
+    if program.precision:
+        result['scope']='Restricted scalar Python binary64 computation with explicit binary32 storage round trips and an independent exact-real reference.'
+        result['arithmetic_profile']=program.precision
+        result['assumptions'][1]='NumPy 2.4.0 float32 narrowing implements nearest/even binary32 with gradual subnormals, followed by exact promotion to a Python binary64 float. Ordinary arithmetic remains separate nearest/even binary64. Source mapping, NumPy, CPython, compiler and hardware fidelity remain trusted.'
     if program.math:
         result['scope']='One restricted Python scalar kernel with explicit math.fma calls, separately rounded ordinary operations and finite binary64 inputs.'
         result['arithmetic_profile']=program.math
@@ -569,7 +576,7 @@ def audit_run(path, frozen=False):
                 raise ValueError('Application source, contract or proof changed: '+record['path'])
         if 'source-runtime.json' in result['artifacts']:
             runtime=json.loads((path/'source-runtime.json').read_text())
-            if runtime.get('math_profile')=='python-math-sqrt-v1':
+            if runtime.get('math_profile')=='python-math-sqrt-v1' or runtime.get('precision_profile')=='python-numpy-storage32-v1':
                 from .runtimes import math_platform
                 if runtime.get('platform')!=math_platform():
                     raise ValueError('Source math platform changed; regenerate diagnostics and certificate')

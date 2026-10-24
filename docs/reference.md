@@ -32,6 +32,9 @@ The pinned Lean source is the definition of the logical machine operations:
 
 | Module | Entry points | Scope |
 | --- | --- | --- |
+| `FloatFormat.Rounding` | `round_direct_error`, `normalize_error` | One shared inference implementation with explicit binary32/binary64 precision, exponent limits and finite packing |
+| `Binary32.Conversion` | `widen_exact`, `narrow_error`, `roundTrip_error` | Exact widening for all finite binary32 values; model-backed narrowing with checked magnitude and gradual underflow |
+| `Binary32.StorageBounds` | `native_roundTrip` | Storage allowance is added to incoming error without resetting the independent exact reference |
 | `Binary64.Nearest` | `add_error_nearest`, `sub_error_nearest`, `mul_error_nearest`, `div_error_nearest`, `fma_error_nearest` | Finite operands; exact-result magnitude ≤ 2^1000; division also requires a nonzero interpreted divisor |
 | `Binary64.Sqrt` | `sqrt_error_nearest` | Every finite nonnegative operand, including zero and positive subnormals |
 | `Binary64.SqrtPropagation` | `native_sqrt` | Checked root enclosures and independent-reference perturbation allowances give composable native bounds and result nonnegativity |

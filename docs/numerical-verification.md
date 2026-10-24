@@ -64,8 +64,10 @@ Explicit Python `math.fma` uses a separate [source/arithmetic profile](explicit-
 with CPython 3.13/3.14, `lean-flare` and Lean delivery. Its one-rounding native
 contract composes with ordinary separately rounded operations. The same source
 selector admits [math.sqrt](square-root.md), with checked nonnegative domains, rational root
-endpoints and incoming-error propagation. Further math functions, mixed precision
-and primitive-aware Rust delivery need additional bridges.
+endpoints and incoming-error propagation. A separate [mixed-storage profile](mixed-precision.md)
+checks binary32 narrowing and exact promotion around binary64 computation. Further
+math functions, binary32 arithmetic, profile composition and primitive-aware Rust
+delivery need additional bridges.
 
 ## What completion means
 

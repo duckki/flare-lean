@@ -1,6 +1,7 @@
 module
 
 public import Flare.Binary64.Model.Value
+public import Flare.FloatFormat.Packing
 public import Mathlib.Tactic.NormNum
 public import Std.Tactic.BVDecide
 
@@ -17,15 +18,8 @@ normal finite values and the bounded Int32-to-Float conversion expression.
 @[expose] public section
 
 namespace Flare.Binary64.Model.Conversion
-theorem log2_shift (n k : Nat) (hn : 0 < n) : (n <<< k).log2 = n.log2 + k := by
-  induction k with
-  | zero => simp
-  | succ k ih =>
-      have h : n <<< k ≠ 0 := Nat.ne_of_gt (Nat.shiftLeft_pos_iff.mpr hn)
-      have heq : n <<< (k + 1) = 2 * (n <<< k) := by
-        simp [Nat.shiftLeft_eq, Nat.pow_succ, Nat.mul_comm, Nat.mul_left_comm]
-      rw [heq, Nat.log2_two_mul h, ih]
-      omega
+theorem log2_shift (n k : Nat) (hn : 0 < n) : (n <<< k).log2 = n.log2 + k :=
+  Flare.FloatFormat.Packing.log2_shift n k hn
 
 theorem shiftTarget_exact (s : Sign) (m : Nat) (e : Int) (hm : m.log2 = 52) (he : -1074 ≤ e)
     : roundWithAccuracy Format.binary64 s m e .exact
@@ -54,45 +48,13 @@ private theorem round_small (s : Sign) (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 32)
   simp [Nat.ne_of_gt (Nat.shiftLeft_pos_iff.mpr hn)]
 
 theorem unpackSign_components (s : Sign) (e : BitVec 11) (m : BitVec 52)
-    : unpackSign (packComponents Format.binary64 s e m) = s.toBitVec := by
-  cases s <;> simp [unpackSign, packComponents, Sign.toBitVec] <;> bv_decide
+    : unpackSign (packComponents Format.binary64 s e m) = s.toBitVec :=
+  Flare.FloatFormat.Packing.unpackSign_components .binary64 s e m
 
 theorem unpack_pack_normal (s : Sign) (m : Nat) (e : Int)
     (hp : 0 < m) (hm : m.log2 = 52) (he : -1074 ≤ e) (he' : e ≤ 971)
-    : (Float.Model.pack (.finite s m e hp)).unpack = .finite s m e hp := by
-  have hbounds := (Nat.log2_eq_iff (Nat.ne_of_gt hp)).mp hm
-  have hepos : 0 < (e + 1075).toNat := by omega
-  have helim : (e + 1075).toNat < 2047 := by omega
-  have hne : (BitVec.ofNat 11 (e + 1075).toNat) ≠ 0#11 := by
-    intro h
-    have hb := congrArg BitVec.toNat h
-    change (e + 1075).toNat % 2048 = 0 at hb
-    omega
-  have hni : (BitVec.ofNat 11 (e + 1075).toNat) ≠ -1#11 := by
-    intro h
-    have hb := congrArg BitVec.toNat h
-    change (e + 1075).toNat % 2048 = 2047 at hb
-    omega
-  have hexp : (((BitVec.ofNat 11 (e + 1075).toNat).toNat : Nat) : Int) - 1075 = e := by
-    rw [BitVec.toNat_ofNat, Nat.mod_eq_of_lt (by omega)]
-    omega
-  have hmant : (1#1 ++ BitVec.ofNat 52 m).toNat = m := by
-    simp only [BitVec.toNat_append, BitVec.toNat_ofNat]
-    rw [← Nat.shiftLeft_add_eq_or_of_lt (Nat.mod_lt _ (by decide))]
-    norm_num at hbounds ⊢
-    omega
-  unfold Float.Model.unpack Float.Model.pack
-  simp only [UnpackedFloat.pack, Format.exponentBias,
-    Format.binary64, Format.mantissaBits, hm]
-  norm_num
-  simp only [show e + 1023 + 52 = e + 1075 by omega,
-    show ¬2047 ≤ (e + 1075).toNat by omega, ↓reduceIte]
-  simp only [UnpackedFloat.unpack, unpackExponent_packComponents,
-    unpackMantissa_packComponents, unpackSign_components, hne, hni, ↓reduceIte]
-  change UnpackedFloat.finite (Sign.ofBitVec s.toBitVec) (1#1 ++ BitVec.ofNat 52 m).toNat
-    ((BitVec.ofNat 11 (e + 1075).toNat).toNat - 1075) _ = _
-  simp only [hexp, hmant]
-  cases s <;> rfl
+    : (Float.Model.pack (.finite s m e hp)).unpack = .finite s m e hp :=
+  Flare.FloatFormat.Packing.unpack_pack_normal .binary64 s m e hp hm he he'
 
 private theorem model_ofNat_small (n : Nat) (hn : 0 < n) (hb : n < 2 ^ 32)
     : Float.Model.ofNat n

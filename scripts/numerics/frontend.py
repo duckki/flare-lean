@@ -21,11 +21,17 @@ def return_annotation(annotation):
                 and all(float_annotation(x) for x in annotation.slice.elts)))
 
 
-def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile=False):
+def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile=False, mixed_profile=False):
     tree = ast.parse(source)
     statements = [x for x in tree.body if not (
         isinstance(x, ast.Expr) and isinstance(x.value, ast.Constant)
         and isinstance(x.value.value, str))]
+    if mixed_profile:
+        imports=[x for x in statements if isinstance(x,ast.Import)]
+        if (len(imports)!=1 or len(imports[0].names)!=1 or imports[0].names[0].name!='numpy'
+                or imports[0].names[0].asname!='np'):
+            raise Unsupported('python_mixed requires exactly import numpy as np')
+        statements=[x for x in statements if x is not imports[0]]
     if math_profile:
         imports = [x for x in statements if isinstance(x, ast.Import)]
         if len(imports) != 1 or len(imports[0].names) != 1 or imports[0].names[0].name != 'math' or imports[0].names[0].asname:
@@ -36,6 +42,8 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
     functions = {fn.name: fn for fn in statements}
     if len(functions) != len(statements) or function not in functions:
         raise Unsupported('Function names must be distinct and the selected function must exist')
+    if mixed_profile and set(functions)&{'np','float','__builtins__'}:
+        raise Unsupported('Mixed storage functions must not shadow numpy or scalar builtins')
     if set(functions)&({'float','tuple','__builtins__','math'} if math_profile else {'float','tuple','__builtins__'}):
         raise Unsupported('Numerical functions must not shadow annotation types or builtins')
     arguments = {}
@@ -62,6 +70,16 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
     work = 0
 
     def values(node):
+        if (mixed_profile and isinstance(node,ast.Call) and isinstance(node.func,ast.Name)
+                and node.func.id=='float'):
+            if node.keywords or len(node.args)!=1 or 'float' in local_names[active[-1]] or 'np' in local_names[active[-1]]:
+                raise Unsupported('Mixed storage requires unshadowed float(np.float32(x))')
+            inner=node.args[0]
+            if (not isinstance(inner,ast.Call) or not isinstance(inner.func,ast.Attribute)
+                    or not isinstance(inner.func.value,ast.Name) or inner.func.value.id!='np'
+                    or inner.func.attr!='float32' or inner.keywords or len(inner.args)!=1):
+                raise Unsupported('Mixed storage admits only paired float(np.float32(x)) conversions')
+            return [graph.emit('round32',[graph.floating(expression(inner.args[0]))])]
         if math_profile and isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
             if (not isinstance(node.func.value, ast.Name) or node.func.value.id != 'math'
                     or node.func.attr not in ('fma','sqrt') or 'math' in local_names[active[-1]]
@@ -175,6 +193,11 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
             raise Unsupported('python_math requires an admitted math primitive and at most 32 IR nodes')
         schema = 'python-math-sqrt-v1' if 'sqrt' in operations else 'python-math-fma-v1'
         program = replace(program, math={'schema':schema,'operations':operations})
+    if mixed_profile:
+        if not any(n.op=='round32' for n in program.nodes) or len(program.nodes)>32:
+            raise Unsupported('python_mixed requires binary32 storage and at most 32 IR nodes')
+        program=replace(program,precision={'schema':'python-numpy-storage32-v1',
+            'storage':'binary32','computation':'binary64','conversion':'narrow-nearest-even-exact-widen'})
     return program
 
 
@@ -219,7 +242,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, explicit math.fma/math.sqrt, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, explicit math.fma/math.sqrt, explicit NumPy binary32 storage round trips, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -227,7 +250,12 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None, python_math=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None, python_math=None, python_mixed=None):
+    if python_mixed is not None:
+        if (python_mixed is not True or language!='python' or any(x is not None for x in
+                (python_method,python_arrays,python_branches,python_counted,scientific_arrays,python_math))):
+            raise Unsupported('python_mixed requires true on its own ordinary Python scalar profile')
+        return python_frontend(source,function,mixed_profile=True)
     if python_math is not None:
         if (python_math is not True or language != 'python' or any(x is not None for x in
                 (python_method,python_arrays,python_branches,python_counted,scientific_arrays))):
@@ -287,6 +315,9 @@ def execute(program, arguments):
             value = -xs[0]
         elif n.op in ('select_lt', 'select_le'):
             value = xs[2] if (xs[0] < xs[1] if n.op == 'select_lt' else xs[0] <= xs[1]) else xs[3]
+        elif n.op=='round32':
+            import struct
+            value=struct.unpack('>f',struct.pack('>f',xs[0]))[0]
         elif n.op in ('fma','sqrt'):
             import math
             value = getattr(math,n.op)(*xs)

@@ -128,3 +128,36 @@ example : (Float.sqrt (-0.0)).toBits = 9223372036854775808 := by
 
 example : (Float.sqrt (Float.ofBits 1)).toBits = 2188749418902061056 := by
   decide +kernel
+
+#check Flare.FloatFormat.Rounding.round_direct_error
+#check Flare.Binary32.Conversion.widen_exact
+#check Flare.Binary32.StorageBounds.native_roundTrip
+
+-- Binary32 storage ties use the retained significand's parity, including a carry.
+example
+    : (Flare.Binary32.Conversion.narrow (Float.ofBits 4607182419068452864)).toBits
+      = 1065353216 := by
+  decide +kernel
+
+example
+    : (Flare.Binary32.Conversion.narrow (Float.ofBits 4607182419605323776)).toBits
+      = 1065353218 := by
+  decide +kernel
+
+example
+    : (Flare.Binary32.Conversion.narrow (Float.ofBits 4611686018158952448)).toBits
+      = 1073741824 := by
+  decide +kernel
+
+-- Gradual underflow and signed zero are checked through the actual model packing.
+example : (Flare.Binary32.Conversion.narrow (Float.ofBits 3931642474694443008)).toBits = 0 := by
+  decide +kernel
+
+example : (Flare.Binary32.Conversion.narrow (Float.ofBits 3938397874135498752)).toBits = 2 := by
+  decide +kernel
+
+example : (Flare.Binary32.Conversion.roundTrip (-0.0)).toBits = 9223372036854775808 := by
+  decide +kernel
+
+example : (Flare.Binary32.Conversion.widen (Float32.ofBits 1)).toBits = 3936146074321813504 := by
+  decide +kernel

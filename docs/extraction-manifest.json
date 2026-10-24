@@ -142,7 +142,7 @@
     {
       "target": "Flare/Binary64/Model/Conversion.lean",
       "source": "Ephemeris/Proofs/Float/CoefficientDecoding.lean",
-      "notes": "Extracted packing and signed-conversion prerequisites; excluded ephemeris coefficient scaling.",
+      "notes": "Extracted packing and signed-conversion prerequisites; excluded ephemeris coefficient scaling. Packing facts now use width-specific bit checks in Flare/FloatFormat/Packing.lean; binary64 statements remain wrappers with the same assumptions.",
       "source_sha256": "a7ed72d960da5a84c8183a50593f87b0667cc24302be9e3e147bb2aa01e8deab"
     },
     {
@@ -154,7 +154,7 @@
     {
       "target": "Flare/Binary64/Model/Rounding.lean",
       "source": "Ephemeris/Proofs/Float/Binary64Rounding.lean",
-      "notes": "Namespace and import extraction; theorem hypotheses retained.",
+      "notes": "Binary64 theorem statements and assumptions retained as instances of the shared IEEE format inference in Flare/FloatFormat/Rounding.lean; canonical bit-field facts live in Flare/FloatFormat/Packing.lean.",
       "source_sha256": "28185236392cdf00e917bc51c421fb81e1c72983300eb7652539121065626430"
     },
     {
@@ -390,6 +390,24 @@
       "source": "OCI/Implementation/Correctness/Float.lean",
       "notes": "Extracted the row-major matrix interpretation only.",
       "source_sha256": "a6dad7dd37793cc5e6a13a9d98a441efbd3f30ef5d5f99084fbd1eac8ec9a482"
+    },
+    {
+      "target": "Flare/FloatFormat/Packing.lean",
+      "source": "Ephemeris/Proofs/Float/CoefficientDecoding.lean",
+      "notes": "Canonical normal packing and log2 shifting adapted from the extracted binary64 prerequisites; binary32 bit-vector proofs added. The original binary64 API is retained in Model/Conversion.",
+      "source_sha256": "a7ed72d960da5a84c8183a50593f87b0667cc24302be9e3e147bb2aa01e8deab"
+    },
+    {
+      "target": "Flare/FloatFormat/Packing.lean",
+      "source": "Ephemeris/Proofs/Float/Binary64Rounding.lean",
+      "notes": "Canonical subnormal packing and decoded finite shapes adapted from the extracted binary64 proofs; binary32 cases added.",
+      "source_sha256": "28185236392cdf00e917bc51c421fb81e1c72983300eb7652539121065626430"
+    },
+    {
+      "target": "Flare/FloatFormat/Rounding.lean",
+      "source": "Ephemeris/Proofs/Float/Binary64Rounding.lean",
+      "notes": "Mantissa shifting, carry, finite packing, one-ulp bounds and signed normalization generalized to an explicit binary32/binary64 width; binary64 API assumptions retained in its wrappers.",
+      "source_sha256": "28185236392cdf00e917bc51c421fb81e1c72983300eb7652539121065626430"
     }
   ],
   "additional_sources": [

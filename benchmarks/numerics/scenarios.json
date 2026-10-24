@@ -325,6 +325,41 @@
       "expected": "budget_not_met",
       "optional": false,
       "family": "binary64_sqrt"
+    },
+    {
+      "name": "mixed_stored",
+      "request": "../../examples/numerics/mixed/stored.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "mixed_storage"
+    },
+    {
+      "name": "mixed_calibrate",
+      "request": "../../examples/numerics/mixed/calibrate.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "mixed_storage"
+    },
+    {
+      "name": "mixed_normalized_residual",
+      "request": "../../examples/numerics/mixed/normalized_residual.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "mixed_storage"
+    },
+    {
+      "name": "mixed_storage_chain",
+      "request": "../../examples/numerics/mixed/storage_chain.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "mixed_storage"
+    },
+    {
+      "name": "mixed_calibrate_tight",
+      "request": "../../examples/numerics/mixed/calibrate_tight.json",
+      "expected": "budget_not_met",
+      "optional": false,
+      "family": "mixed_storage"
     }
   ]
 }

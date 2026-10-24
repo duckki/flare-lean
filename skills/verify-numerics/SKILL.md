@@ -80,6 +80,10 @@ mapping from actual source to executable model explicit. If support cannot be
 completed, report the unresolved construct or obligation; do not substitute a
 hand-rewritten surrogate and claim to have verified the original implementation.
 
+For explicit binary32 storage around binary64 computation, read
+[mixed-precision.md](references/mixed-precision.md). Keep narrowing/promotion sites
+and incoming error; dtype labels alone do not establish a rounding bridge.
+
 For Python `math.sqrt`, read [square-root.md](references/square-root.md). Prove
 nonnegative native/exact arguments and retain incoming errors; match the selected
 runtime's correctly rounded primitive contract before using its Lean bridge.

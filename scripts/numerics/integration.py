@@ -26,6 +26,8 @@ EXPLICIT_FMA_ARITHMETIC = {**ARITHMETIC, 'fma':'explicit'}
 
 
 def arithmetic(program):
+    if program.precision:
+        return {**ARITHMETIC,'storage':'binary32','conversion':'narrow-nearest-even-exact-widen'}
     operations = program.math['operations'] if program.math else []
     model = EXPLICIT_FMA_ARITHMETIC if 'fma' in operations else ARITHMETIC
     if 'sqrt' in operations:

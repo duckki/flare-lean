@@ -171,6 +171,15 @@ def analyze_box(program, domain):
             value = Q.from_float(number(node.bits))
             native[node.name] = ideal[node.name] = constant(value)
             bound, rho, cap = Bound(value, Q(0), abs(value), Q(0)), Q(0), abs(value)
+        elif node.op == 'round32':
+            parent=node.args[0];a=summaries[parent]
+            exponent=max(-126,scale(a.cap))
+            if a.cap>Q(2)**exponent:exponent+=1
+            if exponent>126:raise ValueError('Cannot prove finite binary32 storage within the selected magnitude range')
+            cap=Q(2)**exponent;rho=Q(2)**(exponent-23)
+            bound=Bound(a.c,a.w+rho,a.i,a.e+rho)
+            native[node.name]=None;ideal[node.name]=ideal[parent]
+            extra={'storage_exponent':exponent}
         elif node.op == 'sqrt':
             from .square_root import analyze
             parent=node.args[0]
@@ -295,6 +304,8 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
              'open Flare.Binary64.Pipeline Flare.Binary64.Value',
              'open Flare.Analysis', '',
              'set_option maxHeartbeats 2000000', 'set_option maxRecDepth 4096', '']
+    if program.precision:
+        lines.insert(6,'public import Flare.Binary32.StorageBounds')
     if program.math and 'sqrt' in program.math['operations']:
         lines.insert(6,'public import Flare.Binary64.SqrtPropagation')
     lines += ['set_option exponentiation.threshold 2048', '']
@@ -324,6 +335,12 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 lines += constant_proof(node)
                 lines += [f'  have b_{name} : {target} := by', '    refine ⟨by decide +kernel, ?_, ?_, ?_⟩',
                           f'    all_goals norm_num [{ideal_name}, p_{name}]']
+            elif node.op == 'round32':
+                parent=node.args[0];e=step['storage_exponent']
+                lines += [f'  have b_{name} : {target} := by',
+                    f'    have checked := Flare.Binary32.StorageBounds.native_roundTrip b_{parent} ({e})',
+                    f'      (rho := {real(rho)}) (by norm_num) (by norm_num) (by norm_num) (by norm_num)',
+                    '    norm_num at checked ⊢', '    exact checked']
             elif node.op == 'sqrt':
                 from .square_root import derive
                 lines += derive(step)
@@ -462,6 +479,9 @@ def proposal(program, request, candidates=None, details=None):
                 'boxes': len(leaves), 'foreign_trace_checked': False,
                 'rule_checker': enclosure.CHECKER, 'enclosure_rules': enclosure.RULES,
                 'qualification': 'Candidate bounds and polynomial rewrites are checked against native Float laws in Lean.'}
+    if program.precision:
+        metadata['primitive_rules']=['Flare.Binary32.StorageBounds.native_roundTrip',
+            'Flare.Binary32.Conversion.widen_exact','Flare.FloatFormat.Rounding.round_direct_error']
     from .square_root import evidence as root_evidence
     if program.math and 'sqrt' in program.math['operations']:
         metadata['primitive_rules']=['Flare.Binary64.SqrtPropagation.native_sqrt',
@@ -470,6 +490,7 @@ def proposal(program, request, candidates=None, details=None):
               'nodes': [{'node': step['node'].name, 'op': step['node'].op,
                          'rounding_allowance': str(step['rho']), 'pre_rounding_magnitude': str(step['magnitude']),
                          'summary': step['bound'].record(),
+                         **({'storage_exponent':step['storage_exponent']} if 'storage_exponent' in step else {}),
                          **({'sqrt':root_evidence(step['sqrt'])} if 'sqrt' in step else {})} for step in box['steps']]} for index,box in enumerate(leaves)]
     return Proposal(summaries, steps, claims, metadata,
                     lean_source=proof_module(program, root, leaves, claims),

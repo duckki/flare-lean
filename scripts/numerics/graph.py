@@ -29,6 +29,7 @@ class Program:
     c: dict | None = None
     scientific: dict | None = None
     math: dict | None = None
+    precision: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -47,6 +48,10 @@ class Program:
         else:
             record['schema'] = ('ordered-binary64-sqrt-v1' if 'sqrt' in self.math['operations']
                                 else 'ordered-binary64-explicit-fma-v1')
+        if self.precision is None:
+            record.pop('precision')
+        else:
+            record['schema']='ordered-binary32-storage-binary64-v1'
         return record
 
 

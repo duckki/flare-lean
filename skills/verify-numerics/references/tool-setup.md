@@ -279,9 +279,11 @@ its `export.json`, `wp.json`, raw tasks and command logs. Solver verdicts remain
 untrusted inspection evidence; this utility is not a Lean proof importer or
 an implementation of the JSON numerical contract in ACSL.
 
-## NumPy and Julia collection runtimes
+## NumPy and Julia runtimes
 
-The closed scientific profile pins NumPy **2.4.0**, requiring Python **3.11+**.
+The closed scientific profile and mixed-storage profile pin NumPy **2.4.0**,
+which requires Python **3.11+**. Mixed storage additionally selects CPython
+**3.13/3.14**.
 Replay needs no NumPy installation; obtain it for original-source diagnostics.
 Reuse a compatible environment first, otherwise announce the shared user-cache
 path and install a matching distribution for this Python/platform:

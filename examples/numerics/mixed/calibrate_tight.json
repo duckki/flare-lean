@@ -1,0 +1,31 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "python_mixed": true,
+  "function": "calibrate",
+  "domain": {
+    "sample": [
+      "-32",
+      "32"
+    ],
+    "gain": [
+      "1/2",
+      "2"
+    ],
+    "offset": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "gain*sample+offset"
+  ],
+  "outputs": [
+    {
+      "name": "calibrate_tight",
+      "unit": "1",
+      "limit": "1/1000000000000"
+    }
+  ]
+}

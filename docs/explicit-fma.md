@@ -5,10 +5,9 @@ The source keeps a ternary operation: its exact product and sum receive one fina
 binary64 rounding. Ordinary `x*y+z` keeps two rounding sites. The workflow never
 inserts FMA into a separate schedule.
 
-This is the first delivered arithmetic feature in
-[roadmap milestone 13](roadmap.md#13-cover-more-arithmetic-models).
-A [square-root source bridge](square-root.md) is also available. Mixed
-binary32/binary64 remains planned.
+A [square-root source bridge](square-root.md) and a separate
+[binary32 storage / binary64 computation profile](mixed-precision.md) are also
+available. Their source selectors and runtime contracts remain separate.
 
 ## Select the profile
 

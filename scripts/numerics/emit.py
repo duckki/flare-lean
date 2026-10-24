@@ -24,6 +24,9 @@ def expression(node, ideal=False, rust=False):
         if ideal:
             return real(Q.from_float(number(node.bits)))
         return repr(number(node.bits)) if rust else f"Float.ofBits {node.bits}"
+    if node.op == "round32":
+        if rust:raise ValueError('Mixed storage Rust delivery requires a separate extraction bridge')
+        return node.args[0] if ideal else f"Flare.Binary32.Conversion.roundTrip {node.args[0]}"
     if node.op == "sqrt":
         if rust:
             raise ValueError('Square-root Rust delivery requires a separate extraction bridge')
@@ -74,6 +77,8 @@ def kernel_source(program, specification):
     result += [f'noncomputable def specification {arguments} : {output_type} :=',
                *['  '+line for line in lean_specification(specification,program)], '']
     imports = ['public import Flare.Binary64.Value']
+    if program.precision:
+        imports += ['public import Flare.Binary32.Conversion']
     if program.math and 'sqrt' in program.math['operations']:
         imports += ['public import Mathlib.Analysis.Real.Sqrt']
     if program.arrays:

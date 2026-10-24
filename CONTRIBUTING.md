@@ -13,6 +13,8 @@ they are the subject of a correctness or error theorem.
 ## Where work belongs
 
 - `Flare/Analysis/`: real and discrete mathematics independent of native Float.
+- `Flare/FloatFormat/`: shared binary32/binary64 format, packing and rounding inference.
+- `Flare/Binary32/`: model-backed binary32 storage conversions and mixed-storage bounds.
 - `Flare/Binary64/`: native scalar semantics, rounding, and error bounds.
 - `Flare/Matrix/`: matrix error and correctness theorems, storage relations,
   and the algorithms those theorems analyze.

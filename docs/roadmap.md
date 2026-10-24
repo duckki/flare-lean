@@ -32,7 +32,10 @@ delay implementing capabilities with clear acceptance cases.
   and Lean delivery. A [square-root source bridge](square-root.md) now certifies
   standard deviation, regularized norms, normalized residuals and nested roots
   with checked endpoint/perturbation rules and explicit runtime/libm contracts.
-  Binary32 and additional elementary functions remain open.
+  A [mixed storage profile](mixed-precision.md) adds binary32 narrowing and exact
+  promotion around binary64 computation, including repeated storage and division.
+  Shared format/packing/rounding inference proves both widths. Binary32 arithmetic,
+  arbitrary dtype promotions and additional elementary functions remain open.
 - Gappa, FPTaylor and PRECiSA supply candidate conclusions that are independently
   proved in Lean. Their retained Coq/PVS traces are not imported proofs. See
   [tool integration](tool-integration.md). Gappa and FPTaylor share a proved
@@ -76,11 +79,12 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Broaden arithmetic models.** Add mixed binary32/binary64 semantics, extend
-   explicit FMA/function coverage and add further contracts on retained applications.
-2. **Broaden scientific code and automated delivery.** Extend actual library/API
-   bridges where applications require them. Broaden Rust correspondence-proof
-   generation, counterexamples, setup and maintenance.
+1. **Make automated delivery reliable.** Complete the counterexample path,
+   fresh-machine delivery, held-out application checks and routine maintenance.
+2. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
+   storage boundaries, add binary32 arithmetic and select further library/function
+   contracts from retained applications. Broaden Rust correspondence-proof
+   generation while preserving real APIs and loops.
 
 Each milestone retains source, domain, independent reference and engineering
 requirements. Changes to any of these create a separate reviewed case. Completion
@@ -90,18 +94,14 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 13.
+The next implementation milestone is 14.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 13. Precision and mathematical functions | Cover arithmetic used outside the current binary64 subset | Mixed binary32/binary64 and explicit FMA examples certify; selected elementary functions gain implementation-specific contracts |
 | 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
 
-Milestone 13 progresses per arithmetic feature once its semantic bridge is ready.
-Explicit binary64 FMA and square-root source profiles are delivered. Mixed
-precision remains required to close it.
-Setup, counterexamples and maintenance work from 14 accompanies every milestone;
-a separate integration test closes 14.
+Setup, counterexamples and maintenance accompany each capability; a separate
+integration test closes milestone 14.
 
 No milestone requires integrating every candidate tool or supporting a complete
 source language before a useful closed profile can ship.
@@ -121,7 +121,7 @@ output. An external success verdict never discharges a Lean premise by itself.
 | Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 |
 | Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | Future evidence work |
 | CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 14 |
-| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | 13, future evidence work |
+| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | Future evidence work |
 
 Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
 The [C guide](c-verification.md) describes the export utility and why the current
@@ -156,7 +156,7 @@ platform and Lean/Rust delivery separately in `capabilities` and regression case
 
 | Source | Current supported profile | Next scope | Later scope / separate obligation |
 | --- | --- | --- | --- |
-| Python | Restricted scalar/method/loop/list/conditional profiles; separate NumPy 2.4.0 eager elementwise/indexed-loop/outer/transpose profile with typed roots | Compose profiles; selected scientific library calls, streams, state/configuration and broader collection contracts | Dynamic dispatch, arbitrary mutation and general Python/BLAS execution |
+| Python | Restricted scalar/method/loop/list/conditional profiles; separate NumPy 2.4.0 eager collection and binary32-storage/binary64-computation profiles with typed roots | Compose profiles; selected scientific library calls, streams, state/configuration and broader collection contracts | Dynamic dispatch, arbitrary mutation and general Python/BLAS execution |
 | Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
 | Julia | Restricted Float64 scalar functions; separate Julia 1.11.7 typed Vector/helper/indexed-loop profile | Matrix APIs, selected broadcasting/reductions and more runtime versions | Multiple dispatch, fused broadcast and BLAS/LAPACK calls each need selected semantics and bridges |
 | MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
@@ -169,35 +169,6 @@ proof. Retain declared frontend/compiler/runtime trust boundaries. Exact dtype
 promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
-
-## 13. Cover more arithmetic models
-
-### Remaining work
-
-Explicit binary64 FMA and square root have native rounding proofs, restricted
-Python source profiles, maintained applications, checked roots, frozen replay
-and rejection controls. See the [FMA](explicit-fma.md) and
-[square-root](square-root.md) guides. Complete the milestone with:
-
-- Add explicit binary32 and mixed binary32/binary64 semantics, promotion/narrowing
-  rules and reusable error propagation. Formats are independent capabilities;
-  parsed source types or a tool's format flag do not establish their Lean bridge.
-- Broaden the delivered explicit FMA bridge to other source/delivery and producer
-  profiles when applications require them. Keep existing separately rounded
-  schedules intact. Unrequested reassociation or optimization remains outside
-  the original-source claim.
-- Add further elementary functions selected by retained application needs; square
-  root is delivered. Distinguish mathematical function bounds, rounded primitive
-  semantics and a particular platform/library implementation. Connect any analyzer models
-  through the appropriate contracts and exceptional-value domains.
-
-### Completion criteria
-
-An actual mixed-precision application and an explicit-FMA kernel have checked
-source/rounding bridges and numerical roots. A selected function-using application
-certifies against the specific primitive or implementation contract it executes.
-Wrong formats, hidden FMA, casts, domains and library versions have negative
-controls. Compare an alternative schedule only as a separate reviewed artifact.
 
 ## 14. Make automated delivery and maintenance routine
 
@@ -232,6 +203,19 @@ Cold replay needs no producers, translators, source execution or LLM, while reta
 required proof-library dependencies. A compatible change rechecks affected
 results; an incompatible semantic change is reported instead of reusing stale
 proofs. Publish coverage, setup/checking costs and known open obligations.
+
+## Further arithmetic coverage
+
+- Extend binary32 storage to native binary32 arithmetic, independent typed API
+  inputs/outputs, unpaired casts and specified promotion/narrowing rules. Keep
+  rounding at every original source site; dtype names alone do not prove a bridge.
+- Compose selected storage, FMA, root, array and conditional profiles only with
+  checked source and numerical bridges. Preserve existing separately rounded
+  schedules and exceptional-value domains.
+- Broaden selected primitives to other source languages, Rust delivery and
+  external-producer models when retained applications require them.
+- Select further elementary functions from application gaps. Separate mathematical
+  bounds, rounded primitive semantics and the actual platform implementation.
 
 ## Future considerations
 

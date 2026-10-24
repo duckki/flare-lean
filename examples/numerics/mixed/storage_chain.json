@@ -1,0 +1,33 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "python_mixed": true,
+  "function": "storage_chain",
+  "domain": {
+    "x": [
+      "-2",
+      "2"
+    ],
+    "correction": [
+      "-1/4",
+      "1/4"
+    ]
+  },
+  "specification": [
+    "x+correction",
+    "x"
+  ],
+  "outputs": [
+    {
+      "name": "storage_chain0",
+      "unit": "1",
+      "limit": "1/100000"
+    },
+    {
+      "name": "storage_chain1",
+      "unit": "1",
+      "limit": "1/100000"
+    }
+  ]
+}

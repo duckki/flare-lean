@@ -1,0 +1,31 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "python_mixed": true,
+  "function": "normalized_residual",
+  "domain": {
+    "measurement": [
+      "-32",
+      "32"
+    ],
+    "prediction": [
+      "-32",
+      "32"
+    ],
+    "scale": [
+      "1/2",
+      "2"
+    ]
+  },
+  "specification": [
+    "(measurement-prediction)/scale"
+  ],
+  "outputs": [
+    {
+      "name": "normalized_residual",
+      "unit": "1",
+      "limit": "1/10000"
+    }
+  ]
+}

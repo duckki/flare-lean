@@ -9,6 +9,10 @@
   Flare/Binary64, and matrix correctness proofs with their algorithms in
   Flare/Matrix.
   Analysis must not depend on Binary64, Matrix, or application projects.
+- Keep shared IEEE format/packing/rounding inference in Flare/FloatFormat and
+  binary32 storage conversions in Flare/Binary32. Binary32 may use Binary64 for
+  exact promotion and mixed-storage numerical bounds; Binary64 uses the shared
+  FloatFormat foundation. Analysis remains independent of all floating modules.
 - Use content-specific module names and match declaration namespaces to file
   paths. Shared type methods may use their type namespace. Do not add
   per-directory import aggregators; keep Flare.lean as the public entry point.

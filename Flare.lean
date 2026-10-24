@@ -22,6 +22,11 @@ public import Flare.Analysis.SchurComplement
 public import Flare.Analysis.SpectralGap
 public import Flare.Analysis.SpectralPerturbation
 public import Flare.Analysis.SqrtBounds
+public import Flare.FloatFormat.Format
+public import Flare.FloatFormat.Packing
+public import Flare.FloatFormat.Rounding
+public import Flare.Binary32.Conversion
+public import Flare.Binary32.StorageBounds
 public import Flare.Binary64.Arithmetic
 public import Flare.Binary64.Congruence
 public import Flare.Binary64.Division

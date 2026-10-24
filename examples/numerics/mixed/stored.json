@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "python_mixed": true,
+  "function": "stored",
+  "domain": {
+    "x": [
+      "-2",
+      "2"
+    ]
+  },
+  "specification": [
+    "x"
+  ],
+  "outputs": [
+    {
+      "name": "stored",
+      "unit": "1",
+      "limit": "1/1000000"
+    }
+  ]
+}

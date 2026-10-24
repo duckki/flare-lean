@@ -209,7 +209,10 @@ operations, nearest/even, gradual subnormals and no FMA or reassociation. An opt
 `lean-flare` and Lean delivery. The [square-root profile](square-root.md) adds
 an explicit correctly rounded function contract, checked endpoints and incoming
 error rules. External producers retain their current admission; these primitive
-models are not yet bridged to their exporters.
+models are not yet bridged to their exporters. The separate
+[mixed-storage profile](mixed-precision.md) similarly uses a declared binary32
+narrowing/exact-promotion contract and Lean delivery; existing external exporters
+do not gain cast support from a format label.
 Gappa's exporter requires dyadic domain endpoints. Both exporters preserve the
 ordered admitted graph and use exact constants; Lean still checks its independent
 specification.

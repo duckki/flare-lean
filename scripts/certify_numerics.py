@@ -29,6 +29,7 @@ def main():
     inspect.add_argument('--python-branches', action='store_const', const=True, default=None,
                          help='Admit one terminal scalar Python if/else')
     inspect.add_argument('--guard-local',action='store_true',help='Prove arithmetic only on the direct input guard domain')
+    inspect.add_argument('--python-mixed',action='store_const',const=True,default=None,help='Admit explicit float(np.float32(x)) storage round trips')
     inspect.add_argument('--python-math',action='store_const',const=True,default=None,help='Admit explicit math.fma/math.sqrt in restricted scalar Python')
     inspect.add_argument('--python-counted',type=json.loads,help='JSON count parameter and selected iterations')
     for name in ['audit', 'replay']:
@@ -53,7 +54,15 @@ def main():
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
-                'source_profiles': {'python_math': {
+                'source_profiles': {'python_mixed': {
+                    'request_field':'python_mixed: true',
+                    'runtime':'CPython 3.13/3.14 and NumPy 2.4.0; selected executable/library/platform identities retained',
+                    'operations':'explicit float(np.float32(x)) storage round trips, scalar helpers and separately rounded binary64 arithmetic',
+                    'arithmetic':{'format':'binary64','rounding':'nearest-even','subnormals':'gradual','fma':False,'reassociation':False,'storage':'binary32','conversion':'narrow-nearest-even-exact-widen'},
+                    'limits':'32 graph nodes; one/two binary64 outputs; checked storage magnitude at most 2^126; binary32 arithmetic and unpaired casts need separate bridges',
+                    'proof':'shared format/packing/rounding inference, exact widening, narrowing allowance, incoming-error propagation and independent Lean root',
+                    'target':'lean with lean-flare; external producers, Rust delivery and arbitrary profile composition unsupported'},
+                    'python_math': {
                     'request_field':'python_math: true',
                     'runtime':'CPython 3.13 or 3.14 with the selected math primitives; executable and math extension identities retained',
                     'operations':'import math; unshadowed math.fma(x,y,z) and math.sqrt(x), scalar helpers and ordinary separately rounded operators',
@@ -107,7 +116,7 @@ def main():
             p = parse(args.language, Path(args.source).read_text(), args.function,
                       python_arrays=args.python_arrays,
                       python_branches={'domains':'guard'} if args.guard_local else args.python_branches,
-                      python_counted=args.python_counted,scientific_arrays=args.scientific_arrays,python_math=args.python_math)
+                      python_counted=args.python_counted,scientific_arrays=args.scientific_arrays,python_math=args.python_math,python_mixed=args.python_mixed)
             result = {'status': 'needs_input', 'program': p.record(), 'required_inputs': {
                 'domain': {name: '[lower, upper] as exact rational strings' for name in p.inputs},
                 'outputs': [{'name': '', 'unit': '', 'limit': ''} for _ in p.outputs],

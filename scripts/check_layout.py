@@ -13,7 +13,9 @@ modules = {
 
 allowed_layers = {
     "Analysis": {"Analysis"},
-    "Binary64": {"Analysis", "Binary64"},
+    "FloatFormat": {"FloatFormat"},
+    "Binary64": {"Analysis", "FloatFormat", "Binary64"},
+    "Binary32": {"Analysis", "FloatFormat", "Binary64", "Binary32"},
     "Matrix": {"Analysis", "Binary64", "Matrix"},
 }
 external_roots = {"Init", "Std", "Mathlib"}

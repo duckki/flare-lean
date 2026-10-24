@@ -86,6 +86,12 @@ jobs:
           --case sqrt_normalized_residual --case sqrt_fused_norm --case sqrt_nested_root
           --case sqrt_standard_deviation_tight --replay
           --out .cache/numerics-generated/bench-sqrt-ci
+      - name: Certify and replay mixed storage applications
+        run: >-
+          python3 scripts/benchmark_numerics.py
+          --case mixed_stored --case mixed_calibrate --case mixed_normalized_residual
+          --case mixed_storage_chain --case mixed_calibrate_tight --replay
+          --out .cache/numerics-generated/bench-mixed-ci
       - name: Check out pinned README demo source
         uses: actions/checkout@v5
         with:

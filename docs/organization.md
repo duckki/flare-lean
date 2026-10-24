@@ -8,12 +8,15 @@ native operations from their real interpretations.
 
 ## What is proved
 
-The [explicit-FMA](explicit-fma.md) and [square-root](square-root.md) guides
+The [explicit-FMA](explicit-fma.md), [square-root](square-root.md) and
+[mixed-storage](mixed-precision.md) guides
 describe their source profiles, rounding/propagation proofs, runtime boundaries
 and retained applications.
 
 | Area | Representative results |
 | --- | --- |
+| FloatFormat | Shared binary32/binary64 IEEE format selection, canonical packing and model-derived rounding inference |
+| Binary32 | Model-backed storage narrowing, exact widening to binary64 and composable storage error bounds |
 | Binary64 | Packing, bounded integer conversion, addition, subtraction, multiplication, division, explicit single-rounding FMA, nearest-rounding bounds, comparisons, signed-zero congruence, exact ±1 multiplication, composable square-root range/error propagation, and positive square-root squared residuals |
 | Binary64 collections | Typed dimensions/cells, separately rounded eager operations, transpose/outer semantics and size rules; selected NumPy/Julia source bridges live in the provider |
 | Typed binary64 memory | Checked array-cell access, region bounds/separation and frame rules; physical C object representation is outside these definitions |
@@ -32,8 +35,9 @@ identify the exact operations and arithmetic order covered by a guarantee.
 
 NaNs and infinities have no real interpretation; both signed zeros mean real
 zero. Some proof helpers totalize exceptional or missing values to zero, with
-finiteness and representation premises stated separately. The numerical kernels
-use native `Float`; they do not execute rational arithmetic or `Float.Model`.
+finiteness and representation premises stated separately. The matrix kernels use native `Float` operations. Model-backed binary32 storage
+conversions explicitly use the pinned rounding/packing definitions; rational/real
+interpretations remain proof support.
 
 See the [theorem guide](reference.md) for declarations and their precise
 assumptions, and [using the library](using-library.md) for client setup. The
@@ -47,6 +51,8 @@ flare-lean/
 ├── Flare.lean                   # Public import of the whole library
 ├── Flare/
 │   ├── Analysis/                # Real and discrete mathematics
+│   ├── FloatFormat/             # Shared IEEE format, packing and rounding inference
+│   ├── Binary32/                # Storage conversions and mixed-storage error bounds
 │   ├── Binary64/                # Native Float semantics and scalar bounds
 │   │   └── Model/               # Exact model interpretations and proofs
 │   └── Matrix/                  # Matrix correctness and its algorithm definitions
@@ -101,7 +107,7 @@ FLARE applies that model to its focused numerical domain:
 
 | Design principle | Application to FLARE |
 | --- | --- |
-| Organize theories by subject | `Analysis`, `Binary64`, and `Matrix`, with content-specific filenames |
+| Organize theories by subject | `Analysis`, `FloatFormat`, `Binary32`, `Binary64`, and `Matrix`, with content-specific filenames |
 | Make definitions and theorem statements the public interface | Prefer clear hypotheses and results that compose with existing declarations |
 | Reuse established mathematical infrastructure | Use Mathlib definitions and lemmas before introducing local alternatives |
 | Keep imports focused and layered | Pure mathematics remains independent of native binary64 and matrix algorithms |
@@ -118,7 +124,7 @@ Their definitions fix the operation schedule covered by the proof. Reusability
 does not require changing those definitions or weakening their assumptions:
 review any mathematical generalization or implementation change separately.
 
-The existing three module trees serve this proof-library organization. Keep
+The subject module trees serve this proof-library organization. Keep
 one package and one library, with potential upstream contributions recorded
 separately from the source layout.
 
@@ -170,7 +176,9 @@ tree. Lean's `Init`/`Std` and Mathlib are the supported external import roots.
 | Module tree | Allowed FLARE dependencies |
 | --- | --- |
 | `Flare.Analysis` | Analysis |
-| `Flare.Binary64` (including Model) | Analysis, Binary64 |
+| `Flare.FloatFormat` | FloatFormat |
+| `Flare.Binary64` (including Model) | Analysis, FloatFormat, Binary64 |
+| `Flare.Binary32` | Analysis, FloatFormat, Binary64, Binary32 |
 | `Flare.Matrix` | Analysis, Binary64, Matrix |
 
 Library modules import specific modules directly. `Flare.lean` imports all
@@ -219,7 +227,8 @@ Pure mathematical candidates stay in `Analysis`, where they can be assessed
 without native Float dependencies. The [Mathlib guide](upstream/mathlib.md)
 records candidate areas and how to turn a result into an upstream change.
 
-Native scalar and matrix results stay in `Binary64` and `Matrix`. Add another
+Scalar results stay in `Binary32`/`Binary64`, shared format inference in
+`FloatFormat`, and matrix results in `Matrix`. Add another
 contribution destination when a concrete result fits that project's definitions
 and scope. A shared subject area alone does not justify a contribution plan
 or a reserved module tree.
