@@ -43,7 +43,7 @@ use; detailed documentation is grouped by subject.
 
 ## Evaluation
 
-- [Tested applications, platforms and remaining release gate](evaluation/delivery-evaluation.md)
+- [Tested applications and platforms](evaluation/delivery-evaluation.md)
 - [Maintained benchmarks](../benchmarks/numerics/README.md)
 
 See [Contributing](../CONTRIBUTING.md) for review requirements and where new results belong.

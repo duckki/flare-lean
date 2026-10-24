@@ -83,13 +83,11 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Complete independent delivery evaluation.** Automated setup, counterexample
-   delivery, public application checks and maintenance have passed. An independent
-   engineer still needs to reproduce one positive result and one counterexample.
-2. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
+1. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
    storage boundaries, add binary32 arithmetic and select further library/function
-   contracts from retained applications. Broaden Rust correspondence-proof
-   generation while preserving real APIs and loops.
+   contracts from retained applications.
+2. **Broaden Rust correspondence-proof generation.** Generate further bridges
+   from admitted source profiles while preserving real APIs and loops.
 
 Each milestone retains source, domain, independent reference and engineering
 requirements. Changes to any of these create a separate reviewed case. Completion
@@ -97,19 +95,9 @@ requires a Lean root, axiom audit, frozen-source replay and rejection controls.
 Setup failure, unsupported source, resource exhaustion, an unproved candidate and
 a checked bound above budget remain distinct outcomes.
 
-## Sequence
-
-Milestone 14 has completed its automated checks; independent engineer
-reproduction remains its release gate. Further implementation priorities follow
-in the arithmetic and source-coverage sections below.
-
-| Milestone | User benefit | Concrete completion target |
-| --- | --- | --- |
-| 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Automated setup, counterexamples and held-out checks pass; an independent engineer reproduces a positive root and counterexample |
-
-Setup, counterexamples and maintenance accompany each capability. The
-[delivery evaluation](evaluation/delivery-evaluation.md) records completed automated checks
-and the remaining independent reproduction gate.
+The [delivery evaluation](evaluation/delivery-evaluation.md) records completed
+automated setup, public application checks, counterexample delivery and
+maintenance. Independent engineer reproduction is tracked below as a follow-up.
 
 No milestone requires integrating every candidate tool or supporting a complete
 source language before a useful closed profile can ship.
@@ -178,26 +166,6 @@ promotions, integer overflow rules, indexing, aliasing, rounding and reduction
 order belong to the bridge. A theorem about FLARE's matrix algorithm does not
 verify an arbitrary NumPy, BLAS or LAPACK call.
 
-## 14. Make automated delivery and maintenance routine
-
-The [delivery guide](automated-delivery.md) describes pinned setup, selected
-CBMC witness search, admission reports, portable evidence and change-aware
-rechecking. The [public application cases](../benchmarks/numerics/heldout/README.md)
-retain original source/contracts, pre-extension first attempts and provider
-assistance. They cover petroleum density conversion, a NumPy scientific-array
-helper and a C++ robotics helper with unchanged engineering requirements.
-
-### Remaining release gates
-
-- An engineer independently reproduces one positive result and one Lean
-  counterexample from the delivered report/bundles without session history.
-  Agent-operated VM/container/native runs do not satisfy this gate.
-
-Source, domain, independent reference, requirements and arithmetic models stay
-frozen across attempts. Changed semantics require a fresh run; compatible
-provider changes need a fresh Lean check. Setup failures, resource limits,
-no-witness search, proof rejection and checked violations remain distinct.
-
 ## Further arithmetic coverage
 
 - Extend binary32 storage to native binary32 arithmetic, independent typed API
@@ -248,6 +216,12 @@ evaluation project.
   domains before turning them into regressions. Freeze source and requirements,
   record the first attempt and needed assistance, and include independent engineer
   reproduction. This tests applicability beyond examples used to develop FLARE.
+- **Independent engineer reproduction.** Have an engineer reproduce one positive
+  certificate and one Lean-checked counterexample from delivered bundles without
+  session history. Record the actual results and needed assistance using the
+  [reproduction handoff](evaluation/independent-reproduction.md). This is a
+  follow-up to the completed automated delivery milestone; agent-only runs remain
+  automated evidence.
 - **End-to-end cost comparisons.** Extend the scaling scorecard across tools and
   source languages. Measure cold setup, analysis, Lean checking, cold replay and
   warm reuse separately, alongside peak memory and artifact size. Retain failed

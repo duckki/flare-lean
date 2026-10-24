@@ -336,7 +336,7 @@ an independent evaluation of agent behavior on new engineering tasks.
 
 The [delivery evaluation](evaluation/delivery-evaluation.md) records automated clean-tool
 setup, public application checks, portable bundles and change-aware rechecking.
-Independent engineer reproduction remains its release gate. The
+Independent engineer reproduction is tracked as a follow-up. The
 [milestone plan](roadmap.md) tracks broader scientific APIs, shared evidence
 checking, more arithmetic models and Rust bridge generation. Keep current
 scenarios as baselines and use feedback to prioritize additional applications.

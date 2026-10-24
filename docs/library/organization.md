@@ -71,7 +71,7 @@ flare-lean/
 │   ├── sources/                 # Scientific arrays and closed C source profiles
 │   ├── arithmetic/              # FMA, square roots and mixed-storage contracts
 │   ├── integration/             # Tool adapters, proof evidence, witnesses and scaling
-│   └── evaluation/              # Application/platform evidence and release gates
+│   └── evaluation/              # Application/platform evidence and reproduction
 ├── provider/
 │   ├── numerics/
 │   │   ├── frontends/           # Source parsing, admission and source/API bridges

@@ -151,8 +151,10 @@ the positive/counterexample archives, their reports, and the commands above.
 They should reproduce one positive root and one counterexample from those files
 without session history. Record that person's result separately. Agent-driven
 VM/container/native runs establish automated reproduction, not this human step.
+The [independent reproduction checklist](evaluation/independent-reproduction.md)
+provides the minimal paired handoff, commands and required results.
 
-Current platform evidence and remaining release gates are in
+Current platform evidence and the independent reproduction follow-up are in
 [the delivery evaluation](evaluation/delivery-evaluation.md). Full source-language support,
 general C++ semantics and arbitrary NumPy/library calls are outside these cases.
 

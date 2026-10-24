@@ -164,7 +164,7 @@ Locally, set `FLARE_CBMC` to the selected executable to enable these real-tool
 tests. The [delivery guide](automated-delivery.md) covers its setup recipe and
 `scripts/release_numerics.py`, which checks retained Python/NumPy/C++ cases,
 counterexamples, portable bundles and change-aware rechecking. Platform evidence
-and the independent engineer gate are in the [delivery evaluation](evaluation/delivery-evaluation.md).
+and the independent engineer follow-up are in the [delivery evaluation](evaluation/delivery-evaluation.md).
 Optional runtimes and Rust extraction are selected separately with local tool
 paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set

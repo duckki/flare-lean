@@ -1,5 +1,11 @@
 # Automated delivery evaluation
 
+**Milestone 14 is complete.** Pinned setup, retained public applications,
+Lean-checked counterexamples, portable replay, change-aware rechecking and
+maintenance/rejection controls have passed the automated checks below.
+Independent engineer reproduction is a separate follow-up; it has not yet been
+recorded.
+
 The release checks retain unmodified Chemicals, NumPy and ROS sources, frozen
 contracts, [first attempts and needed assistance](../../benchmarks/numerics/heldout/README.md).
 Their three positive certificates accompany the covariance failure and a separate
@@ -79,12 +85,14 @@ Gappa/FPTaylor replay, older frozen certificates and the 1,024-step/shared-contr
 scale cases. Additional polynomial reference normalization is bounded to small
 graphs; large matrix graphs retain their structural proof path and sharing.
 
-## Remaining release gate
+## Follow-up: independent engineer reproduction
 
-An independent engineer still needs to reproduce one positive certificate and
+An independent engineer should reproduce one positive certificate and
 one counterexample from their delivered reports/bundles, without session history.
-Agent-operated VM/container/native runs cannot satisfy that human step. The
-[delivery guide](../automated-delivery.md) provides the commands and prerequisites.
+Agent-operated VM/container/native runs remain automated evidence. The
+[independent reproduction handoff](independent-reproduction.md) provides the
+exact cases, setup/replay commands, expected roots and required result record.
+The [delivery guide](../automated-delivery.md) covers the general workflow.
 
 Broader NumPy APIs, general C++ semantics, additional counterexample properties,
 Rust bridge generation and native binary32 arithmetic remain roadmap work. These
