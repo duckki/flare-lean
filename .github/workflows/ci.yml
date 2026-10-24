@@ -61,8 +61,15 @@ jobs:
           (base/'tools.json').write_text(json.dumps({'analysis_tools': tools}) + '\n')
           PY
           echo "FLARE_NUMERICS_ANALYSIS_TOOLS=$PWD/.cache/numerics-generated/ci-tools/tools.json" >> "$GITHUB_ENV"
+      - name: Install pinned counterexample search tool
+        run: |
+          python3 scripts/certify_numerics.py setup --tool cbmc \
+            --out .cache/numerics-generated/ci-tools/cbmc
+          echo "FLARE_CBMC=$PWD/.cache/numerics-generated/ci-tools/cbmc/install/usr/bin/cbmc" >> "$GITHUB_ENV"
       - name: Check numerical workflow and rejection controls
         run: make numerics-check
+      - name: Check portable public application delivery
+        run: python3 scripts/release_numerics.py --out .cache/numerics-generated/release-ci
       - name: Retain external producer workflow evidence
         run: >-
           python3 scripts/benchmark_numerics.py
@@ -146,6 +153,7 @@ jobs:
         with:
           name: numerics-benchmarks
           path: |
+            .cache/numerics-generated/release-ci/
             .cache/numerics-generated/bench-*/
             .cache/numerics-generated/scale-*/
             .cache/numerics-generated/ci-tools/*/installation.json

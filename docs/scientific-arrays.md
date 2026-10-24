@@ -7,6 +7,10 @@ authoritative request/source/setup guide. Maintained
 [examples](../examples/numerics/scientific/README.md) include calibration and a
 complete two-state dense covariance prediction/correction.
 
+Closed functions can also be selected from a full Python module with
+`python_module: true`; see [source selection](automated-delivery.md#select-original-source-definitions)
+for its isolation and caller-review premises.
+
 ## What is connected
 
 The original source is admitted with explicit dtypes/shapes and operation order.
@@ -29,6 +33,12 @@ rounding sites and accumulation schedule. Existing FLARE binary64 pipeline rules
 carry every intermediate's error through the whole computation. The new core
 module supplies collection definitions and size rules, not per-application error
 lemmas or a foreign-proof importer.
+
+Python integer literals and fixed integer expressions with magnitude at most
+`2^53` can promote exactly when used in float64 arithmetic; indexing remains
+integer-valued. This does not admit integer-array dtypes, arbitrary NumPy casts
+or Julia integer promotion. Extra polynomial reference normalization is limited
+to 32-node graphs; larger collection graphs retain structural proofs and sharing.
 
 ## Dense application
 
@@ -71,7 +81,7 @@ helper and its real production loop. The provider reconstructs those actual
 arguments in a small extraction wrapper. Fresh Charon/Aeneas extraction and an
 authored bridge prove indexing, counter increments and return correspondence;
 that actual return joins the same typed numerical root. Debug/release diagnostics
-also compare with original Julia. Proof expansion stays in the proof.
+also compare with original Python/NumPy or Julia. Proof expansion stays in the proof.
 
 The current scientific retained-port route has at most two output cells. It is
 not a general array-library translator or automatic proof generator. General
@@ -87,6 +97,11 @@ certification/replay and NumPy-to-Rust delivery with fresh extraction. The Linux
 run reused an existing Lean/Aeneas installation and installed the pinned NumPy
 runtime; it is not a new clean-machine bootstrap claim. Both routes preserve the
 same source, reference, budgets and typed root checks.
+
+The later [delivery evaluation](delivery-evaluation.md) additionally checks the
+original NumPy quantile helper in clean-tool Linux and isolated macOS setups,
+plus native macOS NumPy-to-Rust portable delivery/rechecking. It records which
+installations were fresh and which tools were reused.
 
 Controls cover dtype/broadcast/index/alias/schedule changes, Julia counter scope,
 exact decimal reference parsing, false numerical references, altered runtime

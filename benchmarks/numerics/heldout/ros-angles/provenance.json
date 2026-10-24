@@ -1,0 +1,11 @@
+{
+  "id": "ros-angles",
+  "repository": "https://github.com/ros/angles",
+  "revision": "a96224f9ab3ac51fe8fd981c1e1554528dc4345a",
+  "source_path": "angles/include/angles/angles.h",
+  "license_path": "angles/package.xml",
+  "files": {
+    "source.h": "6972d2fd0fda27ca42ab9271859004256f55dd58521711138b30df581ab9c5cf",
+    "LICENSE-upstream.xml": "83196d85c1254b1f923476d0530bdf422fc2866feaa2b8f4b15cefe927b63744"
+  }
+}

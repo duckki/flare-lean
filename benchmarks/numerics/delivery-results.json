@@ -1,0 +1,366 @@
+{
+  "schema": "numerics-delivery-scorecard-v1",
+  "measurement_date_utc": "2026-10-24",
+  "qualification": "Agent-operated reproduction only. Measurements are observations, not cross-platform performance comparisons. Setup excludes base-OS prerequisite installation. Peak RSS is the maximum completed-child measurement, not aggregate process-tree memory. Independent engineer reproduction is pending.",
+  "platforms": {
+    "linux-arm64": {
+      "qualification": "Fresh Ubuntu 24.04 ARM64 container in a Linux ARM64 VM; no host mounts.",
+      "platform": {
+        "system": "Linux",
+        "machine": "aarch64",
+        "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "status": "passed",
+      "cases": {
+        "numpy-quantile": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 7.069417253000211,
+          "peak_completed_child_rss_bytes": 2055520256,
+          "bundle_bytes": 91909,
+          "bundle_sha256": "3953bb5d060ca18831d174cd9ac4d8c6b6039ba0b6a5a2dd35083db11f2eb262",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 5.952234795000095,
+          "recheck_seconds": 8.158652253000128,
+          "lean_check_child_seconds": 6.644003585000064
+        },
+        "chemicals-density": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 2.586356960000103,
+          "peak_completed_child_rss_bytes": 1085579264,
+          "bundle_bytes": 41516,
+          "bundle_sha256": "777235e8746109ce0967d7b371bcca8fe2d00ee93ce78e32a8cc2659e472570a",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 2.4394030010003007,
+          "recheck_seconds": 3.4845640020002975,
+          "lean_check_child_seconds": 2.4434838760003004
+        },
+        "ros-angles": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 3.080266709999705,
+          "peak_completed_child_rss_bytes": 1079320576,
+          "bundle_bytes": 28223,
+          "bundle_sha256": "adfab45153cf2994ac179cd0f453dadbd17e88f8f414dea1bf19a8be150d3e1c",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 2.6219129170003725,
+          "recheck_seconds": 3.273985459999949,
+          "lean_check_child_seconds": 2.2671948349998274
+        },
+        "covariance-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 2.0476385009997102,
+          "peak_completed_child_rss_bytes": 973295616,
+          "bundle_bytes": 14220,
+          "bundle_sha256": "678150a5f6678c18ad33cac83f95adbc3221c1d140588d5f65074e23d2a81a9b",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 2.0433425429996532,
+          "recheck_seconds": 3.050192168000194,
+          "lean_check_child_seconds": 1.9543445859999338
+        },
+        "ros-positivity-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 2.586260960000345,
+          "peak_completed_child_rss_bytes": 968814592,
+          "bundle_bytes": 22462,
+          "bundle_sha256": "293f5417e9cd86ed6b3c83789b7e94750429f38307380e9f1f0a28cfa3b92fe3",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 1.8329207510000742,
+          "recheck_seconds": 2.8145296679999774,
+          "lean_check_child_seconds": 1.858059583999875
+        }
+      },
+      "bootstrap_seconds": 185.03800950100003,
+      "baseline_tools": {
+        "lean": null,
+        "lake": null,
+        "elan": null,
+        "gappa": null,
+        "fptaylor": null,
+        "precisa": null,
+        "charon": null,
+        "aeneas": null,
+        "rustc": null,
+        "cbmc": null
+      },
+      "toolchain": "leanprover/lean4:v4.35.0",
+      "setup_inputs": {
+        "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+        "lake-manifest.json": "f35e38ce9015edf3ffcda83c06e58631fa3bd90dbe5c19ce012f867e4d65c042",
+        "skills/verify-numerics/SKILL.md": "fc7e70c54723c60f9908904d1797d59d2fc564cdab5b3bf9e9f9658f911d3472",
+        "tools/numerics/bootstrap.json": "cdd2dcece3c7897fc3b827955cd828e0dfb83ca53e21d4d1df07a237ce8667ab"
+      }
+    },
+    "linux-x86_64-emulated": {
+      "qualification": "Fresh Ubuntu 24.04 x86-64 container under emulation in an ARM64 Linux VM; no host mounts.",
+      "platform": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+      },
+      "status": "passed",
+      "cases": {
+        "numpy-quantile": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 14.26558913200006,
+          "peak_completed_child_rss_bytes": 2049077248,
+          "bundle_bytes": 92021,
+          "bundle_sha256": "b257ae4023989f617fc3312a08ab1c1d05f529c2f852490121661938f108fd28",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 12.212663755999984,
+          "recheck_seconds": 16.490073590000065,
+          "lean_check_child_seconds": 13.126130757000283
+        },
+        "chemicals-density": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 7.741285170000083,
+          "peak_completed_child_rss_bytes": 1152405504,
+          "bundle_bytes": 41550,
+          "bundle_sha256": "9c2a42c05d04198d7c89bff9a5aeb28e544fd07d1289f42a3ba3decb3ea77ff1",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 7.134164753000277,
+          "recheck_seconds": 10.062920630000008,
+          "lean_check_child_seconds": 7.121359628999471
+        },
+        "ros-angles": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 15.700325631999931,
+          "peak_completed_child_rss_bytes": 1158463488,
+          "bundle_bytes": 28350,
+          "bundle_sha256": "44d70ffa05b3a6c0f550b5509b9ae6dc824c0811974d9982ff3e0786b91ac903",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 17.046425424000063,
+          "recheck_seconds": 23.40257892799991,
+          "lean_check_child_seconds": 10.121963004000463
+        },
+        "covariance-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 11.895537589000014,
+          "peak_completed_child_rss_bytes": 1023045632,
+          "bundle_bytes": 14250,
+          "bundle_sha256": "c745c8be1530ac02c138acc0ed4b5a6f88c85e1e1828eac72d21b776efb2e423",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 12.650009839999711,
+          "recheck_seconds": 19.55568013400034,
+          "lean_check_child_seconds": 10.990022045999922
+        },
+        "ros-positivity-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 21.562353468999845,
+          "peak_completed_child_rss_bytes": 1018511360,
+          "bundle_bytes": 22484,
+          "bundle_sha256": "40b25181217912626e7b4db826d5b1f5a1693409bb1ec2cbaab501eac21190a3",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 13.047323963000053,
+          "recheck_seconds": 18.175001591000182,
+          "lean_check_child_seconds": 14.621107174999452
+        }
+      },
+      "bootstrap_seconds": 335.64051369599974,
+      "baseline_tools": {
+        "lean": null,
+        "lake": null,
+        "elan": null,
+        "gappa": null,
+        "fptaylor": null,
+        "precisa": null,
+        "charon": null,
+        "aeneas": null,
+        "rustc": null,
+        "cbmc": null
+      },
+      "toolchain": "leanprover/lean4:v4.35.0",
+      "setup_inputs": {
+        "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+        "lake-manifest.json": "f35e38ce9015edf3ffcda83c06e58631fa3bd90dbe5c19ce012f867e4d65c042",
+        "skills/verify-numerics/SKILL.md": "fc7e70c54723c60f9908904d1797d59d2fc564cdab5b3bf9e9f9658f911d3472",
+        "tools/numerics/bootstrap.json": "cdd2dcece3c7897fc3b827955cd828e0dfb83ca53e21d4d1df07a237ce8667ab"
+      }
+    },
+    "macos-arm64-isolated-tools": {
+      "qualification": "Native existing macOS with an empty selected tool pool and restricted PATH; existing user caches and OS/SDK prerequisites remain available.",
+      "platform": {
+        "system": "Darwin",
+        "machine": "arm64",
+        "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]"
+      },
+      "status": "passed",
+      "cases": {
+        "chemicals-density": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 17.318143791053444,
+          "peak_completed_child_rss_bytes": 901922816,
+          "bundle_bytes": 41861,
+          "bundle_sha256": "7a0717a997d1e354e292603cb010752ed1c3134561b7742dcd99d68eaee4f10c",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_child_seconds": 7.940354875056073,
+          "lean_check_child_seconds": 16.713444291148335
+        },
+        "numpy-quantile": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 19.568649166962132,
+          "peak_completed_child_rss_bytes": 1798766592,
+          "bundle_bytes": 92115,
+          "bundle_sha256": "bfcbe90b29ea5ba20cf8ed22b866b76c907c837854ff081588e9392ee644c33f",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_child_seconds": 14.645578292082064,
+          "lean_check_child_seconds": 18.447722458979115
+        },
+        "ros-angles": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 11.457530334009789,
+          "peak_completed_child_rss_bytes": 894763008,
+          "bundle_bytes": 29824,
+          "bundle_sha256": "624dc58d31753c64c1745f9ebc37d2199a2748a9c4ecb05a2e75effd12e7938c",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_child_seconds": 7.248776792082936,
+          "lean_check_child_seconds": 7.47585545713082
+        },
+        "covariance-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 6.961969333933666,
+          "peak_completed_child_rss_bytes": 797147136,
+          "bundle_bytes": 14522,
+          "bundle_sha256": "42a870e3042a3e4b22890eb8f8143cc66ddcb1eb15b088643da09f544cd2b226",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_child_seconds": 6.017185959150083,
+          "lean_check_child_seconds": 6.597981040948071
+        }
+      },
+      "bootstrap_seconds": 424.1988789580064,
+      "baseline_tools": {
+        "lean": null,
+        "lake": null,
+        "elan": null,
+        "gappa": null,
+        "fptaylor": null,
+        "precisa": null,
+        "charon": null,
+        "aeneas": null,
+        "rustc": null
+      },
+      "toolchain": "leanprover/lean4:v4.35.0",
+      "setup_inputs": {
+        "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+        "lake-manifest.json": "f35e38ce9015edf3ffcda83c06e58631fa3bd90dbe5c19ce012f867e4d65c042",
+        "skills/verify-numerics/SKILL.md": "1e515b030356fd8641dedd6a3e7e49111897350bf67207c195383d84d7589f4a",
+        "tools/numerics/bootstrap.json": "cdd2dcece3c7897fc3b827955cd828e0dfb83ca53e21d4d1df07a237ce8667ab"
+      }
+    },
+    "macos-arm64-existing-tools": {
+      "qualification": "Native macOS with existing Lean/NumPy/Charon/Aeneas tools; includes retained Rust API delivery.",
+      "platform": {
+        "system": "Darwin",
+        "machine": "arm64",
+        "python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]"
+      },
+      "status": "passed",
+      "cases": {
+        "chemicals-density": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 7.366543999989517,
+          "peak_completed_child_rss_bytes": 899186688,
+          "bundle_bytes": 42286,
+          "bundle_sha256": "ef36fbc2ff3b232eb370428bfc829f7e9d7948daf9e8076ca76e5e76a1414336",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 7.089473375002854,
+          "recheck_seconds": 10.763728333986364,
+          "lean_check_child_seconds": 7.000367498956621
+        },
+        "numpy-quantile": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 15.12277479202021,
+          "peak_completed_child_rss_bytes": 1692057600,
+          "bundle_bytes": 92552,
+          "bundle_sha256": "8261a991911faea19c04c416044de703ea23b953bc54f8bd1d6421b53056a6ef",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 15.605991209042259,
+          "recheck_seconds": 16.683250834001228,
+          "lean_check_child_seconds": 14.556345249875449
+        },
+        "ros-angles": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 9.814926458057016,
+          "peak_completed_child_rss_bytes": 892928000,
+          "bundle_bytes": 30256,
+          "bundle_sha256": "c321c76001a26d4e940e2322532e9c3b663356d1fcde066c6366839a4f2e8149",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 5.906836041947827,
+          "recheck_seconds": 8.862511708051898,
+          "lean_check_child_seconds": 5.91839045798406
+        },
+        "covariance-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 6.015416249982081,
+          "peak_completed_child_rss_bytes": 797917184,
+          "bundle_bytes": 15009,
+          "bundle_sha256": "03268100c3f5cbf8bcb08f97b703b88209f2cbf034b51963d4e7f9f152f18dc7",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 5.399650249979459,
+          "recheck_seconds": 8.138136665918864,
+          "lean_check_child_seconds": 5.58245758281555
+        },
+        "ros-positivity-counterexample": {
+          "status": "counterexample",
+          "entry_theorem": "Workflow.Counterexample.counterexample",
+          "generation_seconds": 8.412629416910931,
+          "peak_completed_child_rss_bytes": 802340864,
+          "bundle_bytes": 24202,
+          "bundle_sha256": "92ac07a88e68618338fd4edc589959adbce71bb1b4894e636ef6ddc7064f984b",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 5.411168708000332,
+          "recheck_seconds": 7.928771166014485,
+          "lean_check_child_seconds": 5.110770042054355
+        },
+        "retained-array-rust": {
+          "status": "certified",
+          "entry_theorem": "Workflow.Certificate.certificate",
+          "generation_seconds": 28.75530554202851,
+          "peak_completed_child_rss_bytes": 1916878848,
+          "bundle_bytes": 141946,
+          "bundle_sha256": "d75c5dd73074f38ac634b6bc041a066a3ba0d90886c05072db144dacc745e237",
+          "replay": "replayed",
+          "recheck": "rechecked",
+          "replay_seconds": 20.905812208075076,
+          "recheck_seconds": 23.61710112495348,
+          "lean_check_child_seconds": 22.95039758400526
+        }
+      }
+    }
+  }
+}

@@ -418,7 +418,7 @@ def certify(request_path, output):
     return result
 
 
-def replay(path, output, aeneas_lean_lib=None):
+def replay(path, output, aeneas_lean_lib=None, *, timeout_seconds=None):
     from .workflow import Runner, prepare as prepare_request, save
     request, _, program, _ = prepare_request(path/'request.json', replay=True)
     original = json.loads((path/'result.json').read_text())
@@ -438,7 +438,7 @@ def replay(path, output, aeneas_lean_lib=None):
         from .components import materialize
         materialize(output, program.components)
     source_api_model(output, request)
-    runner = Runner(output, request.get('timeout_seconds', 240))
+    runner = Runner(output, timeout_seconds if timeout_seconds is not None else request.get('timeout_seconds', 240))
     work = output/'.work'
     work.mkdir()
     try:

@@ -1,0 +1,11 @@
+{
+  "id": "numpy-quantile",
+  "repository": "https://github.com/numpy/numpy",
+  "revision": "c5ab79c14c98bfda1e60770ffa23a6130f8267b7",
+  "source_path": "numpy/lib/_function_base_impl.py",
+  "license_path": "LICENSE.txt",
+  "files": {
+    "source.py": "f1cfaeed9c91542d47b904e3477839a8c194df483e1ad44f76b02ace7d469945",
+    "LICENSE-upstream.txt": "1be1df33863f97a7bc1c4d67980bd6c69c9a6fef0a5ee76e6ad6cb91e56e8491"
+  }
+}

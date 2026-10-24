@@ -374,6 +374,12 @@
       "expected": "counterexample",
       "optional": false,
       "family": "counterexamples"
+    },
+    {
+      "name": "ros_angles_positivity_search",
+      "request": "heldout/ros-angles/positivity_search.json",
+      "expected": "counterexample",
+      "optional": true
     }
   ]
 }

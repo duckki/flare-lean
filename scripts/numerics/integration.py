@@ -160,11 +160,11 @@ class Session:
         self.record(adapter, details)
         return value
 
-    def tool(self, name, version_args, version_pattern, versions, environment=None, data_files=None, identity_files=None):
+    def tool(self, name, version_args, version_pattern, versions, environment=None, data_files=None, identity_files=None, selection=None):
         """Resolve existing/user-installed tools with common identity and version checks."""
         from .workflow import sha
         self.runner.last_stage = name+'-admission'
-        chosen = self.request.get('analysis_tools', {}).get(name, {})
+        chosen = selection if selection is not None else self.request.get('analysis_tools', {}).get(name, {})
         configured = chosen.get('executable') or os.environ.get('FLARE_'+name.upper()) or name
         executable = shutil.which(os.path.expanduser(configured))
         if not executable:

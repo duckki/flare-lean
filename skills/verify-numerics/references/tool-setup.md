@@ -58,6 +58,22 @@ described in [FLARE's development guide](https://github.com/duckki/flare-lean/bl
 followed by a cache-enabled build;
 ordinary checkouts should reuse the populated pool.
 
+For an explicit tool pool and setup receipt, the complete provider also supplies
+`scripts/bootstrap_numerics.py --provider "$FLARE_ROOT" --tools "$FLARE_TOOLS"
+--out "$VERIFICATION/setup" --skill "$SKILL_DIR/SKILL.md"`. Add only needed
+`--package numpy` / `--package pycparser` options. It checks the copied skill hash,
+pins official Elan assets, installs the provider's Lean version and builds FLARE.
+Apply its saved `environment.json` to later commands; it does not edit profiles.
+`--shared-cache` is an explicit opt-in and is not required. Python, curl, Git,
+Make and platform C/C++ build prerequisites still need an appropriate OS setup.
+See [delivery setup](https://github.com/duckki/flare-lean/blob/main/docs/automated-delivery.md).
+
+For selected strict-positivity witness search on Ubuntu 24.04 x86-64/ARM64,
+`certify_numerics.py setup --tool cbmc --out "$FLARE_TOOLS/cbmc-6.11.0"`
+checks the official release digest and extracts in user scope using `dpkg-deb`.
+Select the resulting `install/usr/bin/cbmc` explicitly. Other platforms need a
+compatible selected installation; no missing-tool result proves a numerical claim.
+
 ## Charon/Aeneas and its Lean model
 
 Read `$FLARE_ROOT/tools/numerics/aeneas-revisions.json` for the authoritative
@@ -165,10 +181,11 @@ than treating these historical links as a second source of version selection.
    delivery. Retain setup/preflight failures and distinguish them from rejected
    application statements or accuracy budgets.
 
-There is no bundled one-command installer: these are agent-executed source setup
-instructions. Reusing an existing installation is not a clean-machine bootstrap
-test. State which route was exercised rather than claiming an untested platform
-or installation procedure has passed.
+Charon/Aeneas setup remains agent-executed source setup; the Lean/provider
+bootstrap helper does not install these translators. Reusing an existing
+installation is not a clean-machine bootstrap test. State which route was
+exercised rather than claiming an untested platform or installation procedure
+has passed.
 
 ## PRECiSA
 

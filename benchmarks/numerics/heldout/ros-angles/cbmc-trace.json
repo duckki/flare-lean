@@ -1,0 +1,697 @@
+[
+  {
+    "program": "CBMC 6.11.0 (cbmc-6.11.0)"
+  },
+  {
+    "messageText": "CBMC version 6.11.0 (cbmc-6.11.0) 64-bit arm64 linux",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Type-checking search",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Generating GOTO Program",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Adding CPROVER library (arm64)",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Removal of function pointers and virtual functions",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Generic Property Instrumentation",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Starting Bounded Model Checking",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Passing problem to propositional reduction",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "converting SSA",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Running propositional reduction",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "SAT checker: instance is SATISFIABLE",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "messageText": "Building error trace",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "result": [
+      {
+        "description": "assertion n3 > 0.0",
+        "property": "main.assertion.1",
+        "sourceLocation": {
+          "comment": "assertion n3 > 0.0",
+          "file": "/work/verification/ros-search/search.c",
+          "function": "main",
+          "line": "14",
+          "propertyClass": "assertion",
+          "propertyId": "main.assertion.1",
+          "workingDirectory": "/work/provider"
+        },
+        "status": "FAILURE",
+        "trace": [
+          {
+            "hidden": false,
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "26",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "location-only",
+            "thread": 0
+          },
+          {
+            "function": {
+              "displayName": "__CPROVER_initialize",
+              "identifier": "__CPROVER_initialize",
+              "sourceLocation": {
+                "file": "<built-in-additions>",
+                "line": "26",
+                "workingDirectory": "/work/provider"
+              }
+            },
+            "hidden": true,
+            "internal": false,
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "26",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "function-call",
+            "thread": 0
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "__CPROVER_dead_object",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "10",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "data": "NULL",
+              "name": "pointer",
+              "type": "const void *"
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "__CPROVER_deallocated",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "9",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "data": "NULL",
+              "name": "pointer",
+              "type": "const void *"
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "__CPROVER_max_malloc_size",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "14",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000010000000000000000000000000000000000000000000000000000000",
+              "data": "36028797018963968ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "__CPROVER_memory_leak",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "11",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "data": "NULL",
+              "name": "pointer",
+              "type": "const void *"
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "__CPROVER_rounding_mode",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "<built-in-additions>",
+              "line": "18",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "00000000000000000000000000000000",
+              "data": "0",
+              "name": "integer",
+              "type": "signed int",
+              "width": 32
+            }
+          },
+          {
+            "function": {
+              "displayName": "__CPROVER_initialize",
+              "identifier": "__CPROVER_initialize",
+              "sourceLocation": {
+                "file": "<built-in-additions>",
+                "line": "26",
+                "workingDirectory": "/work/provider"
+              }
+            },
+            "hidden": true,
+            "internal": false,
+            "stepType": "function-return",
+            "thread": 0
+          },
+          {
+            "hidden": false,
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "line": "4",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "location-only",
+            "thread": 0
+          },
+          {
+            "function": {
+              "displayName": "main",
+              "identifier": "main",
+              "sourceLocation": {
+                "file": "/work/verification/ros-search/search.c",
+                "line": "4",
+                "workingDirectory": "/work/provider"
+              }
+            },
+            "hidden": false,
+            "internal": false,
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "line": "4",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "function-call",
+            "thread": 0
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "flare_input_bits0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "5",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "return_value_nondet_u64",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "5",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "return_value_nondet_u64",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "5",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+              "data": "2ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "flare_input_bits0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "5",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+              "data": "2ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "input0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "6",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "member": {
+                "name": "bits",
+                "value": {
+                  "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "data": "0ul",
+                  "name": "integer",
+                  "type": "__CPROVER_size_t",
+                  "width": 64
+                }
+              },
+              "name": "union"
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "input0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "6",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "member": {
+                "name": "bits",
+                "value": {
+                  "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+                  "data": "2ul",
+                  "name": "integer",
+                  "type": "__CPROVER_size_t",
+                  "width": 64
+                }
+              },
+              "name": "union"
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "input0.bits",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "6",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+              "data": "2ul",
+              "name": "integer",
+              "type": "__CPROVER_size_t",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "input0.value",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "6",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+              "data": "9.881313e-324",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "hidden": false,
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "7",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "location-only",
+            "thread": 0
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "a0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "8",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "a0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "8",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000010",
+              "data": "9.881313e-324",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "hidden": false,
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "9",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "location-only",
+            "thread": 0
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "n0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "10",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "n0",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "10",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0100000000001001001000011111101101010100010001000010110100011000",
+              "data": "3.141593",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "n1",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "11",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "n1",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "11",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000110",
+              "data": "2.964394e-323",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "n2",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "12",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "n2",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "12",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0100000001100110100000000000000000000000000000000000000000000000",
+              "data": "180",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": true,
+            "internal": false,
+            "lhs": "n3",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "hide": true,
+              "line": "13",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "assignmentType": "variable",
+            "hidden": false,
+            "internal": false,
+            "lhs": "n3",
+            "mode": "C",
+            "sourceLocation": {
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "13",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "assignment",
+            "thread": 0,
+            "value": {
+              "binary": "0000000000000000000000000000000000000000000000000000000000000000",
+              "data": "0",
+              "name": "float",
+              "width": 64
+            }
+          },
+          {
+            "hidden": false,
+            "internal": false,
+            "property": "main.assertion.1",
+            "reason": "assertion n3 > 0.0",
+            "sourceLocation": {
+              "comment": "assertion n3 > 0.0",
+              "file": "/work/verification/ros-search/search.c",
+              "function": "main",
+              "line": "14",
+              "propertyClass": "assertion",
+              "propertyId": "main.assertion.1",
+              "workingDirectory": "/work/provider"
+            },
+            "stepType": "failure",
+            "thread": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "messageText": "VERIFICATION FAILED",
+    "messageType": "STATUS-MESSAGE"
+  },
+  {
+    "cProverStatus": "failure"
+  }
+]

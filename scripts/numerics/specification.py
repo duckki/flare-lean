@@ -1,6 +1,34 @@
 """Independent exact-reference expressions; parse syntax, never execute user code."""
 import ast
+import re
 from fractions import Fraction
+
+
+def rational_equivalence(program,specification):
+    """Propose bounded total-field case analysis, including zero denominators.
+
+    This is proof generation, not an algebraic oracle. Mathlib checks each branch
+    and rejects false identities; no nonzero premise is added to the root.
+    """
+    if (not isinstance(specification,list) or program.math or program.arrays or program.scientific
+            or len(program.nodes)>32):
+        return None
+    from .emit import expression
+    values={f'a{i}':f'a{i}' for i in range(len(program.inputs))};denominators=[]
+    for node in program.nodes:
+        if sum(len(values[arg]) for arg in node.args)>32768:return None
+        if node.op=='div':denominators.append(values[node.args[1]])
+        values[node.name]=re.sub(r'\b[an]\d+\b',lambda m:'('+values[m[0]]+')',expression(node,ideal=True))
+    for source in specification:
+        for node in ast.walk(ast.parse(source,mode='eval')):
+            if isinstance(node,ast.BinOp) and isinstance(node.op,ast.Div):
+                denominators.append(lean_expression(ast.get_source_segment(source,node.right),program.inputs))
+    denominators=list(dict.fromkeys(x for x in denominators if re.search(r'\ba\d+\b',x)))
+    if not denominators or len(denominators)>4:return None
+    cases=[f'by_cases denominator{i} : {value} = 0' for i,value in enumerate(denominators)]
+    args=', '.join('denominator'+str(i) for i in range(len(cases)))
+    return ['  all_goals ('+' <;> '.join(cases)+')',
+            '  all_goals field_simp ['+args+']']
 
 
 def lean_expression(source, inputs, bindings=None, allow_conditionals=False, allow_sqrt=False):

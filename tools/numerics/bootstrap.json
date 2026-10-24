@@ -1,0 +1,14 @@
+{
+  "schema": "numerics-bootstrap-recipe-v1",
+  "elan": {
+    "version": "v4.2.4",
+    "repository": "https://github.com/leanprover/elan",
+    "assets": {
+      "Linux-aarch64": ["elan-aarch64-unknown-linux-gnu.tar.gz", "05febd124d84ebf994b2e7479922a5650b1e950c17ae3bd1ddd776b65bb72bf9"],
+      "Linux-x86_64": ["elan-x86_64-unknown-linux-gnu.tar.gz", "42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63"],
+      "Darwin-arm64": ["elan-aarch64-apple-darwin.tar.gz", "7ad829861392c718dfebde3a83b5c8508df47be02af68894b094b0b3952616e5"],
+      "Darwin-x86_64": ["elan-x86_64-apple-darwin.tar.gz", "8a340b309d8ed2e96f930761fa223b3af57a38f5d253b53ac90293c9516f8cd4"]
+    }
+  },
+  "packages": {"numpy": "2.4.0", "pycparser": "3.0"}
+}

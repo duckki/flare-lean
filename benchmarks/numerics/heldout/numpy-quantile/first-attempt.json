@@ -1,0 +1,17 @@
+{
+  "schema": "numerics-first-attempt-v1",
+  "request_sha256": "40058199b54954845f88e962b8ad46e25c65e16b8489ac0670d080406ab65861",
+  "command": [
+    "python3",
+    "scripts/certify_numerics.py",
+    "plan",
+    "--request",
+    ".cache/numerics-generated/milestone14-delivery/heldout-inputs/numpy-quantile/request.json"
+  ],
+  "stdout": "{\n  \"status\": \"unsupported_or_invalid_request\",\n  \"error\": \"Scientific source requires closed functions and exactly import numpy as np\"\n}\n",
+  "stderr": "",
+  "returncode": 2,
+  "seconds": 0.055811041966080666,
+  "provider_revision": "7594055234fb0772620100abb6776644c21f26f8",
+  "assistance_before_attempt": []
+}

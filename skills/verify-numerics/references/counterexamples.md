@@ -20,8 +20,17 @@ strict positivity the selected output is
 `{"name":"variance","unit":"m²","property":"strict_positive"}`; the root
 also requires a positive independent exact reference. For an attained absolute
 error violation, keep the ordinary output `limit` unchanged. Other outputs still
-need names, units and requirements. The provider validates a supplied witness;
-it currently has no automatic witness search or CBMC adapter.
+need names, units and requirements. The provider validates supplied witnesses
+and can propose strict-positivity witnesses using explicitly selected CBMC 6.11.0.
+Replace `counterexample` with
+`counterexample_search: {"tool":"cbmc","output":0}` and select the executable in
+`search_tools: {"cbmc":{"path":"/absolute/path/to/cbmc"}}`. Keep the same domain
+and requirement. Search admits at most eight scalar inputs and 32 ordinary
+binary64 nodes. Its C harness and JSON trace are untrusted proposals; require the
+ordinary Lean witness root in `witness-run/`. Parent replay checks that the child
+preserved the original contract and needs no CBMC. A search that finds no witness
+or times out remains unresolved; it is never a positive proof. Obtain missing CBMC tools through `setup`
+and the tool guide rather than handing installation back to the engineer.
 
 Run `certify_numerics.py run`, then `replay` into a new directory beneath the
 agreed verification destination. Require status `counterexample` and entry

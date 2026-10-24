@@ -5,6 +5,9 @@ Use `scientific_arrays` for a closed scientific API, separately from
 dtypes, shapes and engineering requirements; keep original source and its loops.
 The provider admits Python with **NumPy 2.4.0** or **Julia 1.11.7** ordinary
 `Vector{Float64}` functions. It uses the default `lean-flare` producer.
+For selected original functions/helpers in a full Python module, add
+`python_module: true` and review the isolation premises in [delivery.md](delivery.md).
+That selection currently supports Lean delivery only.
 
 ## Request and independent reference
 
@@ -63,8 +66,10 @@ NumPy source imports exactly `numpy as np` and defines a closed call graph:
 
 - Ordinary positional functions, local helpers, separately rounded `+ - * /`
   and eager `np.add`, `np.subtract`, `np.multiply`, `np.divide`.
-- Identical array shapes or scalar broadcasting. NumPy row/column broadcasting,
-  mixed dtypes, integer promotions and implicit casts need further support.
+- Identical array shapes or scalar broadcasting. Python integer literals/fixed
+  integer expressions with magnitude at most `2^53` promote exactly when used
+  with float64 operands. Integer-array dtypes, NumPy row/column broadcasting,
+  mixed dtypes and arbitrary implicit casts need further support.
 - `np.zeros(shape, dtype=np.float64)`, rectangular
   `np.array([...], dtype=np.float64)`, vector `np.outer` and read-only matrix `.T`.
 - Explicit indexing of every dimension, fixed `range(size)` loops, initialized
@@ -84,8 +89,10 @@ Diagnostics execute original Julia; the parser's internal AST is never its proxy
 Arrays have rank one/two for NumPy and rank one for Julia; each dimension is 1–8,
 with at most 32 cells per array and 64 original input cells. There must be an array
 input. Expansion is capped at 1,024 nodes, 10,000 visited statements, 16 helper
-levels and fixed nonnegative loop ranges bounded by 32. Explicit floating
-constants keep dtypes clear; integers are used only for indices/extents.
+levels and fixed nonnegative loop ranges bounded by 32. Index/extent arithmetic
+remains integer-valued. Julia integer promotion is not part of this profile.
+Extra polynomial reference normalization is limited to 32-node graphs; larger
+graphs use the structural proof path, preserving expression sharing.
 
 NumPy `matmul`, `dot`, `einsum`, reductions, BLAS/LAPACK, arbitrary slicing/strides,
 `out=`, dtype changes and general library calls are excluded. Do not replace an

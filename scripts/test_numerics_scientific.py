@@ -46,7 +46,7 @@ class ScientificAdmissionTests(unittest.TestCase):
                   source.replace('np.multiply(values, gains)','np.array([values[0], values[1]], dtype=np.float32)'),
                   source.replace('np.multiply(values, gains)','values.astype(np.float64)'),
                   source.replace('np.multiply(values, gains)','np.add.reduce(values)'),
-                  source.replace('np.multiply(values, gains)','values * 2')]
+                  source.replace('np.multiply(values, gains)','values * 9007199254740993')]
         for value in variants:
             with self.subTest(value=value),self.assertRaises(Unsupported):parse('python',value,'calibrate',scientific_arrays=shapes)
         with self.assertRaisesRegex(Unsupported,'broadcasting'):parse('python',source,'calibrate',scientific_arrays={**shapes,'gains':[1,2]})

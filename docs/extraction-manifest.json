@@ -920,6 +920,45 @@
           "notes": "Unchanged upstream MIT license."
         }
       ]
+    },
+    {
+      "source_repository": "https://github.com/CalebBell/chemicals",
+      "source_revision": "e79047588b30cfabc564c79fb26d760c746877d7",
+      "license": "MIT; retained LICENSE-upstream.txt",
+      "files": [
+        {
+          "source": "chemicals/utils.py",
+          "target": "benchmarks/numerics/heldout/chemicals-density/source.py",
+          "source_sha256": "cad67c9628b026a426ea5e55b35d017580a9829c8f0abaf59f6428ca4b1309c5",
+          "notes": "Unchanged complete upstream source for a selected closed-model application check. Original requirements, pre-extension first attempt and reusable provider assistance retained alongside; no application source/contract edits or whole-library correctness claim."
+        }
+      ]
+    },
+    {
+      "source_repository": "https://github.com/numpy/numpy",
+      "source_revision": "c5ab79c14c98bfda1e60770ffa23a6130f8267b7",
+      "license": "BSD-3-Clause; retained LICENSE-upstream.txt",
+      "files": [
+        {
+          "source": "numpy/lib/_function_base_impl.py",
+          "target": "benchmarks/numerics/heldout/numpy-quantile/source.py",
+          "source_sha256": "f1cfaeed9c91542d47b904e3477839a8c194df483e1ad44f76b02ace7d469945",
+          "notes": "Unchanged complete upstream source for a selected closed-model application check. Original requirements, pre-extension first attempt and reusable provider assistance retained alongside; no application source/contract edits or whole-library correctness claim."
+        }
+      ]
+    },
+    {
+      "source_repository": "https://github.com/ros/angles",
+      "source_revision": "a96224f9ab3ac51fe8fd981c1e1554528dc4345a",
+      "license": "BSD-3-Clause; retained in source.h; package.xml records upstream metadata",
+      "files": [
+        {
+          "source": "angles/include/angles/angles.h",
+          "target": "benchmarks/numerics/heldout/ros-angles/source.h",
+          "source_sha256": "6972d2fd0fda27ca42ab9271859004256f55dd58521711138b30df581ab9c5cf",
+          "notes": "Unchanged complete upstream source for a selected closed-model application check. Original requirements, pre-extension first attempt and reusable provider assistance retained alongside; no application source/contract edits or whole-library correctness claim."
+        }
+      ]
     }
   ]
 }

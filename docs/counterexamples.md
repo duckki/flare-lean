@@ -45,8 +45,8 @@ requests keep their existing schema and behavior. The positivity witness route
 does not yet provide automatic universal positivity proofs.
 
 The witness can come from engineering analysis, an agent, a sample or a foreign
-search tool. The current CLI validates supplied witnesses; it does not search for
-them and does not integrate CBMC. A search verdict cannot replace the Lean root.
+search tool. The CLI can validate supplied witnesses or use the selected CBMC
+search route below. A search verdict cannot replace the Lean root.
 Use a new run for each proposed witness; retain failed attempts and the original
 requirement instead of loosening the budget until a different result succeeds.
 
@@ -95,8 +95,9 @@ missing theorem must still satisfy the reconstructed type and axiom audit.
 
 ## Supported scope and remaining boundaries
 
-Closed scalar Python, Rust, Julia and MATLAB-compatible frontends can use this
-path, subject to their existing source-runtime admission. Python and Rust have
+Closed scalar Python (including selected full-module definitions), C++ header,
+Rust, Julia and MATLAB-compatible frontends can use this
+path, subject to their existing source-runtime admission. Python, C++ and Rust have
 maintained end-to-end witnesses; Julia/MATLAB routes need their corresponding
 runtime and separate application evaluation. The graph has at most 32 nodes,
 one or two finite outputs, separately rounded binary64 `+ - * /` and negation.
@@ -113,3 +114,34 @@ Frontend mapping and runtime/compiler/hardware fidelity remain trusted. The
 actual-source witness diagnostic can reject a mismatch but does not prove source
 equivalence on other inputs. Review units, domain, reference and physical premises
 as for a positive certificate.
+
+## CBMC witness search
+
+For strict positivity, replace the supplied `counterexample` field with:
+
+```json
+"counterexample_search": {"tool": "cbmc", "output": 0},
+"search_tools": {"cbmc": {"path": "/absolute/path/to/cbmc"}}
+```
+
+Keep the original domain, independent reference and selected output property.
+Run/replay use the ordinary CLI. The admitted search route needs CBMC 6.11.0,
+at most eight scalar inputs and 32 separately rounded binary64 nodes. It exports
+a bounded C harness as an **unproved search aid**, retains the JSON trace and
+extracts exact visible input-word assignments. The ordinary witness checker
+then proves admissibility, actual model execution and the violation in Lean,
+with separate original-source diagnostics. The certificate is in `witness-run/`.
+Parent replay checks that this child preserved the original source/contract and
+replays its root without CBMC. A search verdict is never imported as a proof.
+
+`no_witness`, missing tools, unsupported versions, timeout and a candidate rejected
+by Lean are unresolved outcomes. A successful bounded search with no failure is
+not a positive numerical theorem. Search currently targets positivity only;
+absolute-error search and further source/memory profiles need separate support.
+
+A retained ROS header case finds a positive subnormal degree input whose computed
+radians round to zero. This is a separate positivity contract; it does not change
+the held-out accuracy case's frozen domain or error requirement. See
+[delivery evaluation](delivery-evaluation.md) for evidence and
+[CBMC's command interface](https://diffblue.github.io/cbmc/man/cbmc.html) for the
+external tool's trace and floating-point options.

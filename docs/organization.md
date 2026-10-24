@@ -68,6 +68,9 @@ flare-lean/
 │   ├── scientific-arrays.md     # NumPy/Julia collection roots and implementation boundaries
 │   ├── c-verification.md        # Closed C source, access/frame proofs and VC evaluation
 │   ├── tool-integration.md      # Adapter interfaces, evidence and validation
+│   ├── counterexamples.md      # Supplied witnesses, CBMC search and Lean refutations
+│   ├── automated-delivery.md   # Setup, source selection, bundles and rechecking
+│   ├── delivery-evaluation.md  # Tested applications/platforms and remaining gate
 │   ├── roadmap.md               # Planned capabilities and completion criteria
 │   ├── reference.md             # Theorem entry points and assumptions
 │   ├── upstream/
@@ -77,6 +80,8 @@ flare-lean/
 │   ├── certify_numerics.py      # Provider CLI for original-input Lean certificates
 │   ├── numerics/               # Source adapters, proposals, Lean/Rust emission
 │   ├── benchmark_numerics.py    # Maintained scenario runner
+│   ├── bootstrap_numerics.py    # Pinned user-scope Lean/provider setup and receipts
+│   ├── release_numerics.py      # Public cases, portable delivery and recheck evaluation
 │   ├── check_layout.py          # Import and export boundary checks
 │   ├── lint.py                  # Style, import-closure, and Lean lint driver
 │   ├── fmt.py                   # leanfmt at width 100, with optional Git base
@@ -85,7 +90,7 @@ flare-lean/
 ├── skills/verify-numerics/      # One authoritative engineer-facing agent skill
 ├── examples/numerics/           # Source kernels and request fixtures
 ├── benchmarks/numerics/         # Scenarios and external proof fixtures
-├── tools/numerics/              # Optional extraction-tool revision records
+├── tools/numerics/              # Pinned setup, analyzer and extraction-tool records
 ├── .cache/numerics-generated/   # Provider regressions, local config and legacy tools
 ├── Makefile
 ├── CONTRIBUTING.md
@@ -170,7 +175,11 @@ directory for editing.
 
 Maintained scenarios and source fixtures belong in `benchmarks/numerics` and
 `examples/numerics`. They exercise current capabilities and known gaps; they do
-not import an application's paper, session logs or historical roadmap.
+not import an application's paper, session logs or historical roadmap. Public
+application evaluations in `benchmarks/numerics/heldout` retain pinned original
+sources/licenses, contracts, first-attempt outcomes and needed provider assistance;
+these are reproducible benchmark data rather than session transcripts. Portable
+delivery and setup/checking costs are described in [automated delivery](automated-delivery.md).
 
 ## Dependency rules
 

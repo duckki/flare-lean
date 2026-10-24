@@ -1,0 +1,17 @@
+{
+  "schema": "numerics-first-attempt-v1",
+  "request_sha256": "a97577288a50c7e149f363efba3feeaa4b41315d146268bf336c029f1d2010c0",
+  "command": [
+    "python3",
+    "scripts/certify_numerics.py",
+    "plan",
+    "--request",
+    ".cache/numerics-generated/milestone14-delivery/heldout-inputs/ros-angles/request.json"
+  ],
+  "stdout": "{\n  \"status\": \"unsupported_or_invalid_request\",\n  \"error\": \"No admitted frontend for cpp; available: c, rust, python, julia, matlab\"\n}\n",
+  "stderr": "",
+  "returncode": 2,
+  "seconds": 0.04294900002423674,
+  "provider_revision": "7594055234fb0772620100abb6776644c21f26f8",
+  "assistance_before_attempt": []
+}

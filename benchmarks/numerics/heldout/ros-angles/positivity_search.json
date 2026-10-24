@@ -1,0 +1,37 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "cpp",
+  "source": "source.h",
+  "function": "angles::from_degrees",
+  "domain": {
+    "degrees": [
+      "1/202402253307310618352495346718917307049556649764142118356901358027430339567995346891960383701437124495187077864316811911389808737385793476867013399940738509921517424276566361364466907742093216341239767678472745068562007483424692698618103355649159556340810056512358769552333414615230502532186327508646006263307707741093494784",
+      "360"
+    ]
+  },
+  "specification": [
+    "degrees * (884279719003555 / 50665495807918080)"
+  ],
+  "outputs": [
+    {
+      "name": "angle",
+      "unit": "rad",
+      "property": "strict_positive"
+    }
+  ],
+  "cpp_module": {
+    "constants": {
+      "M_PI": "0x400921fb54442d18"
+    }
+  },
+  "counterexample_search": {
+    "tool": "cbmc",
+    "output": 0
+  },
+  "search_tools": {
+    "cbmc": {
+      "path": "/absolute/path/to/cbmc"
+    }
+  },
+  "timeout_seconds": 120
+}

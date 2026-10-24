@@ -10,6 +10,8 @@ Use [registered tool integration](tool-integration.md) for the current Gappa,
 FPTaylor and PRECiSA adapters and `capabilities` for their version/model limits. These routes
 retain external output and independently prove its candidate conclusion in Lean;
 their presence does not imply a foreign-proof-trace importer.
+The separate [CBMC witness route](counterexamples.md) searches small scalar
+strict-positivity cases; only the subsequent Lean root establishes a violation.
 
 | Obligation | Useful routes | Check before using the result |
 |---|---|---|
@@ -17,6 +19,7 @@ their presence does not imply a foreign-proof-trace importer.
 | Program verification conditions | Why3, Frama-C/WP, VST or a language-specific verified frontend | Which original language is translated; the IEEE versus real model; VC-generator/library trust; validity and memory obligations. |
 | Composition, invariants, domain mathematics | Lean/Mathlib/FLARE, Coq/Flocq/VCFloat2/LAProof, PVS, or another suitable prover | Reusable lemmas, model match, caller-premise discharge, library axioms, source correspondence and ongoing maintenance cost. |
 | Modular calls and unstable floating-point branches | PRECiSA/PVS or another demonstrated branch analyzer | Version-specific frontend, accumulated input errors, supported recursion/collections and certificate replay. General provers can express these goals too. |
+| A concrete violation of a numerical requirement | Supplied witnesses; pinned CBMC strict-positivity search for the admitted scalar profile | Finite domain membership, actual native/reference results and the violated requirement must be proved in Lean. No-witness is unresolved. |
 
 The implemented PRECiSA route currently covers small scalar graphs and one
 terminal Python conditional; see [conditionals.md](conditionals.md). Modular

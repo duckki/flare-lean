@@ -1,0 +1,11 @@
+{
+  "id": "chemicals-density",
+  "repository": "https://github.com/CalebBell/chemicals",
+  "revision": "e79047588b30cfabc564c79fb26d760c746877d7",
+  "source_path": "chemicals/utils.py",
+  "license_path": "LICENSE.txt",
+  "files": {
+    "source.py": "cad67c9628b026a426ea5e55b35d017580a9829c8f0abaf59f6428ca4b1309c5",
+    "LICENSE-upstream.txt": "dc8d90b7aed69e19ad9ca2528ee00c02be22e1d063b2b00db7c35e0b99854edb"
+  }
+}

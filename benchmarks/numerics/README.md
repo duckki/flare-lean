@@ -37,6 +37,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Shared square / quartic / regularized reciprocal | `certified` with selected producers | Gappa/FPTaylor share a proved power-aware rational enclosure engine; actual candidate targets and replay |
 | Mixed storage / calibration / residual / repeated storage | `certified` with selected NumPy | Binary32 nearest/even narrowing, exact binary64 promotion, incoming storage/computation error; tight budget returns `budget_not_met` |
 | Scalar covariance / cancellation witnesses | `counterexample` | Finite admissible input, actual output, independent exact reference and violated positivity/error requirement in one checked root; cold replay |
+| ROS positivity search | `counterexample` with selected CBMC | Strict-positivity witness proposed from the original header's scalar graph, checked in Lean and replayed without CBMC |
 | Square-root variance / norm / normalized residual / nested root | `certified` with CPython 3.13/3.14 | Correctly rounded primitive contract, checked radicand domains, endpoint proposals and incoming error; tight request returns `budget_not_met` |
 | Explicit FMA calibration / residual / dot product / reciprocal composition | `certified` with CPython 3.13/3.14 | One native rounding per FMA, incoming errors and independent exact reference; separate residual keeps its budget and returns `budget_not_met` |
 | Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
@@ -65,6 +66,8 @@ not a successful proof rejection. `--case NAME` can select individual scenarios.
 A local tools file has `runtimes` keyed by `julia`, `matlab`, `c` or `rust`, each with
 `kind` and `executable`; `rust_tools` has `charon`, `aeneas` and `lean_lib`.
 `analysis_tools` maps Gappa/FPTaylor/PRECiSA to their executable and optional identity/data selections.
+For `ros_angles_positivity_search`, use `search_tools.cbmc.path` with CBMC 6.11.0;
+the benchmark runner preserves that witness-proposer selection.
 Use absolute paths. This machine configuration is not a version attestation.
 
 ### Scientific array scenarios
@@ -285,3 +288,11 @@ The maintenance scenario changes padding in the actual Rust module and reviewed
 model/contract, freshly extracts it and reuses unchanged imported axis proofs.
 Constructor mismatches and altered imported source models must be rejected.
 The tests retain runs under `.cache/numerics-generated/planar-tests-*/`.
+
+
+## Public application delivery
+
+[Held-out source cases](heldout/README.md) retain original Chemicals, NumPy and
+ROS files, contracts, first attempts and needed provider extensions. The
+`release_numerics.py` harness checks portable delivery, producer-free replay and
+change-aware rechecking in addition to their numerical roots.

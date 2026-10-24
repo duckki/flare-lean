@@ -14,7 +14,7 @@ delay implementing capabilities with clear acceptance cases.
 ## Current baseline
 
 - Restricted scalar Python, Julia, MATLAB-compatible and Rust source has automatic
-  admission and numerical validation. Python additionally has selected scalar
+  admission and numerical validation. Python additionally has closed original module selection, selected scalar
   methods, helpers, bounded loops and separate fixed-list array and terminal
   conditional profiles. A compact two-state counted-loop profile retains a
   uniform invariant across all natural counts, with selected roots through 1,024.
@@ -73,7 +73,9 @@ delay implementing capabilities with clear acceptance cases.
 - The [counterexample request route](counterexamples.md) checks supplied scalar
   witnesses for strict-positivity and attained-error failures. The README's
   covariance example uses its generated Lean root, report and cold replay;
-  witness search and additional source/profile bridges remain open.
+  selected CBMC 6.11.0 search proposes strict-positivity witnesses that use the
+  same Lean checker. Closed Python module and C++ header selections have retained
+  public cases. Further properties/profiles remain open.
 
 These are scoped capabilities, not support for arbitrary programs in each
 language. Independent engineer reproduction remains a sharing follow-up; current
@@ -81,8 +83,9 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Make automated delivery reliable.** Complete the counterexample path,
-   fresh-machine delivery, held-out application checks and routine maintenance.
+1. **Complete independent delivery evaluation.** Automated setup, counterexample
+   delivery, public application checks and maintenance have passed. An independent
+   engineer still needs to reproduce one positive result and one counterexample.
 2. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
    storage boundaries, add binary32 arithmetic and select further library/function
    contracts from retained applications. Broaden Rust correspondence-proof
@@ -96,14 +99,17 @@ a checked bound above budget remain distinct outcomes.
 
 ## Sequence
 
-The next implementation milestone is 14.
+Milestone 14 has completed its automated checks; independent engineer
+reproduction remains its release gate. Further implementation priorities follow
+in the arithmetic and source-coverage sections below.
 
 | Milestone | User benefit | Concrete completion target |
 | --- | --- | --- |
-| 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Fresh-machine delivery, a first-class Lean counterexample path, and held-out applications pass the release criteria |
+| 14. Reliable automated delivery | Other engineers can use and maintain the workflow on unfamiliar code | Automated setup, counterexamples and held-out checks pass; an independent engineer reproduces a positive root and counterexample |
 
-Setup, counterexamples and maintenance accompany each capability; a separate
-integration test closes milestone 14.
+Setup, counterexamples and maintenance accompany each capability. The
+[delivery evaluation](delivery-evaluation.md) records completed automated checks
+and the remaining independent reproduction gate.
 
 No milestone requires integrating every candidate tool or supporting a complete
 source language before a useful closed profile can ship.
@@ -120,9 +126,9 @@ output. An external success verdict never discharges a Lean premise by itself.
 | --- | --- | --- | --- |
 | Gappa / FPTaylor | Candidate reconstruction with shared proved rational enclosure/power inference | Tighter division correlations, larger composed obligations and lower evidence/checking cost | Future evidence work |
 | PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction using the common scalar proof path | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | Future evidence work |
-| Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 |
+| Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate further bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 delivery; future bridge coverage |
 | Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | Future evidence work |
-| CBMC | Proposed addition | Bounded integer/FP/memory counterexample candidates and execution paths, rechecked against the admitted source model in Lean | 14 |
+| CBMC | Pinned 6.11.0 scalar strict-positivity witness search and ordinary Lean rechecking | Further properties, bounded integer/memory paths and source profiles; never treat no-witness as a proof | Future counterexample work |
 | VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | Future evidence work |
 
 Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
@@ -158,12 +164,12 @@ platform and Lean/Rust delivery separately in `capabilities` and regression case
 
 | Source | Current supported profile | Next scope | Later scope / separate obligation |
 | --- | --- | --- | --- |
-| Python | Restricted scalar/method/loop/list/conditional profiles; separate NumPy 2.4.0 eager collection and binary32-storage/binary64-computation profiles with typed roots | Compose profiles; selected scientific library calls, streams, state/configuration and broader collection contracts | Dynamic dispatch, arbitrary mutation and general Python/BLAS execution |
+| Python | Restricted scalar/method/loop/list/conditional profiles, including closed full-module selection; separate NumPy 2.4.0 eager collection and binary32-storage/binary64-computation profiles with typed roots | Compose profiles; selected scientific library calls, streams, state/configuration and broader collection contracts | Dynamic dispatch, arbitrary mutation and general Python/BLAS execution |
 | Rust | Automatic scalar functions; extracted multi-module applications with authored bridges | Reusable bridge generation for admitted structs, slices, options/results, integer conversions and real loops | Unsafe code, FFI, concurrency and unrestricted traits/generics |
 | Julia | Restricted Float64 scalar functions; separate Julia 1.11.7 typed Vector/helper/indexed-loop profile | Matrix APIs, selected broadcasting/reductions and more runtime versions | Multiple dispatch, fused broadcast and BLAS/LAPACK calls each need selected semantics and bridges |
 | MATLAB / Octave | Restricted scalar function files and an explicitly selected runtime | Helpers, loops, indexing, shapes and reviewed array operations | MATLAB and Octave runtime/library correspondence remain separate claims |
 | C | Closed C11 double helpers, by-value structs, fixed buffers and unsigned literal-count loops; Lean access/counter/execution roots | Header/preprocessor integration, larger mutable buffers and reusable Rust buffer bridges selected from real applications | Pointer-heavy APIs, allocation, lifetime/provenance and broader C semantics |
-| C++ | Planned after the C route | A selected numeric API using supported value/container operations and an inspected frontend | Templates, exceptions, object lifetime and compiler/library behavior need their own coverage |
+| C++ | Closed C++20 namespace-level by-value double header functions with explicit binary64 constants, actual-header diagnostics and Lean roots | More source/library operations selected from applications | Templates, objects, exceptions, memory, loops, general preprocessing and compiler/library behavior need their own bridges |
 | Fortran | Deferred candidate | Select an actual array kernel and a suitable frontend after C/array contracts are reusable | Do not assume a C or LLVM-based route already establishes Fortran source correspondence |
 
 A parser or sampled cross-language agreement is not a new source-equivalence
@@ -174,38 +180,23 @@ verify an arbitrary NumPy, BLAS or LAPACK call.
 
 ## 14. Make automated delivery and maintenance routine
 
-### Deliver
+The [delivery guide](automated-delivery.md) describes pinned setup, selected
+CBMC witness search, admission reports, portable evidence and change-aware
+rechecking. The [public application cases](../benchmarks/numerics/heldout/README.md)
+retain original source/contracts, pre-extension first attempts and provider
+assistance. They cover petroleum density conversion, a NumPy scientific-array
+helper and a C++ robotics helper with unchanged engineering requirements.
 
-- Extend the maintained scalar counterexample request/result path to selected
-  additional profiles and search-tool candidates. It already freezes an admissible
-  witness, actual source-model execution, independent exact reference and violated
-  requirement in one Lean root, with ordinary report/replay and rejection controls.
-  Search may use external tools; a rejected proof or sampled failure is not that certificate.
-- Route obligations using declared source/property/arithmetic capabilities and
-  explicit resource limits. Retain every attempt, its actual accepted claim and
-  failure stage. Alternative producers cannot silently change the requirement.
-- Produce actionable unresolved reports with source locations, missing premises
-  or unsupported features. Keep authored proof work separate from automatic
-  coverage and replay time; measure engineer intervention on unfamiliar code.
-- Exercise versioned setup, skill/provider compatibility, artifact-location
-  agreement, portable proof bundles, verified Rust delivery and incremental
-  rechecking after source/library/toolchain changes.
+### Remaining release gates
 
-### Completion criteria
+- An engineer independently reproduces one positive result and one Lean
+  counterexample from the delivered report/bundles without session history.
+  Agent-operated VM/container/native runs do not satisfy this gate.
 
-Maintain at least three held-out public application cases from different domains,
-including a new source language and a scientific-array library. Preserve their
-original sources and requirements; record needed assistance before incorporating
-new regressions. An engineer reproduces a positive result and a Lean counterexample
-from the report without session history.
-
-Fresh-machine runs start with no Lean/analyzers/translators installed and obtain
-only the selected route's tools. Test Linux x86-64 and ARM64 and the supported
-macOS routes separately; a Linux VM does not establish native macOS tool support.
-Cold replay needs no producers, translators, source execution or LLM, while retaining
-required proof-library dependencies. A compatible change rechecks affected
-results; an incompatible semantic change is reported instead of reusing stale
-proofs. Publish coverage, setup/checking costs and known open obligations.
+Source, domain, independent reference, requirements and arithmetic models stay
+frozen across attempts. Changed semantics require a fresh run; compatible
+provider changes need a fresh Lean check. Setup failures, resource limits,
+no-witness search, proof rejection and checked violations remain distinct.
 
 ## Further arithmetic coverage
 

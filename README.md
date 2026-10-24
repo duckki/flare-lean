@@ -5,10 +5,13 @@ _**F**loating-point **L**ibrary for **A**rithmetic, **R**ounding, and **E**rror 
 **Numerical guarantees for your code, checked in [Lean](https://lean-lang.org/).**
 
 Give your AI agent a function and an error budget or a property to preserve.
-The skill can use FLARE, [Mathlib](https://leanprover-community.github.io/) and tools such as
-**[Gappa](https://gappa.gitlabpages.inria.fr/), [FPTaylor](https://github.com/soarlab/FPTaylor)
-and [PRECiSA](https://github.com/nasa/PRECiSA)**. **Lean** checks the resulting
-proof or concrete counterexample; saved evidence lets you replay it.
+The skill combines FLARE and [Mathlib](https://leanprover-community.github.io/)
+with external tools: [Gappa](https://gappa.gitlabpages.inria.fr/),
+[FPTaylor](https://github.com/soarlab/FPTaylor) and
+[PRECiSA](https://github.com/nasa/PRECiSA) propose numerical bounds;
+[CBMC](https://www.cprover.org/cbmc/) can search for counterexamples.
+**Lean** checks the resulting proof or concrete counterexample; saved evidence
+lets you replay it.
 
 Also, the skill can generate a verified Rust port;
 **[Charon](https://aeneasverif.github.io/charon/)/[Aeneas](https://aeneasverif.github.io/)**
@@ -198,7 +201,9 @@ Use $skill-installer to install skills/verify-numerics from duckki/flare-lean.
 - [Proved results, organization and attribution](docs/organization.md)
 - [Theorem reference](docs/reference.md)
 - [Verification workflow and limitations](docs/numerical-verification.md)
-- [Tool integration and supported producer routes](docs/tool-integration.md)
+- [Tools: producers, witness search and Lean validation](docs/tool-integration.md)
+- [Setup, portable delivery and rechecking](docs/automated-delivery.md)
+- [Tested applications, platforms and remaining release gate](docs/delivery-evaluation.md)
 - [Scientific arrays: NumPy, Julia and dense covariance updates](docs/scientific-arrays.md)
 - [C source: supported APIs, memory conditions and verification tasks](docs/c-verification.md)
 - [Scaling: counted loops, shared contracts and measurements](docs/scaling.md)

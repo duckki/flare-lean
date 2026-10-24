@@ -30,6 +30,7 @@ class Program:
     scientific: dict | None = None
     math: dict | None = None
     precision: dict | None = None
+    selection: dict | None = None
 
     def record(self):
         record = {"schema": "ordered-binary64-v1", **asdict(self)}
@@ -52,6 +53,8 @@ class Program:
             record.pop('precision')
         else:
             record['schema']='ordered-binary32-storage-binary64-v1'
+        if self.selection is None:
+            record.pop('selection')
         return record
 
 

@@ -154,6 +154,12 @@ Set `FLARE_PRECISA` to its installed launcher for `make numerics-check`, or sele
 `branch_gate_precisa` / `branch_innovation_precisa` in the benchmark runner.
 Default checks include conditional source/proof/rejection controls; real PRECiSA
 setup and analyzer checks were exercised separately in an Ubuntu ARM64 VM.
+CI also installs CBMC 6.11.0 and tests actual witness search plus Lean checking.
+Locally, set `FLARE_CBMC` to the selected executable to enable these real-tool
+tests. The [delivery guide](automated-delivery.md) covers its setup recipe and
+`scripts/release_numerics.py`, which checks retained Python/NumPy/C++ cases,
+counterexamples, portable bundles and change-aware rechecking. Platform evidence
+and the independent engineer gate are in the [delivery evaluation](delivery-evaluation.md).
 Optional runtimes and Rust extraction are selected separately with local tool
 paths. To run the fresh
 explicit-port equivalence/replay and rejection tests, set
@@ -341,3 +347,14 @@ Pair outputs, signed zero and the smallest subnormal have retained cases. Cold
 replay must not call witness proposal, source/model execution or producer adapters.
 The README evidence generator and CI use this same delivery path for the Kalman
 positivity example.
+
+
+## Automated delivery regression
+
+The [delivery guide](automated-delivery.md) covers matching skill/provider setup,
+portable bundles and change-aware rechecking. The maintained public source cases
+retain their first attempts and assistance in `benchmarks/numerics/heldout`.
+Run `python3 scripts/release_numerics.py --out <new-regression-directory>` after
+building the library. CI also installs pinned CBMC and exercises actual witness
+search; set `FLARE_CBMC` to a selected 6.11.0 executable for the optional local
+search integration test. These external tools remain outside Lake dependencies.

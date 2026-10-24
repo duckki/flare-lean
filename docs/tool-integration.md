@@ -1,7 +1,7 @@
 # Tool integration
 
-FLARE separates source admission, numerical producers, source extractors and
-Lean validation. Tool adapters share setup, bounded execution, evidence records,
+FLARE separates source admission, numerical producers, witness proposers, source
+extractors and Lean validation. Tool adapters share setup, bounded execution, evidence records,
 the application root check and saved-proof replay.
 
 ## Available routes
@@ -9,7 +9,8 @@ the application root check and saved-proof replay.
 Run `python3 scripts/certify_numerics.py capabilities` for the adapter records,
 supported versions, arithmetic constraints and source-setup recipes.
 Producer versions and setup sources are maintained in
-[`tools/numerics/producers.json`](../tools/numerics/producers.json).
+[`tools/numerics/producers.json`](../tools/numerics/producers.json); the CBMC
+release and setup assets are in [`tools/numerics/cbmc.json`](../tools/numerics/cbmc.json).
 
 | Adapter | Role | Evidence and validation |
 | --- | --- | --- |
@@ -17,6 +18,7 @@ Producer versions and setup sources are maintained in
 | `gappa` | Producer | Reconstructs a successful Gappa 1.8.3 query's exact dyadic error conclusion in Lean; retains its Coq trace |
 | `fptaylor` | Producer | Parses the pinned `0.9.4+dev` hexadecimal candidate and proves that exact bound in Lean |
 | `precisa` | Producer | Reconstructs the maximum stable/unstable candidate from pinned PRECiSA `4.0.4`; checks divergent flows in Lean and retains PVS files |
+| `cbmc` | Witness proposer | Pinned 6.11.0 strict-positivity search proposes exact input words; the ordinary Lean counterexample route checks the violation |
 | `rust-aeneas` | Extractor | Fresh Rust extraction and its actual return relation under the existing source-model trust boundaries |
 | `lean-root` | Validator | Compiles proof modules, independently ascribes the expected root type and audits its transitive axioms |
 
@@ -32,6 +34,17 @@ without changing orchestration. The emitted accuracy declaration must have the
 expected original-input type and its full dependencies pass the same axiom audit.
 The scalar and conditional validators are described below. Further tools follow the
 [roadmap integration plan](roadmap.md#integration-strategy).
+
+## Counterexample search
+
+`counterexample_search: {"tool":"cbmc","output":0}` selects the witness route;
+`search_tools.cbmc.path` selects the executable. It admits at most eight scalar
+inputs and 32 separately rounded binary64 nodes. The generated C search harness
+and JSON trace are untrusted proposals. The ordinary witness checker proves
+domain membership, native/exact values and the violation in Lean, alongside
+actual-source diagnostics. No-witness and timeout outcomes remain unresolved.
+See [counterexamples](counterexamples.md#cbmc-witness-search) for complete fields,
+restrictions and producer-free replay. C memory profiles need a separate bridge.
 
 ## Reusable scalar validation
 
@@ -243,10 +256,14 @@ python3 scripts/certify_numerics.py setup --tool fptaylor \
   --out /shared/tool-pool/fptaylor-b5a77cae
 python3 scripts/certify_numerics.py setup --tool precisa \
   --out /shared/tool-pool/precisa-2626ba1 --timeout 3600
+python3 scripts/certify_numerics.py setup --tool cbmc \
+  --out /shared/tool-pool/cbmc-6.11.0
 ```
 
-Setup fetches the adapter's pinned source, checks its revision or archive hash,
+Producer setup fetches pinned source, checks its revision or archive hash,
 runs bounded build commands and saves `installation.json` and command logs.
+CBMC setup verifies and extracts official Ubuntu 24.04 ARM64/x86-64 release
+packages in user scope using `dpkg-deb`; it does not install a system package.
 Gappa needs C++, Flex/Bison, Boost headers and GMP/MPFR development files; its
 release builds with the bundled `remake` tool. The FPTaylor
 recipe uses its portable interval backend and needs OCaml 4, Num, Make and a C
@@ -261,9 +278,12 @@ Linux, GHC 9.6.7, Cabal >=3.6.2.1 and C/C++ prerequisites; its
 Ubuntu ARM64 setup. It builds the pinned Kodiak submodule and a hash-pinned
 filib++ archive. The upstream executable has no version command; the installed
 launcher reports recorded package/source identity. Admission checks the receipt,
-native binary and backend library hashes. Setup covers these producer recipes,
-while the [tool setup instructions](../skills/verify-numerics/references/tool-setup.md)
-cover Lean and Charon/Aeneas. No setup action itself establishes a numerical proof.
+native binary and backend library hashes. The
+[bootstrap helper](automated-delivery.md#obtain-only-the-selected-tools) covers
+Lean/provider setup and optional NumPy/pycparser. The
+[tool setup instructions](../skills/verify-numerics/references/tool-setup.md)
+cover Charon/Aeneas and remaining prerequisites. No setup action itself establishes
+a numerical proof.
 
 ## Evidence and replay
 
@@ -324,4 +344,6 @@ Set `FLARE_PRECISA=/absolute/path/to/precisa/install/bin/precisa` to additionall
 run real conditional producer tests and producer-free replay. The maintained
 recipe and actual analyzer/Lean path were tested in an isolated Ubuntu ARM64 VM.
 Default CI runs conditional source/proof/rejection controls; it currently builds
-only Gappa/FPTaylor as real external producers.
+Gappa/FPTaylor as real external producers and installs pinned CBMC for real search
+tests. It also checks portable delivery of the retained Python, NumPy and C++
+application cases. PRECiSA remains a separately tested optional installation.

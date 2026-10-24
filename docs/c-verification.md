@@ -77,8 +77,9 @@ for those theories, contract translation and checked proof steps. An SMT success
 flag or a translated task proposition supplies none of those. For this closed
 profile, direct source-derived conditions plus the existing Lean arithmetic
 checker give a reusable complete route within the stated boundary. Foreign
-proof evidence checking remains a separate [roadmap](roadmap.md) item. CBMC is
-not needed for the retained cases; no adapter or counterexample claim is implied.
+proof evidence checking remains a separate [roadmap](roadmap.md) item. The
+[CBMC adapter](counterexamples.md#cbmc-witness-search) searches a separate scalar
+positivity profile; it does not establish C memory or access conditions.
 
 ## Regressions
 

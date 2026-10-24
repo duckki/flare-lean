@@ -38,7 +38,7 @@ def prepare(path, *, replay=False):
     for field in ['source', 'function']:
         if not isinstance(request.get(field), str) or not request[field].strip():
             raise ValueError('Missing source selection: '+field)
-    if 'counterexample' in request and 'rust_application' in request:
+    if ('counterexample' in request or 'counterexample_search' in request) and 'rust_application' in request:
         raise Unsupported('Counterexamples currently admit closed scalar source, not Rust application bundles')
     for field, default in [('language', 'python'), ('backend', 'lean-flare'), ('target', 'lean')]:
         if not isinstance(request.get(field, default), str):
@@ -47,9 +47,14 @@ def prepare(path, *, replay=False):
     if 'rust_application' in request:
         from .application import prepare as prepare_application
         return prepare_application(path, request, replay=replay)
-    program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed'))
-    counterexample = 'counterexample' in request
-    if counterexample:
+    program = parse(request.get('language', 'python'), source.read_bytes().decode(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed'),request.get('python_module'),request.get('cpp_module'))
+    counterexample = 'counterexample' in request or 'counterexample_search' in request
+    if program.selection and (request.get('target','lean')!='lean' or request.get('producer','lean-flare')!='lean-flare' or request.get('proof')):
+        raise Unsupported('Module selections currently use automatic lean-flare validation and Lean delivery')
+    if 'counterexample_search' in request:
+        from .counterexample_search import validate as validate_search
+        validate_search(request,program)
+    elif counterexample:
         from .counterexample_run import validate_request
         validate_request(request, program)
     if program.precision and (request.get('producer','lean-flare')!='lean-flare' or request.get('proof')
@@ -395,6 +400,9 @@ def kernel_for_run(output, request, program):
 
 def certify(request_path, output):
     selection = json.loads(Path(request_path).read_text())
+    if isinstance(selection,dict) and 'counterexample_search' in selection:
+        from .counterexample_search import certify as certify_search
+        return certify_search(request_path,output)
     if isinstance(selection, dict) and 'counterexample' in selection:
         from .counterexample_run import certify as certify_counterexample
         return certify_counterexample(request_path, output)
@@ -407,7 +415,7 @@ def certify(request_path, output):
         return {'status':'needs_input','questions':questions}
     output = Path(output).resolve(); output.mkdir(parents=True,exist_ok=False)
     frozen_source = source.read_bytes()
-    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed')) != program:
+    if parse(request.get('language','python'),frozen_source.decode(),request['function'],request.get('python_method'),request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'),request.get('python_mixed'),request.get('python_module'),request.get('cpp_module')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     source_name = 'source'+source.suffix
     frozen_request = {**request,'source':source_name}
@@ -444,6 +452,9 @@ def certify(request_path, output):
         result['scope']='Restricted scalar Python binary64 computation with explicit binary32 storage round trips and an independent exact-real reference.'
         result['arithmetic_profile']=program.precision
         result['assumptions'][1]='NumPy 2.4.0 float32 narrowing implements nearest/even binary32 with gradual subnormals, followed by exact promotion to a Python binary64 float. Ordinary arithmetic remains separate nearest/even binary64. Source mapping, NumPy, CPython, compiler and hardware fidelity remain trusted.'
+    if program.selection:
+        result['source_selection']=program.selection
+        result['assumptions'].append(program.selection['qualification'])
     if program.math:
         result['scope']='One restricted Python scalar kernel with explicit math.fma calls, separately rounded ordinary operations and finite binary64 inputs.'
         result['arithmetic_profile']=program.math
@@ -601,6 +612,9 @@ def audit_run(path, frozen=False):
                     if sha(file)!=digest:raise ValueError('Source runtime library changed: '+file)
             if sha(runtime['executable'])!=runtime['executable_sha256']:
                 raise ValueError('Source runtime executable changed; regenerate diagnostics and certificate')
+        if 'search-tool.json' in result['artifacts']:
+            search=json.loads((path/'search-tool.json').read_text())
+            if sha(search['path'])!=search['sha256']:raise ValueError('Witness search tool changed')
         if 'evidence.json' in result['artifacts']:
             evidence = json.loads((path/'evidence.json').read_text())
             for tool in evidence.get('tools', []):
@@ -627,18 +641,23 @@ def audit_run(path, frozen=False):
             'qualification':'Identity/freshness audit only. Replay checks the Lean root independently.'}
 
 
-def replay_run(path, output, aeneas_lean_lib=None):
+def replay_run(path, output, aeneas_lean_lib=None, *, timeout_seconds=None):
     """Replay saved Lean sources without a producer, source runtime, Rust extraction or LLM."""
+    if timeout_seconds is not None and (type(timeout_seconds) not in (int,float) or not math.isfinite(timeout_seconds) or timeout_seconds<=0):
+        raise ValueError('Replay timeout must be finite and positive')
     path=Path(path).resolve(); audit_run(path,frozen=True)
     selection = json.loads((path/'request.json').read_text())
+    if isinstance(selection,dict) and 'counterexample_search' in selection:
+        from .counterexample_search import replay
+        return replay(path,output,timeout_seconds=timeout_seconds)
     if isinstance(selection, dict) and 'counterexample' in selection:
         from .counterexample_run import replay
         if aeneas_lean_lib is not None:
             raise ValueError('--aeneas-lean-lib applies only to Rust-model replay')
-        return replay(path, output)
+        return replay(path, output,timeout_seconds=timeout_seconds)
     if isinstance(selection, dict) and 'rust_application' in selection:
         from .application import replay as replay_application
-        return replay_application(path, output, aeneas_lean_lib)
+        return replay_application(path, output, aeneas_lean_lib,timeout_seconds=timeout_seconds)
     request,source,program,questions=prepare(path/'request.json', replay=True)
     if questions: raise ValueError('Frozen request is incomplete')
     from .integration import replay_evidence
@@ -671,7 +690,7 @@ def replay_run(path, output, aeneas_lean_lib=None):
         shutil.copyfile(path/'c-vcs.json', output/'c-vcs.json')
     if request.get('rust_port'):
         shutil.copyfile(path/request['rust_port']['source'], output/request['rust_port']['source'])
-    runner=Runner(output,request.get('timeout_seconds',120)); work=output/'.work';work.mkdir()
+    runner=Runner(output,timeout_seconds if timeout_seconds is not None else request.get('timeout_seconds',120)); work=output/'.work';work.mkdir()
     try:
         check_lean(output,request,program,bounds,runner,work,reuse=False)
     finally:

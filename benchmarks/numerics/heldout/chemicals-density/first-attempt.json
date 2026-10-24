@@ -1,0 +1,17 @@
+{
+  "schema": "numerics-first-attempt-v1",
+  "request_sha256": "cbddbf9f4697ba2d87cfc60820eb834d8d03ebc60e850ad99a0c3fc093c753c6",
+  "command": [
+    "python3",
+    "scripts/certify_numerics.py",
+    "plan",
+    "--request",
+    ".cache/numerics-generated/milestone14-delivery/heldout-inputs/chemicals-density/request.json"
+  ],
+  "stdout": "{\n  \"status\": \"unsupported_or_invalid_request\",\n  \"error\": \"Expected numerical functions; imports and module execution are unsupported\"\n}\n",
+  "stderr": "",
+  "returncode": 2,
+  "seconds": 0.06084191601257771,
+  "provider_revision": "7594055234fb0772620100abb6776644c21f26f8",
+  "assistance_before_attempt": []
+}

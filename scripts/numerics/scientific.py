@@ -95,7 +95,12 @@ def admit(source,function,configuration,language='python',model=None):
                 return Scalar(integer=-left.integer if op=='neg' else left.integer)
             if right is not None and left.integer is not None and right.integer is not None and op in ('add','sub','mul'):
                 return Scalar(integer={'add':lambda:left.integer+right.integer,'sub':lambda:left.integer-right.integer,'mul':lambda:left.integer*right.integer}[op]())
-            raise Unsupported('Use explicit double literals in scientific arithmetic; integers are indices only')
+            if language!='python':raise Unsupported('Julia scientific arithmetic requires floating literals')
+            def promote(v):
+                if v is None or v.integer is None:return v
+                if abs(v.integer)>2**53:raise Unsupported('Scientific integer promotion must be exact in binary64')
+                return expr(ast.Constant(value=float(v.integer)))
+            left,right=promote(left),promote(right)
         before=len(graph.nodes)
         value=graph.unary(op,left) if right is None else graph.binary(op,left,right)
         from .emit import expression
@@ -115,7 +120,11 @@ def admit(source,function,configuration,language='python',model=None):
         if isinstance(left,Tensor) and isinstance(right,Tensor) and left.dims!=right.dims:
             raise Unsupported('Scientific broadcasting currently admits scalars or identical shapes only')
         if any(isinstance(v,Scalar) and v.integer is not None for v in [left,right]):
-            raise Unsupported('Scientific arithmetic requires explicit floating constants')
+            def promote(v):
+                if not isinstance(v,Scalar) or v.integer is None:return v
+                if language!='python' or abs(v.integer)>2**53:raise Unsupported('Array integer promotion must be exact binary64')
+                return expr(ast.Constant(value=float(v.integer)))
+            left,right=promote(left),promote(right)
         # The scalar graph proposes numerical bounds. The separate collection
         # model retains the actual whole-array primitive and is equated in Lean.
         start=len(lean)

@@ -1,0 +1,40 @@
+{
+  "schema": "numerics-tool-pin-v1",
+  "version": "6.11.0",
+  "repository": "https://github.com/diffblue/cbmc",
+  "release": "cbmc-6.11.0",
+  "setup": {
+    "platforms": {
+      "Linux-aarch64": {
+        "source": {
+          "url": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/ubuntu-24.04-arm64-cbmc-6.11.0-Linux.deb",
+          "sha256": "9eb8f41a7dcda8eac6338b8367d77831431f767691e4535209925bd85e315ae7",
+          "format": "deb",
+          "directory": "install"
+        },
+        "commands": [
+          [
+            "{install}/usr/bin/cbmc",
+            "--version"
+          ]
+        ],
+        "executable": "install/usr/bin/cbmc"
+      },
+      "Linux-x86_64": {
+        "source": {
+          "url": "https://github.com/diffblue/cbmc/releases/download/cbmc-6.11.0/ubuntu-24.04-cbmc-6.11.0-Linux.deb",
+          "sha256": "b3721aa541038384d7801ea3aeabbcddc3e8845ac8f1cbff637cf8dec7481ac8",
+          "format": "deb",
+          "directory": "install"
+        },
+        "commands": [
+          [
+            "{install}/usr/bin/cbmc",
+            "--version"
+          ]
+        ],
+        "executable": "install/usr/bin/cbmc"
+      }
+    }
+  }
+}

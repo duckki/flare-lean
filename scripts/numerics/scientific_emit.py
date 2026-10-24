@@ -26,7 +26,10 @@ def hypotheses(program,domain):
 def model_source(program,request,source):
     from .emit import kernel_source,projection
     lines=[]
-    if admit(source,program.function,request['scientific_arrays'],program.language,lines)!=program:raise ValueError('Scientific source model changed')
+    from .module_selection import selected_source
+    from dataclasses import replace
+    modeled=admit(selected_source(program,source),program.function,request['scientific_arrays'],program.language,lines)
+    if replace(modeled,selection=program.selection)!=program:raise ValueError('Scientific source model changed')
     base=kernel_source(program,request['specification']).replace('public import Flare.Binary64.Value','public import Flare.Binary64.Value\npublic import Flare.Binary64.Collection\npublic import Mathlib.LinearAlgebra.Matrix.Notation')
     args=arguments(program);scalars=cells(program);call='kernel '+' '.join(scalars)
     conditions=[f'decide (({a["index"]} : Nat) < {a["extent"]})' for a in program.scientific['accesses']]

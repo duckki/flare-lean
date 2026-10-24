@@ -48,8 +48,10 @@ extracted return still has to equal the source kernel under the root's axiom aud
 `tools/numerics/aeneas-revisions.json` records the compatible experimental Float
 fork. The skill's [tool-setup guide](../skills/verify-numerics/references/tool-setup.md)
 directs agents to obtain/build missing tools and the compiled model in a shared
-user cache, then check an extraction/proof preflight. There is no bundled
-one-command bootstrap installer.
+user cache, then check an extraction/proof preflight. The
+[bootstrap helper](automated-delivery.md#obtain-only-the-selected-tools) installs
+Lean, builds FLARE and optionally obtains NumPy/pycparser. Charon/Aeneas and OS
+prerequisites still follow their separate setup instructions.
 
 The agent confirms verification and Rust delivery locations before creating
 application artifacts, reusing any paths already supplied by the user. Disposable
@@ -124,6 +126,14 @@ extents and required writable-region separation. Parser/source mapping and C
 compiler fidelity remain declared boundaries. Original-source O0/O2/sanitized
 word diagnostics accompany certification. Buffer delivery is currently Lean-only;
 scalar/value-struct entries can retain a reusable Rust port with a checked bridge.
+
+Original full Python modules can select a closed scalar or scientific function
+and helper closure with `python_module: true`. Diagnostics execute the original
+definitions in isolation; module initialization, rebinding and dynamic dispatch
+remain caller-reviewed premises. A separate closed C++20 header profile admits
+namespace-level by-value double functions and explicit binary64 constants,
+with actual-header O0/O2 diagnostics. Both selections currently use `lean-flare`
+and Lean delivery. See [source selection and limits](automated-delivery.md#select-original-source-definitions).
 
 An explicit `python_method` binding also admits a narrow class-method subset:
 two scalar state fields, fixed binary64 attributes, `None`-default gains and a
@@ -221,12 +231,14 @@ FLARE_NUMERICS_INTEGRATION=1 python3 -m unittest discover \
   -s scripts -p test_numerics_witnesses.py -v
 ```
 
-The ordinary CLI now has a `counterexample` result for a checked supplied witness,
+The ordinary CLI has a `counterexample` result for a checked supplied witness,
 alongside `certified`, `budget_not_met` and `unresolved`. The
 [counterexample guide](counterexamples.md) describes strict-positivity and
-attained-absolute-error requests, reports and cold replay. There is no automatic
-witness search, and a rejected proof never implies a bug. The source/frontend
-and native runtime trust boundaries described above still apply.
+attained-absolute-error requests, reports and cold replay. Selected CBMC 6.11.0
+search can propose strict-positivity witnesses for small scalar graphs; the same
+Lean witness checker establishes any violation. No witness, a timeout or a
+rejected proof leaves the requirement unresolved. The source/frontend and native
+runtime trust boundaries described above still apply.
 
 ## Replay the README examples
 
@@ -294,7 +306,8 @@ a Lean accuracy module for the same typed root check.
 For graphs of at most 32 IR nodes, the default producer automatically tries
 scalar refinement when compositional analysis misses a budget or loses a positive
 divisor floor. Exact rational proposals, polynomial rewrites and input splits
-are checked using native nearest-rounding theorems and Mathlib's interval tactic.
+are checked using native nearest-rounding theorems, Mathlib's algebraic rules and
+FLARE's proved rational enclosure inference.
 This closes the unchanged `2^-51` mean-update target and tiny-gain family. See the
 [validator limits](tool-integration.md#reusable-scalar-validation).
 
@@ -321,11 +334,12 @@ and fresh Lean controls; optional Julia/Octave/Rust tools are tested separately.
 These tests exercise the skill's executable path and packaging. They are not
 an independent evaluation of agent behavior on new engineering tasks.
 
-The [milestone plan](roadmap.md) defines the next capabilities and their
-completion criteria: richer scientific APIs,
-shared evidence checking, more arithmetic models and automated delivery.
-Keep the current scenarios as
-baselines and use feedback to prioritize additional applications.
+The [delivery evaluation](delivery-evaluation.md) records automated clean-tool
+setup, public application checks, portable bundles and change-aware rechecking.
+Independent engineer reproduction remains its release gate. The
+[milestone plan](roadmap.md) tracks broader scientific APIs, shared evidence
+checking, more arithmetic models and Rust bridge generation. Keep current
+scenarios as baselines and use feedback to prioritize additional applications.
 
 ## Scaling beyond a single kernel
 
@@ -363,3 +377,7 @@ for limits, explicit contract reuse and fresh replay.
 The nonlinear Kalman profiles use checked helper contracts rather than expanding
 the entire trajectory inside each proof. Resource failures remain unresolved
 and no longer match the completed 16/48-update scale cases.
+
+
+For pinned setup, closed full-module/header selections, portable bundles and
+change-aware maintenance, see [automated delivery](automated-delivery.md).

@@ -4,6 +4,10 @@ Read the provider's `capabilities` output for adapter roles, supported versions,
 arithmetic constraints and setup recipes. The current external producers are
 `gappa`, `fptaylor` and `precisa`; `lean-flare` remains the default producer and
 independent checking path. `rust-aeneas` supplies extraction when requested.
+CBMC 6.11.0 is a separate witness proposer; use
+[counterexamples.md](counterexamples.md) for strict-positivity search and ordinary
+Lean witness checking. Select it through `counterexample_search` and
+`search_tools`, rather than the numerical `producer` field.
 
 Add `"producer": "gappa"`, `"producer": "fptaylor"` or `"producer": "precisa"`
 to an otherwise complete request. Configure `analysis_tools` as a map from tool name to `executable`,

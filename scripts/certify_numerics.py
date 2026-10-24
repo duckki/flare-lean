@@ -2,13 +2,46 @@
 """Check numerical source models in Lean, optionally extracting Rust for checking."""
 import argparse
 import json
+import hashlib
 import sys
+import tarfile
 
 from numerics.frontend import FRONTENDS, Unsupported
 from pathlib import Path
 from numerics.frontend import parse
 from numerics.workflow import BACKENDS, TARGETS, audit_run, certify, prepare, replay_run
 from numerics.runtimes import runtime_candidates
+
+
+def retain_admission_failure(args,result):
+    """Preserve a CLI run's rejected admission without overwriting any run."""
+    if args.command!='run':return
+    output=Path(args.out).resolve()
+    if output.exists():return
+    try:
+        raw=Path(args.request).read_bytes()
+        output.mkdir(parents=True,exist_ok=False)
+        (output/'original-request.json').write_bytes(raw)
+        frozen=raw
+        try:
+            request=json.loads(raw)
+            if isinstance(request,dict) and isinstance(request.get('source'),str):
+                source=(Path(args.request).resolve().parent/request['source']).resolve()
+                result['original_source_path']=str(source)
+                if source.is_file() and source.stat().st_size<=2_000_000:
+                    data=source.read_bytes();name='rejected-source'+source.suffix
+                    (output/name).write_bytes(data)
+                    frozen=json.dumps({**request,'source':name},indent=2).encode()+b'\n'
+                    result.update(frozen_source=name,source_sha256=hashlib.sha256(data).hexdigest())
+        except (ValueError,OSError) as snapshot_error:
+            result['snapshot_error']=str(snapshot_error)
+        (output/'request.json').write_bytes(frozen)
+        (output/'admission.json').write_text(json.dumps(result,indent=2)+'\n')
+        (output/'report.md').write_text('# Numerical verification: admission rejected\n\n'+
+            result['error']+'\n\nNo Lean root was checked. Preserve the contract; inspect the rejected source/profile before retrying.\n')
+        result['admission_report']=str(output/'report.md')
+    except OSError:
+        pass
 
 
 def main():
@@ -32,6 +65,17 @@ def main():
     inspect.add_argument('--python-mixed',action='store_const',const=True,default=None,help='Admit explicit float(np.float32(x)) storage round trips')
     inspect.add_argument('--python-math',action='store_const',const=True,default=None,help='Admit explicit math.fma/math.sqrt in restricted scalar Python')
     inspect.add_argument('--python-counted',type=json.loads,help='JSON count parameter and selected iterations')
+    for name in ['pack','unpack']:
+        p=sub.add_parser(name)
+        p.add_argument('--run' if name=='pack' else '--archive',required=True)
+        p.add_argument('--out',required=True)
+    recheck=sub.add_parser('recheck')
+    recheck.add_argument('--run',required=True)
+    recheck.add_argument('--request',required=True)
+    recheck.add_argument('--out',required=True)
+    recheck.add_argument('--aeneas-lean-lib')
+    inspect.add_argument('--python-module',action='store_const',const=True,default=None)
+    inspect.add_argument('--cpp-module',type=json.loads)
     for name in ['audit', 'replay']:
         p = sub.add_parser(name)
         p.add_argument('--run', required=True)
@@ -40,6 +84,7 @@ def main():
         else:
             p.add_argument('--out', required=True)
             p.add_argument('--aeneas-lean-lib', help='Relocated compiled Aeneas model; recorded hashes must match')
+            p.add_argument('--timeout',type=float,help='Override only the per-command replay time limit')
     for name in ['plan', 'run']:
         p = sub.add_parser(name)
         p.add_argument('--request', required=True)
@@ -50,11 +95,27 @@ def main():
         if args.command == 'setup':
             from numerics.installation import setup
             result = setup(args.tool, args.out, args.timeout, args.make_arg)
+        elif args.command in ('pack','unpack','recheck'):
+            from numerics.delivery import pack,unpack,recheck
+            if args.command=='pack':result=pack(args.run,args.out)
+            elif args.command=='unpack':result=unpack(args.archive,args.out)
+            else:result=recheck(args.run,args.request,args.out,args.aeneas_lean_lib)
         elif args.command == 'capabilities':
             from numerics.integration import adapters
             result = {'languages': list(FRONTENDS), 'backends': BACKENDS, 'targets': TARGETS,
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
-                'source_profiles': {'python_mixed': {
+                'source_profiles': {'python_module': {
+                    'request_field':'python_module: true',
+                    'scope':'Undecorated closed top-level scalar or scientific functions and helper closure selected from a retained full Python module',
+                    'qualification':'Original definitions in isolation; module initialization, rebinding and dispatch require caller review',
+                    'target':'lean-flare and Lean delivery'},
+                    'cpp_module': {'request_field':'cpp_module: {constants: uppercase names to exact binary64 words}',
+                    'scope':'Closed C++20 namespace-level by-value double function selected from a retained header; at most 32 straight-line operations',
+                    'parser':'pycparser 3.0 is needed also for frozen replay; compiler is needed only for original diagnostics',
+                    'qualification':'Selected source parsing/compiler/runtime fidelity trusted; original-header static_assert checks constants at O0/O2',
+                    'excluded':'templates, objects, exceptions, memory, loops, general preprocessing and library algorithms',
+                    'target':'lean-flare and Lean delivery'},
+                    'python_mixed': {
                     'request_field':'python_mixed: true',
                     'runtime':'CPython 3.13/3.14 and NumPy 2.4.0; selected executable/library/platform identities retained',
                     'operations':'explicit float(np.float32(x)) storage round trips, scalar helpers and separately rounded binary64 arithmetic',
@@ -78,6 +139,8 @@ def main():
                     'operations':'NumPy eager elementwise + - * / with equal shapes or scalar broadcasting, zeros/array(float64), outer and read-only transpose; both languages have indexed scalar loops with fresh output mutation; Julia adds typed helpers, zeros vectors and length',
                     'limits':'NumPy rank one/two; Julia vectors; dimensions 1..8, at most 32 cells per array, 64 original cells, 1024 nodes, 10000 visited statements',
                     'reference':'independent collections algebra with Mathlib matrix products, transpose and outer',
+                    'reference_normalization':'structural equality for collection graphs; extra distributive normalization limited to 32 IR nodes',
+                    'integer_promotions':'Python exact bounded integers promoted to binary64 only in float64 arithmetic; integer indexing remains exact',
                     'proof':'typed tensor dimensions/data sizes, source model execution, explicit access conditions, finiteness, accuracy and budgets in one Lean root',
                     'target':'lean; retained fixed-array/scalar Rust APIs with at most two output cells and authored fresh-extraction bridges',
                     'excluded':'BLAS/matmul/dot, NumPy reductions, arbitrary broadcasting, dtype changes, views/input mutation, fused Julia broadcast and general library dispatch'},
@@ -116,15 +179,15 @@ def main():
                     'requirements':['strict_positive (positive exact reference, nonpositive native output)',
                                     'absolute_error (attained error strictly greater than unchanged output limit)'],
                     'scope':'at most 32 separate-binary64 scalar nodes; one/two finite outputs; rational references; Lean delivery',
-                    'search':'supplied witnesses only; no automatic search or CBMC integration',
+                    'search':'counterexample_search: {tool: cbmc, output: index}; search_tools.cbmc.path selects CBMC 6.11.0; strict-positivity candidates only; ordinary Lean witness checking certifies violations',
                     'entry_theorem':'Workflow.Counterexample.counterexample',
                     'replay':'ordinary replay; no witness proposer, source execution, producer or translator'},
                 'source_runtimes': {name: runtime_candidates(name) for name in FRONTENDS}}
         elif args.command == 'inspect':
-            p = parse(args.language, Path(args.source).read_text(), args.function,
+            p = parse(args.language, Path(args.source).read_bytes().decode(), args.function,
                       python_arrays=args.python_arrays,
                       python_branches={'domains':'guard'} if args.guard_local else args.python_branches,
-                      python_counted=args.python_counted,scientific_arrays=args.scientific_arrays,python_math=args.python_math,python_mixed=args.python_mixed)
+                      python_counted=args.python_counted,scientific_arrays=args.scientific_arrays,python_math=args.python_math,python_mixed=args.python_mixed,python_module=args.python_module,cpp_module=args.cpp_module)
             result = {'status': 'needs_input', 'program': p.record(), 'required_inputs': {
                 'domain': {name: '[lower, upper] as exact rational strings' for name in p.inputs},
                 'outputs': [{'name': '', 'unit': '', 'limit': ''} for _ in p.outputs],
@@ -135,7 +198,7 @@ def main():
         elif args.command == 'audit':
             result = audit_run(args.run, args.frozen)
         elif args.command == 'replay':
-            result = replay_run(args.run, args.out, args.aeneas_lean_lib)
+            result = replay_run(args.run, args.out, args.aeneas_lean_lib,timeout_seconds=args.timeout)
         elif args.command == 'plan':
             _, _, program, questions = prepare(args.request)
             result = {'status': 'needs_input' if questions else 'ready', 'questions': questions,
@@ -143,13 +206,17 @@ def main():
         else:
             result = certify(args.request, args.out)
         print(json.dumps({k:v for k,v in result.items() if k not in ('dependencies','artifacts')}, indent=2))
-        return 0 if result.get('status') in (None, 'ready', 'certified', 'counterexample', 'fresh', 'replayed', 'installed') else 2
+        return 0 if result.get('status') in (None, 'ready', 'certified', 'counterexample', 'fresh', 'replayed', 'installed','bundled','unpacked','rechecked') else 2
     except RuntimeError as error:
         print(json.dumps({'status':'unresolved','error':str(error),
                           **({'failure_kind':error.kind} if hasattr(error,'kind') else {})},indent=2))
         return 2
-    except (Unsupported, ValueError, KeyError, OSError, SyntaxError, ZeroDivisionError) as error:
-        print(json.dumps({'status': 'unsupported_or_invalid_request', 'error': str(error)}, indent=2))
+    except (Unsupported, ValueError, KeyError, OSError, SyntaxError, ZeroDivisionError, tarfile.TarError, EOFError) as error:
+        result={'status':'unsupported_or_invalid_request','error':str(error),
+                'failure_kind':'unsupported_source_or_profile' if isinstance(error,Unsupported) else 'invalid_request'}
+        if isinstance(error,SyntaxError):result['source_location']={'line':error.lineno,'offset':error.offset}
+        retain_admission_failure(args,result)
+        print(json.dumps(result,indent=2))
         return 2
 
 

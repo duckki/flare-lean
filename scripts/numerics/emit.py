@@ -58,7 +58,10 @@ def rust_source(program):
     params = ", ".join(f"a{i}: f64" for i in range(len(program.inputs)))
     result = "f64" if len(program.outputs) == 1 else "(f64, f64)"
     lines = ["// Generated from the frozen ordered-binary64 IR.", f"pub fn kernel({params}) -> {result} {{"]
-    lines += [f"    let {n.name} = {expression(n, rust=True)};" for n in program.nodes]
+    for node in program.nodes:
+        value=expression(node,rust=True)
+        if value.startswith("(") and value.endswith(")"):value=value[1:-1]
+        lines.append(f"    let {node.name} = {value};")
     return "\n".join([*lines, "    " + returned(program.outputs), "}", ""])
 
 
@@ -188,11 +191,17 @@ def bound_derivation(program, summaries, steps, ideal_inputs=None):
 
 
 def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None, claims=None, *, specification=None):
+    from .specification import rational_equivalence
+    rational = rational_equivalence(program,specification)
+    # Distribution is deliberately bounded: expanding large matrix/recurrence
+    # denominators destroys sharing and needlessly exhausts the proof budget.
+    normalize_collections = program.scientific is not None and len(program.nodes)<=32
     args = applied(program)
     hyps = hypotheses(program, domain)
     conclusion = {**summaries, **(claims or {})}
     imports = ['module', '', 'public import Workflow.Kernel',
         'public import Flare.Binary64.Pipeline']
+    if rational:imports+=['public import Mathlib.Tactic.FieldSimp']
     if with_rust:
         imports.append('public import Workflow.Generated.Funs')
     if rust_equivalence:
@@ -224,6 +233,8 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
                 error = '('+error+').trans (by norm_num : '+real(summaries[node].e)+' ≤ '+real(conclusion[node].e)+')'
             terms += [f"b_{node}.finite", error]
         lines += ["  exact ⟨" + ", ".join(terms) + "⟩"]
+    if normalize_collections:
+        lines += ['', 'section', 'attribute [local simp] sub_eq_add_neg mul_add add_mul neg_mul mul_neg add_assoc add_left_comm add_comm mul_assoc mul_left_comm mul_comm']
     lines += ['', 'theorem specification_equiv '+
         ' '.join(f'(a{i} : ℝ)' for i in range(len(program.inputs))),
         f'    : reference {args} = specification {args} := by']
@@ -234,7 +245,8 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
     else:
         lines += ['  unfold reference specification']
         if program.scientific:
-            lines += (["  repeat' apply Prod.ext", '  all_goals simp'] if len(program.outputs)>1 else ['  simp'])
+            if len(program.outputs)>1:lines += ["  repeat' apply Prod.ext"]
+            lines += ['  all_goals simp']
         elif program.arrays:
             lines += ['  simp [Matrix.mul_apply'+(', Fin.sum_univ_succ' if program.arrays['product'][1]>1 else '')+', Matrix.of_apply'+
                       (', add_assoc' if program.arrays['product'][1]>2 else '')+']']
@@ -243,7 +255,11 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
             proofs=[sqrt_congruence(source) for source in specification]
             lines += ['  exact '+(proofs[0] if len(proofs)==1 else 'Prod.ext '+' '.join(proofs))]
         else:
-            lines += ['  apply Prod.ext <;> ring' if len(program.outputs)>1 else '  ring']
+            if rational:
+                if len(program.outputs)>1:lines += ['  apply Prod.ext']
+                lines += rational
+            else:lines += ['  apply Prod.ext <;> ring' if len(program.outputs)>1 else '  ring']
+    if normalize_collections:lines += ['end']
     if with_rust:
         lines += ['', f'theorem source_equiv {params(program)}',
             f'    : Generated.kernel {args} = .ok (kernel {args}) := by',

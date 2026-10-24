@@ -68,8 +68,10 @@ def main():
         if runtime and 'rust_application' not in request: request['source_runtime']=runtime
         if request.get('target')=='rust-aeneas' and tools.get('rust_tools'):
             request['rust_tools']=tools['rust_tools']
-        if tools.get('analysis_tools') and 'rust_application' not in request and 'counterexample' not in request:
+        if tools.get('analysis_tools') and 'rust_application' not in request and 'counterexample' not in request and 'counterexample_search' not in request:
             request['analysis_tools'] = tools['analysis_tools']
+        if request.get('counterexample_search') and tools.get('search_tools'):
+            request['search_tools']=tools['search_tools']
         if args.contract_cache:
             request['contract_cache'] = str(args.contract_cache.resolve())
         selected=out/(case['name']+'.json');save(selected,request)

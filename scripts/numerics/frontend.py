@@ -237,6 +237,8 @@ def c_frontend(source, function):
 
 
 FRONTENDS = {
+    'cpp': SourceAdapter(None, None,
+        'Closed C++20 namespace-level by-value double functions. The source selector, C syntax bridge, standard header constants and compiler/runtime fidelity are trusted. No object, memory, template, exception or standard-library algorithm coverage.', ('clang++','g++')),
     'c': SourceAdapter(c_frontend, None,
         'Closed C11 double profile with pure scalar helpers, double-only value structs, static buffers and bounded unsigned loops. Parsing/source-to-heap mapping and compiler/runtime fidelity are trusted; Lean checks abstract memory safety and numerical contracts.', ('clang','gcc')),
     'rust': SourceAdapter(rust_frontend, None,
@@ -250,7 +252,20 @@ FRONTENDS = {
 }
 
 
-def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None, python_math=None, python_mixed=None):
+def parse(language, source, function, python_method=None, python_arrays=None, python_branches=None, python_counted=None, scientific_arrays=None, python_math=None, python_mixed=None, python_module=None, cpp_module=None):
+    if cpp_module is not None:
+        if language!='cpp' or any(x is not None for x in (python_method,python_arrays,python_branches,python_counted,scientific_arrays,python_math,python_mixed,python_module)):
+            raise Unsupported('cpp_module uses its own closed C++ scalar profile')
+        from .cpp_frontend import admit
+        return admit(source,function,cpp_module)
+    if language=='cpp':raise Unsupported('C++ source requires an explicit cpp_module selection')
+    if python_module is not None:
+        if python_module is not True or language!='python' or any(x is not None for x in (python_method,python_arrays,python_branches,python_counted,python_math,python_mixed)):
+            raise Unsupported('python_module requires true on the scalar or scientific Python profile')
+        from .module_selection import python_selection
+        selected,record=python_selection(source,function,scientific=scientific_arrays is not None)
+        program=parse(language,selected,function,scientific_arrays=scientific_arrays)
+        return replace(program,selection=record)
     if python_mixed is not None:
         if (python_mixed is not True or language!='python' or any(x is not None for x in
                 (python_method,python_arrays,python_branches,python_counted,scientific_arrays,python_math))):

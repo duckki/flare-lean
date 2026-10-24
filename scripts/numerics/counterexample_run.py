@@ -218,7 +218,7 @@ def certify(request_path, output):
     request, source, program, questions = prepare(request_path)
     if questions: return {'status': 'needs_input', 'questions': questions}
     frozen = source.read_bytes()
-    if parse(program.language, frozen.decode(), program.function) != program:
+    if parse(program.language, frozen.decode(), program.function, python_module=request.get('python_module'),cpp_module=request.get('cpp_module')) != program:
         raise ValueError('Source changed during admission; start a fresh run')
     output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=False)
     source_name = 'source'+source.suffix
@@ -233,6 +233,9 @@ def certify(request_path, output):
         'assumptions': ['The admitted frontend maps source to the ordered scalar graph; its implementation is trusted.',
             'The selected runtime/compiler/hardware implements separate nearest/even binary64 operations with gradual underflow and no reassociation or implicit FMA.',
             'The independent exact reference, engineering domain and requirement need review. Physical/model uncertainty is excluded.']}
+    if program.selection:
+        result['source_selection']=program.selection
+        result['assumptions'].append(program.selection['qualification'])
     runner = Runner(output, request.get('timeout_seconds',120)); work = output/'.work'; work.mkdir()
     try:
         runner.last_stage = 'source-runtime-admission'
@@ -278,7 +281,7 @@ def certify(request_path, output):
     return result
 
 
-def replay(path, output):
+def replay(path, output, *, timeout_seconds=None):
     from .workflow import Runner, prepare, save
     request, source, program, questions = prepare(path/'request.json', replay=True)
     if questions: raise ValueError('Frozen counterexample request is incomplete')
@@ -294,7 +297,7 @@ def replay(path, output):
     shutil.copyfile(path/'request.json', output/'request.json')
     shutil.copyfile(source, output/request['source'])
     shutil.copyfile(path/'witness.json', output/'witness.json')
-    runner = Runner(output, request.get('timeout_seconds',120)); work = output/'.work'; work.mkdir()
+    runner = Runner(output, timeout_seconds if timeout_seconds is not None else request.get('timeout_seconds',120)); work = output/'.work'; work.mkdir()
     try:
         check_lean(output, request, program, record, runner, work)
     finally:

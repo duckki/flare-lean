@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "source.py",
+  "function": "API_to_SG",
+  "domain": {
+    "API": [
+      "10",
+      "80"
+    ]
+  },
+  "specification": [
+    "283/(2*API+263)"
+  ],
+  "outputs": [
+    {
+      "name": "specific gravity",
+      "unit": "1",
+      "limit": "1/1000000000000"
+    }
+  ],
+  "python_module": true
+}

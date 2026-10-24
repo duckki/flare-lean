@@ -1,0 +1,12 @@
+{
+  "schema": "numerics-assistance-v1",
+  "kind": "reusable_provider_changes",
+  "changes": [
+    "Closed C++20 namespace-level by-value double header selection",
+    "Configured binary64 constant words checked against the real compiled header at O0 and O2"
+  ],
+  "application_source_edits": false,
+  "domain_reference_or_requirement_changes": false,
+  "authored_application_proofs": false,
+  "independent_engineer_reproduction": "pending; these are agent-operated checks"
+}

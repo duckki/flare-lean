@@ -2,6 +2,7 @@
 from pathlib import Path
 import math
 import os
+import platform
 import sys
 import tarfile
 
@@ -26,10 +27,15 @@ def setup(name, directory, timeout=600, make_args=()):
         raise ValueError('Setup timeout must be finite and positive')
     if adapter is None or adapter.setup is None:
         raise ValueError('No maintained setup recipe for '+name)
+    recipe=adapter.setup
+    if 'platforms' in recipe:
+        key=platform.system()+'-'+platform.machine()
+        if key not in recipe['platforms']:
+            raise ToolError('unsupported_platform','No maintained '+name+' setup asset for '+key)
+        recipe=recipe['platforms'][key]
     directory = Path(directory).expanduser().resolve()
     directory.mkdir(parents=True, exist_ok=False)
     runner = Runner(directory, timeout)
-    recipe = adapter.setup
     record = {'schema': 'numerics-installation-v1', 'adapter': name, 'recipe': recipe,
               'status': 'unresolved', 'make_args': list(make_args),
               'build_environment': {key: os.environ[key] for key in [
@@ -50,9 +56,12 @@ def setup(name, directory, timeout=600, make_args=()):
                                    source['url'], '--output', archive], phase='setup')
             if sha(archive) != source['sha256']:
                 raise ValueError('Downloaded tool archive differs from the pinned SHA-256')
-            # Extraction is bounded and logged like other setup commands.
-            runner.run('unpack', [sys.executable, '-m', 'numerics.installation', archive, directory],
-                       env={'PYTHONPATH': str(ROOT/'scripts')}, phase='setup')
+            # Only pinned provider-owned distribution recipes select extraction.
+            if source.get('format')=='deb':
+                runner.run('unpack',['dpkg-deb','--extract',archive,directory/source['directory']],phase='setup')
+            else:
+                runner.run('unpack', [sys.executable, '-m', 'numerics.installation', archive, directory],
+                           env={'PYTHONPATH': str(ROOT/'scripts')}, phase='setup')
             root = directory/source['directory']
         values = {'source': str(root), 'install': str(directory/'install'), 'provider': str(ROOT)}
         for i, command in enumerate(recipe['commands']):

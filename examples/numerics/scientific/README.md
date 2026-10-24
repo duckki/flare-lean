@@ -65,3 +65,8 @@ The core `Collection` definitions and generated source/exact bridges are checked
 in Lean. NumPy/Julia internals and compilation remain trusted. Actual-source
 word diagnostics are samples. Replay needs neither application runtime nor
 extractor; Rust replay still needs the recorded compiled Aeneas model.
+
+`calibration_python_rust.json` selects the original NumPy API with the same
+retained Rust port. The delivery release harness exercises this variant with
+`--tools <local-tools.json>`, including fresh extraction, portable replay and
+change-aware rechecking.

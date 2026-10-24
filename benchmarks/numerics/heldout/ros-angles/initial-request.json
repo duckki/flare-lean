@@ -1,0 +1,22 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "cpp",
+  "source": "source.h",
+  "function": "angles::from_degrees",
+  "domain": {
+    "degrees": [
+      "-360",
+      "360"
+    ]
+  },
+  "specification": [
+    "degrees * (884279719003555 / 50665495807918080)"
+  ],
+  "outputs": [
+    {
+      "name": "angle using the configured binary64 pi constant",
+      "unit": "rad",
+      "limit": "1/1000000000000"
+    }
+  ]
+}

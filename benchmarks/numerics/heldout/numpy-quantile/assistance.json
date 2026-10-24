@@ -1,0 +1,13 @@
+{
+  "schema": "numerics-assistance-v1",
+  "kind": "reusable_provider_changes",
+  "changes": [
+    "Closed original Python definition selection",
+    "Exact bounded integer literal promotion in NumPy float64 expressions",
+    "Polynomial normalization of the independent exact collection reference"
+  ],
+  "application_source_edits": false,
+  "domain_reference_or_requirement_changes": false,
+  "authored_application_proofs": false,
+  "independent_engineer_reproduction": "pending; these are agent-operated checks"
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "source.py",
+  "function": "_compute_virtual_index",
+  "scientific_arrays": {
+    "n": [],
+    "quantiles": [
+      4
+    ],
+    "alpha": [],
+    "beta": []
+  },
+  "domain": {
+    "n": [
+      "1",
+      "1000"
+    ],
+    "alpha": [
+      "0",
+      "1"
+    ],
+    "beta": [
+      "0",
+      "1"
+    ],
+    "quantiles_0": [
+      "0",
+      "1"
+    ],
+    "quantiles_1": [
+      "0",
+      "1"
+    ],
+    "quantiles_2": [
+      "0",
+      "1"
+    ],
+    "quantiles_3": [
+      "0",
+      "1"
+    ]
+  },
+  "specification": {
+    "kind": "collections",
+    "bindings": [],
+    "outputs": [
+      "(n+1-alpha-beta)*quantiles+alpha-1"
+    ]
+  },
+  "outputs": [
+    {
+      "name": "virtual index 0",
+      "unit": "index",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "virtual index 1",
+      "unit": "index",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "virtual index 2",
+      "unit": "index",
+      "limit": "1/10000000000"
+    },
+    {
+      "name": "virtual index 3",
+      "unit": "index",
+      "limit": "1/10000000000"
+    }
+  ],
+  "python_module": true
+}
