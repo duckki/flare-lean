@@ -3,10 +3,13 @@ import ast
 from fractions import Fraction
 
 
-def lean_expression(source, inputs, bindings=None, allow_conditionals=False):
+def lean_expression(source, inputs, bindings=None, allow_conditionals=False, allow_sqrt=False):
     names = bindings if bindings is not None else {name: f'a{i}' for i, name in enumerate(inputs)}
 
     def visit(node):
+        if (allow_sqrt and isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == 'sqrt' and len(node.args) == 1 and not node.keywords):
+            return '(Real.sqrt '+visit(node.args[0])+')'
         if allow_conditionals and isinstance(node, ast.IfExp):
             t = node.test
             if not (isinstance(t, ast.Compare) and len(t.ops) == 1 and type(t.ops[0]) in (ast.Lt, ast.LtE, ast.Gt, ast.GtE)):
@@ -26,7 +29,7 @@ def lean_expression(source, inputs, bindings=None, allow_conditionals=False):
         if isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult, ast.Div):
             operator = {ast.Add: '+', ast.Sub: '-', ast.Mult: '*', ast.Div: '/'}[type(node.op)]
             return f'({visit(node.left)} {operator} {visit(node.right)})'
-        raise ValueError('Exact reference supports only original input names, rational constants and + - * /')
+        raise ValueError('Exact reference supports original input names, rational constants, + - * / and selected mathematical primitives')
 
     return visit(ast.parse(source, mode='eval').body)
 
@@ -47,7 +50,7 @@ def validate(specification, program):
     if isinstance(specification,list):
         if len(specification)!=len(program.outputs) or any(not isinstance(x,str) for x in specification):
             raise ValueError('Provide an independent exact expression string per output')
-        for expression in specification: lean_expression(expression,program.inputs,allow_conditionals=bool(program.branches))
+        for expression in specification: lean_expression(expression,program.inputs,allow_conditionals=bool(program.branches),allow_sqrt=bool(program.math and 'sqrt' in program.math['operations']))
         return
     fields={'kind','initial','sequence','state','element','step'}
     if not isinstance(specification,dict) or set(specification)!=fields or specification['kind']!='fold':
@@ -79,7 +82,7 @@ def lean_specification(specification,program):
         from .array_emit import matrix_specification
         return [matrix_specification(specification,program)]
     if isinstance(specification,list):
-        values=[lean_expression(x,program.inputs,allow_conditionals=bool(program.branches)) for x in specification]
+        values=[lean_expression(x,program.inputs,allow_conditionals=bool(program.branches),allow_sqrt=bool(program.math and 'sqrt' in program.math['operations'])) for x in specification]
         return [values[0] if len(values)==1 else '('+', '.join(values)+')']
     names={name:f'a{i}' for i,name in enumerate(program.inputs)}
     initial='('+', '.join(lean_expression(x,program.inputs,allow_conditionals=bool(program.branches)) for x in specification['initial'])+')'
@@ -105,3 +108,25 @@ def describe(specification):
             'fold over '+', '.join(specification['sequence']),
             'state names = '+', '.join(specification['state'])+'; element = '+specification['element'],
             *specification['step']]
+
+
+def sqrt_congruence(source):
+    """Propose an equality proof for the reference's primitive structure.
+
+    Arithmetic leaves use ring normalization. Congruence crosses sqrt calls;
+    Lean still rejects a false argument equality or a different outer structure.
+    """
+    def contains(node):
+        return any(isinstance(x,ast.Call) for x in ast.walk(node))
+    def proof(node):
+        if not contains(node):
+            return '(by ring)'
+        if isinstance(node,ast.Call):
+            return '(congrArg Real.sqrt '+proof(node.args[0])+')'
+        if isinstance(node,ast.UnaryOp):
+            return '(congrArg (fun x : ℝ => -x) '+proof(node.operand)+')'
+        if isinstance(node,ast.BinOp):
+            op={ast.Add:'+',ast.Sub:'-',ast.Mult:'*',ast.Div:'/'}[type(node.op)]
+            return '(congrArg₂ (fun x y : ℝ => x '+op+' y) '+proof(node.left)+' '+proof(node.right)+')'
+        raise ValueError('Unsupported primitive reference proof structure')
+    return proof(ast.parse(source,mode='eval').body)

@@ -1,0 +1,27 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "fused_norm",
+  "python_math": true,
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ],
+    "y": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "sqrt(x*x+(y*y+1))"
+  ],
+  "outputs": [
+    {
+      "name": "fused_norm",
+      "unit": "1",
+      "limit": "1/1000000000000"
+    }
+  ]
+}

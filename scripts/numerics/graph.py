@@ -45,7 +45,8 @@ class Program:
         if self.math is None:
             record.pop('math')
         else:
-            record['schema'] = 'ordered-binary64-explicit-fma-v1'
+            record['schema'] = ('ordered-binary64-sqrt-v1' if 'sqrt' in self.math['operations']
+                                else 'ordered-binary64-explicit-fma-v1')
         return record
 
 

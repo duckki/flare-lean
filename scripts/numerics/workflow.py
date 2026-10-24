@@ -48,7 +48,8 @@ def prepare(path, *, replay=False):
     program = parse(request.get('language', 'python'), source.read_text(), request['function'], request.get('python_method'), request.get('python_arrays'),request.get('python_branches'),request.get('python_counted'),request.get('scientific_arrays'),request.get('python_math'))
     if program.math and (request.get('producer','lean-flare') != 'lean-flare' or request.get('proof')
                          or request.get('target','lean') != 'lean' or request.get('rust_port')):
-        raise Unsupported('Explicit FMA currently uses automatic lean-flare validation and Lean delivery')
+        profile='Square-root profile' if 'sqrt' in program.math['operations'] else 'Explicit FMA'
+        raise Unsupported(profile+' currently uses automatic lean-flare validation and Lean delivery')
     if program.scientific:
         if request.get('producer','lean-flare')!='lean-flare' or request.get('proof'):
             raise Unsupported('Scientific arrays currently use automatic lean-flare validation')
@@ -424,6 +425,9 @@ def certify(request_path, output):
         result['scope']='One restricted Python scalar kernel with explicit math.fma calls, separately rounded ordinary operations and finite binary64 inputs.'
         result['arithmetic_profile']=program.math
         result['assumptions'][1]='CPython math.fma implements IEEE binary64 single-rounding fused multiply-add; ordinary operators remain separate nearest/even operations with gradual underflow and no implicit fusion or reassociation. Runtime, platform math library and hardware fidelity remain trusted.'
+        if 'sqrt' in program.math['operations']:
+            result['scope']='One restricted Python scalar kernel with explicitly admitted math.sqrt and optional math.fma calls, finite native execution and an independent exact-real reference.'
+            result['assumptions'][1]='The selected CPython math extension and platform/libm implement IEEE binary64 nearest/even square root and any explicit FMA calls. Ordinary operators remain separate with gradual subnormals and no implicit fusion/reassociation. Source mapping and runtime/libm/hardware fidelity are trusted; runtime and platform identities are retained.'
     if request.get('python_method'):
         result['scope']='A frozen finite horizon of the selected original Python method body on the configured scalar state and fixed binary64 attributes.'
         result['assumptions'].append('The caller invokes the selected original method body on an ordinary instance with the configured scalar fields and omitted optional gains. Module initialization, construction and dynamic dispatch are outside this certificate.')
@@ -504,7 +508,8 @@ def certify(request_path, output):
                                                   request['outputs'],with_rust,authored,
                                                   isinstance(request['specification'],dict),
                                                   request.get('rust_port',{}).get('equivalence'),
-                                                  bounds if producer != 'lean-flare' or authored else None))
+                                                  bounds if producer != 'lean-flare' or authored else None,
+                                                  specification=request['specification']))
         session.execute('lean-root', 'validator', bounds=bounds)
         record=json.loads((output/'analysis.json').read_text())
         record['accepted_bounds']={n:str(bounds[n].e) for n in program.outputs}
@@ -564,6 +569,10 @@ def audit_run(path, frozen=False):
                 raise ValueError('Application source, contract or proof changed: '+record['path'])
         if 'source-runtime.json' in result['artifacts']:
             runtime=json.loads((path/'source-runtime.json').read_text())
+            if runtime.get('math_profile')=='python-math-sqrt-v1':
+                from .runtimes import math_platform
+                if runtime.get('platform')!=math_platform():
+                    raise ValueError('Source math platform changed; regenerate diagnostics and certificate')
             for library in runtime.get('libraries',[]):
                 for file,digest in library['files'].items():
                     if sha(file)!=digest:raise ValueError('Source runtime library changed: '+file)

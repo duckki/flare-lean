@@ -42,7 +42,7 @@ class ExplicitFmaTests(unittest.TestCase):
         variants = [SOURCE.replace('import math','from math import fma'),
             SOURCE.replace('import math','import math as m'),
             SOURCE.replace('import math','import math, os'),
-            SOURCE.replace('math.fma(x,y,z)','math.sqrt(x)'),
+            SOURCE.replace('math.fma(x,y,z)','math.sin(x)'),
             SOURCE.replace('math.fma(x,y,z)','float(x)'),
             SOURCE.replace('math.fma(x,y,z)','math.fma(x,y,z=z)'),
             SOURCE.replace('math.fma(x,y,z)','math.fma(x,y)'),

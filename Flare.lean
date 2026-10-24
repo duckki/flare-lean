@@ -21,6 +21,7 @@ public import Flare.Analysis.PseudoinversePerturbation
 public import Flare.Analysis.SchurComplement
 public import Flare.Analysis.SpectralGap
 public import Flare.Analysis.SpectralPerturbation
+public import Flare.Analysis.SqrtBounds
 public import Flare.Binary64.Arithmetic
 public import Flare.Binary64.Congruence
 public import Flare.Binary64.Division
@@ -38,6 +39,7 @@ public import Flare.Binary64.Pipeline
 public import Flare.Binary64.Rounding
 public import Flare.Binary64.SignMultiplication
 public import Flare.Binary64.Sqrt
+public import Flare.Binary64.SqrtPropagation
 public import Flare.Binary64.Value
 public import Flare.Binary64.Zero
 public import Flare.Matrix.Dense

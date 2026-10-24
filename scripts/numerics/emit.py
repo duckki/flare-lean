@@ -24,6 +24,10 @@ def expression(node, ideal=False, rust=False):
         if ideal:
             return real(Q.from_float(number(node.bits)))
         return repr(number(node.bits)) if rust else f"Float.ofBits {node.bits}"
+    if node.op == "sqrt":
+        if rust:
+            raise ValueError('Square-root Rust delivery requires a separate extraction bridge')
+        return f"Real.sqrt {node.args[0]}" if ideal else f"Float.sqrt {node.args[0]}"
     if node.op == "fma":
         a, b, c = node.args
         if rust:
@@ -70,6 +74,8 @@ def kernel_source(program, specification):
     result += [f'noncomputable def specification {arguments} : {output_type} :=',
                *['  '+line for line in lean_specification(specification,program)], '']
     imports = ['public import Flare.Binary64.Value']
+    if program.math and 'sqrt' in program.math['operations']:
+        imports += ['public import Mathlib.Analysis.Real.Sqrt']
     if program.arrays:
         imports += ['public import Flare.Matrix.OrderedProduct','public import Mathlib.LinearAlgebra.Matrix.Notation']
     return "\n".join(["module", "", *imports, "", "@[expose] public section", "", "namespace Workflow", "", *result, "end Workflow", ""])
@@ -170,7 +176,7 @@ def bound_derivation(program, summaries, steps, ideal_inputs=None):
     return lines
 
 
-def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None, claims=None):
+def proof_source(program, domain, summaries, steps, targets, with_rust=False, authored=None, folded=False, rust_equivalence=None, claims=None, *, specification=None):
     args = applied(program)
     hyps = hypotheses(program, domain)
     conclusion = {**summaries, **(claims or {})}
@@ -221,6 +227,10 @@ def proof_source(program, domain, summaries, steps, targets, with_rust=False, au
         elif program.arrays:
             lines += ['  simp [Matrix.mul_apply'+(', Fin.sum_univ_succ' if program.arrays['product'][1]>1 else '')+', Matrix.of_apply'+
                       (', add_assoc' if program.arrays['product'][1]>2 else '')+']']
+        elif program.math and 'sqrt' in program.math['operations']:
+            from .specification import sqrt_congruence
+            proofs=[sqrt_congruence(source) for source in specification]
+            lines += ['  exact '+(proofs[0] if len(proofs)==1 else 'Prod.ext '+' '.join(proofs))]
         else:
             lines += ['  apply Prod.ext <;> ring' if len(program.outputs)>1 else '  ring']
     if with_rust:

@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "standard_deviation",
+  "python_math": true,
+  "domain": {
+    "variance": [
+      "0",
+      "16"
+    ]
+  },
+  "specification": [
+    "sqrt(variance)"
+  ],
+  "outputs": [
+    {
+      "name": "standard_deviation",
+      "unit": "1",
+      "limit": "1/1152921504606846976"
+    }
+  ]
+}

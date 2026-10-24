@@ -64,11 +64,11 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
     def values(node):
         if math_profile and isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
             if (not isinstance(node.func.value, ast.Name) or node.func.value.id != 'math'
-                    or node.func.attr != 'fma' or 'math' in local_names[active[-1]]
-                    or node.keywords or len(node.args) != 3):
-                raise Unsupported('Only unshadowed math.fma(x, y, z) calls are admitted')
+                    or node.func.attr not in ('fma','sqrt') or 'math' in local_names[active[-1]]
+                    or node.keywords or len(node.args) != (3 if node.func.attr == 'fma' else 1)):
+                raise Unsupported('Only unshadowed positional math.fma(x, y, z) and math.sqrt(x) calls are admitted')
             args = [graph.floating(expression(x)) for x in node.args]
-            return [graph.emit('fma', args)]
+            return [graph.emit(node.func.attr, args)]
         if isinstance(node, ast.Tuple):
             return [expression(x) for x in node.elts]
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
@@ -78,7 +78,7 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
             args = [expression(x) for x in node.args]
             return call(name, args)
         if isinstance(node, ast.Call):
-            raise Unsupported('Only admitted numerical helper or explicit math.fma calls are supported')
+            raise Unsupported('Only admitted numerical helper or explicit math.fma/math.sqrt calls are supported')
         return [expression(node)]
 
     def expression(node):
@@ -170,9 +170,11 @@ def python_frontend(source, function, trace=None, max_outputs=2, *, math_profile
     compile(tree,'<admitted-numerical-source>','exec')
     program = graph.finish(outputs, max_outputs=max_outputs)
     if math_profile:
-        if not any(n.op == 'fma' for n in program.nodes) or len(program.nodes) > 32:
-            raise Unsupported('python_math requires explicit FMA and at most 32 IR nodes')
-        program = replace(program, math={'schema':'python-math-fma-v1','operations':['fma']})
+        operations = sorted({n.op for n in program.nodes} & {'fma','sqrt'})
+        if not operations or len(program.nodes) > 32:
+            raise Unsupported('python_math requires an admitted math primitive and at most 32 IR nodes')
+        schema = 'python-math-sqrt-v1' if 'sqrt' in operations else 'python-math-fma-v1'
+        program = replace(program, math={'schema':schema,'operations':operations})
     return program
 
 
@@ -217,7 +219,7 @@ FRONTENDS = {
     'rust': SourceAdapter(rust_frontend, None,
         'Restricted scalar f64 Rust source; parser and compiler/runtime correspondence are trusted. Optional Aeneas extraction checks the actual retained source.', ('rustc',)),
     'python': SourceAdapter(python_frontend, load_python,
-        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, explicit math.fma, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
+        'Restricted Python scalar source, local numerical helpers, fixed literal-tuple loops, explicit ordinary scalar instance-method horizons, fixed-shape built-in-list products, explicit math.fma/math.sqrt, terminal conditionals and compact two-state counted loops; frontend/model generation and runtime correspondence are trusted.'),
     'julia': SourceAdapter(julia_frontend, None,
         'Restricted Julia scalar source on original Float64 inputs with ordinary separate arithmetic, no fast-math or method overrides; parser, literal conversion and runtime correspondence are trusted.', ('julia',)),
     'matlab': SourceAdapter(matlab_frontend, None,
@@ -285,9 +287,9 @@ def execute(program, arguments):
             value = -xs[0]
         elif n.op in ('select_lt', 'select_le'):
             value = xs[2] if (xs[0] < xs[1] if n.op == 'select_lt' else xs[0] <= xs[1]) else xs[3]
-        elif n.op == 'fma':
+        elif n.op in ('fma','sqrt'):
             import math
-            value = math.fma(*xs)
+            value = getattr(math,n.op)(*xs)
         elif n.op == 'add':
             value = xs[0] + xs[1]
         elif n.op == 'sub':

@@ -206,7 +206,10 @@ The ordinary and external-producer arithmetic model is separate binary64
 operations, nearest/even, gradual subnormals and no FMA or reassociation. An optional
 `arithmetic` object must match the model printed by `capabilities`. The separate
 [explicit-FMA Python profile](explicit-fma.md) uses `fma: "explicit"` with
-`lean-flare` and Lean delivery; external producers retain their current admission.
+`lean-flare` and Lean delivery. The [square-root profile](square-root.md) adds
+an explicit correctly rounded function contract, checked endpoints and incoming
+error rules. External producers retain their current admission; these primitive
+models are not yet bridged to their exporters.
 Gappa's exporter requires dyadic domain endpoints. Both exporters preserve the
 ordered admitted graph and use exact constants; Lean still checks its independent
 specification.

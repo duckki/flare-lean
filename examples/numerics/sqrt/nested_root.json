@@ -1,0 +1,23 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "nested_root",
+  "python_math": true,
+  "domain": {
+    "variance": [
+      "0",
+      "16"
+    ]
+  },
+  "specification": [
+    "sqrt(sqrt(variance))"
+  ],
+  "outputs": [
+    {
+      "name": "nested_root",
+      "unit": "1",
+      "limit": "1/1000000"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "regularized_norm",
+  "python_math": true,
+  "domain": {
+    "x": [
+      "-1",
+      "1"
+    ],
+    "y": [
+      "-1",
+      "1"
+    ]
+  },
+  "specification": [
+    "sqrt(1+x*x+y*y)"
+  ],
+  "outputs": [
+    {
+      "name": "regularized_norm",
+      "unit": "1",
+      "limit": "1/1000000000000"
+    }
+  ]
+}

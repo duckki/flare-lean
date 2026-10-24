@@ -11,6 +11,7 @@ No upstream submission is recorded here yet.
 
 | Area | FLARE modules | Preparation needed |
 | --- | --- | --- |
+| Square-root perturbation | `Analysis.SqrtBounds` | Compare zero-inclusive squared allowances and positive-floor difference bounds with existing distance/rpow continuity APIs before proposing a preferred upstream statement |
 | Dyadic estimates | `Analysis.Dyadic` | Compare the exponent-selection and scaling lemmas with existing power bounds |
 | Indexed fold simulation | `Analysis.ErrorRecurrence.foldl_contract` | Compare with `List.foldl_rel` and `List.rel_foldl`; assess a useful interface for step-indexed invariants before proposing an upstream statement |
 | Matrix conditioning | `Analysis.Conditioning`, `Analysis.SchurComplement`, `Analysis.LinearSolve` | Compare positive-definite and operator-norm APIs; identify reusable missing lemmas |

@@ -80,6 +80,10 @@ mapping from actual source to executable model explicit. If support cannot be
 completed, report the unresolved construct or obligation; do not substitute a
 hand-rewritten surrogate and claim to have verified the original implementation.
 
+For Python `math.sqrt`, read [square-root.md](references/square-root.md). Prove
+nonnegative native/exact arguments and retain incoming errors; match the selected
+runtime's correctly rounded primitive contract before using its Lean bridge.
+
 For explicit Python `math.fma`, read [explicit-fma.md](references/explicit-fma.md).
 Select its source/arithmetic profile; preserve one final rounding per explicit
 call and two sites for ordinary multiply/add. Do not insert fusion into a port.

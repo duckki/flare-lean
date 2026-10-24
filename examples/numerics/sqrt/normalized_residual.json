@@ -1,0 +1,31 @@
+{
+  "schema": "numerics-request-v1",
+  "language": "python",
+  "source": "kernels.py",
+  "function": "normalized_residual",
+  "python_math": true,
+  "domain": {
+    "residual": [
+      "-2",
+      "2"
+    ],
+    "variance": [
+      "1/4",
+      "4"
+    ],
+    "noise": [
+      "1/4",
+      "1"
+    ]
+  },
+  "specification": [
+    "residual/sqrt(variance+noise)"
+  ],
+  "outputs": [
+    {
+      "name": "normalized_residual",
+      "unit": "1",
+      "limit": "1/1000000000000"
+    }
+  ]
+}

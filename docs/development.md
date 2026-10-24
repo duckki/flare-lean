@@ -285,3 +285,21 @@ The tests distinguish missing runtimes, unsupported models, invalid numerical
 proofs and the separate schedule's checked allowance above budget. The public
 Lean API tests also compute FMA/separate bit differences, signed zero, subnormal
 ties and overflow cancellation in the kernel.
+
+## Square-root regression checks
+
+The [square-root profile](square-root.md) needs CPython 3.13/3.14 and no external
+analyzer. After the library build finishes, run:
+
+```sh
+FLARE_NUMERICS_INTEGRATION=1 PYTHONPATH=scripts python3 -m unittest test_numerics_sqrt
+python3 scripts/benchmark_numerics.py \
+  --case sqrt_standard_deviation --case sqrt_regularized_norm \
+  --case sqrt_normalized_residual --case sqrt_fused_norm --case sqrt_nested_root \
+  --case sqrt_standard_deviation_tight --replay \
+  --out .cache/numerics-generated/sqrt-regression
+```
+
+Controls include negative domains, incompatible function models, corrupt root
+endpoints, missing incoming error, wrong native primitives/references, changed
+platform/library identities, zero/subnormal domains and producer/runtime-free replay.

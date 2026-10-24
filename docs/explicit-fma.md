@@ -7,7 +7,8 @@ inserts FMA into a separate schedule.
 
 This is the first delivered arithmetic feature in
 [roadmap milestone 13](roadmap.md#13-cover-more-arithmetic-models).
-Mixed binary32/binary64 and function-using source profiles remain planned.
+A [square-root source bridge](square-root.md) is also available. Mixed
+binary32/binary64 remains planned.
 
 ## Select the profile
 
@@ -35,7 +36,8 @@ assignments, local numerical helpers, fixed literal-tuple loops, and unshadowed
 positional `math.fma` calls. It inherits finite binary64 literal/promotion rules
 and permits at most 32 ordered graph nodes and one or two scalar outputs.
 Non-FMA arithmetic retains the ordinary profile's rules. Unsupported imports,
-casts, other `math` functions, keyword calls and shadowing are rejected.
+casts, `math` functions beyond the selected FMA/square-root contracts, keyword
+calls and shadowing are rejected.
 
 Use `lean-flare` and Lean delivery. External producer routes, Rust delivery and
 composition with the array/conditional/counted profiles need separate bridges.
@@ -76,8 +78,9 @@ The frozen obligation and evidence record this arithmetic model:
 }
 ```
 
-The request may provide that same object explicitly. A mismatched format,
-rounding mode, implicit fusion or separate-only model is rejected. Ordinary
+The request may provide that same object explicitly. Calls to `math.sqrt` add
+its separately declared function model; see the [square-root guide](square-root.md).
+A mismatched format, rounding mode, implicit fusion or separate-only model is rejected. Ordinary
 profiles retain their existing identities and `fma: false` model.
 
 ## Maintained examples and rejection controls

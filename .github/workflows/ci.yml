@@ -79,6 +79,13 @@ jobs:
           --case fma_fused_dot3 --case fma_reciprocal_calibrate
           --case fma_separate_residual --replay
           --out .cache/numerics-generated/bench-fma-ci
+      - name: Certify and replay square-root applications
+        run: >-
+          python3 scripts/benchmark_numerics.py
+          --case sqrt_standard_deviation --case sqrt_regularized_norm
+          --case sqrt_normalized_residual --case sqrt_fused_norm --case sqrt_nested_root
+          --case sqrt_standard_deviation_tight --replay
+          --out .cache/numerics-generated/bench-sqrt-ci
       - name: Check out pinned README demo source
         uses: actions/checkout@v5
         with:

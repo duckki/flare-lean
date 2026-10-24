@@ -88,7 +88,7 @@ def admit_runtime(program, request, output, work, runner):
     if program.language=='c':
         runtime['qualification']='Actual selected C compiler and SDK; compiler/runtime fidelity remains trusted. c-runtime.json records original-source compiler modes, flags and sanitizer configuration.'
     if program.math:
-        admit_math(runtime)
+        admit_math(runtime,program.math)
     if program.scientific:
         from .scientific_runtime import admit as admit_scientific
         admit_scientific(program,runtime)
@@ -96,7 +96,7 @@ def admit_runtime(program, request, output, work, runner):
     return runtime
 
 
-def admit_math(runtime):
+def admit_math(runtime,profile=None):
     """Admit an actual CPython/math implementation; these checks are diagnostics."""
     import math
     import platform
@@ -104,23 +104,45 @@ def admit_math(runtime):
     from .workflow import sha
     if platform.python_implementation() != 'CPython' or sys.version_info[:2] not in ((3,13),(3,14)):
         raise ToolError('unsupported_tool_version','python_math requires CPython 3.13 or 3.14')
-    if not callable(getattr(math,'fma',None)):
+    operations=profile['operations'] if profile else ['fma']
+    if 'fma' in operations and not callable(getattr(math,'fma',None)):
         raise ToolError('missing_tool','The selected Python math library has no fma')
     a, b = 1.0+2.0**-27, 1.0-2.0**-27
     tiny = float.fromhex('0x0.0000000000001p-1022')
     # Variables keep the nearest-rounding probe out of Python constant folding.
     one, half_ulp = float.fromhex('0x1p0'), float.fromhex('0x1p-53')
-    if (math.fma(a,b,-1.0) != -2.0**-54 or a*b-1.0 != 0.0 or
+    if 'fma' in operations and (math.fma(a,b,-1.0) != -2.0**-54 or a*b-1.0 != 0.0 or
             math.fma(tiny,one,0.0) != tiny or one+half_ulp != one or
             word(math.fma(-0.0,1.0,-0.0)) != 1 << 63):
         raise ToolError('unsupported_arithmetic','Explicit FMA/nearest/subnormal preflight failed')
+    if 'sqrt' in operations:
+        if not callable(getattr(math,'sqrt',None)):
+            raise ToolError('missing_tool','The selected Python math library has no sqrt')
+        if (word(math.sqrt(2.0)) != 4609047870845172685 or
+                word(math.sqrt(tiny)) != 486 << 52 or word(math.sqrt(-0.0)) != 1 << 63 or
+                one+half_ulp != one):
+            raise ToolError('unsupported_arithmetic','Square-root/nearest/subnormal preflight failed')
     library=Path(getattr(math,'__file__','')).resolve()
     if not library.is_file():
         raise ToolError('unsupported_tool_version','python_math requires a file-backed math extension identity')
     runtime['libraries']=[{'name':'CPython math','version':platform.python_version(),
                            'files':{str(library):sha(library)}}]
-    runtime['math_profile']='python-math-fma-v1'
+    runtime['math_profile']=profile['schema'] if profile else 'python-math-fma-v1'
     runtime['qualification']='CPython math.fma single-rounding contract; sampled preflight and binary identities do not prove runtime/libm/hardware correspondence to Lean.'
+    if 'sqrt' in operations:
+        runtime['platform']=math_platform()
+        runtime['primitive_contracts']={'sqrt':'IEEE 754 binary64 nearest-even square root with gradual subnormals'}
+        if 'fma' in operations:
+            runtime['primitive_contracts']['fma']='IEEE 754 binary64 nearest-even fused multiply-add'
+        runtime['qualification']='Selected CPython math extension and platform/libm are assumed to implement the declared primitive contracts. Probes and identities are diagnostics; Lean proves the native models and numerical root, not CPython or libm implementation correctness.'
+
+
+def math_platform():
+    import platform
+    return {'system':platform.system(),'release':platform.release(),
+            'version':platform.version(),'machine':platform.machine(),
+            'macos':platform.mac_ver()[0],'libc':list(platform.libc_ver())}
+
 
 
 def julia_driver(program, root):

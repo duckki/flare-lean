@@ -29,7 +29,7 @@ def main():
     inspect.add_argument('--python-branches', action='store_const', const=True, default=None,
                          help='Admit one terminal scalar Python if/else')
     inspect.add_argument('--guard-local',action='store_true',help='Prove arithmetic only on the direct input guard domain')
-    inspect.add_argument('--python-math',action='store_const',const=True,default=None,help='Admit explicit math.fma in restricted scalar Python')
+    inspect.add_argument('--python-math',action='store_const',const=True,default=None,help='Admit explicit math.fma/math.sqrt in restricted scalar Python')
     inspect.add_argument('--python-counted',type=json.loads,help='JSON count parameter and selected iterations')
     for name in ['audit', 'replay']:
         p = sub.add_parser(name)
@@ -55,11 +55,13 @@ def main():
                 'adapters': {name: adapter.record() for name, adapter in adapters().items()},
                 'source_profiles': {'python_math': {
                     'request_field':'python_math: true',
-                    'runtime':'CPython 3.13 or 3.14 with math.fma; executable and math extension identities retained',
-                    'operations':'import math; unshadowed math.fma(x,y,z), scalar helpers and ordinary separately rounded operators',
+                    'runtime':'CPython 3.13 or 3.14 with the selected math primitives; executable and math extension identities retained',
+                    'operations':'import math; unshadowed math.fma(x,y,z) and math.sqrt(x), scalar helpers and ordinary separately rounded operators',
                     'arithmetic':{'format':'binary64','rounding':'nearest-even','subnormals':'gradual','fma':'explicit','reassociation':False},
-                    'limits':'at most 32 ordered IR nodes; one or two scalar outputs',
-                    'proof':'native single-rounding FMA law, shared rational enclosure rules, independent exact reference, numerical root and axiom audit',
+                    'arithmetic_models':['separate-binary64 with correctly rounded sqrt','explicit-fma-binary64','explicit-fma-binary64 with correctly rounded sqrt'],
+                    'functions':{'sqrt':'ieee754-binary64-nearest-even'},
+                    'limits':'at most 32 ordered IR nodes; one or two scalar outputs; prove nonnegative native and exact radicands',
+                    'proof':'native FMA/sqrt laws, checked rational root endpoints and incoming-error rules, shared enclosures, independent exact reference, numerical root and axiom audit',
                     'target':'lean with lean-flare; no external producer, Rust delivery or profile composition yet'},
                     'scientific_arrays': {
                     'request_field':'scientific_arrays: original parameter shapes; [] for scalars',

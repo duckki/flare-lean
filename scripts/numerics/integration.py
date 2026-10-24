@@ -26,7 +26,11 @@ EXPLICIT_FMA_ARITHMETIC = {**ARITHMETIC, 'fma':'explicit'}
 
 
 def arithmetic(program):
-    return EXPLICIT_FMA_ARITHMETIC if program.math else ARITHMETIC
+    operations = program.math['operations'] if program.math else []
+    model = EXPLICIT_FMA_ARITHMETIC if 'fma' in operations else ARITHMETIC
+    if 'sqrt' in operations:
+        return {**model,'functions':{'sqrt':'ieee754-binary64-nearest-even'}}
+    return model
 
 
 def digest(record):
@@ -75,7 +79,9 @@ def validate(request, program, require_adapters=True):
     expected = arithmetic(program)
     model = request.get('arithmetic', expected)
     if model != expected or any(type(model[key]) is not type(value) for key, value in expected.items()):
-        fusion = 'explicit FMA' if program.math else 'separate operations with FMA disabled'
+        fusion = ('explicit FMA' if expected['fma'] else 'separate operations with FMA disabled')
+        if 'functions' in expected:
+            fusion += ' and the declared binary64 square-root contract'
         raise Unsupported('Unsupported arithmetic model; require nearest/even binary64 with gradual underflow and '+fusion)
     producer = request.get('producer', 'lean-flare')
     if not isinstance(producer, str):

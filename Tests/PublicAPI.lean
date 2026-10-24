@@ -106,3 +106,25 @@ example : (Float.fma (Float.ofBits 1) 0.5 0.0).toBits = 0 := by
 
 example : (Float.fma (Float.ofBits 3) 0.5 0.0).toBits = 2 := by
   decide +kernel
+
+-- Incoming error remains visible both at zero and above a positive root floor.
+example (x y d : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) (hd : 0 ≤ d) (h : |x - y| ≤ d ^ 2)
+    : |Real.sqrt x - Real.sqrt y| ≤ d :=
+  Flare.Analysis.SqrtBounds.difference_le_of_sq x y d hx hy hd h
+
+example (x y e : ℝ) (hx : 1 ≤ x) (hy : 1 ≤ y) (h : |x - y| ≤ e)
+    : |Real.sqrt x - Real.sqrt y| ≤ e / 2 := by
+  simpa using Flare.Analysis.SqrtBounds.difference_le_of_floor x y e 1
+    (by norm_num) (by simpa using hx) (by simpa using hy) h
+
+#check Flare.Binary64.SqrtPropagation.native_sqrt
+
+-- Check the same primitive used in source certificates at rounding and domain edges.
+example : (Float.sqrt 2.0).toBits = 4609047870845172685 := by
+  decide +kernel
+
+example : (Float.sqrt (-0.0)).toBits = 9223372036854775808 := by
+  decide +kernel
+
+example : (Float.sqrt (Float.ofBits 1)).toBits = 2188749418902061056 := by
+  decide +kernel

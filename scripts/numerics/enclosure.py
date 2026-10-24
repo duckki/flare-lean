@@ -63,3 +63,16 @@ def atom(name, lo, hi, value):
     return [f'let v_{name} : IntervalExpression.Variable :=',
             f'  ⟨{rational(lo)}, {rational(hi)}, {value}, by',
             f'    constructor <;> norm_num <;> linarith only [{name}_lo, {name}_hi]⟩']
+
+
+def range_proof(tree, lower, upper):
+    """Check an asymmetric range without weakening it to a magnitude bound."""
+    names=sorted(variables(tree))
+    if not names:
+        return ['norm_num']
+    definitions=', '.join(['IntervalExpression.Expr.eval', *['v_'+name for name in names]])
+    computation=', '.join(['IntervalExpression.Expr.check','IntervalExpression.Expr.enclosure', *['v_'+name for name in names]])
+    return [f'have checked := IntervalExpression.Expr.check_sound (e := {expression(tree)})',
+            f'  (lower := {rational(lower)}) (upper := {rational(upper)}) (by dsimp only [{computation}]; decide +kernel)',
+            f'norm_num only [{definitions}, Rat.cast_div, Rat.cast_intCast, Rat.cast_ofNat] at checked',
+            'constructor <;> linarith only [checked.1, checked.2]']

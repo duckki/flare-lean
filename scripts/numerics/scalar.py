@@ -162,13 +162,22 @@ def analyze_box(program, domain):
         summaries[key] = Bound((lo+hi)/2, (hi-lo)/2, max(abs(lo), abs(hi)), Q(0))
         native[key] = ideal[key] = variable(key)
         ranges[key] = input_range(lo, hi)
+    operations={node.name:node.op for node in program.nodes}
     for node in program.nodes:
+        extra={}
         pre = None
         zero = False
         if node.op == 'constant':
             value = Q.from_float(number(node.bits))
             native[node.name] = ideal[node.name] = constant(value)
             bound, rho, cap = Bound(value, Q(0), abs(value), Q(0)), Q(0), abs(value)
+        elif node.op == 'sqrt':
+            from .square_root import analyze
+            parent=node.args[0]
+            bound,root=analyze(summaries[parent],native[parent],ideal[parent],ranges,operations.get(parent)=='sqrt')
+            native[node.name]=ideal[node.name]=None
+            rho,cap=root['rounding_allowance'],root['upper']
+            extra={'sqrt':root}
         elif node.op == 'neg':
             a = summaries[node.args[0]]
             bound, rho, cap = Bound(-a.c, a.w, a.i, a.e), Q(0), a.cap
@@ -226,7 +235,7 @@ def analyze_box(program, domain):
                               up(raw.e+rho, scale(raw.e+rho)-96))
         summaries[node.name] = bound
         steps.append({'node': node, 'bound': bound, 'rho': rho, 'magnitude': cap,
-                      'pre': pre, 'native': native[node.name], 'ideal': ideal[node.name], 'zero': zero})
+                      'pre': pre, 'native': native[node.name], 'ideal': ideal[node.name], 'zero': zero,**extra})
     return summaries, steps
 
 
@@ -286,6 +295,8 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
              'open Flare.Binary64.Pipeline Flare.Binary64.Value',
              'open Flare.Analysis', '',
              'set_option maxHeartbeats 2000000', 'set_option maxRecDepth 4096', '']
+    if program.math and 'sqrt' in program.math['operations']:
+        lines.insert(6,'public import Flare.Binary64.SqrtPropagation')
     lines += ['set_option exponentiation.threshold 2048', '']
     for index, box in enumerate(leaves):
         summaries = box['summaries']
@@ -313,6 +324,9 @@ def proof_module(program, root, leaves, claims, *, goal=None, finish=None):
                 lines += constant_proof(node)
                 lines += [f'  have b_{name} : {target} := by', '    refine ⟨by decide +kernel, ?_, ?_, ?_⟩',
                           f'    all_goals norm_num [{ideal_name}, p_{name}]']
+            elif node.op == 'sqrt':
+                from .square_root import derive
+                lines += derive(step)
             elif node.op == 'neg':
                 proof = f'by simpa only [neg_neg, neg_zero, neg_div] using (native_neg b_{node.args[0]})'
                 lines += [f'  have b_{name} : {target} := {proof}']
@@ -448,10 +462,15 @@ def proposal(program, request, candidates=None, details=None):
                 'boxes': len(leaves), 'foreign_trace_checked': False,
                 'rule_checker': enclosure.CHECKER, 'enclosure_rules': enclosure.RULES,
                 'qualification': 'Candidate bounds and polynomial rewrites are checked against native Float laws in Lean.'}
+    from .square_root import evidence as root_evidence
+    if program.math and 'sqrt' in program.math['operations']:
+        metadata['primitive_rules']=['Flare.Binary64.SqrtPropagation.native_sqrt',
+            'Flare.Analysis.SqrtBounds.difference_le_of_floor','Flare.Analysis.SqrtBounds.difference_le_of_sq']
     steps = [{'box': index, 'domain': box['domain'],
               'nodes': [{'node': step['node'].name, 'op': step['node'].op,
                          'rounding_allowance': str(step['rho']), 'pre_rounding_magnitude': str(step['magnitude']),
-                         'summary': step['bound'].record()} for step in box['steps']]} for index,box in enumerate(leaves)]
+                         'summary': step['bound'].record(),
+                         **({'sqrt':root_evidence(step['sqrt'])} if 'sqrt' in step else {})} for step in box['steps']]} for index,box in enumerate(leaves)]
     return Proposal(summaries, steps, claims, metadata,
                     lean_source=proof_module(program, root, leaves, claims),
                     authored={'accuracy': 'Workflow.Scalar.accuracy'})

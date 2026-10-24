@@ -12,7 +12,8 @@ Each call is one ternary graph node and one final rounding. Ordinary `*` and `+`
 retain separate rounding sites. Never silently fuse, unfuse or reassociate the
 source or Rust port. An alternative schedule requires a separate reviewed artifact.
 The frozen model records `fma: "explicit"`; ordinary/external-producer routes keep
-`fma: false`. Binary32 casts, other math functions, Rust extraction and arbitrary
+`fma: false`. The selected [square-root bridge](square-root.md) can compose with FMA. Binary32
+casts, other math functions, Rust extraction and arbitrary
 composition with other source profiles are not admitted by this profile.
 
 Lean checks the actual native FMA rounding law, finiteness, accumulated input

@@ -283,6 +283,48 @@
       "expected": "budget_not_met",
       "optional": false,
       "family": "explicit_fma"
+    },
+    {
+      "name": "sqrt_standard_deviation",
+      "request": "../../examples/numerics/sqrt/standard_deviation.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "binary64_sqrt"
+    },
+    {
+      "name": "sqrt_regularized_norm",
+      "request": "../../examples/numerics/sqrt/regularized_norm.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "binary64_sqrt"
+    },
+    {
+      "name": "sqrt_normalized_residual",
+      "request": "../../examples/numerics/sqrt/normalized_residual.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "binary64_sqrt"
+    },
+    {
+      "name": "sqrt_fused_norm",
+      "request": "../../examples/numerics/sqrt/fused_norm.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "binary64_sqrt"
+    },
+    {
+      "name": "sqrt_nested_root",
+      "request": "../../examples/numerics/sqrt/nested_root.json",
+      "expected": "certified",
+      "optional": false,
+      "family": "binary64_sqrt"
+    },
+    {
+      "name": "sqrt_standard_deviation_tight",
+      "request": "../../examples/numerics/sqrt/standard_deviation_tight.json",
+      "expected": "budget_not_met",
+      "optional": false,
+      "family": "binary64_sqrt"
     }
   ]
 }

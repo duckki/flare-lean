@@ -35,6 +35,7 @@ evidence generator binds `source.py` to the selected original FilterPy file.
 | Array prediction / calibration / projection | `certified` | Built-in Python lists, checked shapes and original ascending product order, independent exact matrix expressions |
 | Mean update through Gappa / FPTaylor | `certified` with optional producers | Lean validates the Gappa query bound or actual FPTaylor candidate |
 | Shared square / quartic / regularized reciprocal | `certified` with selected producers | Gappa/FPTaylor share a proved power-aware rational enclosure engine; actual candidate targets and replay |
+| Square-root variance / norm / normalized residual / nested root | `certified` with CPython 3.13/3.14 | Correctly rounded primitive contract, checked radicand domains, endpoint proposals and incoming error; tight request returns `budget_not_met` |
 | Explicit FMA calibration / residual / dot product / reciprocal composition | `certified` with CPython 3.13/3.14 | One native rounding per FMA, incoming errors and independent exact reference; separate residual keeps its budget and returns `budget_not_met` |
 | Scalar conditional innovation / threshold gate | `certified` | All four native/exact flows with independent conditional references |
 | Guarded reciprocal | `certified` | Direct input guard, local denominator premise, domain includes zero |
