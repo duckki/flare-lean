@@ -83,10 +83,15 @@ regressions and VM experiments establish automated reproduction of selected case
 
 ## Next priorities
 
-1. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
+1. **Evaluate reusable numerical integrations.** Assess LeanCert Core, modern
+   Daisy, FloVer-style evidence and VCFloat2-inspired inference in the
+   [evaluation sequence](#numerical-tool-integration-evaluations). Accept or reject
+   each proposed integration based on demonstrated coverage, checking cost and
+   maintenance burden.
+2. **Broaden arithmetic and scientific coverage.** Extend mixed precision beyond
    storage boundaries, add binary32 arithmetic and select further library/function
    contracts from retained applications.
-2. **Broaden Rust correspondence-proof generation.** Generate further bridges
+3. **Broaden Rust correspondence-proof generation.** Generate further bridges
    from admitted source profiles while preserving real APIs and loops.
 
 Each milestone retains source, domain, independent reference and engineering
@@ -113,11 +118,15 @@ output. An external success verdict never discharges a Lean premise by itself.
 | Tool family | Current status | Next reusable capability | Milestones |
 | --- | --- | --- | --- |
 | Gappa / FPTaylor | Candidate reconstruction with shared proved rational enclosure/power inference | Tighter division correlations, larger composed obligations and lower evidence/checking cost | Future evidence work |
+| [LeanCert Core](https://github.com/alerad/leancert) | Checked APIs inspected; no FLARE integration | Evaluate real-expression checking with a proved semantic bridge, explicit kernel verification and frozen checker inputs | Integration evaluation 1 |
+| [Daisy](https://github.com/malyzajko/daisy) | Modern analyzer and historical certificate branch inspected; no FLARE producer | Evaluate a pinned scalar candidate producer, independently checking its actual bounds in Lean | Integration evaluation 2 |
+| [FloVer](https://github.com/Cactus-proj/FloVer) | Certificate checker and IEEE bridge inspected; no Lean importer | Evaluate typed range/error evidence with a small proved Lean checker for a retained gap | Integration evaluation 3 |
+| [VCFloat2](https://github.com/VeriNum/vcfloat) | Typed-expression proof workflow inspected; no Lean integration | Evaluate structured error evidence or equivalent compositional Lean inference for selected casts, exact operations or specified functions | Integration evaluation 4 |
 | PRECiSA/PVS | Implemented scalar/terminal-conditional candidate reconstruction using the common scalar proof path | External branch-local domains, incoming errors and callable summaries; retain unstable-flow obligations | Future evidence work |
-| Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate further bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | 14 delivery; future bridge coverage |
+| Charon/Aeneas | Implemented scalar/application/fixed-array extraction with authored bridges | Generate further bridges for admitted structs, state, loops and result types; preserve actual APIs and separate drivers | Future bridge coverage |
 | Frama-C/WP / Why3 | Pinned source/ACSL/task export evaluated; no Lean proof importer | Translate selected application contracts and check useful typed-memory/FP evidence against the admitted source model | Future evidence work |
 | CBMC | Pinned 6.11.0 scalar strict-positivity witness search and ordinary Lean rechecking | Further properties, bounded integer/memory paths and source profiles; never treat no-witness as a proof | Future counterexample work |
-| VST / Coq / Flocq / VCFloat2 / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | Future evidence work |
+| VST / Coq / Flocq / LAProof | Reference workflows; no Lean importer | Reuse suitable typed evidence or implement the needed inference and semantic bridges in Lean; select a numerical or memory obligation first | Future evidence work |
 
 Frama-C/WP 31.0 and Why3 1.8.2 task output was inspected on the retained C API.
 The [C guide](sources/c-verification.md) describes the export utility and why the current
@@ -143,6 +152,99 @@ Every new integration needs:
 
 Use shared evidence vocabularies when appropriate. Do not build a separate generic
 proof importer for every tool, or use a common envelope to erase semantic differences.
+
+## Numerical tool integration evaluations
+
+The goal is to evaluate these integration routes and record an explicit
+**accept/reject decision for each route and scope**. Adoption depends on the
+results; listing a tool here does not commit FLARE to integrating it. These
+evaluations are planned work, not completed integrations.
+
+### Shared evaluation protocol
+
+- Select a retained application gap and pin the tool, dependencies, supported
+  arithmetic model and work limits. Freeze source, domain, independent reference
+  and engineering budget. When comparing proof backends, also fix the candidate
+  bound; every producer's actual conclusion remains its own proof target.
+- Prototype through the existing adapter and generated-Lean-module interface.
+  Keep candidate production independently selectable from numerical proof
+  checking, so producers can share a checked backend.
+- Prove the translation from FLARE's obligation to the backend's semantics.
+  Preserve shared variables, correlations, rounding sites and incoming error.
+  An enclosure of a real function alone does not certify its rounded source
+  implementation or a particular platform library call.
+- Pin optional Lean proof dependencies and include their identities in evidence,
+  replay and proof-cache keys. Keep one FLARE Lake project/library and retain
+  `Workflow.Certificate.certificate` as the application completion boundary,
+  including requested Rust correspondence and the transitive axiom audit.
+- Measure new coverage, source admission, candidate generation, Lean checking,
+  cold replay, warm reuse, memory and proof bytes against the existing route.
+  Record setup requirements, manual proof/adapter work and failed attempts.
+- Require producer-free frozen replay and rejection controls for changed
+  source/contracts/models, false bounds, malformed evidence, missing premises
+  and additional axioms. Record setup/resource failures separately from
+  numerical failures.
+- Accept a route when it provides a demonstrated capability gain or useful
+  checking-cost improvement with justified dependency and maintenance costs.
+  Reject it for the evaluated scope when it fails those criteria. Record the
+  bounded experiment, measurements, decision and remaining limitations in
+  `docs/evaluation/`; an incomplete experiment supports no adoption claim.
+
+### 1. LeanCert Core numerical backend
+
+Evaluate the inspected Lean/Mathlib 4.35 Core APIs directly. Translate selected
+FLARE real-valued obligations, prove interpretation/domain preservation and
+compose the checked result with FLARE's native rounding laws. Select explicit
+kernel verification and audit the actual root's dependencies; the SDK/Bridge
+stack and its licensing/version choices are a separate evaluation.
+
+Freeze accepted checker inputs and apply the checker soundness theorem during
+replay. A discovery tactic alone would rerun search. Start by attempting the
+retained regularized-reciprocal obligation with its unchanged domain, budget
+and actual FPTaylor candidate, alongside existing positive/rejection controls.
+Accept only if the evaluation establishes a useful improvement under the shared
+criteria; otherwise reject this backend for that scope and retain the evidence.
+
+### 2. Modern Daisy candidate producer
+
+Evaluate a pinned scalar adapter following the existing Gappa/FPTaylor route:
+export the admitted graph/domain/precision, retain Daisy's payload, parse an
+outward-safe candidate and prove that actual bound with the existing or an
+accepted new Lean backend. Measure coverage and cost on unchanged contracts.
+
+Treat precision tuning and rewriting as separate optimization routes with
+their own source/correspondence obligations. Modern Daisy's modular/array
+features and its historical `certified` branch need separate admission checks;
+the old FloVer exporter does not establish coverage of the modern analyzer.
+
+### 3. FloVer-style typed evidence
+
+Evaluate whether typed per-expression ranges/errors, subdivision data or
+relational facts reduce repeated inference or checking work on a retained gap.
+Translate a selected evidence vocabulary into a small Lean checker and prove
+its soundness. Close typing, input approximation, arithmetic-validity and any
+solver-query premises in the final root.
+
+Compare this with reconstructing a candidate bound through existing inference.
+Account for the historical producer/checker version constraints and the narrower
+native IEEE bridge. Accept only the evidence subset that demonstrates a benefit;
+Coq/HOL4 acceptance alone cannot discharge a Lean premise.
+
+### 4. VCFloat2-style compositional inference
+
+Select a concrete gap such as native binary32 arithmetic, mixed arithmetic and
+casts, exact-operation rules or specified library calls. Evaluate structured
+candidate error expressions or equivalent reusable Lean inference, with proved
+operation semantics, finiteness and accuracy interfaces.
+
+Exercise the selected capability on multiple applications, including rejection
+controls, and compare proof/authoring cost with the current route. Prefer a
+small checked inference layer over a general Coq-to-Lean proof translator.
+Acceptance concerns the measured reusable capability, not a count of imported
+application lemmas.
+
+Each evaluation can finish with its own decision. Broader arithmetic, source
+coverage and Rust bridge work need not wait for every candidate tool.
 
 ## Source language and library plan
 
