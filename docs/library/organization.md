@@ -147,6 +147,8 @@ and provider CLI beside the proof library. Python handles source admission,
 tool invocation and artifact retention; Lean checks numerical obligations and
 one root theorem. `Flare.Binary64.Pipeline` supplies reusable native/ideal
 contracts without importing application or extraction-tool code.
+`Flare.Binary64.CheckedBounds` checks typed rational product summaries and exact-zero
+rules against those native semantics; it retains incoming ideal errors.
 `Flare.Binary64.Memory` supplies typed-cell access, separation and frame rules
 for the closed [C source route](../sources/c-verification.md); physical C objects and
 compiler fidelity remain outside those definitions.

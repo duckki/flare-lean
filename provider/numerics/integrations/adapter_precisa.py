@@ -8,7 +8,7 @@ from numerics.integrations.adapter_external import PINS, node_expression
 from numerics.frontends.scalar import Unsupported, number
 from numerics.integrations.registry import Adapter, ToolError
 from numerics.analysis.enclosure import CHECKER
-from numerics.analysis import scalar
+from numerics.analysis import scalar, checked_bounds
 
 
 PIN = PINS['precisa']
@@ -151,7 +151,7 @@ def produce(session):
 ADAPTERS = (Adapter('precisa','producer','stable-and-unstable-error-candidates',
     'Reconstruct PRECiSA error candidates including divergent branch choices in Lean', produce, applicable,
     {'versions':PIN['versions'], 'source_revision':PIN['setup']['source']['revision'],
-     'max_arithmetic_nodes':32, 'rule_checker':CHECKER, 'conditional_profile':'one terminal Python scalar if/else',
+     'max_arithmetic_nodes':32, 'rule_checker':CHECKER, 'fallback_rule_checker':checked_bounds.CHECKER, 'conditional_profile':'one terminal Python scalar if/else',
      'input_interpretation':'original finite binary64 inputs, exact decoded values in Lean',
      'stable_test_assumption':False, 'validation':['lean-conditional-four-flows-v1','lean-scalar-interval-v1'],
      'foreign_pvs_proof_import':False}, PIN['setup']),)

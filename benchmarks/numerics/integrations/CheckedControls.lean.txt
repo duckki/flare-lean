@@ -1,0 +1,29 @@
+module
+
+import all Flare.Binary64.CheckedBounds
+meta import Lean.Util.CollectAxioms
+
+open Flare.Binary64.CheckedBounds
+
+-- Native zero can still differ from its independent ideal by one.
+-- The exact-operation rule must propagate that incoming error.
+example : checkMulZero ⟨0, 0, 1, 1⟩ ⟨1, 0, 1, 0⟩ ⟨0, 0, 1, 0⟩ = false := by
+  decide +kernel
+
+example : checkMulZero ⟨0, 0, 1, 1⟩ ⟨1, 0, 1, 0⟩ ⟨0, 0, 1, 1⟩ = true := by
+  decide +kernel
+
+-- A relative-only rounding allowance cannot silently discard gradual underflow.
+example : roundingCheck 1 ((2 : ℚ) ^ (-53 : Int)) = false := by
+  decide +kernel
+
+example : checkMulZero ⟨0, 1, 1, 0⟩ ⟨0, 1, 1, 0⟩ ⟨0, 0, 1, 0⟩ = false := by
+  decide +kernel
+
+open Lean in
+run_cmd do
+  let allowed := #[``propext, ``Classical.choice, ``Quot.sound]
+  for decl in #[``mul_sound, ``mul_zero_sound] do
+    for axiomName in ← Lean.collectAxioms decl do
+      unless allowed.contains axiomName do
+        throwError "Unexpected axiom {axiomName} in {decl}"

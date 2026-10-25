@@ -28,6 +28,7 @@ public import Flare.FloatFormat.Rounding
 public import Flare.Binary32.Conversion
 public import Flare.Binary32.StorageBounds
 public import Flare.Binary64.Arithmetic
+public import Flare.Binary64.CheckedBounds
 public import Flare.Binary64.Congruence
 public import Flare.Binary64.Division
 public import Flare.Binary64.Collection

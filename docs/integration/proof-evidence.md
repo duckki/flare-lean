@@ -92,3 +92,34 @@ success is Gappa's regularized reciprocal; FPTaylor's tighter candidate remains
 unresolved. These are single-run cost observations, not a speed claim. This
 change adds coverage and a reusable checked interface; reducing expression/proof
 size and checking cost remains future work.
+
+## Typed operation summaries
+
+`Flare.Binary64.CheckedBounds` provides a second checked vocabulary for local
+product summaries: rational native center/radius, ideal magnitude and absolute
+error, with a local rounding allowance and an explicit ordinary/exact-zero rule.
+The producer emits one typed application per original operation. Kernel checks
+validate the rational inequalities; soundness composes the existing native
+nearest/even and exact-zero proofs. No foreign solver or proof verdict is a premise.
+
+The product/constant profile has at most 32 IR nodes and preserves shared
+intermediates without expanding them into polynomial evidence. Source/reference
+admission and proof resources remain bounded. Rational annotations are limited
+to 4,096 bits. Outward rounding with an exponent floor of `-1200` keeps tiny
+constant chains from growing denominators exponentially; Lean checks the
+resulting weakening and rounding inequalities. It covers the maintained
+[degree-32/256 and zero-product examples](../../examples/numerics/typed-evidence/README.md).
+Exact-zero multiplication retains incoming ideal errors and proves finite
+execution of earlier operations. Other arithmetic retains its existing routes.
+The default producer uses this route when its coarse bounds miss the budget.
+Scalar candidate reconstruction uses it when polynomial planning reaches its
+work limit; the real Gappa degree-32 case exercises that path. An external
+producer's actual candidate remains the target. Trying alternative checked
+backends for an already generated but unproved candidate remains selection work.
+
+The [tool evaluation](../evaluation/numerical-integrations.md) records the accepted
+FloVer-style annotation and VCFloat2-style exact-operation subsets, and the
+rejected LeanCert/Daisy routes for their evaluated scopes. These are independent
+Lean implementations using FLARE semantics, with no Coq proof importer or new
+external Lean dependency. Rejection controls cover false ranges, errors,
+rounding allowances, exactness, discarded incoming errors and omitted underflow.

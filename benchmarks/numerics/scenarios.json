@@ -380,6 +380,42 @@
       "request": "heldout/ros-angles/positivity_search.json",
       "expected": "counterexample",
       "optional": true
+    },
+    {
+      "name": "typed_power32",
+      "request": "../../examples/numerics/typed-evidence/power32.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "typed_power256",
+      "request": "../../examples/numerics/typed-evidence/power256.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "typed_zero_product",
+      "request": "../../examples/numerics/typed-evidence/zero_product.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "typed_zero_energy",
+      "request": "../../examples/numerics/typed-evidence/zero_energy.json",
+      "expected": "certified",
+      "optional": false
+    },
+    {
+      "name": "typed_power32_gappa",
+      "request": "../../examples/numerics/typed-evidence/power32_gappa.json",
+      "expected": "certified",
+      "optional": true
+    },
+    {
+      "name": "typed_tiny_constants",
+      "request": "../../examples/numerics/typed-evidence/tiny_constants.json",
+      "expected": "certified",
+      "optional": false
     }
   ]
 }

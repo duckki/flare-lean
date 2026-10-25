@@ -3,6 +3,7 @@
 Sparse polynomial normalization preserves correlations. Exact rational interval
 search proposes rounding allowances and input splits; a proved Lean enclosure
 engine and ring normalization check them against FLARE's native Float laws.
+Higher-degree product graphs can fall back to typed native operation evidence.
 No foreign bound, rewrite or Python calculation is a theorem premise.
 """
 from dataclasses import replace
@@ -468,7 +469,13 @@ def proposal(program, request, candidates=None, details=None):
     limits = list(map(Q, candidates)) if candidates is not None else [Q(t['limit']) for t in request['outputs']]
     if len(limits) != len(program.outputs) or any(limit < 0 for limit in limits):
         raise ValueError('Expected one nonnegative scalar candidate per output')
-    root, leaves = plan(program, request['domain'], limits)
+    try:
+        root, leaves = plan(program, request['domain'], limits)
+    except ValueError:
+        from numerics.analysis import checked_bounds
+        if checked_bounds.supported(program):
+            return checked_bounds.proposal(program, request, candidates, details)
+        raise
     summaries = dict(root['summaries'])
     for name in program.outputs:
         summaries[name] = replace(summaries[name], e=max(box['summaries'][name].e for box in leaves))

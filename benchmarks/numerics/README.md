@@ -296,3 +296,11 @@ The tests retain runs under `.cache/numerics-generated/planar-tests-*/`.
 ROS files, contracts, first attempts and needed provider extensions. The
 `release_numerics.py` harness checks portable delivery, producer-free replay and
 change-aware rechecking in addition to their numerical roots.
+
+## Typed evidence and integration evaluations
+
+The [typed product scenarios](../../examples/numerics/typed-evidence/README.md) add
+degree-32/256 repeated squares and exact-zero products to the maintained smoke
+suite. The [integration trials](integrations/README.md) reproduce fixed-request
+and fixed-candidate comparisons, LeanCert compatibility controls and the
+evaluation-only Daisy adapter. See the [decisions](../../docs/evaluation/numerical-integrations.md).

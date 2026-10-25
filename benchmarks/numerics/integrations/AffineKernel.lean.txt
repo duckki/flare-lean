@@ -1,0 +1,4 @@
+import LeanCert.API.Bounds
+open LeanCert LeanCert.Core
+example : evalInterval (.mul (.var 0) (.var 0)) [⟨-1, 1, by norm_num⟩] {backend := .affine} =
+    .ok ⟨⟨-1, 1, by norm_num⟩, .affine⟩ := by decide +kernel

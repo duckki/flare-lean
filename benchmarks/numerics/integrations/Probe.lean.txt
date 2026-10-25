@@ -1,0 +1,52 @@
+import LeanCert.API.Bounds
+import Flare.Binary64.Nearest
+
+open LeanCert LeanCert.Core LeanCert.API.Bounds
+
+def unit : IntervalRat := ⟨-1, 1, by norm_num⟩
+def nonnegative : IntervalRat := ⟨0, 1, by norm_num⟩
+def x : Expr := .var 0
+def square : Expr := .mul x x
+def denominator : Expr := .add square (.const 1)
+def reciprocal : Expr := .inv denominator
+def sum : Expr := .add (.var 0) (.var 1)
+
+#eval evalInterval square [unit] {backend := .rational}
+#eval evalInterval square [unit] {backend := .affine}
+#eval evalInterval square [unit] {backend := .dyadic, precisionOptions.dyadicExponent := -128}
+#eval evalInterval reciprocal [unit] {backend := .rational}
+#eval evalInterval reciprocal [unit] {backend := .affine}
+#eval evalInterval reciprocal [unit] {backend := .dyadic, precisionOptions.dyadicExponent := -128}
+#eval evalInterval reciprocal [nonnegative] {backend := .rational}
+
+example : checkUpperBoundBox sum [nonnegative, nonnegative] 2 {backend := .rational} =
+    .ok ⟨⟨0, 2, by norm_num⟩, .rational, true⟩ := by decide +kernel
+
+theorem sum_bound (a b : ℝ) (ha : 0 ≤ a ∧ a ≤ 1) (hb : 0 ≤ b ∧ b ≤ 1) : a + b ≤ 2 := by
+  let rho : Nat → ℝ := fun i => if i = 0 then a else if i = 1 then b else 0
+  have hm : BoxEnvMem rho [nonnegative, nonnegative] := by
+    intro i
+    rcases i with _ | i
+    · simpa [rho, nonnegative, IntervalRat.mem_def] using ha
+    rcases i with _ | i
+    · simpa [rho, nonnegative, IntervalRat.mem_def] using hb
+    · simp [rho, nonnegative, IntervalRat.singleton, IntervalRat.mem_def, List.getD]
+  have h := verifyUpperBoundBox (e := sum) (box := [nonnegative, nonnegative])
+    (bound := 2) (options := {backend := .rational})
+    (outcome := ⟨⟨0, 2, by norm_num⟩, .rational, true⟩) (by decide +kernel) rfl rho hm
+  simpa [sum, Expr.eval, rho] using h
+
+#print axioms sum_bound
+
+def fails (backend : BackendChoice) : Bool :=
+  match evalInterval reciprocal [unit] {backend, precisionOptions.dyadicExponent := -128} with
+  | .error _ => true
+  | .ok _ => false
+
+-- These are checked API rejections, not claims that the source has a zero divisor.
+example : fails .rational = true := by decide +kernel
+example : fails .dyadic = true := by decide +kernel
+example : checkUpperBoundBox sum [nonnegative, nonnegative] 1 {backend := .rational} =
+    .ok ⟨⟨0, 2, by norm_num⟩, .rational, false⟩ := by decide +kernel
+example : checkUpperBound (.log (.var 0)) ⟨1, 2, by norm_num⟩ 1
+    {dyadicExponent := 1} = false := by decide +kernel

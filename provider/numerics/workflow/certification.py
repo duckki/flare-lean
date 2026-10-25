@@ -265,6 +265,8 @@ def report(output, result):
     if result.get('producer_validation') == 'lean-scalar-interval-v1':
         lines += ['Validation: reusable scalar inference with native nearest rounding, checked polynomial rewrites, exact rational enclosure rules and interval subdivision.',
                   'Acceptance requires Lean to prove the proposed allowance itself. See analysis.json for each input box and rounding allowance.']
+    if result.get('producer_validation') == 'lean-typed-product-v1':
+        lines += ['Validation: typed rational annotations for each original product, independently checked against finite native binary64 execution and incoming ideal errors. Exact-zero rules add no rounding allowance.']
     if result.get('producer_validation') == 'lean-conditional-four-flows-v1':
         lines += ['Validation: Lean checks all four native/exact branch choices, including divergent flows; no stability assumption is used.',
                   'Both arms have checked finite arithmetic and denominator premises on the full input domain.']

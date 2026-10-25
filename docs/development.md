@@ -368,3 +368,7 @@ Run `python3 scripts/release_numerics.py --out <new-regression-directory>` after
 building the library. CI also installs pinned CBMC and exercises actual witness
 search; set `FLARE_CBMC` to a selected 6.11.0 executable for the optional local
 search integration test. These external tools remain outside Lake dependencies.
+
+For memory-constrained hosts, `make check FMT_JOBS=1` runs the formatter with one
+worker. Keep proof suites and formatting runs sequential when other Lean work
+is using substantial memory; `LEAN_NUM_THREADS` controls Lean workers separately.

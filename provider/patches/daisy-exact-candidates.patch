@@ -1,0 +1,20 @@
+--- a/src/main/scala/daisy/backend/InfoPhase.scala
++++ b/src/main/scala/daisy/backend/InfoPhase.scala
+@@ -117,7 +117,7 @@
+             if(ctx.hasFlag("dynamic")){
+               out.get.write(
+                 fnc.id.toString + ";"+
+-                absError.map(_.toString).getOrElse("") + ";" +
++                absError.map(e => s"${e.n}/${e.d}").getOrElse("") + ";" +
+                 relError.map(_.toString).getOrElse("") + ";" +
+                 range.map(_.xlo.toString).getOrElse("") + ";" +
+                 range.map(_.xhi.toString).getOrElse("") + ";" +
+@@ -127,7 +127,7 @@
+             } else {
+               out.get.write(
+                 fnc.id + ";"+
+-                absError.map(_.toString).getOrElse("") + ";" +
++                absError.map(e => s"${e.n}/${e.d}").getOrElse("") + ";" +
+                 relError.map(_.toString).getOrElse("") + ";" +
+                 range.map(_.toString).getOrElse("") + ";" +
+                 ctx.timers.get("total").millisNow + "\n"

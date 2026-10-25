@@ -43,6 +43,7 @@ use; detailed documentation is grouped by subject.
 
 ## Evaluation
 
+- [Numerical tool integration decisions](evaluation/numerical-integrations.md)
 - [Tested applications and platforms](evaluation/delivery-evaluation.md)
 - [Maintained benchmarks](../benchmarks/numerics/README.md)
 

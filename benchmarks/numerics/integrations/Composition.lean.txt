@@ -1,0 +1,55 @@
+import Flare.Binary64.Nearest
+import LeanCert.API.Bounds
+
+namespace LeanCertTrial
+open LeanCert LeanCert.Core LeanCert.API.Bounds
+open Flare.Binary64.Value
+
+set_option exponentiation.threshold 2048
+
+def kernel (a b : Float) : Float := a + b
+noncomputable def reference (a b : ℝ) : ℝ := a + b
+
+def unit : IntervalRat := ⟨-1, 1, by norm_num⟩
+def sum : Expr := .add (.var 0) (.var 1)
+
+/-- The frozen AST and box denote the original ordered exact addition. -/
+theorem sum_bounds (a b : ℝ) (ha : -1 ≤ a ∧ a ≤ 1) (hb : -1 ≤ b ∧ b ≤ 1) :
+    -2 ≤ a + b ∧ a + b ≤ 2 := by
+  let rho : Nat → ℝ := fun i => if i = 0 then a else if i = 1 then b else 0
+  have hm : BoxEnvMem rho [unit, unit] := by
+    intro i
+    rcases i with _ | i
+    · simpa [rho, unit, IntervalRat.mem_def] using ha
+    rcases i with _ | i
+    · simpa [rho, unit, IntervalRat.mem_def] using hb
+    · simp [rho, unit, IntervalRat.singleton, IntervalRat.mem_def, List.getD]
+  constructor
+  · have h := verifyLowerBoundBox (e := sum) (box := [unit, unit])
+      (bound := -2) (options := {backend := .rational})
+      (outcome := ⟨⟨-2, 2, by norm_num⟩, .rational, true⟩) (by decide +kernel) rfl rho hm
+    simpa [sum, Expr.eval, rho] using h
+  · have h := verifyUpperBoundBox (e := sum) (box := [unit, unit])
+      (bound := 2) (options := {backend := .rational})
+      (outcome := ⟨⟨-2, 2, by norm_num⟩, .rational, true⟩) (by decide +kernel) rfl rho hm
+    simpa [sum, Expr.eval, rho] using h
+
+/-- Real enclosures compose with FLARE's proved native rounding semantics. -/
+theorem accuracy (a0 a1 : Float)
+    (h0 : a0.isFinite = true ∧ -1 ≤ value a0 ∧ value a0 ≤ 1)
+    (h1 : a1.isFinite = true ∧ -1 ≤ value a1 ∧ value a1 ≤ 1) :
+    (kernel a0 a1).isFinite = true ∧
+    |value (kernel a0 a1) - reference (value a0) (value a1)| ≤ (3 : ℝ) / 9007199254740992 := by
+  have bound : |value a0 + value a1| ≤ 2 :=
+    abs_le.mpr (sum_bounds _ _ h0.2 h1.2)
+  have checked := Flare.Binary64.Nearest.add_error_nearest a0 a1 h0.1 h1.1
+    (bound.trans (by norm_num))
+  refine ⟨checked.1, ?_⟩
+  apply checked.2.trans
+  calc
+    _ ≤ (2 : ℝ)^(-53 : Int) * (2 + (2 : ℝ)^(-1022 : Int)) := by
+      exact mul_le_mul_of_nonneg_left (add_le_add bound le_rfl) (by positivity)
+    _ ≤ _ := by norm_num
+end LeanCertTrial
+
+#print axioms LeanCertTrial.accuracy

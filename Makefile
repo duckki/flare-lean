@@ -1,3 +1,5 @@
+FMT_JOBS ?= 4
+
 .PHONY: all build check docs-check lint fmt fmt-check numerics-check numerics-bench numerics-scale
 
 all: build check
@@ -11,17 +13,17 @@ lint:
 	time lake lint
 
 fmt:
-	time python3 scripts/fmt.py
+	time python3 scripts/fmt.py --jobs $(FMT_JOBS)
 
 fmt-check:
-	time python3 scripts/fmt.py --check
+	time python3 scripts/fmt.py --check --jobs $(FMT_JOBS)
 
 docs-check:
 	python3 scripts/check_docs.py
 
 check: docs-check lint
 	time python3 -m unittest discover -s provider/tests -t provider -p 'test_*.py'
-	time python3 scripts/fmt.py --check
+	time python3 scripts/fmt.py --check --jobs $(FMT_JOBS)
 
 c: check
 

@@ -4,7 +4,7 @@ from numerics.integrations.registry import Adapter, Proposal
 
 def produce(session):
     from numerics.analysis import scalar
-    from numerics.analysis import composition
+    from numerics.analysis import composition, checked_bounds
     from fractions import Fraction as Q
     if session.program.math or session.program.precision:
         value=scalar.proposal(session.program,session.request)
@@ -35,14 +35,16 @@ def produce(session):
     try:
         summaries, steps = session.baseline(session.program, session.request)
     except ValueError:
-        if session.request.get('proof') or not scalar.supported(session.program):
+        if session.request.get('proof') or not (scalar.supported(session.program) or checked_bounds.supported(session.program)):
             raise
-        value = scalar.proposal(session.program, session.request)
+        value = (checked_bounds.proposal(session.program, session.request) if checked_bounds.supported(session.program)
+                 else scalar.proposal(session.program, session.request))
         return value, value.details
     if (not session.request.get('proof') and scalar.supported(session.program) and
             any(summaries[name].e > Q(target['limit']) for name,target in
                 zip(session.program.outputs, session.request['outputs'], strict=True))):
-        value = scalar.proposal(session.program, session.request)
+        value = (checked_bounds.proposal(session.program, session.request) if checked_bounds.supported(session.program)
+                 else scalar.proposal(session.program, session.request))
         return value, value.details
     claims = {name: summaries[name] for name in session.program.outputs}
     details = {'validation': 'lean-flare-v1', 'proof_source': bool(session.request.get('proof')),

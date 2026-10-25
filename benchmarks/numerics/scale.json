@@ -223,6 +223,15 @@
       "expected": "certified",
       "optional": false,
       "family": "scientific_arrays"
+    },
+    {
+      "name": "typed_power4096",
+      "kind": "workflow",
+      "family": "typed-products",
+      "iterations": 12,
+      "request": "../../examples/numerics/typed-evidence/power4096.json",
+      "expected": "certified",
+      "optional": false
     }
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "schema": "numerics-integration-evaluations-v1",
+  "tools": {
+    "leancert": {
+      "url": "https://github.com/alerad/leancert.git",
+      "revision": "f704278b3ed525ab5dc80b2ce9545c9b8047ec30",
+      "scope": "Core public bound APIs; Lean/Mathlib v4.35.0"
+    },
+    "daisy": {
+      "url": "https://github.com/malyzajko/daisy.git",
+      "revision": "6a6f47abdd231d3009444e9e1b8ce9febc28c27e",
+      "patch": "provider/patches/daisy-exact-candidates.patch",
+      "scope": "scalar Float64 candidate generation; no optimization",
+      "java": "Temurin 24.0.2+12",
+      "sbt": "1.9.9",
+      "z3": "4.15.4"
+    },
+    "flover": {
+      "url": "https://github.com/Cactus-proj/FloVer.git",
+      "revision": "2b846b7242db7435c97ba694393db47842b19860",
+      "scope": "design reference for typed range/error annotations; no foreign proof import"
+    },
+    "vcfloat2": {
+      "url": "https://github.com/VeriNum/vcfloat.git",
+      "revision": "a203b287a84b0e3c9bec136823b5622ebfde6ad6",
+      "scope": "design reference for compositional accuracy and exact operations; no foreign proof import"
+    }
+  }
+}
